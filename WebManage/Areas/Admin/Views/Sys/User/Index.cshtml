@@ -1,0 +1,119 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <select id="sltKey">
+                            <option value="">请选择搜索条件</option>
+                            <option value="loginname">账号</option>
+                            <option value="username">用户名</option>
+                        </select>
+                    </div>
+                    <div class="layui-inline">
+                        <input id="edtSearch" class="layui-input" type="text" placeholder="输入关键字" />
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                        <button id="btnAdd" class="layui-btn icon-btn" data-power="Add"><i class="layui-icon">&#xe654;</i>添加</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+layui.use([ 'form', 'util', 'admin','adminList'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var adminList = layui.adminList;
+
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        page: true,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            { field: 'User_LoginName', title: '账号', sort: true },
+            { field: 'User_Name', title: '用户名', sort: true },
+            { field: 'Role_Name', title: '角色名', sort: true },
+            { field: 'User_CreateTime', title: '创建时间', sort: true },
+            {
+                templet: function (d) {
+                    return d.User_IsDelete == 2 ? '正常' : '锁定';
+                }, title: '状态', sort: true, width: 120
+            },
+            {align: 'center', toolbar: '#tableBar', title: '操作', width: 120}
+        ]]
+    });
+
+    // 添加
+    $('#btnAdd').click(function () {
+        showEditModel();
+    });
+
+    // 搜索
+    $('#btnSearch').click(function () {
+        var key = $('#sltKey').val();
+        var value = $('#edtSearch').val();
+        if (value && !key) {
+            admin.msg('请选择搜索条件', 2);
+        } else {
+            insTb.reload({ where: { searchKey: key, searchValue: value } });
+        }
+    });
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+        var data = obj.data;
+        var layEvent = obj.event;
+        if (layEvent === 'edit') { // 修改
+            showEditModel(data);
+        } else if (layEvent === 'del') { // 删除
+            doDel(data.User_ID, data.User_LoginName);
+        }
+    });
+    function showEditModel(mUser) {
+        adminList.form({
+            title: (mUser ? '修改' : '添加') + '用户',
+            type: 2,
+            width: "500px",
+            height: "600px",
+            content: mUser ? '@Url.Action("Edit")?ID=' + mUser.User_ID : '@Url.Action("Add")',
+            end: function () {
+                insTb.reload();
+            }
+        });
+    }
+    function doDel(Id, nickName) {
+        var ids = new Array();
+        ids.push(Id);
+        adminList.delete('@Url.Action("Delete")', { id: JSON.stringify(ids) }, function () {
+            insTb.reload();
+        });
+    }
+
+});
+    </script>
+}

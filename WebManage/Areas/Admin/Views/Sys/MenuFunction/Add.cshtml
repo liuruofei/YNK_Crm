@@ -1,0 +1,134 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+    var PID = ViewBag.PID;
+    var list = (IEnumerable<sys_function>)ViewData["list"];
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Menu_ID" type="hidden" />
+    <input name="Menu_ParentID" type="hidden" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单编号</label>
+        <div class="layui-input-block">
+            <input name="Menu_Num" placeholder="请输入菜单编号" type="text" class="layui-input" maxlength="20" lay-verType="tips" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单名称</label>
+        <div class="layui-input-block">
+            <input name="Menu_Name" placeholder="请输入菜单名称" type="text" class="layui-input" maxlength="20" lay-verType="tips" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单URL</label>
+        <div class="layui-input-block">
+            <input name="Menu_Url" placeholder="请输入菜单URL" type="text" class="layui-input" maxlength="50" lay-verType="tips" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单图标</label>
+        <div class="layui-input-block">
+            <input name="Menu_Icon" placeholder="请输入菜单图标" type="text" class="layui-input" maxlength="20" lay-verType="tips" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">父级菜单</label>
+        <div class="layui-input-block">
+            <input name="pname" placeholder="请输入父级菜单" type="text" class="layui-input" disabled="disabled" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">是否显示</label>
+        <div class="layui-input-block">
+            <select name="Menu_IsShow" lay-verType="tips" lay-verify="required">
+                <option value="">==是否显示 该菜单==</option>
+                <option value="1">是</option>
+                <option value="2">否</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单权限</label>
+        <div class="layui-input-block">
+            @foreach (var item in list)
+            {
+                <input type="checkbox" name="Function_ID" value="@item.Function_ID" lay-skin="primary" title="@item.Function_Name">
+            }
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+}
+
+@section js{
+    <!-- js部分 -->
+<script>
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var pId = '@PID';
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        if (r.Menu_Power) {
+                            for (var i = 0; i < r.Menu_Power.length; i++) {
+                                $("input[name='Function_ID'][value=" + r.Menu_Power[i] + "]").attr('checked','checked');
+                            }
+                        }
+                        if (pId) {
+                            if (!KeyId) {
+                                admin.ajax({
+                                    url: "@Url.Action("Find")",
+                                    data: { ID: pId },
+                                    dataType: 'json',
+                                    success: function (r) {
+                                            $('input[name="Menu_ParentID"]').val(pId);
+                                            $('input[name="pname"]').val(r.Menu_Name);
+                                    }
+                                });
+                            }
+                        } else {
+                            $('input[name="pname"]').val('一级菜单');
+                        }
+                    }
+                });
+            },
+            Save: function (data) {
+                var Function_ID = new Array();
+                $('input[name="Function_ID"]:checked').each(function (index,row) {
+                    Function_ID.push($(row).val());
+                });
+                data.field.Function_ID=JSON.stringify(Function_ID);
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("EditSave")' : '@Url.Action("AddSave")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+    });
+</script>
+}

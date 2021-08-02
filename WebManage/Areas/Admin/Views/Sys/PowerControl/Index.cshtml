@@ -1,0 +1,7 @@
+﻿@if (!string.IsNullOrEmpty(ViewData["PowerModel"].ToStr()))
+{
+    <script type="text/javascript">
+        var PowerModel=@Html.Raw(ViewData["PowerModel"]);
+        var entity=PowerModel;
+    </script>
+}

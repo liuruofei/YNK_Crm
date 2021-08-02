@@ -1,0 +1,101 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="User_ID" type="hidden" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">账号</label>
+        <div class="layui-input-block">
+            <input name="User_LoginName" placeholder="请输入账号" type="text" class="layui-input" maxlength="20" lay-verType="tips" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-block">
+            <input name="User_Name" placeholder="请输入用户名" type="text" class="layui-input" maxlength="20" lay-verType="tips" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-block">
+            <input name="User_Pwd" placeholder="请输入密码" type="password" class="layui-input" maxlength="20" lay-verType="tips" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-block">
+            <input type="radio" name="User_IsDelete" value="2" title="正常" checked />
+            <input type="radio" name="User_IsDelete" value="1" title="锁定" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">角色</label>
+        <div class="layui-input-block">
+            <select name="Role_ID" lay-verType="tips" lay-verify="required">
+                @{ foreach (var item in (List<sys_role>)ViewBag.RoleList)
+                    {
+                        <option value="@item.Role_ID">@item.Role_Name</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+}
+
+@section js{
+    <!-- js部分 -->
+    <script>
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        $('input[name="User_IsDelete"][value="' + r.User_IsDelete + '"]').prop("checked", true);
+                    }
+                });
+            },
+            Save: function (data) {
+                var user_Pwd = $('input[name="User_Pwd"]').val();
+                if (user_Pwd == '' || user_Pwd==null)
+                    admin.msg("请输入密码", 0);
+                else {
+                    if (user_Pwd)
+                        data.field.User_Pwd = user_Pwd;
+                    adminForm.Save({
+                        url: KeyId ? '@Url.Action("EditSave")' : '@Url.Action("AddSave")',
+                        data: data.field,
+                        callBack: function () {
+                            admin.closeThisDialog();
+                        }
+                    })
+                }
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+    });
+    </script>
+}

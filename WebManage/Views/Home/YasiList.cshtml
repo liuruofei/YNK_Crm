@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "/Views/Shared/_Templete.cshtml";
+}
+<style>
+    .front .section--content {
+        background: transparent linear-gradient( 0deg,#f5f5f5,#f5f5f5);
+        margin-top: initial;
+    }
+    .article__content .article__paragraphs > .entity-paragraphs-item {
+        margin-left: initial;
+        margin-right: initial;
+        max-width: initial;
+    }
+</style>
+<div id="section--content" class="section section--content ">
+    <div class="section__inner-wrapper section__inner wrapper ">
+        <div class="section__content">
+            <div class="region region__content brick--main region--content">
+
+                <article class="node node-news article article--news article--view-full article-type--news prose clearfix">
+
+                    <div class="article__content">
+                        <div class="article__summary" id="acticleTitle" style="text-align:center">
+                        </div>
+                        <div class="article__paragraphs">
+
+                            <div class="entity entity-paragraphs-item paragraphs-item-text entity-paragraphs-item--narrow paragraphs-item-text--">
+                                <div class="content wrapper">
+                                    <div class="paragraphs_item__body prose" id="acticleContent">
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div id="section--content" class="section section--content wrapper-background wrapper-background--angle ">
+    <div class="section__inner-wrapper section__inner ">
+        <div class="section__content">
+            <div class="region region__content brick--main">
+                <article class="node node-landing-page article article--landing-page article--view-full article-type--landing_page prose clearfix">
+                    <div class="article__paragraphs">
+
+                        <div class="entity entity-paragraphs-item paragraphs-item-content-blocks entity-paragraphs-item--full">
+                            <div class="content">
+                                <div class="wrapper wrapper--padding">
+                                    <div class="landing-grid landing-grid--05 grid grid--equal-height grid--max-h4 grid--padding-wide" id="caseContent">
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default">
+
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <div class="brick__image background-image--loaded" style="background-image: url(&quot;/assets/images/unibuddy_0.jpg?itok=-L7vOOEi&quot;);"></div>
+
+                                                <h2 class="brick__title"><a>Applying to university</a></h2>
+
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+                                                        When and how to apply for an undergraduate course
+                                                    </div>
+                                                </div>
+
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>*@
+@section scripts{
+    @*<script type="text/html" id="caseTeplate">
+        {{each data item index}}
+        <div class="brick brick--ug---applying-to-university grid__item brick--default">
+            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+
+                <div class="brick__image background-image--loaded" style="background-image: url(&quot;{{item.ImgUrl}}?itok=-L7vOOEi&quot;);"></div>
+
+                <h2 class="brick__title"><a href="/Home/Detail?id={{item.Id}}&type=yashi">{{item.Title}}</a></h2>
+
+                <div class="brick__content">
+                    <div class="bean__body prose">
+                        {{item.Subtitle}}
+                    </div>
+                </div>
+
+                <div class="brick__footer">
+                    <a>Explore <strong>more ›</strong></a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>*@
+    <script type="text/javascript">
+        $(function () {
+            $("#muenUl").find("li").find("a").removeClass("activeA");
+            $("#muenUl").find("li").find("a[data-class='yashi']").addClass("activeA");
+        })
+        //绑定Alevel全日制
+        ajaxRequst("post", "Home/GetYashiDetail", {}, function (data) {
+            if (data != null && data.code != undefined && data.code != null && data.data != null) {
+                $("#acticleTitle").html(data.data.Title);
+                $("#acticleContent").html(data.data.Content);
+            }
+        });
+        ////绑定案例列表
+        //ajaxRequst("post", "Home/BindYase", { page:1,pagesize: 50 }, function (data) {
+        //    if (data != null && data.code != undefined && data.code != null && data.data != null) {
+        //        var html = "";
+        //        html = template("caseTeplate", { data: data.data });
+        //        document.getElementById("caseContent").innerHTML = html;
+        //    }
+        //});
+    </script>
+}

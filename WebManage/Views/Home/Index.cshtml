@@ -1,0 +1,581 @@
+﻿
+@{
+    Layout = "/Views/Shared/_Templete.cshtml";
+}
+<style>
+
+    .regionUl {
+    }
+
+        .regionUl li {
+            margin-top: 21px;
+           
+        }
+
+            .regionUl li input {
+                width: 100%;
+                margin-bottom: .15rem;
+                height: 39px !important;
+                line-height: .5rem;
+                border-radius: 3px;
+                border: 0px;
+            }
+
+    .button-btn {
+        border: none;
+        font-family: inherit;
+        font-size: inherit;
+        color: inherit;
+        background: none;
+        cursor: pointer;
+        padding: 8px 0;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        outline: none;
+        position: relative;
+        -webkit-transition: all 0.3s;
+        -moz-transition: all 0.3s;
+        transition: all 0.3s;
+        width: 100%;
+        border-radius: 5px;
+    }
+
+        .button-btn:after {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            -webkit-transition: all 0.3s;
+            -moz-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+
+    .btn-2 {
+        background-image: -webkit-linear-gradient(top, rgb(165, 60, 60), rgb(165, 60, 60));
+        color: #fff;
+        box-shadow: 0 5px #a53c3c;
+        -webkit-transition: none;
+        -moz-transition: none;
+        transition: none;
+    }
+</style>
+<section class="section section--lower-header section--lower-header-has-background section--lower-header-large section--lower-header-has-search" id="section-lower-header">
+    <div class="wrapper-background wrapper-background--header-with-background wrapper-background--no-contain background-image--loaded"
+         style="margin-top: -130px; padding-top: 130px; background-position-y: 0px;">
+        <div class="section__video-background backvideo" id="backvideo" style="z-index:3333">
+            <video autoplay="" muted="" loop="" playsinline="" id="landing-video" data-lazy-video="~/assets/images/homepage-leader.mp4">
+                <source type="video/mp4" src="~/assets/images/homepage-leader.mp4">
+            </video>
+            <div style="margin-top:22%;color:white;">
+                <a id="bannerHref"><h4 id="BannerTitle" style="color:white;"></h4></a>
+                <p id="bannerSubTitle" style="color:white;"></p>
+            </div>
+        </div>
+        <header class="header header--with-background header--reduced">
+            <div class="header__inner-wrapper wrapper wrapper--padding">
+                <h1 class="header__heading">Choose your future</h1>
+                <div class="section-lower-header__search">
+                    <h1 class="header__heading" style="color:#fff">Unicorn</h1>
+                </div>
+            </div>
+        </header>
+    </div>
+</section>
+
+<div id="section--content firstSectionContent" class="section section--content wrapper-background wrapper-background--angle firstSectionContent">
+    <div class="section__inner-wrapper section__inner ">
+        <div class="section__content">
+            <div class="region region__content brick--main">
+                <article class="node node-landing-page article article--landing-page article--view-full article-type--landing_page prose clearfix  regionDiv">
+                    <div class="wrapper wrapper--padding" style="flex-wrap:wrap;">
+                        <div class="landing-grid--single landing-grid landing-grid--01" style="display:flex">
+                            <div class="brick  brick--home---get-updates-from-ucas brick--default" id="bannerContent" style="order: 0;">
+
+                                <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background" style="min-height: 182px;">
+                                    <div class="brick__image background-image--loaded" style="background-image: url('');"></div>
+
+                                    <h2 class="brick__title"><a>Sign up for the UCAS newsletter</a></h2>
+
+                                    <div class="brick__content">
+                                        <div class="bean__body prose">
+                                            <p>Get the latest updates,&nbsp;tips, and guidance to support you with your next steps, straight to your inbox.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="brick__footer">
+                                        <a>Explore <strong>more ›</strong></a>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="brick--ad brick--heavy prose brick--fourth-width brick--advertisement">
+                                <div class="brick__wrapper clearfix" style="padding-top: 0px; padding-bottom: 0px;">
+                                    <div style="min-width: 300px; height:300px;background-color:#eee;border-radius:5px;text-align:center;padding:13px 16px 0 16px;" class="region1">
+                                        <h4>领取资料</h4>
+                                        <ul class="regionUl">
+                                            <li><input name="UserName" placeholder="您的姓名" style=" text-indent:0.7em;" /></li>
+                                            <li><input name="Mobile" placeholder="手机号码" type="number" maxlength="11" /></li>
+                                            <li><select id="selectMateria" name="Materia" style="border:solid 1px #ddd"></select></li>
+                                            <li><button class="button-btn btn-2" onclick="regionMateria(this)">马上领取</button> </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="article__paragraphs">
+                        <div class="entity entity-paragraphs-item paragraphs-item-content-blocks entity-paragraphs-item--full">
+                            <div class="content">
+
+                                <div class="wrapper wrapper--padding">
+                                    <div class="landing-grid landing-grid--05 grid grid--equal-height grid--max-h4 grid--padding-wide" id="courseContent">
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default" style="cursor:pointer">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <a>
+                                                    <div class="brick__image background-image--loaded pcImg" style="background-image: url(&quot;/assets/images/qianghuaPC.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+                                                    </div>
+                                                </a>
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+
+                                                    </div>
+                                                </div>
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default" style="cursor:pointer">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <a>
+                                                    <div class="brick__image background-image--loaded pcImg" style="background-image: url(&quot;/assets/images/quanrizhiPC.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+                                                    </div>
+                                                </a>
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+
+                                                    </div>
+                                                </div>
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default" style="cursor:pointer">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <a>
+                                                    <div class="brick__image background-image--loaded pcImg" style="background-image: url(&quot;/assets/images/G5pc.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+                                                    </div>
+                                                </a>
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+
+                                                    </div>
+                                                </div>
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default" style="cursor:pointer">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <a>
+                                                    <div class="brick__image background-image--loaded pcImg" style="background-image: url(&quot;/assets/images/jicpc.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+                                                    </div>
+                                                </a>
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+
+                                                    </div>
+                                                </div>
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="entity entity-paragraphs-item paragraphs-item-content-blocks entity-paragraphs-item--full">
+                            <div class="content">
+                                <div class="wrapper wrapper--padding"><h2 class="heading--emphasis" style="color: black;"><a class="paragraphs-item__label-anchor"></a><span>优秀</span>学员</h2></div>
+                                <div class="wrapper wrapper--padding">
+                                    <div class="landing-grid landing-grid--05 grid grid--equal-height grid--max-h4 grid--padding-wide" id="caseContent">
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <div class="brick__image background-image--loaded case pcImg" style="background-image: url(&quot;/assets/images/majingningPc.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                                                </div>
+                                                <h2 class="brick__title"><a>马静怡</a></h2>
+
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+                                                        剑桥大学工程系IELTS 8 A-Level 2A* 2A
+                                                    </div>
+                                                </div>
+
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <div class="brick__image background-image--loaded case pcImg" style="background-image: url(&quot;/assets/images/jiangtaoPc.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                                                </div>
+                                                <h2 class="brick__title"><a>姜韬</a></h2>
+
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+                                                        牛津大学数学系IELTS 8 A-Level 3A* 2A
+                                                    </div>
+                                                </div>
+
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <div class="brick__image background-image--loaded case pcImg" style="background-image: url(&quot;/assets/images/zhangshaojPc.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                                                </div>
+                                                <h2 class="brick__title"><a>张少杰</a></h2>
+
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+                                                        剑桥大学数学系ELTS 8.5 A-Level 3A* 1A
+                                                    </div>
+                                                </div>
+
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="brick brick--ug---applying-to-university grid__item brick--default">
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                                                <div class="brick__image background-image--loaded case pcImg" style="background-image: url(&quot;/assets/images/zhanglitongPc.png??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                                                </div>
+                                                <h2 class="brick__title"><a>张煜彤</a></h2>
+
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+                                                        牛津大学数学系 IELTS 8 A-Level 2A* 2A
+                                                    </div>
+                                                </div>
+
+                                                <div class="brick__footer">
+                                                    <a>Explore <strong>more ›</strong></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="entity entity-paragraphs-item paragraphs-item-content-blocks entity-paragraphs-item--full">
+                            <div class="content">
+                                <div class="wrapper wrapper--padding"><h2 class="heading--emphasis"><a class="paragraphs-item__label-anchor"></a><span>热门</span>动态</h2></div>
+                                <div class="wrapper wrapper--padding">
+                                    <div class="landing-grid landing-grid--05 grid grid--equal-height grid--max-h4 grid--padding-extra-wide" id="newsContent">
+                                        <div class="brick brick--book-your-ucas-discovery-day grid__item brick--teaser">
+
+                                            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+
+                                                <div class="brick__image background-image--loaded" style="background-image: url('');"></div>
+                                                <h2 class="brick__title">Book your UCAS/Discovery Day</h2>
+                                                <div class="brick__content">
+                                                    <div class="bean__body prose">
+                                                        <p>Get ready to explore a world of possibilities and see where your journey could head next…</p>
+                                                    </div>
+                                                    <a class="brick__secondary-link">Read more</a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="boxMsg"></div>
+@section scripts{
+    <script type="text/html" id="bannerTemplete">
+        {{each data item index}}
+        <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background" style="min-height: 182px;">
+            <div class="brick__image background-image--loaded" style="background-image: url(&quot;{{item.BannerImage}}?itok=poB52cGn&quot;);background-size:cover;background-repeat:no-repeat"></div>
+            <h2 class="brick__title"><a href="/Home/Detail?id={{item.Id}}&type=first">{{item.Title}}</a></h2>
+            <div class="brick__content">
+                <div class="bean__body prose">
+                    <a href="/Home/Detail?id={{item.Id}}&type=first"><p style="color:white;">{{item.Subtitle}}</p></a>
+                </div>
+            </div>
+            <div class="brick__footer">
+                <a>Explore <strong>more ›</strong></a>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/html" id="courseTeplate">
+        {{each data item index}}
+        <div class="brick brick--ug---applying-to-university grid__item brick--default"  style="cursor:pointer">
+            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                <a href="/Home/Detail?id={{item.Id}}&type=course">
+                    <div class="brick__image background-image--loaded pcImg" style="background-image: url(&quot;{{item.ImgUrl}}??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                    </div>
+                    <div class="brick__image background-image--loaded mobileImg" style="background-image: url(&quot;{{item.MobileImgUrl}}??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                    </div>
+                </a>
+                @*<h2 class="brick__title"><a href="/Home/Detail?id={{item.Id}}&type=course">{{item.CourseName}}</a></h2>*@
+                <div class="brick__content">
+                    <div class="bean__body prose">
+                        @*<span>{{item.CourseTitle}}</span>*@
+                    </div>
+                </div>
+
+                <div class="brick__footer">
+                    <a>Explore <strong>more ›</strong></a>
+                </div>
+            </div>
+
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/html" id="caseTeplate">
+        {{each data item index}}
+        <div class="brick brick--ug---applying-to-university grid__item brick--default">
+            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                <div class="brick__image background-image--loaded case pcImg" style="background-image: url(&quot;{{item.ImgUrl}}??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                </div>
+                <div class="brick__image background-image--loaded case mobileImg" style="background-image: url(&quot;{{item.MobileImgUrl}}??itok=FHDLF6IW&quot;);background-size:cover;background-repeat:no-repeat">
+
+                </div>
+                <h2 class="brick__title"><a href="/Home/Detail?id={{item.Id}}&type=case">{{item.Title}}</a></h2>
+
+                <div class="brick__content">
+                    <div class="bean__body prose">
+                        {{item.Subtitle}}
+                    </div>
+                </div>
+
+                <div class="brick__footer">
+                    <a>Explore <strong>more ›</strong></a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/html" id="newsTeplate">
+        {{each data item index}}
+        <div class="brick brick--book-your-ucas-discovery-day grid__item brick--teaser">
+            <div class="brick__wrapper clearfix contextual-links-region brick__wrapper--has-background">
+                <div class="brick__image background-image--loaded" style="background-image: url(&quot;{{item.ImgUrl}}?itok=FsDLF6IW&quot;);background-size:cover;background-repeat:no-repeat"></div>
+                <a href="/Home/Detail?id={{item.Id}}&type=news"><h2 class="brick__title" style="color:black !important">{{item.Title}}</h2></a>
+                <div class="brick__content">
+                    <div class="bean__body prose">
+                        <a href="/Home/Detail?id={{item.Id}}&type=news">
+                        <p style="color:#403939!important;font-size:14px;margin-bottom:0px">{{item.Subtitle}}</p></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/javascript">
+        $("#muenUl").find("li").find("a").removeClass("activeA");
+        $("#muenUl").find("li").find("a[data-class='frist']").addClass("activeA");
+        //绑定资料
+        ajaxRequst("post", "Home/BindMateria", {}, function (data) {
+            if (data != null && data.code != undefined && data.code != null && data.data != null) {
+                $.each(data.data, function (i, item) {
+                    $("#selectMateria").append("<option value='" + item.MaterialId + "'>" + item.MateriaName + "</option>");
+                })
+            }
+        });
+        //绑定banner图
+        var bannerData = sessionStorage.getItem("bannerdata");
+        if (bannerData != undefined && bannerData != null) {
+            var bannerJson = JSON.parse(bannerData);
+            var html = "";
+            html = template("bannerTemplete",{ data:bannerJson });
+            document.getElementById("bannerContent").innerHTML = html;
+            var fristBanner = bannerJson[0];
+            $("#backvideo").css("background-image", "url('" + fristBanner.BannerImageMobile + "')");
+            $("#backvideo").css("background-size", "contain");
+            $("#backvideo").css("background-repeat", "no-repeat");
+            $("#bannerHref").attr("href", "/Home/Detail?id=" + fristBanner.Id + "&type=first");
+            $("#BannerTitle").text(fristBanner.Title);
+            $("#bannerSubTitle").text(fristBanner.Subtitle);
+        }
+        else {
+            ajaxRequst("post", "Home/BindBanner", {}, function (data) {
+                if (data != null && data.code != undefined && data.code != null && data.data != null) {
+                    sessionStorage.setItem("bannerdata", JSON.stringify(data.data));
+                    var html = "";
+                    html = template("bannerTemplete", { data: data.data });
+                    document.getElementById("bannerContent").innerHTML = html;
+                    if (data.data != null && data.data.length > 0) {
+                        var fristBanner = data.data[0];
+                        $("#backvideo").css("background-image", "url('" + fristBanner.BannerImageMobile + "')");
+                        $("#backvideo").css("background-size", "contain");
+                        $("#backvideo").css("background-repeat", "no-repeat");
+                        $("#bannerHref").attr("href", "/Home/Detail?id=" + fristBanner.Id + "&type=first");
+                        $("#BannerTitle").text(fristBanner.Title);
+                        $("#bannerSubTitle").text(fristBanner.Subtitle);
+                    }
+
+                }
+            });
+        }
+        //绑定课程列表
+        var coursedata = sessionStorage.getItem("coursedata");
+        if (coursedata != undefined && coursedata != null) {
+            var courseJson = JSON.parse(coursedata);
+            var html = "";
+            html = template("courseTeplate",{ data:courseJson});
+            document.getElementById("courseContent").innerHTML = html;
+
+        }
+        else {
+            ajaxRequst("post", "Home/BindCourse", { page: 1, pagesize: 4 }, function (data) {
+                if (data != null && data.code != undefined && data.code != null && data.data != null) {
+                    sessionStorage.setItem("coursedata", JSON.stringify(data.data));
+                    var html = "";
+                    html = template("courseTeplate", { data: data.data });
+
+                    document.getElementById("courseContent").innerHTML = html;
+                }
+            });
+        }
+        var casedata = sessionStorage.getItem("casedata");
+        if (casedata != undefined && casedata != null) {
+            var caseJson = JSON.parse(casedata);
+            var html = "";
+            html = template("caseTeplate", { data: caseJson });
+            document.getElementById("caseContent").innerHTML = html;
+        }
+        else {
+            //绑定案例列表
+            ajaxRequst("post", "Home/BindCase", { page: 1, pagesize: 4 }, function (data) {
+                if (data != null && data.code != undefined && data.code != null && data.data != null) {
+                    sessionStorage.setItem("casedata", JSON.stringify(data.data));
+                    var html = "";
+                    html = template("caseTeplate", { data: data.data });
+                    document.getElementById("caseContent").innerHTML = html;
+                }
+            })
+        };
+        var newsdata = sessionStorage.getItem("newsdata");
+        if (newsdata != undefined && newsdata != null) {
+            var newsJson = JSON.parse(newsdata);
+            var html = "";
+            html = template("newsTeplate", { data: newsJson });
+            document.getElementById("newsContent").innerHTML = html;
+        }
+        else {
+            //绑定新闻列表
+            ajaxRequst("post", "Home/BindNews", { page: 1, pagesize: 4 }, function (data) {
+                if (data != null && data.code != undefined && data.code != null && data.data != null) {
+                    sessionStorage.setItem("newsdata", JSON.stringify(data.data));
+                    var html = "";
+                    html = template("newsTeplate", { data: data.data });
+                    document.getElementById("newsContent").innerHTML = html;
+                }
+            });
+        }
+        //领取资料
+        function regionMateria() {
+            var mobile = $("input[name='Mobile']").val();
+            var reg = /^(13|14|15|16|17|18|19)[0-9]{9}$/;
+            var valite = reg.test(mobile);
+            if (mobile == "") {
+                boxMsg("请填写手机号码！", 2);
+                return false;
+            }
+            if (!valite) {
+                boxMsg("手机格式错误！", 2);
+                return false;
+            }
+            var prm = { UserName: $("input[name='UserName']").val(), Mobile: mobile, MaterialId: $("#selectMateria").val() };
+            ajaxRequst("post", "Home/Region", prm, function (data) {
+                if (data != null && data.code != undefined && data.code != null) {
+                    boxMsg(data.msg, 1);
+                }
+            });
+        }
+        function boxMsg(msg, status) {
+            if (status == 1) {
+                $(".boxMsg").css("color", "green");
+            }
+            else {
+                $(".boxMsg").css("color", "black");
+            }
+            $(".boxMsg").show();
+            $(".boxMsg").text(msg);
+            setTimeout(function () {
+                $(".boxMsg").hide();
+            }, 1000)
+        }
+
+        var t_img; // 定时器
+        var isLoad = true; // 控制变量
+
+        // 判断图片加载状况，加载完成后回调
+        //isImgLoad(function () {
+        //    // 加载完成
+        //});
+
+        // 判断图片加载的函数
+        function isImgLoad(callback) {
+            // 注意我的图片类名都是cover，因为我只需要处理cover。其它图片可以不管。
+            // 查找所有封面图，迭代处理
+            $('img').each(function () {
+                // 找到为0就将isLoad设为false，并退出each
+                if (this.height === 0) {
+                    isLoad = false;
+                    return false;
+                }
+            });
+            // 为true，没有发现为0的。加载完毕
+            if (isLoad) {
+                clearTimeout(t_img); // 清除定时器
+                // 回调函数
+                callback();
+                // 为false，因为找到了没有加载完成的图，将调用定时器递归
+            } else {
+                isLoad = true;
+                t_img = setTimeout(function () {
+                    isImgLoad(callback); // 递归扫描
+                }, 500); // 我这里设置的是500毫秒就扫描一次，可以自己调整
+            }
+        }
+
+    </script>
+}
+

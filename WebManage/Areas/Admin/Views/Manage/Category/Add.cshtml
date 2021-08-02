@@ -1,0 +1,148 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Id" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">栏目名称</label>
+        <div class="layui-input-block">
+            <input name="CategoryName" placeholder="请输栏目名称" maxlength="120" lay-verify="required" class="layui-input" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">key值</label>
+        <div class="layui-input-block">
+            <input name="KeyName" placeholder="此值不可乱动,由开发人员设置" maxlength="120" lay-verify="required" class="layui-input" required/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">标题</label>
+        <div class="layui-input-block">
+            <textarea name="Title" placeholder="标题" maxlength="120" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">副标题</label>
+        <div class="layui-input-block">
+            <textarea name="Subtitle" placeholder="副标题" maxlength="120" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">栏目封面图</label>
+        <div class="layui-input-block">
+            <img src="~/assets/images/plus.svg" style="min-width:90px; min-height:90px;max-width: 360px;max-height:130px" id="imgBanner" onclick="UplondImage(this)" />
+            <input type="file" id="fileBanner" name="fileBanner" style="display:none" />
+            <input name="ImgUrl" type="hidden" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">内容</label>
+        <textarea name="Remarks" style="width:98%;height:150px;margin:0px 10px 0 33px"></textarea>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script charset="utf-8" src="~/kindeditor/kindeditor-all.js"></script>
+    <script charset="utf-8" src="~/kindeditor/lang/zh-CN.js"></script>
+    <script>
+        KindEditor.options.filterMode = false;
+        KindEditor.ready(function (K) {
+            var self = this;
+            var options = {
+                urlType: 'absolute',
+                filterMode: false,
+                uploadJson: '/Admin/UploadFile/KindeditorPicUpload',
+                allowFileManager: true
+            };
+            console.log(self.formatUploadUrl);
+            window.editor = K.create('textarea[name="Remarks"]', options);
+        });
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        if (r.ImgUrl != null && r.ImgUrl!='')
+                            $("#imgBanner").attr("src", r.ImgUrl);
+                        editor.html(r.Remarks);
+                    }
+                });
+            },
+            Save: function (data) {
+                data.field.Remarks = editor.html();
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+    });
+        function UplondImage(obj) {
+            document.getElementById("fileBanner").click();
+        }
+        $("body").on("change", "input[name='fileBanner']", function () {
+            var f = $(this).get(0).files[0];
+            if (f != undefined && f != null) {
+                var fd = new FormData();
+                fd.append('file', f);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', "/Admin/UploadFile/UploadImg", true);
+                xhr.onload = function (oevent) {
+                }
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        var resultImg = JSON.parse(xhr.responseText);
+                        if (resultImg.status == 200) {
+                            layer.msg(resultImg.msg);
+                            $("input[name='ImgUrl']").val(resultImg.data);
+                            $("#imgBanner").attr("src",resultImg.data);
+                        }
+                        else {
+                            layer.msg(resultImg.msg);
+                        }
+                    }
+                };
+                xhr.send(fd);
+            }
+        });
+    </script>
+}

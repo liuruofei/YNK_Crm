@@ -1,0 +1,94 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form" style="padding:0px;">
+    <input name="roleid" type="hidden" value="@ViewBag.ID" />
+    <!-- 正文开始 -->
+    <div class="layui-fluid" style="padding:0px;">
+        <!-- 左树 -->
+        <div class="layui-col-sm12 layui-col-md4 layui-col-lg2">
+            <div class="layui-card">
+                <div class="layui-card-body mini-bar" id="ltTree">
+
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item positionbottomtop"></div>
+        <div class="layui-form-item text-right positionbottom">
+            <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+            <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+        </div>
+    </div>
+</form>
+
+@section css{
+    <link rel="stylesheet" href="../../../assets/module/dtree/dtree.css" />
+    <link rel="stylesheet" href="../../../assets/module/dtree/font/dtreefont.css" />
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+layui.use(['form', 'util', 'admin', 'adminForm', 'dtree'], function () {
+    var $ = layui.jquery;
+    var layer = layui.layer;
+    var form = layui.form;
+    var util = layui.util;
+    var admin = layui.admin;
+    var adminForm = layui.adminForm;
+    var dtree = layui.dtree
+
+    $('html').attr('style', 'background-color:#fff');
+    var App = {
+        //显示表单弹窗
+        showEditModel(mUser) {
+            adminList.form({
+                title: (mUser ? '修改' : '添加') + '菜单',
+                type: 2,
+                width: "1000px",
+                height: "600px",
+                content: mUser ? '@Url.Action("Edit")?ID=' + mUser.Menu_ID + '&pId=' + App.pId : '@Url.Action("Add")?pId=' + App.pId,
+                end: function () {
+                    insTb.reload();
+                }
+            });
+        },
+        Save: function (data) {
+            var params = dtree.getCheckbarNodesParam("ltTree");
+            var ids = new Array();
+            for (var i = 0; i < params.length; i++) {
+                var datas = JSON.parse(params[i].basicData);
+                ids.push({ MenuFunction_FunctionID: datas.functionId, MenuFunction_MenuID: datas.menuId});
+            }
+            data.field.rows = JSON.stringify(ids);
+            adminForm.Save({
+                url: '@Url.Action("SaveFunction")',
+                data: data.field,
+                callBack: function () {
+                    admin.closeThisDialog();
+                }
+            })
+        }
+    }
+
+    // 树形渲染
+    dtree.render({
+        elem: '#ltTree',
+        url: '@Url.Action("GetRoleMenuFunctionTree")?roleid=@ViewBag.ID',
+        type: 'all',
+        initLevel: '3',
+        checkbar: true,
+        checkbarType: true,
+        dot: false,
+        method: 'GET'
+    });
+
+    // 表单提交事件
+    form.on('submit(modelUserSubmit)', function (data) {
+        App.Save(data);
+        return false;
+    });
+
+});
+    </script>
+}

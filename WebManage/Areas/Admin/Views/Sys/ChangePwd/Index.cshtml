@@ -1,0 +1,81 @@
+﻿
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="User_ID" type="hidden" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户账号</label>
+        <div class="layui-input-block">
+            <input name="userName" type="text" class="layui-input" disabled="disabled" value="@ViewData["userName"]" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">旧密码</label>
+        <div class="layui-input-block">
+            <input name="oldpwd" placeholder="请输入旧密码" type="text" class="layui-input" maxlength="20" lay-verType="tips" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">新密码</label>
+        <div class="layui-input-block">
+            <input name="newpwd" placeholder="请输入新密码" type="text" class="layui-input" maxlength="20" lay-verType="tips" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">确认密码</label>
+        <div class="layui-input-block">
+            <input name="newlypwd" placeholder="请重新输入新密码" type="text" class="layui-input" maxlength="20" lay-verType="tips" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+}
+
+@section js{
+    <!-- js部分 -->
+    <script>
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        $('html').attr('style', 'background-color:#fff');
+        var App = {
+            Save: function (data) {
+                var oldpwd = $("input[name='oldpwd']").val();
+                var newpwd = $("input[name='newpwd']").val();
+                var newlypwd = $("input[name='newlypwd']").val();
+                console.log(oldpwd)
+                if (oldpwd == ""|| oldpwd==null) {
+                    return admin.msg("请输入旧密码!", 0);
+                }
+                if (newpwd == "" || newpwd == null) {
+                    return admin.msg("请输入新密码!", 0);
+                }
+                if (newlypwd == "" || newlypwd == null) {
+                    return admin.msg("请输入确认密码!", 0);
+                }
+                if (newpwd != newlypwd) {
+                    return admin.msg("两次密码不一致!", 0);
+                }
+                adminForm.Save({
+                    url: '@Url.Action("ChangePwd")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+    });
+    </script>
+}

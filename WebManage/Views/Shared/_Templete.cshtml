@@ -1,0 +1,241 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en" id="top" class="js no-touch">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="~/assets/css/h5/base.css" media="all">
+    <link rel="stylesheet" href="~/assets/css/h5/cookiebot.css" media="all" />
+    <meta name="theme-color" content="#1f2935">
+    <meta content="IE=edge,chrome=1">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Choose your future">
+    <meta property="og:description">
+    <meta property="og:image:type" content="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>优能考</title>
+    <link type="text/css" rel="stylesheet" href="~/assets/css/h5/schemes--optional--base.css" media="all">
+    <link type="text/css" rel="stylesheet" href="~/assets/css/h5/css_504dpHvM3aWltayVrRHHql6R9WkXweNCOH5c_DfWGEo.css" media="all">
+    <link type="text/css" rel="stylesheet" href="~/assets/css/h5/owl.carousel.min.css" media="all">
+    <link type="text/css" rel="stylesheet" href="~/assets/css/h5/owl.theme.min.css" media="all">
+    <link type="text/css" rel="stylesheet" href="~/assets/css/h5/owl.transitions.min.css" media="all">
+    <link type="text/css" rel="stylesheet" href="~/assets/css/h5/css_fNhdR-iaL3E-t_UiNKqAbINQyStX8fHr_RZtODcC4hw.css" media="all">
+    <link type="text/css" rel="stylesheet" href="~/assets/css/h5/css_3tOBkZmb18hBLRyQZdKTQ0yLVqFCi5hCPOysVRa4HeQ.css" media="all">
+    <link href="~/assets/css/h5/schemes--optional--full.css" type="text/css" rel="stylesheet">
+    <link href="~/assets/css/h5/icons--optional.css" type="text/css" rel="stylesheet">
+    <link href="~/assets/css/h5/gigya.css" type="text/css" rel="stylesheet">
+    <link href="~/assets/css/h5/full.css" type="text/css" rel="stylesheet">
+    <style type="text/css" id="CookieConsentStateDisplayStyles">
+        .cookieconsent-optin-preferences, .cookieconsent-optin-statistics, .cookieconsent-optin-marketing, .cookieconsent-optin {
+            display: none;
+        }
+
+        .cookieconsent-optout-preferences, .cookieconsent-optout-statistics, .cookieconsent-optout-marketing, .cookieconsent-optout {
+            display: block;
+            display: initial;
+        }
+        .activeA {
+            color: #a53c3c !important;
+        }
+        .footerLog {
+            padding-left: 97px;
+            padding-bottom: 13px;
+        }
+        .lanmuIcon {
+            display: none;
+            position: absolute;
+            right: -5px;
+            top: 15px;
+            -webkit-transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            -webkit-transition-property: -webkit-transform;
+            -moz-transition-property: -moz-transform;
+            transition-property: transform;
+            -webkit-transition-duration: 0.4s;
+            -moz-transition-duration: 0.4s;
+            transition-duration: 0.4s;
+            -webkit-transform: translateX(0px);
+            -moz-transform: translateX(0px);
+            -ms-transform: translateX(0px);
+            -o-transform: translateX(0px);
+            transform: translateX(0px);
+        }
+
+        .lanmuIcon .icon {
+            width: 35px;
+            height: 20px;
+            position: relative;
+            display: block;
+        }
+            .lanmuIcon .icon .line {
+                display: block;
+                background: #a53c3c;
+                width: 30px;
+                height: 4px;
+                position: absolute;
+                left: 0;
+                -webkit-transition: all .5s;
+                -o-transition: all .5s;
+                transition: all .5s;
+                border-radius: 2px;
+            }
+                .lanmuIcon .icon .line.line-1 {
+                    top: 0;
+                }
+                .lanmuIcon .icon .line.line-2 {
+                    top: 50%;
+                }
+                .lanmuIcon .icon .line.line-3{
+                    top: 100%;
+                }
+        .Unicorn {
+            position: relative;
+            bottom: 16px;
+            font-weight: 700;
+        }
+
+    </style>
+    @RenderSection("css", required: false)
+</head>
+<body class="html front not-logged-in no-sidebars page-node page-node- page-node-333441 node-type-landing-page v4 gigyaInit-processed gigya-logged-out">
+    <div class="page-wrapper page page-has-sticky-ad grid-page-layout--01">
+        <section class="section section--upper-header global-header global-header--learners " id="section--upper-header">
+            <div>
+                <div class="hardLog"><img src="~/assets/images/younnengkaolog.png" style="height: 42px;bottom: 3px;position: relative;"><span class="Unicorn">Unicorn</span></div>
+                <div  class="hardLanmu">
+                    <div class="lanmuIcon"  id="lanmuIcon">
+                        <a href="javascript:void(0)">
+                            <span class="icon">
+                                <span class="line line-1"></span>
+                                <span class="line line-2"></span>
+                                <span class="line line-3"></span>
+                            </span>
+                        </a>
+                    </div>
+                    <ul class="muenUl" id="muenUl">
+                        <li>
+                            <a href="/Home/Index">
+                                <span>首页</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        @RenderBody()
+        <footer class="section footer section--footer">
+            <div class="wrapper-container">
+                <div class="wrapper wrapper--padding" style="max-width: 125.3rem;">
+                    <nav class="footer__social-contact">
+                        <div class="footer__contact-links">
+                            <div class="footerLog">
+                                <img src="~/assets/images/younnengkaolog.png">
+                            </div>
+                            <div style="color:black;line-height: 22px;">地址:上海黄浦区马当路388号复兴SOHO广场A座2601室</div>
+                            <div style="color:black;margin-top:16px">联系电话：18621006206</div>
+                        </div>
+                    </nav>
+                    <nav class="footer__page-links" aria-label="information links" style="margin-top:111px;">
+                        <div class="footer__links-group">
+                            <a>雅思培训</a>
+                            <a>A-Level学科</a>
+                        </div>
+
+                        <div class="footer__links-group">
+                            <a>学员故事</a>
+                            <a>
+                                A-Level全日制
+                            </a>
+                        </div>
+
+                        <div class="footer__links-group">
+                            <a>牛剑申请</a>
+                            <a>关于我们</a>
+                        </div>
+                    </nav>
+                    <nav class="footer__chat" style=" background-color:#f8f8f8;padding-top: 73px;">
+                        <div style="display: flex;">
+                            <div style="text-align:center;margin-left:auto">
+                                <img src="~/assets/images/gzh2.jpg" style="position: relative; top: 4px;max-width:154px;max-height:154px;" />
+                                <div style="margin-top: 9px;">微信公众号</div>
+                            </div>
+                            <div style="text-align:center; margin-left:40px;" class="wechat2">
+                                <img src="~/assets/images/lxiren.jpg" style="position: relative; top: 4px;max-width:154px;max-height:154px;"  />
+                                <div style="margin-top: 9px;">联系微信</div>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            @*<div class="wrapper-container">
+                <div class="wrapper wrapper--padding">
+                    <div>Copyright © 2020 夕林（上海）教育科技有限公司 All right reserved. 沪ICP备2020029178号-1</div>
+                </div>
+            </div>*@
+        </footer>
+    </div>
+    <!-- js部分 -->
+    <script src="~/assets/libs/jquery/jquery-3.2.1.min.js"></script>
+    <script src="~/assets/js/template-web.js"></script>
+    <script src="~/assets/js/base.js"></script>
+    <script src="~/assets/js/httpBase.js"></script>
+    <script type="text/html" id="templateMuen">
+        {{each data item index}}
+        <li>
+            {{if item.KeyName!=null&&item.KeyName.indexOf('frist')>-1}}
+            <a href="/Home/Index" class="activeA" data-class="frist">
+                <span>{{item.CategoryName}}</span>
+            </a>
+            {{else if item.KeyName!=null&&item.KeyName.indexOf('case')>-1}}
+            <a href="/Home/CaseList" data-class="case">
+                <span>{{item.CategoryName}}</span>
+            </a>
+            {{else if item.KeyName!=null&&item.KeyName.indexOf('course')>-1}}
+            <a href="/Home/CourseList" data-class="course">
+                <span>{{item.CategoryName}}</span>
+            </a>
+            {{else if item.KeyName!=null&&item.KeyName.indexOf('alevel')>-1}}
+            <a href="/Home/ALevel" data-class="alevel">
+                <span>{{item.CategoryName}}</span>
+            </a>
+            {{else if item.KeyName!=null&&item.KeyName.indexOf('yashi')>-1}}
+            <a href="/Home/YasiList" data-class="yashi">
+                <span>{{item.CategoryName}}</span>
+            </a>
+            {{else if item.KeyName!=null&&item.KeyName.indexOf('niujin')>-1}}
+            <a href="/Home/Niujin" data-class="niujin">
+                <span>{{item.CategoryName}}</span>
+            </a>
+            {{else}}
+            <a href="/Home/About" data-class="about">
+                <span>{{item.CategoryName}}</span>
+            </a>
+            {{/if}}
+        </li>
+        {{/each}}
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            if (sessionStorage.getItem("muenUl") != null && sessionStorage.getItem("muenUl") != undefined) {
+                html = template("templateMuen", { data: JSON.parse(sessionStorage.getItem("muenUl")) });
+                document.getElementById("muenUl").innerHTML = html;
+            } else {
+                ajaxRequst("post", "Home/GetFirstMuen", {}, function (data) {
+                    if (data != null && data.code != undefined && data.code != null) {
+                        var html = "";
+                        html = template("templateMuen", { data: data.data });
+                        sessionStorage.setItem('muenUl', JSON.stringify(data.data));
+                        document.getElementById("muenUl").innerHTML = html;
+                    }
+                });
+            }
+             
+        })
+        $("#lanmuIcon").click(function () {
+            $("#muenUl").slideToggle();
+        });
+    </script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
