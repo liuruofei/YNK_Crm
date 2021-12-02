@@ -1,0 +1,218 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="ClassId" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">班级编码</label>
+            <div class="layui-input-inline" style="line-height:37px;">
+                <input name="Class_No" lay-verify="required" class="layui-input" required />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">班级名称</label>
+            <div class="layui-input-inline">
+                <input name="Class_Name" placeholder="请输入班级名称" maxlength="120" lay-verify="required" class="layui-input" required />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">分配校区</label>
+            <div class="layui-input-inline">
+                <select name="CampusId" id="CampusId"></select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">课时</label>
+            <div class="layui-input-inline">
+                <input name="Course_Time" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">价格</label>
+            <div class="layui-input-inline">
+                <input name="Price" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">开始日期</label>
+            <div class="layui-input-inline">
+                <input name="StartDate" id="StartDate" type="text" class="layui-input" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">开课日期</label>
+            <div class="layui-input-inline">
+                <input name="Start_Course_Date" id="Start_Course_Date" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">结课日期</label>
+            <div class="layui-input-inline">
+                <input name="End_Course_Date" id="End_Course_Date" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">人数</label>
+            <div class="layui-input-inline">
+                <input name="Count_Users" type="text" class="layui-input" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">班级类型</label>
+            <div class="layui-input-inline">
+                <select name="TypeId" lay-verify="required" required>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">教材发放</label>
+            <div class="layui-input-inline">
+                <input name="Material_Count" type="number" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">相关班级</label>
+            <div class="layui-input-inline">
+                <input name="Relevant" type="text" class="layui-input" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">学习类别</label>
+        <div class="layui-input-block">
+           <select name="SubjectId"></select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">描述</label>
+        <div class="layui-input-block">
+            <textarea name="Remarks" style="width:98%;height:120px;"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        //日期
+        laydate.render({
+            elem: '#StartDate',
+            format: 'yyyy-MM-dd HH:mm:ss'
+        });
+        laydate.render({
+            elem: '#Start_Course_Date',
+            format: 'yyyy-MM-dd HH:mm:ss'
+        });
+        laydate.render({
+            elem: '#End_Course_Date',
+            format: 'yyyy-MM-dd HH:mm:ss'
+        });
+        var App = {
+            Load: function () {
+                    adminForm.load({
+                        formName: 'modelUserForm',
+                        KeyId: '@KeyId',
+                        url: "@Url.Action("Find")",
+                        dataType: 'json',
+                        callBack: function (r) {
+                                adminForm.load({
+                                url: "@Url.Action("QueryCampus")",
+                                dataType: 'json',
+                                callBack: function (rou) {
+                                    if (rou.data != null) {
+                                        var result = rou.data;
+                                        for (var i = 0; i < result.length; i++) {
+                                            if (r != undefined && r.CampusId != null && r.CampusId == result[i].CampusId) {
+                                                $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + ' selected>' + result[i].CampusName +'</option>');
+
+                                            } else {
+                                                $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + '>' + result[i].CampusName + '</option>');
+                                            }
+                                        }
+                                    }
+                                }
+                                });
+                                adminForm.load({
+                                url: "@Url.Action("QuerySubject", "ContracUser")",
+                                dataType: 'json',
+                                callBack: function (rou) {
+                                    if (rou.data != null) {
+                                        var result = rou.data;
+                                        for (var i = 0; i < result.length; i++) {
+                                            if (r != undefined && r.SubjectId != null && r.SubjectId == result[i].SubjectId) {
+                                                $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName + '</option>');
+
+                                            } else {
+                                                $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                                            }
+                                        }
+                                    }
+                                   }
+                                });
+                                adminForm.load({
+                                url: "@Url.Action("QueryClassType")",
+                                dataType: 'json',
+                                callBack: function (rou) {
+                                    if (rou.data != null) {
+                                        var result = rou.data;
+                                        for (var i = 0; i < result.length; i++) {
+                                            if (r != undefined && r.TypeId != null && r.TypeId == result[i].Id) {
+                                                $("select[name='TypeId']").append('<option value = ' + result[i].Id + ' selected>' + result[i].TypeName + '</option>');
+
+                                            } else {
+                                                $("select[name='TypeId']").append('<option value = ' + result[i].Id + '>' + result[i].TypeName + '</option>');
+                                            }
+                                        }
+                                    }
+                                   }
+                                });
+                    }
+                });
+            },
+            Save: function (data) {
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+    </script>
+}

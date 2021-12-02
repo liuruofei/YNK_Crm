@@ -1,0 +1,95 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Id" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">教室名称</label>
+        <div class="layui-input-block">
+            <input name="RoomName" placeholder="请输入教室名称" class="layui-input" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">校区</label>
+        <div class="layui-input-block">
+            <select name="CampusId"></select>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                                adminForm.load({
+                                url: "@Url.Action("QueryCampus", "CClass")",
+                                dataType: 'json',
+                                callBack: function (rou) {
+                                    if (rou.data != null) {
+                                        var result = rou.data;
+                                        for (var i = 0; i < result.length; i++) {
+                                            if (r != undefined && r.CampusId != null && r.CampusId == result[i].CampusId) {
+                                                $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + ' selected>' + result[i].CampusName + '</option>');
+
+                                            } else {
+                                                $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + '>' + result[i].CampusName + '</option>');
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                    }
+                });
+            },
+            Save: function (data) {
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+    });
+    </script>
+}

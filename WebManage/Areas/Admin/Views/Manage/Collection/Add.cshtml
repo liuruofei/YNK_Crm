@@ -1,0 +1,254 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Id" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">学员名称</label>
+        <div class="layui-input-block" style="position:relative">
+            <input class="layui-input" name="StudentName" />
+            <div class="members" id="members">
+
+            </div>
+            <input name="StudentUid" type="hidden" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">关联合同</label>
+        <div class="layui-input-block">
+            <input name="RelationShip_Contras" type="text" class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">收款金额</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="Amount" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">使用余额</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="DeductAmount" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">收款方式</label>
+        <div class="layui-input-block">
+            <input name="PayMothed" type="radio" title="现金" value="1" />
+            <input name="PayMothed" type="radio" title="刷卡" value="2" />
+            <input name="PayMothed" type="radio" title="汇款" value="3" checked />
+        </div>
+    </div>
+    <div class="layui-form-item" id="oneOfone" style="display:none">
+        <label class="layui-form-label">项目详情</label>
+        <div class="layui-input-block" style="display:flex;flex-wrap:wrap" id="projectItem">
+
+        </div>
+        <div class="layui-input-block" id="classItem">
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">收款日期</label>
+        <div class="layui-input-block">
+            <input class="layui-input" name="Collection_Time" id="Collection_Time" type="text" />
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .members {
+            position: absolute;
+            top: 36px;
+            display: block;
+            width: 100%;
+            background-color: #f8f8f8;
+            padding-top: 1px;
+            z-index: 2;
+            padding-bottom: 20px;
+            display:none;
+        }
+
+        .item{
+            border-bottom: solid #ddd 1px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            padding-left: 8px;
+            margin-top: 3px;
+            cursor: pointer;
+            width: 100%;
+            z-index: 3;
+        }
+        .SaleItem {
+            min-width: 163px;
+            margin-right:10px;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script type="text/template" id="membersTemp">
+        {{each data item index}}
+        <div class="item">
+            <span data-value="{{item.StudentUid}}">{{item.Student_Name}}</span>
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/template" id="saleItemTemp">
+        {{each data item index}}
+        <div class="SaleItem">
+            <span>{{item.SubjectName}}({{item.ProjectName}})</span>
+            <br/><input name="ItemAmount" data-detailId="{{item.Id}}" class="layui-input" type="number"/> 
+        </div>
+        {{/each}}
+    </script>
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate','formSelects'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+            var laydate = layui.laydate;
+            var formSelects = layui.formSelects;
+            //日期
+            laydate.render({
+                elem: '#Collection_Time',
+                format: 'yyyy-MM-dd HH:mm:ss'
+            });
+            formSelects.render('relationShipContrac');
+            form.render
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        if (r.StudentUid != null) {
+                            //var contracs = r.RelationShip_Contras.split(",");
+                            bindContrac(r.StudentUid, r.RelationShip_Contras, r.ListCollectionDetail);
+                        }
+                    }
+                });
+            },
+            Save: function (data) {
+                data.field.CollectionDetail = [];
+                $("input[name='ItemAmount']").each(function (i, item) {
+                    var ChildDetailId = $(item).attr("data-detailId");
+                    var collectionId = $("input[name='Id']").val() == "" ? 0 : parseInt($("input[name='Id']").val());
+                    data.field.CollectionDetail.push({ ChildDetailId: ChildDetailId, CollectionId: collectionId, Amount: $(item).val()});
+                });
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        $("input[name='StudentName']").keyup(function () {
+            if ($(this).val() != undefined && $(this).val()!=null) {
+                    adminForm.load({
+                        url:"@Url.Action("QueryUserByName")",
+                        data:{username:$(this).val()},
+                        dataType: 'json',
+                        callBack: function (result) {
+                                if (result != null && result != undefined) {
+                                    document.getElementById("members").style.display = "block";
+                                    var html = template("membersTemp", { data: result });
+                                    document.getElementById("members").innerHTML = html;
+                                    $("div[class='item']").click(function () {
+                                        var studentuid = $(this).find("span").attr("data-value");
+                                        var studentName = $(this).find("span").text();
+                                        document.getElementById("members").style.display = "none";
+                                        $("input[name='StudentUid']").val(studentuid);
+                                        $("input[name='StudentName']").val(studentName);
+                                        bindContrac(studentuid);
+                                    });
+                                }
+                                else {
+                                    document.getElementById("members").style.display = "none";
+                                }
+                        }
+                    });
+            }
+        })
+            function bindContrac(uid, defaultValue, listItem) {
+                if (defaultValue != null && defaultValue != '' && defaultValue != undefined) {
+                    $("input[name='RelationShip_Contras']").val(defaultValue);
+                    bindProjectItem(defaultValue, listItem);
+                } else {
+                   adminForm.load({
+                        url: "@Url.Action("QueryRelationShipChildContrac")",
+                        data:{studentUid:uid},
+                        dataType: 'json',
+                        callBack: function (rou) {
+                            if (rou != null) {
+                                var result = rou;
+                                var contrc = "";
+                                for (var i = 0; i < result.length; i++) {
+                                    if (i != 0)
+                                        contrc=result[i].Contra_ChildNo;
+                                    else {
+                                        contrc= result[i].Contra_ChildNo;
+                                        bindProjectItem(result[i].Contra_ChildNo, listItem);
+                                    }
+                                }
+                                $("input[name='RelationShip_Contras']").val(contrc);
+                            }
+                        }
+                    });
+                }
+            };
+            $("input[name='RelationShip_Contras']").keyup(function () {
+                var contrcValue = $(this).val();
+                if (contrcValue == "") {
+                    document.getElementById("projectItem").innerHTML = "";
+                    document.getElementById("oneOfone").style.display = "none";
+                } else {
+                    document.getElementById("oneOfone").style.display = "block";
+                    bindProjectItem(contrcValue);
+                }
+            });
+            function bindProjectItem(contracNo, listItem) {
+                      adminForm.load({
+                        url:"@Url.Action("QuerySubjectByContrac")",
+                        data:{childcontracNo:contracNo},
+                        dataType: 'json',
+                        callBack: function (result) {
+                            if (result != null && result != undefined) {
+                                console.log(result);
+                                document.getElementById("oneOfone").style.display = "block";
+                                    var html = template("saleItemTemp", { data: result });
+                                    document.getElementById("projectItem").innerHTML = html;
+                                    if (listItem != undefined && listItem != null) {
+                                        listItem.forEach(iv => {
+                                            $("input[name='ItemAmount'][data-detailId='" + iv.ChildDetailId + "']").val(iv.Amount);
+                                        });
+                                    }
+                                }
+                        }
+                    });
+            }
+
+        });
+    </script>
+}

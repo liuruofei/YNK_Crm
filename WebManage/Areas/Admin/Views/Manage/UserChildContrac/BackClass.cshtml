@@ -1,0 +1,94 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Contra_ChildNo" id="Contra_ChildNo" type="hidden" value="@ViewBag.ChildContrcNo" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同编号</label>
+            <div class="layui-input-block" style="line-height: 38px;">
+                <span>@ViewBag.ChildContrcNo</span>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-inline">
+                <input type="checkbox" class="layui-form-checkbox" value="true" name="IsOrg" lay-filter="IsOrg" checked />原价退回
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="display:none" id="dingyiPrice">
+        <label class="layui-form-label">协商价格</label>
+        <div class="layui-input-block">
+            <input class="layui-input" name="BackCost" id="BackCost" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block">
+           <textarea name="Msg" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        var App = {
+            Load: function () {
+
+            },
+            Save: function (data) {
+                   layer.confirm('确定退出该班吗？', {
+                        btn: ['确定', '取消'] //按钮
+                        }, function () {
+                           adminForm.Save({
+                               url: '@Url.Action("ChildContrcRetrunClass")',
+                               data: { Contra_ChildNo: $("#Contra_ChildNo").val(), IsOrg: $("input[name='IsOrg']").val(), BackCost: $("input[name='BackCost']").val(), Msg: $("textarea[Name='Msg']").text()},
+                               callBack: function (result) {
+                                   layer.msg(result.msg);
+                               }
+                           });
+                    }, function () {
+
+                    });
+            }
+        }
+
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+            form.on('checkbox(IsOrg)', function (data) {
+                if ($(this).prop("checked") == false) {
+                    $("#dingyiPrice").show();
+                }
+                else {
+                    $("#dingyiPrice").css("display","none");
+                }
+        });
+      });
+    </script>
+}

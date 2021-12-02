@@ -1,0 +1,184 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="ClueId" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="color:#ddd">学生姓名</label>
+            <div class="layui-input-inline">
+                <input name="Student_Name" maxlength="120" class="layui-input" readonly disabled />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="color:#ddd">性别</label>
+            <div class="layui-input-inline">
+                <input type="radio" value="男" name="Sex" title="男" readonly="readonly" disabled/>
+                <input type="radio" value="女" name="Sex" title="女" readonly="readonly" disabled/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="color:#ddd">出生年月</label>
+            <div class="layui-input-inline">
+                <input type="text" name="Birthday" id="Birthday" class="layui-input" readonly disabled style="color:#ddd"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">签约可能性</label>
+            <div class="layui-input-block">
+                <input type="radio" value="0" name="ContracRate" title="小" />
+
+                <input type="radio" value="1" name="ContracRate" title="一般" />
+
+                <input type="radio" value="2" name="ContracRate" title="大" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">是否上门</label>
+            <div class="layui-input-block">
+                <input type="radio" value="0" name="Is_Visit" title="未上门" />
+
+                <input type="radio" value="1" name="Is_Visit" title="已上门" />
+
+                <input type="radio" value="2" name="Is_Visit" title="登记汇款" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">追踪时间</label>
+            <div class="layui-input-inline">
+                <input  type="text" name="Follow_Date" id="Follow_Date" class="layui-input" placeholder="选择跟踪时间" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">上门时间</label>
+            <div class="layui-input-inline">
+                <input type="text" name="Visit_Date" id="Visit_Date" class="layui-input" placeholder="选择上门时间" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">追踪内容</label>
+        <div class="layui-input-block">
+            <textarea name="Follow_Content" style="width:98%;height:150px;"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">跟进计划</label>
+        <div class="layui-input-block">
+            <textarea name="Follow_Plan" style="width:98%;height:150px;"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+
+
+        //日期
+        laydate.render({
+            elem: '#Birthday',
+            type: 'date'
+        });
+        laydate.render({
+            elem: '#Follow_Date',
+            type: 'date'
+        });
+        laydate.render({
+            elem: '#Visit_Date',
+            type: 'date'
+        });
+        var App = {
+            Load: function () {
+                    adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                        callBack: function (r) {
+                            console.log(r);
+                            $("#Birthday").val(dateFtt("yyyy-MM-dd", r.Birthday));
+                            if (r.Follow_Date!=null)
+                                $("#Follow_Date").val(dateFtt("yyyy-MM-dd", r.Follow_Date));
+                            if (r.Visit_Date != null)
+                                $("#Visit_Date").val(dateFtt("yyyy-MM-dd", r.Visit_Date));
+                            if (r.Sex != undefined && r.Sex != null) {
+                                $("input[name='Sex'][value='" + r.Sex + "']").attr("checked");
+                            }
+                            if (r.Student_Status != undefined && r.Student_Status != null) {
+                                $("input[name='Student_Status'][value='" + r.Student_Status + "']").attr("checked", true);
+                            }
+                        }
+                    });
+            },
+            Save: function (data) {
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveClueRecord")' : '@Url.Action("SaveClueRecord")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+     });
+    function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+    </script>
+}

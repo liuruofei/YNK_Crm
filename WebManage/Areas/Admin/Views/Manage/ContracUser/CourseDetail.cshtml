@@ -1,0 +1,218 @@
+﻿<div class="layui-tab layui-tab-card" lay-filter="tabCourseDetail" style="margin:10px">
+    <input type="hidden" name="studentUid" value="@ViewBag.StudentUid" />
+    <ul class="layui-tab-title">
+        <li class="layui-this">课程统计</li>
+        <li>课程明细</li>
+    </ul>
+    <div class="layui-tab-content" style="padding:0px;">
+        <div class="layui-tab-item layui-show" style="padding-top:10px" id="UseTotal">
+
+
+        </div>
+        <div class="layui-tab-item" style="padding-top:10px">
+            <div class="layui-form">
+                <div style="display:flex;flex-wrap:wrap;">
+                    <div style="display:flex">
+                        <label class="layui-form-label w-auto">开始时间：</label>
+                        <input type="text" class="layui-input" name="StartTime" id="StartTime" style="flex:1;" />
+                        <label class="layui-form-label w-auto">截止时间：</label>
+                        <input type="text" class="layui-input" name="EndTime" id="EndTime" style="flex:1" />
+                        <label class="layui-form-label w-auto">分类：</label>
+                        <select name="SubjectId" class="layui-select" lay-filter="SubjectId" id="SubjectId"></select>
+                        <label class="layui-form-label w-auto">科目：</label>
+                        <select name="ProjectId" class="layui-select" id="ProjectId"></select>
+                        <button id="btnSearch" class="layui-btn icon-btn" style="margin-left:6px"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                    <div style="flex: 1;line-height:39px;text-align:center;font-weight:600">
+                        <label id="totalCourseTime"></label>
+                    </div>
+                </div>
+            </div>
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+<style>
+    .leftTotalItem {
+        margin-top: 10px;
+        box-shadow: rgb(247 242 242) 1px 1px inset;
+        line-height: 36px;
+        padding-left: 10px;
+        display: flex;
+    }
+        .leftTotalItem .item {
+          width:120px;
+        }
+</style>
+@section js{
+    <script type="text/html" id="templateItem">
+        {{each data item index}}
+        {{if item.ClassId>0}}
+        <div class="leftTotalItem">
+            <div>
+                <span style="font-weight: 700">小班:{{item.Class_Name}}</span>
+            </div>
+            <div class="item" style="margin-left:30px">分类:{{item.SubjectName}}</div>
+            <div class="item">总课时:{{item.Class_Course_Time}}</div>
+            <div class="item">已用课时:{{item.Class_Course_UseTime}}</div>
+            <div class="item">还剩课时:{{item.Class_Course_Time-item.Class_Course_UseTime}}</div>
+        </div>
+        {{else}}
+        <div class="leftTotalItem">
+            <div>
+                <span style="font-weight:700">1对1:{{item.SubjectName}}</span>
+            </div>
+            <div class="item" style="margin-left:30px">科目:{{item.ProjectName}}</div>
+            <div class="item">总课时:{{item.Course_Time}}</div>
+            <div class="item">已用课时:{{item.Course_UseTime}}</div>
+            <div class="item">还剩课时:{{item.Course_Time-item.Course_UseTime}}</div>
+        </div>
+        {{/if}}
+        {{/each}}
+    </script>
+    <script type="text/javascript">
+        layui.use(['adminList', 'element', 'adminForm', 'laydate', 'form'], function () {
+        var adminList = layui.adminList;
+        var element = layui.element;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        var form = layui.form;
+        laydate.render({
+            elem: '#StartTime',
+            type: 'date'
+        });
+        laydate.render({
+            elem: '#EndTime',
+            type: 'date'
+        });
+
+        adminForm.load({
+            url: "@Url.Action("QuerySubject","ContracUser")",
+            dataType: 'json',
+            callBack: function (rou) {
+                    if (rou.data != null) {
+                        var result = rou.data;
+                        $("select[name='SubjectId']").html("<option value='0'>-分类-</option>");
+                        $("select[name='ProjectId']").html("<option value='0'>-科目-</option>");
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                        }
+                    }
+                }
+            });
+        form.on('select(SubjectId)', function (data) {
+                var sujectId=data.value;
+                adminForm.load({
+                url: "@Url.Action("QueryProject", "ContracUser")?subjectId=" + sujectId,
+                dataType: 'json',
+                    callBack: function (rou) {
+                     $("select[name='ProjectId']").html("<option value='0'>-科目-</option>");
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            for (var i = 0; i < result.length; i++) {
+                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                        }
+                    }
+                });
+            });
+        var initable=adminList.tableLayUI({
+                elem: '#userTable',
+                url: '@Url.Action("QueryWorkDetailSource")',
+                page: true,
+                where: {
+                    studentUid:$("input[name='studentUid']").val(),startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val()
+                },
+                cellMinWidth: 100,
+                cols: [[
+                    { type: 'numbers' },
+                    {
+                        field: 'Work_Title', title: '上课科目', sort: true, templet: function (d) {
+                            if (d.ClasssId > 0) {
+                                return d.Work_Title + " - " + d.SubjectName;
+                            }
+                            else {
+                                return d.Work_Title;
+                            }
+                        }
+                    },
+                    {
+                        field: 'AT_Date', title: '上课日期', sort: true, width: 120, templet: function (d) {
+                            return dateFtt("yyyy-MM-dd", d.AT_Date);
+                        }
+                    },
+                    {
+                        field: 'StartTime', title: '时间段', sort: true, width: 120, templet: function (d) {
+                            return d.StartTime + " - " + d.EndTime;
+                        }
+                    },
+                    { field: 'CourseTime', title: '课时', sort: true, width: 120 },
+                    { field: 'TeacherName', title: '教师', sort: true, width: 120 },
+                    { field: 'RoomName', title: '教室', sort: true, width: 120 },
+                ]],
+                parseData: function (res) {
+                    if (res.totalRow != null)
+                        $("#totalCourseTime").text($("#txtTitle").val() + "已上课时：" + res.totalRow.totalCourseTime + "h");
+                    else
+                        $("#totalCourseTime").text("");
+                }
+        });
+        function initTotal() {
+            adminForm.load({
+            url: "@Url.Action("QueryStudentTotal", "ContracUser")",
+            data:{studentUid: $("input[name='studentUid']").val()},
+            dataType: 'json',
+            callBack: function (rou) {
+                if (rou.data != null) {
+                    console.log(rou.data);
+                        var result = rou.data;
+                        var html = template("templateItem", { data: result});
+                        document.getElementById("UseTotal").innerHTML = html;
+                    }
+                }
+            });
+        }
+        initTotal();
+        element.on('tab(tabCourseDetail)', function (data) {
+            if (data.index == 0) {
+                initTotal();
+            } else if (data.index == 1) {
+                initable.reload({
+                    where: {
+                        studentUid:$("input[name='studentUid']").val(), startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val(),
+                        subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val()
+                    }
+                });
+            }
+        });
+        $("#btnSearch").click(function () {
+            initable.reload({
+                where: {
+                    studentUid: $("input[name='studentUid']").val(), startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val(),
+                    subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val()
+                }
+            });
+
+        });
+    });
+
+    function dateFtt(fmt, val) { //author: meizz
+        var date = new Date(val);
+        var o = {
+            "M+": date.getMonth() + 1,     //月份
+            "d+": date.getDate(),     //日
+            "h+": date.getHours(),     //小时
+            "m+": date.getMinutes(),     //分
+            "s+": date.getSeconds(),     //秒
+            "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+            "S": date.getMilliseconds()    //毫秒
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    </script>
+}

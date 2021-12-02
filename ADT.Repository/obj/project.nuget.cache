@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nI0HjPf+zIbdLA3hPUmtZHJap4HapOSF0XUQ5yK3WxPLylyHEZAG2EeZ8HUMt8Jscm09SGQZZfcx3xAijR3UTA==",
+  "dgSpecHash": "p9XqRX1WRqr+ildPoBId3bcRrLvC7gVDBc6ATdtaCSJrrkJFzbPgHt/OyIuZ5Eou4ylD/lRg3fta/UdSDb/HqQ==",
   "success": true,
-  "projectFilePath": "D:\\Dingzhihua2\\ADT.Repository\\ADT.Repository.csproj",
+  "projectFilePath": "D:\\YNK_Crm\\ADT.Repository\\ADT.Repository.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\86158\\.nuget\\packages\\google.protobuf\\3.5.1\\google.protobuf.3.5.1.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.data.sqlite\\2.2.4\\microsoft.data.sqlite.2.2.4.nupkg.sha512",

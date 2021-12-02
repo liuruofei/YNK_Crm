@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tjNN+v462qaOMerx0x84QmxmJwCA3+43GFub2RnKTaJXHMcfg5ypWH8LU/cdp1mAIWWU1vEZP0oQGfrZC/1y2Q==",
+  "dgSpecHash": "gGrwcPZStbI62wgaM7EMpu93mSJNfLJnxoKjAEbL8iGNkvKd5MLOnlU3dx++flBe2NXmmBtLu2CR5IVsjgiuWA==",
   "success": true,
-  "projectFilePath": "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj",
+  "projectFilePath": "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\86158\\.nuget\\packages\\google.protobuf\\3.5.1\\google.protobuf.3.5.1.nupkg.sha512",
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.csharp\\4.3.0\\microsoft.csharp.4.3.0.nupkg.sha512",

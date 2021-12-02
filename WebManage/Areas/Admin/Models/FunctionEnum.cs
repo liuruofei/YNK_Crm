@@ -33,6 +33,10 @@ namespace WebManage.Areas.Admin.Models
         /// <summary>
         /// 导出
         /// </summary>
-        GetExcel
+        GetExcel,
+        /// <summary>
+        /// 审核
+        /// </summary>
+        Audit,
     }
 }

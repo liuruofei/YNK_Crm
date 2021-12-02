@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj": {}
+    "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj": {}
   },
   "projects": {
-    "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj": {
+    "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj",
+        "projectUniqueName": "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj",
         "projectName": "ADT.Common",
-        "projectPath": "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj",
+        "projectPath": "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj",
         "packagesPath": "C:\\Users\\86158\\.nuget\\packages\\",
-        "outputPath": "D:\\Dingzhihua2\\ADT.Common\\obj\\",
+        "outputPath": "D:\\YNK_Crm\\ADT.Common\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

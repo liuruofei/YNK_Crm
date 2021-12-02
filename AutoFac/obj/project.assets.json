@@ -3391,11 +3391,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Dingzhihua2\\AutoFac\\AutoFacTory.csproj",
+      "projectUniqueName": "D:\\YNK_Crm\\AutoFac\\AutoFacTory.csproj",
       "projectName": "AutoFacTory",
-      "projectPath": "D:\\Dingzhihua2\\AutoFac\\AutoFacTory.csproj",
+      "projectPath": "D:\\YNK_Crm\\AutoFac\\AutoFacTory.csproj",
       "packagesPath": "C:\\Users\\86158\\.nuget\\packages\\",
-      "outputPath": "D:\\Dingzhihua2\\AutoFac\\obj\\",
+      "outputPath": "D:\\YNK_Crm\\AutoFac\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

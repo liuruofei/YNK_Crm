@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dingzhihua2\\ADT.Repository\\ADT.Repository.csproj": {}
+    "D:\\YNK_Crm\\ADT.Repository\\ADT.Repository.csproj": {}
   },
   "projects": {
-    "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj": {
+    "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj",
+        "projectUniqueName": "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj",
         "projectName": "ADT.Models",
-        "projectPath": "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj",
+        "projectPath": "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj",
         "packagesPath": "C:\\Users\\86158\\.nuget\\packages\\",
-        "outputPath": "D:\\Dingzhihua2\\ADT.Models\\obj\\",
+        "outputPath": "D:\\YNK_Crm\\ADT.Models\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -68,14 +68,14 @@
         }
       }
     },
-    "D:\\Dingzhihua2\\ADT.Repository\\ADT.Repository.csproj": {
+    "D:\\YNK_Crm\\ADT.Repository\\ADT.Repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dingzhihua2\\ADT.Repository\\ADT.Repository.csproj",
+        "projectUniqueName": "D:\\YNK_Crm\\ADT.Repository\\ADT.Repository.csproj",
         "projectName": "ADT.Repository",
-        "projectPath": "D:\\Dingzhihua2\\ADT.Repository\\ADT.Repository.csproj",
+        "projectPath": "D:\\YNK_Crm\\ADT.Repository\\ADT.Repository.csproj",
         "packagesPath": "C:\\Users\\86158\\.nuget\\packages\\",
-        "outputPath": "D:\\Dingzhihua2\\ADT.Repository\\obj\\",
+        "outputPath": "D:\\YNK_Crm\\ADT.Repository\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -95,8 +95,8 @@
           "netstandard2.0": {
             "targetAlias": "netstandard2.0",
             "projectReferences": {
-              "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj": {
-                "projectPath": "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj"
+              "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj": {
+                "projectPath": "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj"
               }
             }
           }

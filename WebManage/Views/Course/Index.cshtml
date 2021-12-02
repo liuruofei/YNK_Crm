@@ -1,0 +1,80 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en" id="top" class="js no-touch">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>优能考官网平台管理</title>
+    <link rel="stylesheet" href="/assets/libs/layui/css/layui.css" />
+    <meta name="theme-color" content="#1f2935">
+    <meta content="IE=edge,chrome=1">
+    <title>优能考今日课程列表</title>
+</head>
+<body>
+    <div style="text-align:center;">
+        <h2 style="margin-top:10px;">今日课程</h2>
+        <table class="layui-table">
+            <tbody id="coursebody">
+            </tbody>
+        </table>
+    </div>
+    <!-- js部分 -->
+    <script src="~/assets/libs/jquery/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="~/assets/libs/layui/layui.js"></script>
+    <script type="text/javascript" src="~/assets/js/common.js?v=311"></script>
+    <script src="~/assets/js/template-web.js"></script>
+    <script type="text/javascript">
+        layui.use(['form', 'util', 'admin', 'adminList'], function () {
+            var adminList = layui.adminList;
+            // 渲染表格
+            var insTb = adminList.tableLayUI({
+                elem: '#coursebody',
+                url: '@Url.Action("QueryWorkSource")',
+                page: false,
+                cellMinWidth: 100,
+                cols: [[
+                    {
+                        field: 'AT_Date', title: '上课日期', sort: true,align:"center", templet: function (d) {
+                            return dateFtt("yyyy-MM-dd",d.AT_Date);
+                        }
+                    },
+                    {
+                        field: 'StartTime', title: '时间', sort: true, align: "center", templet: function (d) {
+                            return d.StartTime + "-" + d.EndTime;
+                        }
+                    },
+                    {
+                        field: 'Work_Title', title: '课程', sort: true, width: 320, align: "center", templete: function (d) {
+                            return d.Work_Title;
+                        }
+                    },
+                    { field: 'TeacherName', title: '教师', align: "center", sort: true },
+                    { field: 'RoomName', title: '教室', align: "center", sort: true },
+                ]]
+            });
+        });
+
+        function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+    </script>
+</body>
+</html>

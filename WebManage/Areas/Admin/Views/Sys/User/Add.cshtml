@@ -30,6 +30,12 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">校区</label>
+        <div class="layui-input-block">
+        <select name="CampusId"></select>
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">角色</label>
         <div class="layui-input-block">
             <select name="Role_ID" lay-verType="tips" lay-verify="required">
@@ -70,6 +76,24 @@
                     dataType: 'json',
                     callBack: function (r) {
                         $('input[name="User_IsDelete"][value="' + r.User_IsDelete + '"]').prop("checked", true);
+
+                              adminForm.load({
+                                url: "@Url.Action("QueryCampus")",
+                                dataType: 'json',
+                                callBack: function (rou) {
+                                    if (rou.data != null) {
+                                        var result = rou.data;
+                                        for (var i = 0; i < result.length; i++) {
+                                            if (r != undefined && r.CampusId != null && r.CampusId == result[i].CampusId) {
+                                                $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + ' selected>' + result[i].CampusName +'</option>');
+
+                                            } else {
+                                                $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + '>' + result[i].CampusName + '</option>');
+                                            }
+                                        }
+                                    }
+                                }
+                              });
                     }
                 });
             },

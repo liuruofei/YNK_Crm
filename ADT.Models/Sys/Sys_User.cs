@@ -64,5 +64,11 @@ namespace ADT.Models
         /// </summary>           
         public DateTime? User_CreateTime { get; set; }
 
+
+        /// <summary>
+        /// 校区Id
+        /// </summary>
+        public int CampusId { get; set; }
+
     }
 }

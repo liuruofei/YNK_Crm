@@ -1,0 +1,987 @@
+﻿@model WebManage.Models.Res.ContracInfmotion
+@{
+    var clueId = ViewBag.ClueId;
+    var studentId = ViewBag.StudentUid;
+
+}
+<style>
+    .layui-field-title {
+        margin: 10px 0 10px;
+        border-width: 1px 0 0;
+    }
+    .layui-form-label.required:after {
+        content: ' *';
+        color: red;
+    }
+</style>
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="ClueId" type="hidden" value="@ViewBag.ClueId" />
+    <input name="StudentUid" type="hidden" value="@ViewBag.StudentUid" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label required">学生姓名</label>
+            <div class="layui-input-inline" style="line-height: 35px;">
+                <input class="layui-input" value="@Model.StudentName" name="Student_Name" lay-verify="required" required/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">编号</label>
+            <div class="layui-input-inline" style="line-height: 36px;">
+                <span>@Model.StudentNo</span>
+                <input name="Student_No" type="hidden" value="@Model.StudentNo" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">余额</label>
+            <div class="layui-input-inline" style="line-height: 36px;">
+                <span>@Model.Amount</span>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同编号</label>
+            <div class="layui-input-inline" style="line-height: 36px;">
+                <span>@Model.ContraNo</span>
+                <input name="ContraNo" type="hidden" value="@Model.ContraNo" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">合同中心</label>
+            <div class="layui-input-inline">
+                <select name="ContraCenterId"></select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">上课校区</label>
+            <div class="layui-input-inline">
+                <select name="CampusId"></select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">学员手机</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Student_Phone" value="@Model.Student_Phone"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">学员微信</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Student_Wechat" value="@Model.Student_Wechat"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">年级</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Grade"  value="@Model.Grade"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-inline">
+                @if (Model.Sex == "男")
+                {
+                    <input type="radio" value="男" name="Sex" title="男" checked />
+                    <input type="radio" value="女" name="Sex" title="女" />
+                }
+                else
+                {
+                    <input type="radio" value="男" name="Sex" title="男" />
+                    <input type="radio" value="女" name="Sex" title="女" checked />
+                }
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">生日</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Birthday" value="@Model.Birthday"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">在读学校</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="InSchool" value="@Model.InSchool"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">家长姓名</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Elder_Name" value="@Model.Elder_Name"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">家长手机</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Elder_Phone" value="@Model.Elder_Phone"/>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">家长微信</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Elder_Wechat" value="@Model.Elder_Wechat"/>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+            <legend>创建子合同</legend>
+        </fieldset>
+        <div style="padding:9px 16px">
+            <button type="button" class="btn btn-primary btn-lg" id="btnAddChild">
+                添加子合同
+            </button>
+            <table class="layui-table">
+                <thead>
+                    <tr>
+                        <th>合同编号</th>
+                        <th>合同类型</th>
+                        <th>合同金额</th>
+                        <th>课时/小班号</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="child_Contrc">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+    <div class="modalLog" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="childContrcDilog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                    <legend>子合同信息</legend>
+                </fieldset>
+                <input type="hidden" name="Contra_ChildNo" />
+                <div class="layui-form-item" style="display:none">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">开始时间</label>
+                        <div class="layui-input-inline">
+                            <input name="StartTime" type="text" class="layui-input" id="StartTime" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">学习状态</label>
+                        <div class="layui-input-inline">
+                            <input name="StudyStatus" type="text" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">周期数</label>
+                        <div class="layui-input-inline">
+                            <input name="Cycle" type="number" class="layui-input" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">授课方式</label>
+                        <div class="layui-input-inline">
+                            <select name="StudyMode" lay-verify="required" lay-search="" lay-filter="StudyMode">
+                                <option value="1">一对一</option>
+                                <option value="2">小班</option>
+                                <option value="3">付费教材</option>
+                                <option value="4">考团</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="display:none" id="partClass">
+                        <label class="layui-form-label">小班</label>
+                        <div class="layui-input-inline">
+                            <select name="ClassId" lay-search="" lay-filter="ClassId">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline" id="partClassHourse" style="display:none">
+                        <label class="layui-form-label">课时</label>
+                        <div class="layui-input-inline">
+                            <input name="Class_Course_Time" type="text" class="layui-input" value="0" disabled />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">合同原价</label>
+                        <div class="layui-input-inline">
+                            <input name="Original_Amount" type="text" class="layui-input" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">折扣</label>
+                        <div class="layui-input-inline">
+                            <select name="ContraRateSelect" lay-filter="ContraRateSelect">
+                                <option value="9">9</option>
+                                <option value="9.5">9.5</option>
+                                <option value="0">无</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline" style="display:none">
+                            <input name="ContraRate" type="text" class="layui-input" id="ContraRate" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">优惠金额</label>
+                        <div class="layui-input-inline" style="line-height:36px;">
+                            <span id="Discount_Amount"></span>
+                            <input name="Discount_Amount" type="hidden" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">合同属性</label>
+                        <div class="layui-input-inline">
+                            <input type="radio" name="Contra_Property" value="0" title="新签" checked="checked" lay-filter="ChoiceRadio" />
+                            <input type="radio" name="Contra_Property" value="1" title="续约" lay-filter="ChoiceRadio" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">优惠联报</label>
+                        <div class="layui-input-inline">
+                            <input type="checkbox" name="IsPreferential" value="1" lay-filter="ChoiceCheckbox" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">折后价格</label>
+                        <div class="layui-input-inline" style="line-height:36px;">
+                            <span id="Saler_Amount"></span>
+                            <input name="Saler_Amount" type="hidden" />
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">合同备注</label>
+                        <div class="layui-input-inline" style="line-height:36px;">
+                            <span></span>
+                            <textarea name="Remarks" style="width:457px;height:86px"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div id="OneOfOne">
+                    <fieldset class="layui-elem-field layui-field-title">
+                        <legend>合同明细</legend>
+                    </fieldset>
+                    <div style="width:100%;text-align:right"><button type="button" id="sumTotal">合计总价</button></div>
+                    <table class="layui-table" lay-filter="childContrcDetail">
+                        <thead>
+                            <tr>
+                                <td>考试类型</td>
+                                <td>科目</td>
+                                <td>课时</td>
+                                <td>级别</td>
+                                <td>价格</td>
+                                <td>操作</td>
+                            </tr>
+                        </thead>
+                        <tbody id="child_Contrc_Detail">
+                            <tr>
+                                <td><select name="SubjectId"></select></td>
+                                <td><select name="ProjectId"></select></td>
+                                <td><input type="text" name="Course_Time" style="width:80px" class="layui-input" /></td>
+                                <td>
+                                    <select name="Level" style="width:60px;">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
+                                </td>
+                                <td><input type="text" name="Price" style="width:120px" class="layui-input" /></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="layui-inline" style="width:100%;text-align:center;padding:10px;">
+                    <button type="button" id="addDetail">新增明细</button>
+                    <button type="button" id="saveChild">保存</button>
+                    <button type="button" id="CancelDetail">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .modalLog {
+            position: fixed;
+            width: 996px;
+            height: 651px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 1px 1px 50px rgb(0 0 0 / 30%) !important;
+            background-color: white;
+            bottom: 0px;
+            top: 6px;
+            left: 33px;
+            overflow-y: auto;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script type="text/html" id="templateChild">
+        {{each data item index}}
+        <tr>
+            <td>{{item.Contra_ChildNo}}</td>
+            <td>
+                {{if item.StudyMode==1}}
+                <span>一对一</span>
+                {{else if item.StudyMode==2}}
+                <span>小班</span>
+                {{else if item.StudyMode==3}}
+                <span>付费教材</span>
+                {{/if}}
+            </td>
+            <td>{{item.Saler_Amount}}</td>
+            <td>
+                {{if item.StudyMode==2}}
+                <span>{{item.Class_Course_Time}} / {{item.ClassName}}</span>
+                {{else}}
+                <span>{{item.CourseTimeTotal}}</span>
+                {{/if}}
+            </td>
+            <td>
+                <button type="button" data-childNo="{{item.Contra_ChildNo}}" onclick="editChild(this)">修改</button>
+                <button type="button" data-childNo="{{item.Contra_ChildNo}}" onclick="removeContraDetail(this)">删除</button>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script type="text/html" id="templateItemAdd">
+        <tr>
+            <td><select name="SubjectId" lay-filter="SubjectId"></select></td>
+            <td><select name="ProjectId"></select></td>
+            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="1" lay-event="Course_Time"  lay-filter="Course_Time" /></td>
+            <td>
+                <select name="Level" style="width:60px;" lay-filter="Level">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </td>
+            <td><input type="text" name="Price" style="width:120px" class="layui-input" /></td>
+            <td>
+                <button type="button" onclick="DelItem(this)">删除</button>
+            </td>
+        </tr>
+    </script>
+    <script type="text/html" id="templateItem">
+        {{each data item index}}
+        <tr>
+            <td><select name="SubjectId" lay-filter="SubjectId"></select></td>
+            <td><select name="ProjectId"></select></td>
+            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="{{item.Course_Time}}" lay-event="Course_Time" lay-filter="Course_Time" /></td>
+            <td>
+                <select name="Level" style="width:60px;" lay-filter="Level">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </td>
+            <td><input type="text" name="Price" style="width:120px" class="layui-input" value="{{item.Price}}" /></td>
+            <td><button type="button" onclick="DelItem(this)">删除</button></td>
+        </tr>
+        {{/each}}
+    </script>
+
+    <script>
+        var subjectList = [];
+        var campusList = [];
+        var classList = [];
+        var childList = [];
+        var childInfo = {
+            Sort: 0,
+            CourseTimeTotal: 0,
+            Class_Course_Time:0,
+            Contra_ChildNo: '',
+            StartTime: '',
+            StudyStatus: '',
+            Cycle: '',
+            StudyMode: 0,
+            ClassId: 0,
+            IsPreferential: 0,
+            Original_Amount: 0,
+            ContraRate: 0,
+            Discount_Amount: 0,
+            Contra_Property: 0,
+            Saler_Amount: 0,
+            Remarks: '',
+            Child_Detail: []
+        };
+        var childInputInfo = {
+            Contra_ChildNo: '',
+            Class_Course_Time: 0,
+            StartTime: '',
+            StudyStatus: '',
+            Cycle: '',
+            StudyMode: 0,
+            ClassId: 0,
+            IsPreferential: 0,
+            Original_Amount: 0,
+            ContraRate: 0,
+            Discount_Amount: 0,
+            Contra_Property: 0,
+            Saler_Amount: 0,
+            Remarks: ''
+        }
+        layui.use(['form', 'admin', 'adminForm', 'laydate','table'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        var table = layui.table;
+        var clueId = '@clueId';
+        var studentId = '@studentId';
+
+        //日期
+        laydate.render({
+            elem: '#StartTime',
+            format: 'yyyy-MM-dd'
+        });
+        var App = {
+            Load: function () {
+                    adminForm.load({
+                    url: "@Url.Action("QuerySubject")",
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            subjectList = result;
+                        }
+                       }
+                    });
+                    adminForm.load({
+                    url: "@Url.Action("QueryCampus")",
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            campusList = result;
+                            for (var i = 0; i < result.length; i++) {
+                                    $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + '>' + result[i].CampusName + '</option>');
+                            }
+                        }
+                    }
+                   });
+                   adminForm.load({
+                    url: "@Url.Action("QueryClass")",
+                    dataType: 'json',
+                    data: { typeId:0},
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            classList = result;
+                            for (var i = 0; i < result.length; i++) {
+                                $("select[name='ClassId']").append('<option value ="' + result[i].ClassId + '" price="' + result[i].Price + '" classTime="' + result[i].Course_Time+'">' + result[i].Class_Name + '</option>');
+                            }
+                        }
+                    }
+                   });
+                   adminForm.load({
+                    url: "@Url.Action("QueryContraCenter")",
+                    dataType: 'json',
+                    data: { typeId:0},
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            for (var i = 0; i < result.length; i++) {
+                                $("select[name='ContraCenterId']").append('<option value ="' + result[i].Id + '">' + result[i].ContraCenter_Name + '</option>');
+                            }
+                        }
+                    }
+                  });
+
+            },
+            LastLoadProject: function (sujectId) {
+                    adminForm.load({
+                    url: "@Url.Action("QueryProject")?subjectId=" + sujectId,
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            for (var i = 0; i < result.length; i++) {
+                                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                        }
+                       }
+                    });
+            },
+            Save: function (data) {
+                if (data.field.Student_Phone == "" && data.field.Student_Wechat == "" && data.field.Elder_Phone == "" && data.field.Elder_Wechat == "") {
+                    layer.msg("请填写学员手机,微信，家长手机,微信的其中一项");
+                    return false;
+                }
+                if (childList == null || (childList!=null&&childList.length < 1)) {
+                    layer.msg("请添加子合同,子合同不能为空");
+                    return false;
+                }
+                data.field.childList = childList;
+                adminForm.Save({
+                    url:'@Url.Action("SaveContrc")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        function LastInitSubject() {
+            for (var i = 0; i < subjectList.length; i++) {
+                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='SubjectId']").append('<option value ="'+ subjectList[i].SubjectId +
+                    '"  lvel1Price="' + subjectList[i].Lvel1Price + '"  Lvel2Price="' + subjectList[i].Lvel2Price +'" Lvel3Price="' + subjectList[i].Lvel3Price + '"  Lvel4Price="' + subjectList[i].Lvel4Price + '">' + subjectList[i].SubjectName + '</option>');
+                if (i == 0) {
+                    App.LastLoadProject(subjectList[i].SubjectId);
+                    $("#child_Contrc_Detail").find("tr:last").find("td").find("input[name='Price']").val(subjectList[i].Lvel1Price);
+                }
+            }
+            layui.form.render("select");
+        }
+       $("#addDetail").click(function () {
+           $("#child_Contrc_Detail").append($("#templateItemAdd").html());
+           LastInitSubject();
+       });
+        $("#btnAddChild").click(function () {
+            $("#childContrcDilog").show();
+            $("#child_Contrc_Detail").html("");
+            $("#child_Contrc_Detail").append($("#templateItemAdd").html());
+            LastInitSubject();
+            var contraNo = $("input[name='ContraNo']").val();
+            childList.sort((a, b) => {
+                if (a.Sort > b.Sort) return -1;
+                if (a.Sort < b.Sort) return 1;
+                return 0;
+            })
+            childInfo = {
+                Sort: 0,
+                CourseTimeTotal: 0,
+                Class_Course_Time:0,
+                Contra_ChildNo: '',
+                StartTime: '',
+                StudyStatus: '',
+                Cycle: '',
+                StudyMode: 0,
+                ClassId: 0,
+                IsPreferential: 0,
+                Original_Amount: 0,
+                ContraRate: 0,
+                Discount_Amount: 0,
+                Contra_Property: 0,
+                Saler_Amount: 0,
+                Remarks: '',
+                Child_Detail: []
+            };
+            if (childList.length > 0) {
+                childInfo.Sort = childList[0].Sort + 1;
+                $("input[name='Contra_ChildNo']").val(contraNo + '_' +childInfo.Sort);
+            }
+            else {
+                childInfo.Sort = 1;
+                $("input[name='Contra_ChildNo']").val(contraNo + '_' + childInfo.Sort);
+            }
+            childInfo.Contra_ChildNo= contraNo + '_' + childInfo.Sort;
+        });
+
+        $("#saveChild").click(function () {
+                var newObject = jQuery.extend({}, childInfo);
+                for (var key in childInputInfo) {
+                    if (key == 'StudyMode' || key == 'ClassId') {
+                        newObject[key] = $("select[name='" + key + "']").val();
+                    }
+                    else if (key == 'Remarks') {
+                        newObject[key] = $("textarea[name='" + key + "']").val();
+                    }
+                    else if (key == 'IsPreferential') {
+                        if ($("input[name='" + key + "']").prop("checked")!= true) {
+                            newObject[key] = 0;
+                        }
+                        else {
+                            newObject[key] =1;
+                        }
+                    }
+                    else if (key == 'Contra_Property') {
+                        newObject[key] = $("input[name='" + key + "']:checked").val();
+                    }
+                    else {
+                        newObject[key] = $("input[name='" + key + "']").val();
+                    }
+                }
+                newObject.CourseTimeTotal = 0;
+                newObject.Child_Detail = [];
+                if (newObject.StudyMode==1) {
+                    $("#child_Contrc_Detail>tr").each(function (i, ite) {
+                        var td = $(ite).find("td");
+                        var sbujectId = td.find("select[name='SubjectId']").val();
+                        var projectId = td.find("select[name='ProjectId']").val();
+                        var level = td.find("select[name='Level']").val();
+                        var courseTime = td.find("input[name='Course_Time']").val();
+                        var price = td.find("input[name='Price']").val();
+                        newObject.CourseTimeTotal += parseFloat(courseTime);
+                        newObject.Child_Detail.push({ Course_Time: courseTime, ProjectId: projectId, SubjectId: sbujectId, Level: level, Price: price });
+                    })
+                }
+            if (newObject.ClassId > 0) {
+                console.log(classList);
+                    newObject.ClassName = classList.filter(ite=> ite.ClassId == newObject.ClassId)[0].Class_Name;
+                }
+                else {
+                    newObject.ClassName = "";
+                }
+                var hasInfo = childList.find(it => it.Contra_ChildNo == childInfo.Contra_ChildNo);
+                if (hasInfo != undefined && hasInfo != null) {
+                    var crrtIndx = childList.findIndex(it => it.Contra_ChildNo == childInfo.Contra_ChildNo);
+                    childList[crrtIndx] = newObject;
+                }
+                else {
+                        childList.push(newObject);
+                }
+                console.log(childList);
+                childList.sort((a, b) => {
+                    if (a.Sort > b.Sort) return 1;
+                    if (a.Sort < b.Sort) return -1;
+                    return 0;
+                })
+                var html = template("templateChild", { data: childList });
+                    document.getElementById("child_Contrc").innerHTML = html;
+                $("#childContrcDilog").css("display", "none");
+                layui.form.render("select");
+        });
+        $("#sumTotal").click(function () {
+                var orgAmount = 0;
+                $("#child_Contrc_Detail").find("tr").each(function (index, item) {
+                    var td = $(item).find("td");
+                    var level = td.find("select[name='Level']").val();
+                    var courseTime = td.find("input[name='Course_Time']").val();
+                    var price = td.find("input[name='Price']");
+                    var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+                    var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+                    var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+                    var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+                    if (level == 1) {
+                        price.val((courseTime * leve1Price).toFixed(2));
+                    }
+                    if (level == 2) {
+                        price.val((courseTime * leve2Price).toFixed(2));
+                    }
+                    if (level == 3) {
+                        price.val((courseTime * leve3Price).toFixed(2));
+                    }
+                    if (level == 4) {
+                        price.val((courseTime * leve4Price).toFixed(2));
+                    }
+                    orgAmount=orgAmount + parseFloat(price.val());
+                });
+                var rate = 0;
+                if ($("input[name='ContraRate']").parent().css("display") == "block") {
+                    rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+                }
+                else {
+                    rate = $("select[name='ContraRateSelect']").val() > 0 ? $("select[name='ContraRateSelect']").val() : 10;
+                    $("input[name='ContraRate']").val(rate);
+                }
+                if (rate > 0) {
+                    $("input[name='Original_Amount']").val(orgAmount);
+                    var afterAmount=orgAmount* (parseFloat(rate) / 10);
+                    $("#Saler_Amount").text(afterAmount.toFixed(2));
+                    $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                    $("#Discount_Amount").text((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+                    $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+                }
+        });
+        form.on('select(SubjectId)', function (data) {
+            var sujectId = data.value;
+            var td = $(this).parents("tr").find("td");
+            var level = td.find("select[name='Level']").val();
+            var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+            var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+            var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+            var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+            var courseTime = td.find("input[name='Course_Time']").val();
+            var price = td.find("input[name='Price']");
+           adminForm.load({
+                    url: "@Url.Action("QueryProject")?subjectId=" + sujectId,
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            td.find("select[name='ProjectId']").html("");
+                            for (var i = 0; i < result.length; i++) {
+                                td.find("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                        }
+                       }
+           });
+            console.log(leve1Price);
+            if (level == 1) {
+                price.val((courseTime * leve1Price).toFixed(2));
+            }
+            if (level == 2) {
+                price.val((courseTime * leve2Price).toFixed(2));
+            }
+            if (level == 3) {
+                price.val((courseTime * leve3Price).toFixed(2));
+            }
+            if (level == 4) {
+                price.val((courseTime * leve4Price).toFixed(2));
+            }
+        });
+        form.on('select(Level)', function (data) {
+                var level = data.value;
+                var td = $(this).parents("tr").find("td");
+                var price = td.find("input[name='Price']");
+                var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+                var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+                var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+                var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+                var courseTime = td.find("input[name='Course_Time']").val();
+                if (level == 1) {
+                    price.val((courseTime * leve1Price).toFixed(2));
+                }
+                if (level == 2) {
+                    price.val((courseTime * leve2Price).toFixed(2));
+                }
+                if (level == 3) {
+                    price.val((courseTime * leve3Price).toFixed(2));
+                }
+                if (level == 4) {
+                    price.val((courseTime * leve4Price).toFixed(2));
+                }
+        });
+
+        form.on('select(StudyMode)', function (data) {
+            var studymode = data.value;
+            if (parseInt(studymode) == 2) {
+                $("#OneOfOne").css("display","none");
+                $("#child_Contrc_Detail").find("tr").remove();
+                $("#partClassHourse").show();
+                $("#partClass").show();
+            }
+            else {
+                $("#OneOfOne").show();
+                $("#partClassHourse").css("display", "none");
+                $("#partClass").css("display", "none");
+            }
+        });
+        form.on('select(ClassId)', function (data) {
+            var studymode = $("select[name='StudyMode']").val()
+            var price = $("select[name='ClassId']>option:selected").attr("price");
+            var classCourseTime = $("select[name='ClassId']>option:selected").attr("classTime");
+            $("input[name='Class_Course_Time']").val(classCourseTime);
+            var rate =0;
+            if ($("input[name='ContraRate']").parent().css("display") == "block") {
+                rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+            }
+            else {
+                rate = $("select[name='ContraRateSelect']").val() > 0 ? $("select[name='ContraRateSelect']").val() : 10;
+                $("input[name='ContraRate']").val(rate);
+            }
+            if (parseInt(studymode) == 2) {
+                $("#child_Contrc_Detail").find("tr").remove();
+                var orgprice = parseFloat(price).toFixed(2);
+                $("input[name='Original_Amount']").val(orgprice);
+                if (rate > 0) {
+                    var afterAmount = (parseFloat(rate) / 10) * orgprice;
+                    $("#Saler_Amount").text(afterAmount.toFixed(2));
+                    $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                    $("#Discount_Amount").text((orgprice - afterAmount.toFixed(2)).toFixed(2));
+                    $("input[name='Discount_Amount']").val((orgprice - afterAmount.toFixed(2)).toFixed(2));
+                }
+            }
+        });
+            form.on('select(ContraRateSelect)', function (data) {
+                console.log(data.value);
+                if (data.value == 0) {
+                    $("select[name='ContraRateSelect']").parent().css("display", "none");
+                    $("input[name='ContraRate']").parent().css("display", "block");
+                }
+                else {
+                    $("input[name='ContraRate']").val(data.value);
+                    var rate = data.value> 0 ? data.value: 10;
+                    var original = $("input[name='Original_Amount']").val();
+                    if (original > 0) {
+                        var afterAmount = (parseFloat(rate)/10)* original;
+                        $("#Saler_Amount").text(afterAmount.toFixed(2));
+                        $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                        $("#Discount_Amount").text((original - afterAmount.toFixed(2)).toFixed(2));
+                        $("input[name='Discount_Amount']").val((original - afterAmount.toFixed(2)).toFixed(2));
+                    }
+                }
+        });
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+        //修改详情
+        function editChild(obj) {
+            var subjectIds = [];
+            $("input[name='Contra_Property']").removeAttr("checked");
+            var contracChildNo = $(obj).attr("data-childNo");
+            childInfo = childList.find(item => item.Contra_ChildNo == contracChildNo);
+            console.log(childInfo);
+            var html = template("templateItem", { data: childInfo.Child_Detail });
+            document.getElementById("child_Contrc_Detail").innerHTML = html;
+            for (var i = 0; i < subjectList.length; i++) {
+                $("#child_Contrc_Detail").find("tr").find("td").find("select[name='SubjectId']").append('<option value ="' + subjectList[i].SubjectId +
+                    '" lvel1Price="' + subjectList[i].Lvel1Price + '"  Lvel2Price="' + subjectList[i].Lvel2Price + '"  Lvel3Price="' + subjectList[i].Lvel3Price+'"  Lvel4Price="' + subjectList[i].Lvel4Price+'">' + subjectList[i].SubjectName + '</option>');
+            }
+            var i = 0;
+            childInfo.Child_Detail.forEach(item => {
+                $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='SubjectId']").val(item.SubjectId);
+                $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Level']").val(item.Level);
+                i++;
+            });
+            childInfo.Child_Detail.forEach(item => {
+                subjectIds.push(item.SubjectId);
+            });
+            if (subjectIds != null && subjectIds != undefined && subjectIds.length > 0) {
+                    $.ajax({
+                        type: "post",
+                        url:"@Url.Action("QueryProjects")",
+                        data: {subjectIds: subjectIds},
+                        dataType: 'json',
+                        contentType: 'application/x-www-form-urlencoded',
+                        success: function (rou) {
+                            var result = rou.data;
+                            var k = 0;
+                            childInfo.Child_Detail.forEach(item => {
+                                var curProjects = result.filter(m => m.SubjectId == parseInt(item.SubjectId));
+                                for (var j = 0; j < curProjects.length; j++) {
+                                    if (parseInt(item.ProjectId)== curProjects[j].ProjectId) {
+                                        $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + curProjects[j].ProjectId + ' selected>' + curProjects[j].ProjectName + '</option>');
+                                    }
+                                    else {
+                                        $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + curProjects[j].ProjectId + '>' + curProjects[j].ProjectName + '</option>');
+                                    }
+                                }
+                                k++;
+                            });
+                            layui.form.render("select");
+                        }
+                    });
+            }
+            for (var key in childInputInfo) {
+                if (key == 'StudyMode' || key == 'ClassId') {
+                    $("select[name='" + key + "']").val(childInfo[key]);
+                }
+                else if (key == 'Remarks') {
+                    $("textarea[name='" + key + "']").val(childInfo[key]);
+                }
+                else if (key == 'IsPreferential') {
+                    if (parseInt(childInfo[key]) == 1) {
+                        $("input[name='IsPreferential']").prop('checked', 'checked');
+                    }
+                    else {
+                        $("input[name='IsPreferential']").prop('checked', false);
+                        $("input[name='IsPreferential']").removeAttr("checked");
+                    }
+                    layui.form.render('checkbox');
+                }
+                else if (key == 'Contra_Property') {
+                    $("input[name='Contra_Property'][value='" + childInfo[key] + "']").prop('checked', 'checked');
+                    layui.form.render('radio');
+                }
+                else {
+                    $("input[name='" + key + "']").val(childInfo[key]);
+                    if (key == 'Saler_Amount' || key == 'Discount_Amount') {
+                        $("#" + key).text(childInfo[key]);
+                    }
+                    else if (key == 'ContraRate') {
+                        var anyRate = $("select[name='ContraRateSelect']").find("option[value='" +childInfo[key] + "']").val();
+                        console.log(anyRate);
+                        if (anyRate != undefined && anyRate > 0) {
+                            $("select[name='ContraRateSelect']").val(childInfo[key]);
+                        }
+                        else {
+                            $("select[name='ContraRateSelect']").parent().css("display","none");
+                            $("input[name='ContraRate']").parent().show();
+                        }
+                    }
+                }
+            }
+            layui.form.render("select");
+            if (childInfo.StudyMode == 2) {
+                $("#OneOfOne").css("display", "none");
+                $("#partClassHourse").show();
+                $("#partClass").show();
+            }
+            else {
+                $("#OneOfOne").show();
+                $("#partClassHourse").css("display","none");
+                $("#partClass").css("display", "none");
+            }
+            $("#childContrcDilog").css("display", "block");
+        }
+
+        //删除合同详情明细
+        function DelItem(obj) {
+            $(obj).parents("tr").remove();
+        }
+        //删除合同详情
+        function removeContraDetail(obj) {
+            var contracChildNo = $(obj).attr("data-childNo");
+            var delIndex = childList.findIndex(it => it.Contra_ChildNo == contracChildNo);
+            layer.confirm('确定删除合同' + contracChildNo+'？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                    childList.splice(delIndex, 1);
+                    var html = template("templateChild", { data: childList });
+                    document.getElementById("child_Contrc").innerHTML = html;
+                    layer.msg('删除成功', { icon: 1 });
+            }, function () {
+
+            });
+        }
+
+        $("#CancelDetail").click(function () {
+            $("#childContrcDilog").css("display", "none");
+        });
+        $("input[name='Original_Amount']").keyup(function () {
+            var rate = 0;
+            if ($("input[name='ContraRate']").parent().css("display") == "block") {
+                rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+            }
+            else {
+                rate = $("select[name='ContraRateSelect']").val() > 0 ? $("select[name='ContraRateSelect']").val() : 10;
+                $("input[name='ContraRate']").val(rate);
+            }
+            if (rate > 0) {
+                var orgAmount = $(this).val();
+                var afterAmount = $(this).val() * (parseFloat(rate) / 10);
+                $("#Saler_Amount").text(afterAmount.toFixed(2));
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("#Discount_Amount").text((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+        $("input[name='ContraRate']").keyup(function () {
+            var rate = $(this).val() > 0 ? $(this).val() : 10;
+            var original = $("input[name='Original_Amount']").val();
+            if (original > 0) {
+                var afterAmount = (parseFloat(rate)/10)* original;
+                $("#Saler_Amount").text(afterAmount.toFixed(2));
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("#Discount_Amount").text((original - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Discount_Amount']").val((original - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+    </script>
+}

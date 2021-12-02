@@ -1,0 +1,109 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Id" type="hidden" value="@ViewBag.ID" />
+    <input name="StudentUid" type="hidden" value="@ViewBag.StudentUid"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">计划时间</label>
+        <div class="layui-input-block">
+            <input name="WorkDate" type="text" id="WorkDate" class="layui-input"  value="@ViewBag.DataStr"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">开始时间</label>
+        <div class="layui-input-block">
+            <input name="StartTime" id="StartTime" placeholder="请输入时间区间名称" class="layui-input" lay-verify="required" required  value="@ViewBag.StartTime"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">截止时间</label>
+        <div class="layui-input-block">
+            <input name="EndTime" id="EndTime" placeholder="请输入时间区间名称" class="layui-input" lay-verify="required" required value="@ViewBag.EndTime"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">任务计划</label>
+        <div class="layui-input-block">
+            <textarea name="WorkTitle" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+            //日期
+            laydate.render({
+                elem: '#StartTime'
+                , type: 'time',
+                format: 'HH:mm',
+                ready: formatMinutin
+            });
+            laydate.render({
+                elem: '#EndTime'
+                , type: 'time',
+                format: 'HH:mm',
+                ready: formatMinutin
+            });
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        console.log(r);
+                    }
+                });
+            },
+            Save: function (data) {
+                adminForm.Save({
+                    url: '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        function formatMinutin() {
+            $(".laydate-time-list li ol").eq(2).parent("li").remove();
+        }
+    });
+    </script>
+}

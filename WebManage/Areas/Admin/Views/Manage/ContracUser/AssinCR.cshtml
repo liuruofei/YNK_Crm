@@ -1,0 +1,97 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="StudentUid" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">学生姓名</label>
+            <div class="layui-input-inline" style="line-height: 38px;">
+                <span id="Student_Name"></span>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">指派销售CR</label>
+            <div class="layui-input-block">
+                <select name="CR_Uid">
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        var App = {
+            Load: function () {
+                              adminForm.load({
+                                formName: 'modelUserForm',
+                                KeyId: '@KeyId',
+                                url: "@Url.Action("Find")",
+                                dataType: 'json',
+                                  callBack: function (r) {
+                                      $("#Student_Name").text(r.Student_Name);
+                                      adminForm.load({
+                                            url: "@Url.Action("QueryCR")",
+                                            dataType: 'json',
+                                            callBack: function (rou) {
+                                                if (rou.data != null) {
+                                                    var result = rou.data;
+                                                    for (var i = 0; i < result.length; i++) {
+                                                        if (r != undefined && r.CC_Uid != null && r.CC_Uid== result[i].User_ID) {
+                                                            $("select[name='CR_Uid']").append('<option value = ' + result[i].User_ID + ' selected>' + result[i].User_Name +'</option>');
+
+                                                        } else {
+                                                            $("select[name='CR_Uid']").append('<option value = ' + result[i].User_ID + '>' + result[i].User_Name + '</option>');
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+            },
+            Save: function (data) {
+                console.log(data.field);
+                adminForm.Save({
+                    url:'@Url.Action("AssignmentCR")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+    </script>
+}

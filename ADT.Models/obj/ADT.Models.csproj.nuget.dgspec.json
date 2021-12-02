@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj": {}
+    "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj": {}
   },
   "projects": {
-    "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj": {
+    "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj",
+        "projectUniqueName": "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj",
         "projectName": "ADT.Models",
-        "projectPath": "D:\\Dingzhihua2\\ADT.Models\\ADT.Models.csproj",
+        "projectPath": "D:\\YNK_Crm\\ADT.Models\\ADT.Models.csproj",
         "packagesPath": "C:\\Users\\86158\\.nuget\\packages\\",
-        "outputPath": "D:\\Dingzhihua2\\ADT.Models\\obj\\",
+        "outputPath": "D:\\YNK_Crm\\ADT.Models\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

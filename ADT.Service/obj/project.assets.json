@@ -7155,11 +7155,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Dingzhihua2\\ADT.Service\\ADT.Service.csproj",
+      "projectUniqueName": "D:\\YNK_Crm\\ADT.Service\\ADT.Service.csproj",
       "projectName": "ADT.Service",
-      "projectPath": "D:\\Dingzhihua2\\ADT.Service\\ADT.Service.csproj",
+      "projectPath": "D:\\YNK_Crm\\ADT.Service\\ADT.Service.csproj",
       "packagesPath": "C:\\Users\\86158\\.nuget\\packages\\",
-      "outputPath": "D:\\Dingzhihua2\\ADT.Service\\obj\\",
+      "outputPath": "D:\\YNK_Crm\\ADT.Service\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -7179,11 +7179,11 @@
         "netstandard2.0": {
           "targetAlias": "netstandard2.0",
           "projectReferences": {
-            "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj": {
-              "projectPath": "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj"
+            "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj": {
+              "projectPath": "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj"
             },
-            "D:\\Dingzhihua2\\ADT.Repository\\ADT.Repository.csproj": {
-              "projectPath": "D:\\Dingzhihua2\\ADT.Repository\\ADT.Repository.csproj"
+            "D:\\YNK_Crm\\ADT.Repository\\ADT.Repository.csproj": {
+              "projectPath": "D:\\YNK_Crm\\ADT.Repository\\ADT.Repository.csproj"
             }
           }
         }

@@ -1,0 +1,223 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">合同类型：</label>
+                        <div class="layui-input-inline mr0">
+                            <select id="Contra_Property" name="Contra_Property" lay-filter="Contra_Property">
+                                <option value="-1">请选择</option>
+                                <option value="0">新签</option>
+                                <option value="1">续约</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">授课方式：</label>
+                        <div class="layui-input-inline mr0">
+                            <select id="StudyMode" name="StudyMode" lay-filter="StudyMode">
+                                <option value="1">一对一</option>
+                                <option value="2">小班</option>
+                                <option value="3">付费教材</option>
+                                <option value="4">考团</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">收费开始时间：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="startTime" class="layui-input" type="text" placeholder="开始时间" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">结束时间：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="endTime" class="layui-input" type="text" placeholder="结束时间" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="lookfind">查看</a>
+    {{# if(d.Contrac_Child_Status==2){ }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="config">确认退班</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="configReject">驳回</a>
+    {{#}}}
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm', 'laydate'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var form = layui.form;
+    var adminList = layui.adminList;
+    var laydate = layui.laydate;
+    var adminForm = layui.adminForm;
+    //日期
+    laydate.render({
+        elem: '#startTime',
+        format: 'yyyy-MM-dd'
+    });
+    //日期
+    laydate.render({
+        elem: '#endTime',
+        format: 'yyyy-MM-dd'
+    });
+
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        page: true,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            { field: 'Contra_ChildNo', title: '合同编号', sort: true },
+            { field: 'Student_Name', title: '学生姓名', sort: true },
+            { field: 'Original_Amount', title: '初始合同金额', sort: true },
+            { field: 'Pay_Amount', title: '已付金额', sort: true },
+            { field: 'Contrac_Child_Status_Name', title: '合同状态', sort: true },
+            {
+                field: 'Contra_Property', title: '合同属性', sort: true, width: 150, templet: function (d) {
+                    return d.Contra_Property==0?"新签":"续约";
+                }
+            },
+            { field: 'StudyModeName', title: '授课方式', sort: true, width: 150 },
+            { field: 'CCUserName', title: '签约人', sort: true },
+            { field: 'SignIn_Data', title: '签约日期', sort: true },
+            {
+                field: 'IsOrg', title: '是否按原价退款', sort: true, templet: function (d) {
+                    return d.IsOrg ? "是" : "否";
+                }
+            },
+            { field: 'BackCost', title: '协商退款金额', sort: true },
+            {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
+        ]]
+    });
+
+    // 搜索
+    $('#btnSearch').click(function () {
+        var contra_Property = parseInt($('#Contra_Property').val());
+        var studymode = parseInt($('#StudyMode').val());
+        var startTime = $('#startTime').val();
+        var endTime = $('#endTime').val();
+        insTb.reload({
+            where: { contraProperty: contra_Property, studymode: studymode, startime: startTime,endTime: endTime}
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+    form.on('select(StudyMode)', function (data) {
+        var contra_Property = parseInt($('#Contra_Property').val());
+        var studymode = parseInt(data.value);
+        var startTime = $('#startTime').val();
+        var endTime = $('#endTime').val();
+        console.log(studymode, contra_Property);
+        insTb.reload({
+            where: { contraProperty: contra_Property, studymode: studymode, startime: startTime, endTime: endTime}
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+    form.on('select(Contra_Property)', function (data) {
+        var contra_Property = parseInt(data.value);
+        var studymode = parseInt($('#StudyMode').val());
+        var startTime = $('#startTime').val();
+        var endTime = $('#endTime').val();
+        console.log(studymode, contra_Property);
+        insTb.reload({
+            where: { contraProperty: contra_Property, studymode: studymode, startime: startTime, endTime: endTime }
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+        var data = obj.data;
+        var layEvent = obj.event;
+        if (layEvent === 'config') { // 修改
+            configChange(data);
+        } else if (layEvent === 'configReject') { // 驳回
+            recject(data);
+        }
+        else if (layEvent === 'lookfind') { // 查看合同
+            showEditModel(data);
+        }
+    });
+
+    //显示表单弹窗
+    function showEditModel(vmodel) {
+        adminList.form({
+            title: '查看子合同',
+            type: 2,
+            width: "1060px",
+            height: "690px",
+            content: '@Url.Action("ChildDtail","UserChildContracChange")?contraNo=' + vmodel.ContraNo + '&childcontraNo=' + vmodel.Contra_ChildNo,
+            end: function (data) {
+                insTb.reload();
+            }
+        });
+    }
+
+    //确认退费
+    function configChange(vmodel) {
+            adminForm.Save({
+                url: '@Url.Action("ChildContrcbackClassAudit")',
+                data: { Contra_ChildNo: vmodel.Contra_ChildNo,through:true},
+                callBack: function (result) {
+                    insTb.reload();
+                layer.msg(result.msg);
+            }
+        });
+    };
+    ///驳回申请
+    function recject(vmodel) {
+            adminForm.Save({
+                url: '@Url.Action("ChildContrcbackClassAudit")',
+                data: { Contra_ChildNo: vmodel.Contra_ChildNo, through: false },
+                callBack: function (result) {
+                    insTb.reload();
+                layer.msg(result.msg);
+            }
+        });
+    };
+
+});
+    </script>
+}

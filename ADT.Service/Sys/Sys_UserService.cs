@@ -51,7 +51,8 @@ namespace ADT.Service
             model.User_Pwd = u.User_Pwd;
             model.User_Email = u.User_Email;
             model.User_IsDelete = u.User_IsDelete;
-            var result = _Sys_UserRepositoryS.Update(model, p => new { p.User_LoginName, p.User_Name, p.User_Pwd, p.User_Email, p.User_CreateTime, p.User_IsDelete }, true);
+            model.CampusId = u.CampusId;
+            var result = _Sys_UserRepositoryS.Update(model, p => new { p.User_LoginName, p.User_Name, p.User_Pwd, p.User_Email, p.User_CreateTime, p.User_IsDelete,p.CampusId}, true);
             if (result)
             {
                 var rmodel = new sys_userrole();
@@ -77,6 +78,7 @@ namespace ADT.Service
             umodel.User_LoginName = model.User_LoginName;
             umodel.User_Name = model.User_Name;
             umodel.User_Pwd = model.User_Pwd;
+            umodel.CampusId = model.CampusId;
             var result = _Sys_UserRepositoryS.Insert(umodel);
             if (result > 0)
             {

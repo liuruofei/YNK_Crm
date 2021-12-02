@@ -1,0 +1,254 @@
+﻿@{
+    var childcontraNo = ViewBag.ChildContrcNo;
+}
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input type="hidden" name="Contra_ChildNo" value="@ViewBag.ChildContrcNo" />
+    <div class="layui-form-item" style="display:none">
+        <div class="layui-inline">
+            <label class="layui-form-label">开始时间</label>
+            <div class="layui-input-inline">
+                <input name="StartTime" type="text" class="layui-input" id="StartTime" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">学习状态</label>
+            <div class="layui-input-inline">
+                <input name="StudyStatus" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">周期数</label>
+            <div class="layui-input-inline">
+                <input name="Cycle" type="number" class="layui-input" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">授课方式</label>
+            <div class="layui-input-inline">
+                <select name="StudyMode" lay-verify="required" lay-search="">
+                    <option value="1">一对一</option>
+                    <option value="2">小班</option>
+                    <option value="3">付费教材</option>
+                    <option value="4">考团</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">原来小班</label>
+            <div class="layui-input-inline">
+                <select name="ClassId" lay-verify="required" lay-search="">
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">目标小班</label>
+            <div class="layui-input-inline">
+                <select name="ChangeClassId" lay-verify="required" lay-search="" lay-filter="ChangeClassId">
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="display:none">
+        <div class="layui-inline">
+            <label class="layui-form-label">小班课时</label>
+            <div class="layui-input-inline">
+                <input name="Class_Course_Time" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">优惠联报</label>
+            <div class="layui-input-inline">
+                <input type="checkbox" name="IsPreferential" value="1" lay-filter="ChoiceCheckbox" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="display:none">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同原价</label>
+            <div class="layui-input-inline">
+                <input name="Original_Amount" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">折扣</label>
+            <div class="layui-input-inline">
+                <input name="ContraRate" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">优惠金额</label>
+            <div class="layui-input-inline" style="line-height:36px;">
+                <span id="Discount_Amount"></span>
+                <input name="Discount_Amount" type="hidden" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="display:none">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同属性</label>
+            <div class="layui-input-inline">
+                <input type="radio" name="Contra_Property" value="0" title="新签" checked="checked" lay-filter="ChoiceRadio" />
+                <input type="radio" name="Contra_Property" value="1" title="续约" lay-filter="ChoiceRadio" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">折后价格</label>
+            <div class="layui-input-inline" style="line-height:36px;">
+                <span id="Saler_Amount"></span>
+                <input name="Saler_Amount" type="hidden" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="display:none">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同备注</label>
+            <div class="layui-input-inline" style="line-height:36px;">
+                <span></span>
+                <textarea name="Remarks" style="width:457px;height:86px"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存转班</button>
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">关闭</button>
+    </div>
+</form>
+@section js{
+    <!-- js部分 -->
+
+    <script type="text/javascript">
+        var subjectList = [];
+        var listitem = [];
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+            var laydate = layui.laydate;
+            //日期
+            laydate.render({
+                elem: '#StartTime',
+                format: 'yyyy-MM-dd HH:mm:ss'
+            });
+            var App = {
+                Load: function () {
+                    adminForm.load({
+                        formName: 'modelUserForm',
+                        url: "@Url.Action("FindChangeClass", "UserChildContrac")",
+                        data: { childContraNo: "@childcontraNo" },
+                        dataType: 'json',
+                        callBack: function (r) {
+                            if (r != null && r != undefined) {
+                                console.log(r);
+                                $("span[id=Discount_Amount]").text(r.Discount_Amount);
+                                $("span[id=Saler_Amount]").text(r.Saler_Amount);
+                                adminForm.load({
+                                    url: "@Url.Action("QueryClass", "ContracUser")",
+                                    dataType: 'json',
+                                    data: {typeId:0 },
+                                    callBack: function (rou) {
+                                        if (rou.data != null) {
+                                            var result = rou.data;
+                                            console.log(r.ClassId);
+                                            for (var i = 0; i < result.length; i++) {
+                                                if (r.ClassId==result[i].ClassId) {
+                                                    $("select[name='ClassId']").append('<option value ="' + result[i].ClassId + '" selected  price="' + result[i].Price + '" classTime="' + result[i].Course_Time +'">' + result[i].Class_Name + '</option>');
+                                                }
+                                                else {
+                                                    $("select[name='ClassId']").append('<option value ="' + result[i].ClassId + '" price="' + result[i].Price + '" classTime="' + result[i].Course_Time +'">' + result[i].Class_Name + '</option>');
+                                                }
+                                                if (r.ChangeClassId == result[i].ClassId) {
+                                                    $("select[name='ChangeClassId']").append('<option value ="' + result[i].ClassId + '" selected  price="' + result[i].Price + '" classTime="' + result[i].Course_Time +'">' + result[i].Class_Name + '</option>');
+                                                }
+                                                else {
+                                                    $("select[name='ChangeClassId']").append('<option value ="' + result[i].ClassId + '" price="' + result[i].Price + '" classTime="' + result[i].Course_Time +'">' + result[i].Class_Name + '</option>');
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                },
+                Save: function (data) {
+                    var changeClassId = $("select[name='ChangeClassId']").val();
+                    if (changeClassId == "" || changeClassId == 0 || changeClassId == null || changeClassId == undefined) {
+                        layui.msg("目标小班不能为空");
+                        return false;
+                    }
+                    data.field.OldClassId = data.field.ClassId;
+                    adminForm.Save({
+                        url:'@Url.Action("ChildContrcChangeClass")',
+                        data: data.field,
+                        callBack: function () {
+                            admin.closeThisDialog();
+                        }
+                    })
+                }
+            };
+        App.Load();
+            form.on('select(ChangeClassId)', function (data) {
+            var studymode = $("select[name='StudyMode']").val()
+            var price = $("select[name='ChangeClassId']>option:selected").attr("price");
+            var classCourseTime = $("select[name='ChangeClassId']>option:selected").attr("classTime");
+            $("input[name='Class_Course_Time']").val(classCourseTime);
+            var rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+                if (parseInt(studymode) == 2) {
+                    var orgprice = parseFloat(price).toFixed(2);
+                $("input[name='Original_Amount']").val(orgprice);
+                if (rate > 0) {
+                    var afterAmount = (parseFloat(rate) / 10) * orgprice;
+                    $("#Saler_Amount").text(afterAmount.toFixed(2));
+                    $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                    $("#Discount_Amount").text((orgprice - afterAmount.toFixed(2)).toFixed(2));
+                    $("input[name='Discount_Amount']").val((orgprice - afterAmount.toFixed(2)).toFixed(2));
+                }
+            }
+        });
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+        $("input[name='Original_Amount']").keyup(function () {
+            var rate = $("input[name='ContraRate']").val();
+            if (rate > 0) {
+                var orgAmount = $(this).val();
+                var afterAmount = $(this).val() * (parseFloat(rate) / 10);
+                $("#Saler_Amount").text(afterAmount.toFixed(2));
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("#Discount_Amount").text((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+        $("input[name='Class_Course_Time']").keyup(function () {
+            var classCourse = $(this).val() > 0 ? $(this).val() : 1;
+            var rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+            var price = $("select[name='ChangeClassId']>option:selected").attr("price");
+            var orgAmount = price * classCourse;
+            $("input[name='Original_Amount']").val(orgAmount)
+            if (rate > 0) {
+                var afterAmount = orgAmount * (parseFloat(rate) / 10);
+                $("#Saler_Amount").text(afterAmount.toFixed(2));
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("#Discount_Amount").text((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Original_Amount']").val(orgAmount)
+            }
+        })
+        $("input[name='ContraRate']").keyup(function () {
+            var original = $("input[name='Original_Amount']").val();
+            if (original > 0) {
+                var afterAmount = (parseFloat($(this).val()) / 10) * original;
+                $("#Saler_Amount").text(afterAmount.toFixed(2));
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("#Discount_Amount").text((original - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Discount_Amount']").val((original - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+    </script>
+}

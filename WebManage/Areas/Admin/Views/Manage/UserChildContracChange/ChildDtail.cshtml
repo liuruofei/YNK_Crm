@@ -1,0 +1,427 @@
+﻿@{
+    var childcontraNo = ViewBag.ChildContraNo;
+}
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input type="hidden" name="Contra_ChildNo" value="@ViewBag.ChildContraNo" />
+    <input type="hidden" name="ContraNo" value="@ViewBag.ContraNo" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">开始时间</label>
+            <div class="layui-input-inline">
+                <input name="StartTime" type="text" class="layui-input" id="StartTime" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">学习状态</label>
+            <div class="layui-input-inline">
+                <input name="StudyStatus" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">周期数</label>
+            <div class="layui-input-inline">
+                <input name="Cycle" type="number" class="layui-input" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">授课方式</label>
+            <div class="layui-input-inline">
+                <select name="StudyMode" lay-verify="required" lay-search="">
+                    <option value="1">一对一</option>
+                    <option value="2">小班</option>
+                    <option value="3">付费教材</option>
+                    <option value="4">考团</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline" id="partClass">
+            <label class="layui-form-label">小班</label>
+            <div class="layui-input-inline">
+                <select name="ClassId" lay-verify="required" lay-search="">
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline" id="partClassHourse">
+            <label class="layui-form-label">小班课时</label>
+            <div class="layui-input-inline">
+                <input name="Class_Course_Time" type="text" class="layui-input" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同原价</label>
+            <div class="layui-input-inline">
+                <input name="Original_Amount" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">折扣</label>
+            <div class="layui-input-inline">
+                <select name="ContraRateSelect" lay-filter="ContraRateSelect">
+                    <option value="9">9</option>
+                    <option value="9.5">9.5</option>
+                    <option value="0">无</option>
+                </select>
+            </div>
+            <div class="layui-input-inline" style="display:none">
+                <input name="ContraRate" type="text" class="layui-input" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">优惠金额</label>
+            <div class="layui-input-inline" style="line-height:36px;">
+                <span id="Discount_Amount"></span>
+                <input name="Discount_Amount" type="hidden" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">优惠联报</label>
+            <div class="layui-input-inline">
+                <input type="checkbox" name="IsPreferential" value="1" lay-filter="ChoiceCheckbox" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">合同属性</label>
+            <div class="layui-input-inline">
+                <input type="radio" name="Contra_Property" value="0" title="新签" checked="checked" lay-filter="ChoiceRadio" />
+                <input type="radio" name="Contra_Property" value="1" title="续约" lay-filter="ChoiceRadio" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">折后价格</label>
+            <div class="layui-input-inline" style="line-height:36px;">
+                <span id="Saler_Amount"></span>
+                <input name="Saler_Amount" type="hidden" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同备注</label>
+            <div class="layui-input-inline" style="line-height:36px;">
+                <span></span>
+                <textarea name="Remarks" style="width:457px;height:86px"></textarea>
+            </div>
+        </div>
+    </div>
+    <fieldset class="layui-elem-field layui-field-title" style="margin-bottom:0px">
+        <legend>合同明细</legend>
+    </fieldset>
+    @*<div class="layui-inline" style="width:100%;text-align:right;">
+            <button type="button" id="addDetail">新增明细</button>
+        </div>*@
+    <div class="layui-form-item">
+        <table class="layui-table" style="margin-left:10px">
+            <thead>
+                <tr>
+                    <td>考试类型</td>
+                    <td>科目</td>
+                    <td>级别</td>
+                    <td>课时</td>
+                    <td>价格</td>
+                    <td>操作</td>
+                </tr>
+            </thead>
+            <tbody id="child_Contrc_Detail">
+                <tr>
+                    <td><select name="SubjectId"></select></td>
+                    <td><select name="ProjectId"></select></td>
+                    <td>
+                        <select name="Level" style="width:60px;">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </td>
+                    <td><input type="text" name="Course_Time" style="width:80px" class="layui-input" /></td>
+                    <td><input type="text" name="Price" style="width:120px" class="layui-input" /></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">关闭</button>
+    </div>
+</form>
+@section js{
+    <!-- js部分 -->
+    <script type="text/html" id="templateItemAdd">
+        <tr>
+            <td><select name="SubjectId" lay-filter="SubjectId"></select></td>
+            <td><select name="ProjectId"></select></td>
+            <td>
+                <select name="Level" style="width:60px;" lay-filter="Level">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </td>
+            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="1" lay-filter="Course_Time" /></td>
+            <td><input type="text" name="Price" style="width:120px" class="layui-input" /></td>
+            <td>
+                <button type="button" data-id="0" onclick="DelItem(this)">删除</button>
+            </td>
+        </tr>
+    </script>
+    <script type="text/html" id="templateItem">
+        {{each data item index}}
+        <tr>
+            <td><select name="SubjectId" lay-filter="SubjectId"></select></td>
+            <td><select name="ProjectId"></select></td>
+            <td>
+                <select name="Level" style="width:60px;" lay-filter="Level">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </td>
+            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="{{item.Course_Time}}" lay-filter="Course_Time" /></td>
+            <td><input type="text" name="Price" style="width:120px" class="layui-input" value="{{item.Price}}" /></td>
+            <td><button type="button" data-id="{{item.Id}}" onclick="DelItem(this)">删除</button></td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        var subjectList = [];
+        var listitem = [];
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+            var laydate = layui.laydate;
+            //日期
+            laydate.render({
+                elem: '#StartTime',
+                format: 'yyyy-MM-dd HH:mm:ss'
+            });
+            var App = {
+                Load: function () {
+                    adminForm.load({
+                        formName: 'modelUserForm',
+                        url: "@Url.Action("FindChild", "UserContrac")",
+                        data: { childContraNo: "@childcontraNo" },
+                        dataType: 'json',
+                        callBack: function (r) {
+                            if (r != null && r != undefined) {
+                                console.log(r);
+                                $("span[id=Discount_Amount]").text(r.Discount_Amount);
+                                $("span[id=Saler_Amount]").text(r.Saler_Amount);
+                                var anyRate = $("select[name='ContraRateSelect']").find("option[value='" + r.ContraRate + "']").val();
+                                if (anyRate != undefined && anyRate > 0) {
+                                    $("select[name='ContraRateSelect']").val(r.ContraRate);
+                                    $("input[name='ContraRate']").val(r.ContraRate);
+                                }
+                                else {
+                                    $("select[name='ContraRateSelect']").parent().css("display", "none");
+                                    $("input[name='ContraRate']").parent().show();
+                                }
+                                var html = template("templateItem", { data: r.ListItem });
+                                document.getElementById("child_Contrc_Detail").innerHTML = html;
+                                if (r.StudyMode == 2) {
+                                    $("#partClassHourse").show();
+                                    $("#partClass").show();
+                                }
+                                else {
+                                    $("#partClassHourse").css("display", "none");
+                                    $("#partClass").css("display", "none");
+                                }
+                                var i = 0;
+                                r.ListItem.forEach(item => {
+                                    $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Level']").val(item.Level);
+                                    i++;
+                                });
+                            }
+                            else {
+                                $("#child_Contrc_Detail").html("");
+                                $("#child_Contrc_Detail").append($("#templateItemAdd").html());
+
+                            }
+                            adminForm.load({
+                            url: "@Url.Action("QuerySubject", "ContracUser")",
+                            dataType: 'json',
+                            callBack: function (rou) {
+                                if (rou.data != null) {
+                                    var result = rou.data;
+                                    subjectList = result;
+                                    for (var i = 0; i < result.length; i++) {
+                                        $("select[name='SubjectId']").append('<option value ="' + result[i].SubjectId +
+                                            '"  lvel1Price="' + result[i].Lvel1Price + '"  Lvel2Price="' + result[i].Lvel2Price + '" Lvel3Price="' + result[i].Lvel3Price + '"  Lvel4Price="' + result[i].Lvel4Price + '">' + result[i].SubjectName + '</option>');
+                                    }
+                                    var k = 0;
+                                    if (r != null && r.ListItem != undefined && r.ListItem != null) {
+                                        r.ListItem.forEach(item => {
+                                            $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='SubjectId']").val(item.SubjectId);
+                                            bindProject(item.SubjectId, k, item.ProjectId);
+                                            k++;
+                                        });
+                                    }
+                                    else {
+                                        var lastSubjectId = $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='SubjectId']").val();
+                                        LastLoadProject(lastSubjectId);
+                                        $("#child_Contrc_Detail").find("tr:last").find("td").find("input[name='Price']").val(subjectList[0].Lvel1Price);
+                                    }
+                                }
+                              }
+                            });
+                        }
+                    });
+                },
+                Save: function (data) {
+                    admin.closeThisDialog();
+                }
+            };
+            function bindProject(subjectId, trindex, projectValue) {
+                    adminForm.load({
+                    url: "@Url.Action("QueryProject", "ContracUser")?subjectId=" + subjectId,
+                    dataType: 'json',
+                    callBack: function (pdata) {
+                        if (pdata.data != null) {
+                            var projectresult = pdata.data;
+                            for (var i = 0; i < projectresult.length; i++) {
+                                if (projectresult[i].ProjectId == projectValue)
+                                    $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + projectresult[i].ProjectId + ' seleted>' + projectresult[i].ProjectName + '</option>');
+                                else
+                                    $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + projectresult[i].ProjectId + '>' + projectresult[i].ProjectName + '</option>');
+                            }
+
+                        }
+                       }
+                    });
+            };
+
+            function LastInitSubject(selectValue) {
+                adminForm.load({
+                url: "@Url.Action("QuerySubject","ContracUser")",
+                dataType: 'json',
+                callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            for (var i = 0; i < result.length; i++) {
+                                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='SubjectId']").append('<option value ="' + result[i].SubjectId +
+                                    '"  lvel1Price="' + result[i].Lvel1Price + '"  Lvel2Price="' + result[i].Lvel2Price + '" Lvel3Price="' + result[i].Lvel3Price + '"  Lvel4Price="' + result[i].Lvel4Price + '">' + result[i].SubjectName + '</option>');
+                                if (i == 0) {
+                                    LastLoadProject(result[i].SubjectId);
+                                    $("#child_Contrc_Detail").find("tr:last").find("td").find("input[name='Price']").val(result[i].Lvel1Price);
+                                }
+                            }
+                            layui.form.render("select");
+                        }
+                    }
+                });
+            };
+            function LastLoadProject(sujectId) {
+                    adminForm.load({
+                    url: "@Url.Action("QueryProject", "ContracUser")?subjectId=" + sujectId,
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            for (var i = 0; i < result.length; i++) {
+                                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                        }
+                       }
+                    });
+            };
+        $("#addDetail").click(function () {
+            $("#child_Contrc_Detail").append($("#templateItemAdd").html());
+            LastInitSubject();
+        });
+        App.Load();
+        form.on('select(SubjectId)', function (data) {
+            var sujectId = data.value;
+            var td = $(this).parents("tr").find("td");
+            var trindex = $(this).parents("tr").index();
+            var level = td.find("select[name='Level']").val();
+            var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+            var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+            var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+            var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+            var courseTime = td.find("input[name='Course_Time']").val();
+            var price = td.find("input[name='Price']");
+            $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").html("");
+            bindProject(sujectId, trindex);
+            console.log(leve1Price);
+            if (level == 1) {
+                price.val((courseTime * leve1Price).toFixed(2));
+            }
+            if (level == 2) {
+                price.val((courseTime * leve2Price).toFixed(2));
+            }
+            if (level == 3) {
+                price.val((courseTime * leve3Price).toFixed(2));
+            }
+            if (level == 4) {
+                price.val((courseTime * leve4Price).toFixed(2));
+            }
+        });
+        form.on('select(Level)', function (data) {
+                var level = data.value;
+                var td = $(this).parents("tr").find("td");
+                var price = td.find("input[name='Price']");
+                var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+                var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+                var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+                var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+                var courseTime = td.find("input[name='Course_Time']").val();
+                if (level == 1) {
+                    price.val((courseTime * leve1Price).toFixed(2));
+                }
+                if (level == 2) {
+                    price.val((courseTime * leve2Price).toFixed(2));
+                }
+                if (level == 3) {
+                    price.val((courseTime * leve3Price).toFixed(2));
+                }
+                if (level == 4) {
+                    price.val((courseTime * leve4Price).toFixed(2));
+                }
+        });
+
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+        $("input[name='Original_Amount']").keyup(function () {
+            var rate = $("input[name='ContraRate']").val();
+            if (rate > 0) {
+                var orgAmount = $(this).val();
+                var afterAmount = $(this).val() * (parseFloat(rate) / 10);
+                $("#Saler_Amount").text(afterAmount.toFixed(2));
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("#Discount_Amount").text((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+        $("input[name='ContraRate']").keyup(function () {
+            var original = $("input[name='Original_Amount']").val();
+            if (original > 0) {
+                var afterAmount = (parseFloat($(this).val()) / 10) * original;
+                $("#Saler_Amount").text(afterAmount.toFixed(2));
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("#Discount_Amount").text((original - afterAmount.toFixed(2)).toFixed(2));
+                $("input[name='Discount_Amount']").val((original - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+        function DelItem(obj) {
+            layer.confirm('确定删除该项目吗？', {
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                $(obj).parents("tr").remove();
+            }, function () {
+
+            });
+        }
+    </script>
+}

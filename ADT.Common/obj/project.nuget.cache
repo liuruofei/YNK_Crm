@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "JHUzDMz4gF0Yf+3rO5t3LtdPACxNk12OkRdvSQX79PKw3ViNjEXm57N8o+nn1Tk95BisMMt2Ib38Fa+bs7bb2w==",
+  "dgSpecHash": "VqVICbbJPSTT9l6IOHIrDujYi+Lu9Zc6JUrLw+8em9+TXuABsuJtCwcNL4Ye8qitxG5dAN9W+0IOGmdRgmwUsw==",
   "success": true,
-  "projectFilePath": "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj",
+  "projectFilePath": "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\86158\\.nuget\\packages\\log4net\\2.0.8\\log4net.2.0.8.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\mailkit\\2.2.0\\mailkit.2.2.0.nupkg.sha512",

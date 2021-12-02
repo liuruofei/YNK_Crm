@@ -5,6 +5,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="YNK_Banner.cs" />
+    <Compile Remove="YNK_Case.cs" />
+    <Compile Remove="YNK_Category.cs" />
+    <Compile Remove="YNK_Course.cs" />
+    <Compile Remove="YNK_Materia.cs" />
+    <Compile Remove="YNK_News.cs" />
+    <Compile Remove="YNK_Region.cs" />
+    <Compile Remove="YS_Account_User.cs" />
+    <Compile Remove="YS_User_Enter.cs" />
+    <Compile Remove="YS_VerifyCode_Record.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="SqlSugarCore" Version="5.0.0.9" />
   </ItemGroup>
 

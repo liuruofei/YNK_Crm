@@ -10043,11 +10043,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Dingzhihua2\\WebManage\\WebManage.csproj",
+      "projectUniqueName": "D:\\YNK_Crm\\WebManage\\WebManage.csproj",
       "projectName": "WebManage",
-      "projectPath": "D:\\Dingzhihua2\\WebManage\\WebManage.csproj",
+      "projectPath": "D:\\YNK_Crm\\WebManage\\WebManage.csproj",
       "packagesPath": "C:\\Users\\86158\\.nuget\\packages\\",
-      "outputPath": "D:\\Dingzhihua2\\WebManage\\obj\\",
+      "outputPath": "D:\\YNK_Crm\\WebManage\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -10067,14 +10067,14 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj": {
-              "projectPath": "D:\\Dingzhihua2\\ADT.Common\\ADT.Common.csproj"
+            "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj": {
+              "projectPath": "D:\\YNK_Crm\\ADT.Common\\ADT.Common.csproj"
             },
-            "D:\\Dingzhihua2\\ADT.Service\\ADT.Service.csproj": {
-              "projectPath": "D:\\Dingzhihua2\\ADT.Service\\ADT.Service.csproj"
+            "D:\\YNK_Crm\\ADT.Service\\ADT.Service.csproj": {
+              "projectPath": "D:\\YNK_Crm\\ADT.Service\\ADT.Service.csproj"
             },
-            "D:\\Dingzhihua2\\AutoFac\\AutoFacTory.csproj": {
-              "projectPath": "D:\\Dingzhihua2\\AutoFac\\AutoFacTory.csproj"
+            "D:\\YNK_Crm\\AutoFac\\AutoFacTory.csproj": {
+              "projectPath": "D:\\YNK_Crm\\AutoFac\\AutoFacTory.csproj"
             }
           }
         }

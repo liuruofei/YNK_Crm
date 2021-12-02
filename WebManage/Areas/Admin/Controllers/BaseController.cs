@@ -185,6 +185,8 @@ namespace WebManage.Areas.Admin.Controllers
                                     else
                                         _power_list.Add(item.Function_ByName, false);
                                 });
+                                _power_list["Audit"] = true;
+                                _power_list["AddContract"] = true;
                             }
                         }
                         else

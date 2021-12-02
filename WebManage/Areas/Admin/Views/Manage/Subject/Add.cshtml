@@ -1,0 +1,197 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="SubjectId" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">类型名称</label>
+            <div class="layui-input-inline">
+                <input name="SubjectName" placeholder="请输入科目名称" class="layui-input" lay-verify="required" required />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">均价课时</label>
+            <div class="layui-input-inline">
+                <input name="UnitCourse_Time" class="layui-input" lay-verify="required" required style="width:190px" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">等级1价格</label>
+            <div class="layui-input-inline" style="width: 190px;">
+                <input type="text" name="Lvel1Price" placeholder="￥" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <div class="layui-form-label">等级2价格</div>
+            <div class="layui-input-inline" style="        width: 190px;">
+                <input type="text" name="Lvel2Price" placeholder="￥" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-form-label">等级3价格</div>
+            <div class="layui-input-inline" style="width: 190px;">
+                <input type="text" name="Lvel3Price" placeholder="￥" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <div class="layui-form-label">等级4价格</div>
+            <div class="layui-input-inline" style="        width: 190px;">
+                <input type="text" name="Lvel4Price" placeholder="￥" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-form-label">校区</div>
+            <div class="layui-input-inline" style="width: 190px;">
+               <select name="CampusId"></select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+            <legend>科目</legend>
+        </fieldset>
+        <div style="padding:9px 16px">
+            <button type="button" class="btn btn-primary btn-lg" id="btnAddProject">
+                添加科目
+            </button>
+            <table class="layui-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>科目名称</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="child_Project">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script type="text/html" id="templateChild">
+        {{each data item index}}
+        <tr>
+            <td>{{index}} <input type="hidden" name="ProjectId" value="{{item.ProjectId}}" /></td>
+            <td><input  name="ProjectName" value="{{item.ProjectName}}"/></td>
+            <td>
+                <button type="button"  onclick="remove(this)">删除</button>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script type="text/html" id="templateAdd">
+        <tr>
+            <td>
+                <input type="hidden" name="ProjectId" value="0" />
+            </td>
+            <td>
+                <input type="text" name="ProjectName" />
+            </td>
+            <td><button type="button" onclick="remove(this)">删除</button></td>
+        </tr>
+    </script>
+    <script>
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        if (r.ProjectList != undefined && r.ProjectList != null) {
+                            var html = template("templateChild", { data:r.ProjectList});
+                            document.getElementById("child_Project").innerHTML = html;
+                        }
+                        adminForm.load({
+                        url: "@Url.Action("QueryCampus")",
+                        dataType: 'json',
+                        callBack: function (rou) {
+                            if (rou.data != null) {
+                                var result = rou.data;
+                                for (var i = 0; i < result.length; i++) {
+                                    if (r != undefined && r.CampusId != null && r.CampusId == result[i].CampusId) {
+                                        $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + ' selected>' + result[i].CampusName +'</option>');
+
+                                    } else {
+                                        $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + '>' + result[i].CampusName + '</option>');
+                                    }
+                                }
+                            }
+                        }
+                        });
+                    }
+                });
+            },
+            Save: function (data) {
+                data.field.ProjectList = [];
+                $("#child_Project>tr").each(function (i, ite) {
+                    var td = $(ite).find("td");
+                    var projectId = td.find("input[name='ProjectId']").val();
+                    var projectName = td.find("input[name='ProjectName']").val();
+                    data.field.ProjectList.push({ ProjectId: projectId, ProjectName: projectName});
+                });
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+
+        $("#btnAddProject").click(function () {
+            $("#child_Project").append($("#templateAdd").html());
+        })
+    });
+        function remove(obj) {
+            var projectId = $(obj).parents("tr").find("td").find("input[name='ProjectId']").val();
+            if (projectId < 1) {
+                $(obj).parents("tr").remove();
+            }
+        }
+    </script>
+}

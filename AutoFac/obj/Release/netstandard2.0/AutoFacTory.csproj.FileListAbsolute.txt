@@ -7,3 +7,12 @@ D:\Dingzhihua2\AutoFac\obj\Release\netstandard2.0\AutoFacTory.AssemblyInfo.cs
 D:\Dingzhihua2\AutoFac\obj\Release\netstandard2.0\AutoFacTory.csproj.CoreCompileInputs.cache
 D:\Dingzhihua2\AutoFac\obj\Release\netstandard2.0\AutoFacTory.dll
 D:\Dingzhihua2\AutoFac\obj\Release\netstandard2.0\AutoFacTory.pdb
+D:\YNK_Crm\AutoFac\bin\Release\netstandard2.0\AutoFacTory.deps.json
+D:\YNK_Crm\AutoFac\bin\Release\netstandard2.0\AutoFacTory.dll
+D:\YNK_Crm\AutoFac\bin\Release\netstandard2.0\AutoFacTory.pdb
+D:\YNK_Crm\AutoFac\obj\Release\netstandard2.0\AutoFacTory.csprojAssemblyReference.cache
+D:\YNK_Crm\AutoFac\obj\Release\netstandard2.0\AutoFacTory.AssemblyInfoInputs.cache
+D:\YNK_Crm\AutoFac\obj\Release\netstandard2.0\AutoFacTory.AssemblyInfo.cs
+D:\YNK_Crm\AutoFac\obj\Release\netstandard2.0\AutoFacTory.csproj.CoreCompileInputs.cache
+D:\YNK_Crm\AutoFac\obj\Release\netstandard2.0\AutoFacTory.dll
+D:\YNK_Crm\AutoFac\obj\Release\netstandard2.0\AutoFacTory.pdb

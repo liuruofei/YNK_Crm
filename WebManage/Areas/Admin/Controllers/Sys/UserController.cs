@@ -11,6 +11,7 @@ using ADT.Common;
 using System.Linq.Expressions;
 using WebManage.Areas.Admin.Filter;
 using WebManage.Areas.Admin.Models;
+using ADT.Models.ResModel;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,16 +20,18 @@ namespace WebManage.Areas.Admin.Controllers.Sys
     [Authorize]
     public class UserController : BaseController
     {
+        private ICurrencyService _currencyService;
         private ISys_UserService _UserService;
         private Iview_sys_user_roleService _view_sys_user_roleService;
         private ISys_RoleService _sys_RoleService;
         private ISys_UserRoleService _sys_UserRoleService;
-        public UserController(ISys_UserService sys_UserService, Iview_sys_user_roleService view_sys_user_roleService, ISys_RoleService sys_RoleService, ISys_UserRoleService sys_UserRoleService)
+        public UserController(ISys_UserService sys_UserService, Iview_sys_user_roleService view_sys_user_roleService, ISys_RoleService sys_RoleService, ISys_UserRoleService sys_UserRoleService, ICurrencyService currencyService)
         {
             _UserService = sys_UserService;
             _view_sys_user_roleService = view_sys_user_roleService;
             _sys_RoleService = sys_RoleService;
             _sys_UserRoleService = sys_UserRoleService;
+            _currencyService = currencyService;
         }
         protected override void Init()
         {
@@ -142,6 +145,11 @@ namespace WebManage.Areas.Admin.Controllers.Sys
                     else
                         vmodel.User_Pwd = model.User_Pwd;
                     _UserService.UpdateUsers(vmodel);
+                    if (!string.IsNullOrEmpty(vmodel.Role_ID)) {
+                        var userRole = _currencyService.DbAccess().Queryable<sys_userrole>().Where(c => c.UserRole_ID==model.UserRole_ID).First();
+                        userRole.UserRole_RoleID = vmodel.Role_ID;
+                        _sys_UserRoleService.Update(userRole);
+                    }
                 }
                 else
                 {
@@ -175,6 +183,17 @@ namespace WebManage.Areas.Admin.Controllers.Sys
                 _sys_UserRoleService.Delete(p => p.UserRole_UserID == model.User_ID);
             }
             return Json(new { status = 1 });
+        }
+
+        /// <summary>
+        /// 获取校区列表
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult QueryCampus()
+        {
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            rsg.data = _currencyService.DbAccess().Queryable<C_Campus>().Where(n => n.Status < 1).ToList();
+            return Json(rsg);
         }
     }
 }

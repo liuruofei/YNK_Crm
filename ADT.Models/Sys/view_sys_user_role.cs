@@ -119,5 +119,9 @@ namespace ADT.Models
         /// </summary>           
         public int? Role_IsDelete { get; set; }
 
+        ///校区Id
+
+        public int CampusId { get; set; }
+
     }
 }

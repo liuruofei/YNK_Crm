@@ -34,3 +34,15 @@ D:\Dingzhihua2\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.csproj.C
 D:\Dingzhihua2\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.csproj.CopyComplete
 D:\Dingzhihua2\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.dll
 D:\Dingzhihua2\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.pdb
+D:\YNK_Crm\ADT.Repository\bin\Release\netstandard2.0\ADT.Repository.deps.json
+D:\YNK_Crm\ADT.Repository\bin\Release\netstandard2.0\ADT.Repository.dll
+D:\YNK_Crm\ADT.Repository\bin\Release\netstandard2.0\ADT.Repository.pdb
+D:\YNK_Crm\ADT.Repository\bin\Release\netstandard2.0\ADT.Models.dll
+D:\YNK_Crm\ADT.Repository\bin\Release\netstandard2.0\ADT.Models.pdb
+D:\YNK_Crm\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.csprojAssemblyReference.cache
+D:\YNK_Crm\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.AssemblyInfoInputs.cache
+D:\YNK_Crm\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.AssemblyInfo.cs
+D:\YNK_Crm\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.csproj.CoreCompileInputs.cache
+D:\YNK_Crm\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.csproj.CopyComplete
+D:\YNK_Crm\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.dll
+D:\YNK_Crm\ADT.Repository\obj\Release\netstandard2.0\ADT.Repository.pdb

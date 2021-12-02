@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "l0Q8/twxumK/ieYo2+v8i2GKWLOxg5RAUuscb+oOcF3fF8ZPRVl2D31BiR0OfjuxTGILmZSsAeAiP384QRlIJg==",
+  "dgSpecHash": "WPYxZ+FGlGYSB6TUs1Rg42r/EzgxuJNMCE0h63uXxXjBX6YBenFhtPoLoiMHro/TmB6ppbwxLS1qqyIgsrt5ng==",
   "success": true,
-  "projectFilePath": "D:\\Dingzhihua2\\WebManage\\WebManage.csproj",
+  "projectFilePath": "D:\\YNK_Crm\\WebManage\\WebManage.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\86158\\.nuget\\packages\\autofac\\6.0.0\\autofac.6.0.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\autofac.extensions.dependencyinjection\\6.0.0\\autofac.extensions.dependencyinjection.6.0.0.nupkg.sha512",

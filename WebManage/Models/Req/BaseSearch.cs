@@ -10,10 +10,10 @@ namespace WebManage.Models.Req
         /// <summary>
         /// 页码
         /// </summary>
-        public int pagesize { get; set; }
+        public int page { get; set; } = 1;
         /// <summary>
         /// 页
         /// </summary>
-        public int page { get; set; }
+        public int limit { get; set; } = 10;
     }
 }

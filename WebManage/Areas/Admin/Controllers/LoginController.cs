@@ -44,20 +44,21 @@ namespace WebManage.Areas.Admin.Controllers
         public IActionResult Index(string username, string password)
         {
             if (string.IsNullOrEmpty(username))
-                throw new MessageBox("请输入用户名！");
+                return Json(new { status = 0, msg = "请输入用户名！"});
             if (string.IsNullOrEmpty(password))
-                throw new MessageBox("请输入密码！");
+                return Json(new { status = 0, msg = "请输入密码！" });
 
             var _Sys_User = _sys_UserService.FindByClause(p => p.User_LoginName == username);
             if (_Sys_User == null)
-                throw new MessageBox("账号不存在");
+                return Json(new { status = 0, msg = "账号不存在！" });
             if (_Sys_User.User_ID.ToGuid() == Guid.Empty)
-                throw new MessageBox("帐户不存在");
+                return Json(new { status = 0, msg = "账号不存在！" });
             if (_Sys_User.User_Pwd.ToStr().Trim() != Tools.MD5Encryption(password))
-                throw new MessageBox("密码错误");
+                return Json(new { status = 0, msg = "密码错误！" });
             var claim = new Claim[]{
                     new Claim("ID",_Sys_User.User_ID.ToStr()),
-                    new Claim("UserName",_Sys_User.User_Name)
+                    new Claim("UserName",_Sys_User.User_Name),
+                    new Claim("CampusId",_Sys_User.CampusId.ToStr()),
                 };
 
             //对称秘钥

@@ -21,6 +21,86 @@
 
   <ItemGroup>
     <Folder Include="Upload\" />
+    <Folder Include="wwwroot\assets\libs\fullCalendar2\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\af.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ar-dz.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ar-kw.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ar-ly.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ar-ma.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ar-sa.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ar-tn.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ar.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\az.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\bg.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\bn.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\bs.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ca.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\cs.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\cy.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\da.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\de-at.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\de.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\el.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\en-au.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\en-gb.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\en-nz.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\eo.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\es-us.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\es.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\et.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\eu.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\fa.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\fi.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\fr-ca.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\fr-ch.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\fr.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\gl.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\he.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\hi.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\hr.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\hu.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\hy-am.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\id.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\is.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\it.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ja.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ka.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\kk.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ko.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\lb.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\lt.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\lv.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\mk.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ms.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\nb.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ne.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\nl.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\nn.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\pl.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\pt-br.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\pt.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ro.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ru.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\sk.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\sl.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\sq.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\sr-cyrl.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\sr.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\sv.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ta-in.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\th.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\tr.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\ug.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\uk.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\uz.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\vi.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\zh-cn.js" />
+    <None Include="wwwroot\assets\libs\fullCalendar\locales\zh-tw.js" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

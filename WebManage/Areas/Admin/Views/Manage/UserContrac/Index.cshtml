@@ -1,0 +1,163 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">关键字：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="txtTitle" class="layui-input" type="text" placeholder="输入标题" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">合同类型：</label>
+                        <div class="layui-input-inline mr0">
+                            <select id="StudyMode" name="StudyMode" lay-filter="StudyMode">
+                                <option value="1">一对一</option>
+                                <option value="2">小班</option>
+                                <option value="3">付费教材</option>
+                                <option value="4">考团</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    {{# if(d.Constra_Status==1){ }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="audit">校长确认</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="auditRreject">校长驳回</a>
+    {{#}}}
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">修改合同</a>
+
+    <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+    layui.use(['form', 'util', 'admin', 'adminList', 'adminForm'], function () {
+        var $ = layui.jquery;
+        var util = layui.util;
+        var admin = layui.admin;
+        var form = layui.form;
+        var adminForm = layui.adminForm;
+        var adminList = layui.adminList;
+
+        // 渲染表格
+        var insTb = adminList.tableLayUI({
+            elem: '#userTable',
+            url: '@Url.Action("GetDataSource")',
+            page: true,
+            cellMinWidth: 100,
+            cols: [[
+                { type: 'numbers' },
+                { field: 'ContraNo', title: '合同编号', sort: true },
+                { field: 'Student_Name', title: '学生姓名', sort: true },
+                { field: 'Constra_Status_Name', title: '合同状态', sort: true },
+                { field: 'StudyModesName', title: '所含子合同类型', sort: true, width: 150 },
+                { field: 'CCUserName', title: '签约人', sort: true },
+                { field: 'CampusName', title: '签约校区', sort: true },
+                { field: 'CreateTime', title: '创建日期', sort: true },
+                { field: 'Total_Amount', title: '合同总金额', sort: true },
+                { field: 'Pay_Amount', title: '已付总金额', sort: true },
+                {align: 'center', toolbar: '#tableBar', title: '操作', width: 300}
+            ]]
+        });
+
+        // 搜索
+        $('#btnSearch').click(function () {
+            var title = $('#txtTitle').val();
+            var studymode = $('#StudyMode').val();
+            insTb.reload({
+                where: { title: title, studymode: studymode}
+                , page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+        form.on('select(StudyMode)', function (data) {
+            var title = $('#txtTitle').val();
+            insTb.reload({
+                where: { title: title, studymode: data.value }
+                , page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+
+        // 工具条点击事件
+        adminList.table.on('tool(userTable)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') { // 修改
+                showEditModel(data);
+            } else if (layEvent === 'del') { // 删除
+                doDel(data.CourseId);
+            } else if (layEvent === 'audit') {
+                Audit({ Id: data.ContracId, thought: true });
+            } else if (layEvent === 'auditRreject') {
+                Audit({ Id: data.ContracId, thought: false });
+            }
+        });
+        //审核状态
+        function Audit(vmodel) {
+            adminForm.Save({
+                url: '@Url.Action("Audit")',
+                data: vmodel,
+                callBack: function (result) {
+                    insTb.reload();
+                    layer.msg(result.msg);
+                }
+            });
+        }
+
+        //显示表单弹窗
+        function showEditModel(vmodel) {
+            adminList.form({
+            title: '修改合同',
+            type: 2,
+            width: "1060px",
+                height: "690px",
+                content: '@Url.Action("EditContrc")?contraNo=' + vmodel.ContraNo,
+                end: function (data) {
+                    insTb.reload();
+            }
+            });
+        }
+        //删除
+        function doDel(Id) {
+            adminList.delete('@Url.Action("Delete")', { Id: Id}, function () {
+                insTb.reload();
+            });
+        }
+
+    });
+    </script>
+}
