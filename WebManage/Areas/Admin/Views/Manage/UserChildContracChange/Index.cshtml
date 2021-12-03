@@ -192,12 +192,12 @@
     function configChange(vmodel) {
          layer.confirm('确定变更合同' + vmodel.Contra_ChildNo + '有效吗？', {
                     btn: ['确定', '取消'] //按钮
-         }, function () {
+         }, function (index) {
                     adminForm.Save({
                         url:'@Url.Action("ChildContrcChangeSave")',
                         data: { childContrcNo: vmodel.Contra_ChildNo },
                         callBack: function (result) {
-                            layer.close(layer.index);
+                            layer.close(index);
                             insTb.reload();
                         }
                     })

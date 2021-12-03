@@ -93,6 +93,11 @@ namespace WebManage.Models.Res
         public string TeacherName { get; set; }
 
         /// <summary>
+        /// 督学
+        /// </summary>
+        public string TaUserName { get; set; }
+
+        /// <summary>
         /// 房间名称
         /// </summary>
         public string RoomName { get; set; }

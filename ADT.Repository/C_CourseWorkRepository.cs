@@ -590,6 +590,7 @@ namespace ADT.Repository
                         }
                         C_Course_Work_Recored recored = new C_Course_Work_Recored();
                         recored.Msg ="课程"+teach.User_Name + "_" + work.Work_Title+" "+work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime+"已删除，学员" + u.Student_Name+"已使用课时由"+oldCourseTime+"小时变回"+useTime.Course_UseTime+"小时";
+                        recored.CampusId = work.CampusId;
                         recored.CreateUid = uid;
                         recored.CreateTime = DateTime.Now;
                         //更新学员课时

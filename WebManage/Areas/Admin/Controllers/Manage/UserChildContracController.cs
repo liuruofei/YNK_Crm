@@ -13,6 +13,7 @@ using WebManage.Areas.Admin.Filter;
 using WebManage.Areas.Admin.Models;
 using WebManage.Models.Res;
 using ADT.Models.InputModel;
+using SqlSugar;
 
 namespace WebManage.Areas.Admin.Controllers.Manage
 {
@@ -43,7 +44,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult GetDataSource(int contraProperty, int studymode,DateTime? startime,DateTime? endtime, int page = 1, int limit = 10)
         {
             int total = 0;
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+            var ccUse = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Inner, u.User_ID == ur.UserRole_UserID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where(u => u.User_ID == userId).Select<sys_role>().First();
             PageList<UserChildContracModel> pageModel = new PageList<UserChildContracModel>();
             var list = _currencyService.DbAccess().Queryable(@"(select c.*,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName from C_Contrac_Child c left join C_Contrac_User contracU on c.StudentUid=contracU.StudentUid
                 left join Sys_User cc on c.CC_Uid=cc.User_ID where c.CampusId=@CampusId)", "orginSql").AddParameters(new { CampusId = campusId })
@@ -51,6 +54,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .WhereIF(studymode > 0, "orginSql.StudyMode=@studyModes").AddParameters(new { studyModes=studymode })
                 .WhereIF(startime!=null&&!string.IsNullOrEmpty(startime.ToString()), "orginSql.Pay_Time>=@startime").AddParameters(new { startime = startime })
                 .WhereIF(endtime != null && !string.IsNullOrEmpty(endtime.ToString()), "orginSql.Pay_Time<=@endtime").AddParameters(new { endtime = endtime })
+                .WhereIF(ccUse != null && ccUse.Role_Name == "顾问", "orginSql.CC_Uid=@CCuid").AddParameters(new { CCuid = userId })
                 .Select<UserChildContracModel>("*").OrderBy("orginSql.CreateTime desc").ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;

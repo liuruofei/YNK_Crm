@@ -196,9 +196,9 @@
             adminForm.Save({
                 url: '@Url.Action("ChildContrcChnageClassAudit")',
                 data: { Contra_ChildNo: vmodel.Contra_ChildNo,through:true},
-            callBack: function (result) {
-                layer.msg(result.msg);
-            }
+                callBack: function (result) {
+                    layer.msg(result.msg);
+                }
         });
     };
     ///驳回申请
@@ -206,9 +206,9 @@
             adminForm.Save({
                 url: '@Url.Action("ChildContrcChnageClassAudit")',
                 data: { Contra_ChildNo: vmodel.Contra_ChildNo, through: false },
-            callBack: function (result) {
-                layer.msg(result.msg);
-            }
+                callBack: function (result) {
+                    layer.msg(result.msg);
+                }
         });
     };
 

@@ -252,7 +252,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child,C_Class>((c,cl)=>new object[] { JoinType.Left,c.ClassId==cl.ClassId}).Where(c => c.StudentUid == student.StudentUid && c.ClassId > 0).WhereIF(subjectId>0,(c,cl)=>cl.SubjectId==subjectId).Select(c => c.ClassId).ToList();
             }
-            string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TAUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
+            string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
                 left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)";
             if (classIds != null && classIds.Count > 0)
@@ -313,7 +313,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((c, cl) => new object[] { JoinType.Left, c.ClassId == cl.ClassId }).Where(c => c.StudentUid == student.StudentUid && c.ClassId > 0).WhereIF(subjectId > 0, (c, cl) => cl.SubjectId == subjectId).Select(c => c.ClassId).ToList();
             }
-            string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TAUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
+            string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
                 left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)";
             if (classIds != null && classIds.Count > 0)

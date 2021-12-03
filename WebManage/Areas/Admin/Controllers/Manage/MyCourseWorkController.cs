@@ -110,7 +110,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             int total = 0;
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             ResResult reg = new ResResult();
-            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(@"(select wk.*,contracU.Student_Name,ta.User_Name as TAUserName,tc.User_Name as TeacherName,rm.RoomName,cl.Class_Name from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
+            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(@"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName,cl.Class_Name from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
                 left join C_Room rm on wk.RoomId=rm.Id where wk.TeacherUid=@TeacherUid and wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date))", "orginSql")
            .AddParameters(new { startStr = startStr, endStr = endStr, TeacherUid = userId })
@@ -139,7 +139,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             int total = 0;
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             ResResult reg = new ResResult();
-            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(@"(select wk.*,contracU.Student_Name,ta.User_Name as TAUserName,tc.User_Name as TeacherName,rm.RoomName,cl.Class_Name from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
+            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(@"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName,cl.Class_Name from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
                 left join C_Room rm on wk.RoomId=rm.Id where wk.TeacherUid=@TeacherUid and wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date))", "orginSql")
            .AddParameters(new { startStr = startStr, endStr = endStr, TeacherUid = userId })

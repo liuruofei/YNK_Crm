@@ -378,6 +378,7 @@
                             },
                             { field: 'TeacherName', title: '教师', sort: true, width: 120 },
                             { field: 'RoomName', title: '教室', sort: true, width: 120 },
+                            { field: 'TaUserName', title: '督学', sort: true, width: 120 },
                             {
                                 field: 'Work_Stutas', title: '状态', sort: true, width: 120, templet: function (d) {
                                     if (d.StudyMode != 3)
@@ -402,13 +403,19 @@
                         if (layEvent === 'edit') { // 修改
                             showEditModel(data.Id, '', initable);
                         } else if (layEvent === 'del') { // 删除
-                             adminForm.Save({
-                                 url:'@Url.Action("RemoveCourseWork")',
-                                 data: { id: data.Id},
-                                 callBack: function (result) {
-                                     layui.msg(result.msg);
-                                }
-                             })
+                             layer.confirm('确定要删除该课程吗?', {
+                                        btn: ['确定', '取消'] //按钮
+                             }, function (index) {
+                                        adminForm.Save({
+                                             url:'@Url.Action("RemoveCourseWork")',
+                                             data: { id: data.Id},
+                                             callBack: function (result) {
+                                                 layer.msg(result.msg);
+                                                 layer.close(index);
+                                            }
+                                         })
+                                    }, function () {
+                               });
                         }
             });
             //tab监听

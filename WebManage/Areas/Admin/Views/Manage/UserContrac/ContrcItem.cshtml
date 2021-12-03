@@ -182,7 +182,7 @@
                 <select name="SubjectId" lay-filter="SubjectId"></select>
                 <input type="hidden" name="detailId" value="{{item.Id}}" />
             </td>
-            <td><select name="ProjectId"></select></td>
+            <td><select name="ProjectId" lay-filter="ProjectId{{index}}"></select></td>
             <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="{{item.Course_Time}}" lay-filter="Course_Time" /></td>
             <td>
                 <select name="Level" style="width:60px;" lay-filter="Level">
@@ -220,7 +220,6 @@
                         dataType: 'json',
                         callBack: function (r) {
                             if (r != null && r != undefined) {
-                                console.log(r.ListItem);
                                 $("span[id=Discount_Amount]").text(r.Discount_Amount);
                                 $("span[id=Saler_Amount]").text(r.Saler_Amount);
                                 var anyRate = $("select[name='ContraRateSelect']").find("option[value='" + r.ContraRate+ "']").val();
@@ -258,11 +257,17 @@
                                     }
                                     var k = 0;
                                     if (r != null && r.ListItem != undefined && r.ListItem != null) {
+
+                                        var subjectIds = [];
                                         r.ListItem.forEach(item => {
                                             $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='SubjectId']").val(item.SubjectId);
-                                            bindProject(item.SubjectId, k, item.ProjectId);
+                                            if (subjectIds.indexOf(item.SubjectId) < 0) {
+                                                subjectIds.push(item.SubjectId);
+                                            }
+                                            //bindProject(item.SubjectId,k, item.ProjectId);
                                             k++;
                                         });
+                                         bindMoreProject(subjectIds, r.ListItem);
                                     }
                                     else {
                                         var lastSubjectId = $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='SubjectId']").val();
@@ -324,6 +329,36 @@
                     })
                 }
             };
+
+            function bindMoreProject(subjectIds, listItem) {
+                    $.ajax({
+                        type: "post",
+                        url:"@Url.Action("QueryProjects", "ContracUser")",
+                        data: {subjectIds: subjectIds},
+                        dataType: 'json',
+                        contentType: 'application/x-www-form-urlencoded',
+                        success: function (rou) {
+                            var result = rou.data;
+                            var k = 0;
+                            listItem.forEach(item => {
+                                var curProjects = result.filter(m => m.SubjectId == parseInt(item.SubjectId));
+                                var defaultProjectValue = 0;
+                                for (var j = 0; j < curProjects.length; j++) {
+                                    if (parseInt(item.ProjectId) == parseInt(curProjects[j].ProjectId)) {
+                                        defaultProjectValue = parseInt(curProjects[j].ProjectId);
+                                       $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append(new Option(curProjects[j].ProjectName,curProjects[j].ProjectId,true));
+                                    }
+                                    else {
+                                        $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append(new Option(curProjects[j].ProjectName, curProjects[j].ProjectId));
+                                    }
+                                }
+                                $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").val(defaultProjectValue);
+                                layui.form.render("select");
+                                k++;
+                            });
+                        }
+                    });
+            };
             function bindProject(subjectId, trindex, projectValue) {
                     adminForm.load({
                     url: "@Url.Action("QueryProject", "ContracUser")?subjectId=" + subjectId,
@@ -331,13 +366,18 @@
                     callBack: function (pdata) {
                         if (pdata.data != null) {
                             var projectresult = pdata.data;
-                            for (var i = 0; i < projectresult.length; i++) {
-                                if (projectresult[i].ProjectId == projectValue)
-                                    $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + projectresult[i].ProjectId + ' seleted>' + projectresult[i].ProjectName + '</option>');
-                                else
-                                    $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + projectresult[i].ProjectId + '>' + projectresult[i].ProjectName + '</option>');
+                            var defaultProjectValue = 0;
+                            for (var i= 0; i< projectresult.length; i++) {
+                                if (projectresult[i].ProjectId === parseInt(projectValue)) {
+                                    defaultProjectValue = parseInt(projectValue);
+                                    $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value ="' + projectresult[i].ProjectId + '" seleted>' + projectresult[i].ProjectName + '</option>');
+                                }
+                                else {
+                                    $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value = "' + projectresult[i].ProjectId + '">' + projectresult[i].ProjectName + '</option>');
+                                }
                             }
-
+                            $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").val(defaultProjectValue);
+                            layui.form.render("select");
                         }
                        }
                     });
@@ -399,13 +439,13 @@
             if (level == 1) {
                 price.val((courseTime * leve1Price).toFixed(2));
             }
-            if (level == 2) {
+            else if (level == 2) {
                 price.val((courseTime * leve2Price).toFixed(2));
             }
-            if (level == 3) {
+            else if (level == 3) {
                 price.val((courseTime * leve3Price).toFixed(2));
             }
-            if (level == 4) {
+            else if (level == 4) {
                 price.val((courseTime * leve4Price).toFixed(2));
             }
         });
@@ -502,13 +542,13 @@
                     if (level == 1) {
                         price.val((courseTime * leve1Price).toFixed(2));
                     }
-                    if (level == 2) {
+                    else if (level == 2) {
                         price.val((courseTime * leve2Price).toFixed(2));
                     }
-                    if (level == 3) {
+                    else if (level == 3) {
                         price.val((courseTime * leve3Price).toFixed(2));
                     }
-                    if (level == 4) {
+                    else if (level == 4) {
                         price.val((courseTime * leve4Price).toFixed(2));
                     }
                     orgAmount = orgAmount + parseFloat(price.val());
@@ -569,7 +609,7 @@
             layer.confirm('确定删除该项目吗？', {
                 btn: ['确定', '取消'] //按钮
             }, function () {
-                    $(obj).parents("tr").remove();
+                $(obj).parents("tr").remove();
                     layer.close(layer.index);
             }, function () {
                     layer.close(layer.index);

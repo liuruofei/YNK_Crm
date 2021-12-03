@@ -523,17 +523,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult GetDataSource(string title, int page = 1, int limit = 10)
         {
             int total = 0;
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+            var ccUse = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Inner, u.User_ID == ur.UserRole_UserID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where(u => u.User_ID == userId).Select<sys_role>().First();
             PageList<C_ContracUserModel> pageModel = new PageList<C_ContracUserModel>();
-            var list = _currencyService.DbAccess().Queryable("C_Contrac_User", "contracU").AddJoinInfo(@"(select  u.* from Sys_UserRole ur left join Sys_User u on ur.UserRole_UserID=u.User_ID left join Sys_Role r
-            on ur.UserRole_RoleID = r.Role_ID where r.Role_Name = '顾问')", "role", "contracU.CC_Uid=role.User_ID", SqlSugar.JoinType.Left)
-            .AddJoinInfo(@"(select  u.* from Sys_UserRole ur left join Sys_User u on ur.UserRole_UserID=u.User_ID left join Sys_Role r
-            on ur.UserRole_RoleID = r.Role_ID where r.Role_Name = '销售')", "roleCR", "contracU.CR_Uid=roleCR.User_ID", SqlSugar.JoinType.Left).
+            var list = _currencyService.DbAccess().Queryable("C_Contrac_User", "contracU").AddJoinInfo("Sys_User", "cc", "contracU.CC_Uid=cc.User_ID", SqlSugar.JoinType.Left)
+            .AddJoinInfo("Sys_User", "cr", "contracU.CR_Uid=cr.User_ID", SqlSugar.JoinType.Left).
             AddJoinInfo("C_Campus", "camp", "contracU.CampusId=camp.CampusId", SqlSugar.JoinType.Left)
             .Where("contracU.CampusId="+campusId)
-                .WhereIF(!string.IsNullOrEmpty(title)," charindex(@title,contracU.Student_Name)>0 or charindex(@title,contracU.Student_Phone)>0").AddParameters(new { title = title })
-                .Select<C_ContracUserModel>(@"contracU.*,role.User_Name as CC_UserName,roleCR.User_Name as CR_UserName,
-                 camp.CampusName").OrderBy("contracU.CreateTime desc").ToPageList(page, limit, ref total);
+            .WhereIF(!string.IsNullOrEmpty(title)," charindex(@title,contracU.Student_Name)>0 or charindex(@title,contracU.Student_Phone)>0").AddParameters(new { title = title })
+            .WhereIF(ccUse != null && ccUse.Role_Name == "顾问", "contracU.CC_Uid=@CCuid").AddParameters(new { CCuid = userId })
+            .Select<C_ContracUserModel>(@"contracU.*,cc.User_Name as CC_UserName,cr.User_Name as CR_UserName,
+                camp.CampusName").OrderBy("contracU.CreateTime desc").ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;
             pageModel.count = total;

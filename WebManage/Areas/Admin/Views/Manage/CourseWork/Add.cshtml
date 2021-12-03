@@ -329,14 +329,20 @@
             return false;
         });
          $("#couseMovel").click(function () {
-             adminForm.Save({
-                 url:'@Url.Action("RemoveCourseWork")',
-                 data: { id: KeyId},
-                 callBack: function (result) {
-                     admin.closeThisDialog();
-                     layui.msg(result.msg);
-                }
-             })
+                             layer.confirm('确定要删除该课程吗?', {
+                                        btn: ['确定', '取消'] //按钮
+                             }, function (index) {
+                                         adminForm.Save({
+                                             url:'@Url.Action("RemoveCourseWork")',
+                                             data: { id: KeyId},
+                                             callBack: function (result) {
+                                                 admin.closeThisDialog();
+                                                 layer.msg(result.msg);
+                                                 layer.close(index);
+                                            }
+                                         })
+                                    }, function () {
+                               });
         })
         function formatMinutin() {
             $(".laydate-time-list li ol").eq(2).parent("li").remove();

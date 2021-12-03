@@ -864,14 +864,17 @@
                             var k = 0;
                             childInfo.Child_Detail.forEach(item => {
                                 var curProjects = result.filter(m => m.SubjectId == parseInt(item.SubjectId));
+                                var defaultProjectValue = 0;
                                 for (var j = 0; j < curProjects.length; j++) {
-                                    if (parseInt(item.ProjectId)== curProjects[j].ProjectId) {
+                                    if (parseInt(item.ProjectId) == curProjects[j].ProjectId) {
+                                        defaultProjectValue = curProjects[j].ProjectId;
                                         $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + curProjects[j].ProjectId + ' selected>' + curProjects[j].ProjectName + '</option>');
                                     }
                                     else {
                                         $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + curProjects[j].ProjectId + '>' + curProjects[j].ProjectName + '</option>');
                                     }
                                 }
+                                $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").val(defaultProjectValue);
                                 k++;
                             });
                             layui.form.render("select");
