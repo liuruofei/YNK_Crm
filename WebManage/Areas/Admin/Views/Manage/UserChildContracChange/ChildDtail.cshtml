@@ -286,12 +286,17 @@
                     callBack: function (pdata) {
                         if (pdata.data != null) {
                             var projectresult = pdata.data;
+                            var defaultProjectValue = 0;
                             for (var i = 0; i < projectresult.length; i++) {
-                                if (projectresult[i].ProjectId == projectValue)
+                                if (projectresult[i].ProjectId == projectValue) {
+                                    defaultProjectValue = parseInt(projectValue);
                                     $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + projectresult[i].ProjectId + ' seleted>' + projectresult[i].ProjectName + '</option>');
+                                }
                                 else
                                     $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + projectresult[i].ProjectId + '>' + projectresult[i].ProjectName + '</option>');
                             }
+                            $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").val(defaultProjectValue);
+                            layui.form.render("select");
 
                         }
                        }

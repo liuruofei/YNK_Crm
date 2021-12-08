@@ -56,7 +56,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">生日</label>
             <div class="layui-input-inline">
-                <input name="Birthday" type="text" class="layui-input" />
+                <input name="Birthday" type="text" class="layui-input" id="Birthday"/>
             </div>
         </div>
         <div class="layui-inline">
@@ -112,13 +112,17 @@
     <!-- js部分 -->
     <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
     <script>
-        layui.use(['form', 'admin', 'adminForm'], function () {
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
         var KeyId = '@KeyId';
         var $ = layui.jquery;
         var form = layui.form;
         var admin = layui.admin;
         var adminForm = layui.adminForm;
-
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#Birthday',
+            type: 'date'
+        });
         var App = {
             Load: function () {
                     adminForm.load({
@@ -130,7 +134,10 @@
                             if (r.Sex != undefined && r.Sex != null) {
                                 $("input[name='Sex'][value='" + r.Sex + "']").attr("checked");
                             }
-                                adminForm.load({
+                            if (r.Birthday != undefined && r.Birthday != null) {
+                                $("input[name='Birthday']").val(dateFormat("yyyy-mm-dd", r.Birthday));
+                            }
+                            adminForm.load({
                                 url: "@Url.Action("QueryCampus")",
                                 dataType: 'json',
                                 callBack: function (rou) {
@@ -168,5 +175,25 @@
             return false;
         });
         });
+        function dateFormat(fmt, datestr) {
+            var date = new Date(datestr);
+            let ret;
+            const opt = {
+                "y+": date.getFullYear().toString(),        // 年
+                "m+": (date.getMonth() + 1).toString(),     // 月
+                "d+": date.getDate().toString(),            // 日
+                "H+": date.getHours().toString(),           // 时
+                "M+": date.getMinutes().toString(),         // 分
+                "S+": date.getSeconds().toString()          // 秒
+                // 有其他格式化字符需求可以继续添加，必须转化成字符串
+            };
+            for (let k in opt) {
+                ret = new RegExp("(" + k + ")").exec(fmt);
+                if (ret) {
+                    fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+                };
+            };
+            return fmt;
+        }
     </script>
 }

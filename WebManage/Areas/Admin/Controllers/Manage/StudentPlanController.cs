@@ -154,23 +154,23 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:30");
                             if ((startTimestr >= thanStartTime1 && endTimestr <= thanendTime1) || (startTimestr >= thanStartTime1 && startTimestr <= thanendTime1 && endTimestr >= thanendTime1))
                             {
-                                it.Eight_Ten_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Eight_Ten_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
                             else if ((startTimestr >= thanStartTime2 && endTimestr <= thanendTime2) || (startTimestr >= thanStartTime2 && startTimestr <= thanendTime2 && endTimestr >= thanendTime2))
                             {
-                                it.Ten_Twelve_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Ten_Twelve_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
                             else if ((startTimestr >= thanStartTime3 && endTimestr <= thanendTime3) || (startTimestr >= thanStartTime3 && startTimestr <= thanendTime3 && endTimestr >= thanendTime3))
                             {
-                                it.Thirteen_Fifteen_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Thirteen_Fifteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
                             else if ((startTimestr >= thanStartTime4 && endTimestr <= thanendTime4) || (startTimestr >= thanStartTime4 && startTimestr <= thanendTime4 && endTimestr >= thanendTime4))
                             {
-                                it.Fifteen_Seventeen_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Fifteen_Seventeen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
                             else if ((startTimestr >= thanStartTime5 && endTimestr <= thanendTime5) || (startTimestr >= thanStartTime5 && startTimestr <= thanendTime5 && endTimestr >= thanendTime5))
                             {
-                                it.Seventeen_Nineteen_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Seventeen_Nineteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
                             if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent)
                                 it.CourseComent += iv.Comment;
@@ -200,27 +200,27 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:30");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
-                                it.Eight_Ten_OlockTitle = iv.WorkTitle;
+                                it.Eight_Ten_OlockTitle+= iv.WorkTitle;
                                 it.Eight_Ten_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime2 && endTimestr <= thanendTime2)
                             {
-                                it.Ten_Twelve_OlockTitle = iv.WorkTitle;
+                                it.Ten_Twelve_OlockTitle+= iv.WorkTitle;
                                 it.Ten_Twelve_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime3 && endTimestr <= thanendTime3)
                             {
-                                it.Thirteen_Fifteen_OlockTitle = iv.WorkTitle;
+                                it.Thirteen_Fifteen_OlockTitle+= iv.WorkTitle;
                                 it.Thirteen_Fifteen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime4 && endTimestr <= thanendTime4)
                             {
-                                it.Fifteen_Seventeen_OlockTitle = iv.WorkTitle;
+                                it.Fifteen_Seventeen_OlockTitle+= iv.WorkTitle;
                                 it.Fifteen_Seventeen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime5 && endTimestr <= thanendTime5)
                             {
-                                it.Seventeen_Nineteen_OlockTitle = iv.WorkTitle;
+                                it.Seventeen_Nineteen_OlockTitle+= iv.WorkTitle;
                                 it.Seventeen_Nineteen_Id = iv.Id;
                             }
                             if (!string.IsNullOrEmpty(iv.SummaryComent) || !string.IsNullOrEmpty(iv.CourseComent) || !string.IsNullOrEmpty(iv.ChouciComent) || !string.IsNullOrEmpty(iv.HomeWorkComent) || !string.IsNullOrEmpty(iv.OtherComent))
@@ -330,14 +330,11 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             if (ID > 0)
             {
                 C_Student_Work_Plan vmodel = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(f => f.Id == ID).First();
-
                 list = vmodel;
             }
             else
             {
-                C_Student_Work_Plan vmodel = new C_Student_Work_Plan();
-
-                list = vmodel;
+                list =new { };
             }
             return Json(list);
         }
@@ -546,23 +543,23 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:30");
                             if ((startTimestr >= thanStartTime1 && endTimestr <= thanendTime1) || (startTimestr >= thanStartTime1 && startTimestr <= thanendTime1 && endTimestr >= thanendTime1))
                             {
-                                it.Eight_Ten_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Eight_Ten_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
                             else if ((startTimestr >= thanStartTime2 && endTimestr <= thanendTime2) || (startTimestr >= thanStartTime2 && startTimestr <= thanendTime2 && endTimestr >= thanendTime2))
                             {
-                                it.Ten_Twelve_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Ten_Twelve_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
                             else if ((startTimestr >= thanStartTime3 && endTimestr <= thanendTime3) || (startTimestr >= thanStartTime3 && startTimestr <= thanendTime3 && endTimestr >= thanendTime3))
                             {
-                                it.Thirteen_Fifteen_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Thirteen_Fifteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
                             else if ((startTimestr >= thanStartTime4 && endTimestr <= thanendTime4) || (startTimestr >= thanStartTime4 && startTimestr <= thanendTime4 && endTimestr >= thanendTime4))
                             {
-                                it.Fifteen_Seventeen_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Fifteen_Seventeen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
                             else if ((startTimestr >= thanStartTime5 && endTimestr <= thanendTime5) || (startTimestr >= thanStartTime5 && startTimestr <= thanendTime5 && endTimestr >= thanendTime5))
                             {
-                                it.Seventeen_Nineteen_OlockTitle = iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Seventeen_Nineteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
                             if (!string.IsNullOrEmpty(iv.Comment)&& iv.Comment!=it.CourseComent)
                                 it.CourseComent += iv.Comment;
@@ -592,27 +589,27 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:30");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
-                                it.Eight_Ten_OlockTitle = iv.WorkTitle;
+                                it.Eight_Ten_OlockTitle+= iv.WorkTitle;
                                 it.Eight_Ten_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime2 && endTimestr <= thanendTime2)
                             {
-                                it.Ten_Twelve_OlockTitle = iv.WorkTitle;
+                                it.Ten_Twelve_OlockTitle+= iv.WorkTitle;
                                 it.Ten_Twelve_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime3 && endTimestr <= thanendTime3)
                             {
-                                it.Thirteen_Fifteen_OlockTitle = iv.WorkTitle;
+                                it.Thirteen_Fifteen_OlockTitle+= iv.WorkTitle;
                                 it.Thirteen_Fifteen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime4 && endTimestr <= thanendTime4)
                             {
-                                it.Fifteen_Seventeen_OlockTitle = iv.WorkTitle;
+                                it.Fifteen_Seventeen_OlockTitle+= iv.WorkTitle;
                                 it.Fifteen_Seventeen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime5 && endTimestr <= thanendTime5)
                             {
-                                it.Seventeen_Nineteen_OlockTitle = iv.WorkTitle;
+                                it.Seventeen_Nineteen_OlockTitle+= iv.WorkTitle;
                                 it.Seventeen_Nineteen_Id = iv.Id;
                             }
                             if (!string.IsNullOrEmpty(iv.SummaryComent) || !string.IsNullOrEmpty(iv.CourseComent) || !string.IsNullOrEmpty(iv.ChouciComent) || !string.IsNullOrEmpty(iv.HomeWorkComent) || !string.IsNullOrEmpty(iv.OtherComent))
