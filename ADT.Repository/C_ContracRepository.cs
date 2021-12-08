@@ -234,7 +234,7 @@ namespace ADT.Repository
                             User.Student_Name = input.Student_Name;
                             User.CampusId = input.CampusId;
                             User.Student_Phone = input.Student_Phone;
-                            User.Birthday = input.Birthday.Value;
+                            User.Birthday = input.Birthday;
                             User.Student_Wechat = input.Student_Wechat;
                             User.CC_Uid = clue.CC_Uid;
                             User.ContactFamily = clue.Elder_Name + clue.Elder_Phone;
@@ -466,7 +466,7 @@ namespace ADT.Repository
                         user.InSchool = input.InSchool;
                         user.Sex = input.Sex;
                         user.CampusId = input.CampusId;
-                        user.Birthday = input.Birthday.Value;
+                        user.Birthday = input.Birthday;
                         user.Elder_Name = input.Elder_Name;
                         user.Elder_Phone = input.Elder_Phone;
                         user.Elder_Wechat = input.Elder_Wechat;
