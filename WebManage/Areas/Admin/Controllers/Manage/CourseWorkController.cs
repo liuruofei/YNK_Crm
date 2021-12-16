@@ -229,6 +229,19 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(rsg);
         }
 
+        /// <summary>
+        /// 复制课程
+        /// </summary>
+        /// <param name="workIds"></param>
+        /// <param name="workDate"></param>
+        /// <returns></returns>
+        public IActionResult CopyCourseWork(int[] workIds, DateTime? workDate = null) {
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            ResResult rsg = new ResResult() { code = 200, msg = "复制课程成功" };
+            rsg = _courseWork.CopyCourseWork(workIds, userId, workDate);
+            return Json(rsg);
+        }
+
 
 
 

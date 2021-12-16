@@ -52,7 +52,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .WhereIF(!string.IsNullOrEmpty(title),(record, clue)=>clue.Student_Name.Contains(title))
                 .WhereIF(!string.IsNullOrEmpty(roleName), (record, clue) => clue.CC_Uid== userId)
                 .OrderBy(record => record.CreateTime)
-                .Select<C_ClueRecordModel>((record, clue,u)=>new C_ClueRecordModel{ CCUserName=u.User_Name, Student_Name=clue.Student_Name, Follow_Content=record.Follow_Content, Follow_Plan=record.Follow_Plan,
+                .Select<C_ClueRecordModel>((record, clue,u)=>new C_ClueRecordModel{Id=record.Id,CCUserName=u.User_Name, Student_Name=clue.Student_Name, Follow_Content=record.Follow_Content, Follow_Plan=record.Follow_Plan,
                     Follow_Date=record.Follow_Date,Is_Visit=record.Is_Visit,Visit_Date=record.Visit_Date,CreateTime=record.CreateTime}).ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;

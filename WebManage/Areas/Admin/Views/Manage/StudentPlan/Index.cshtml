@@ -6,8 +6,14 @@
             <button class="layui-btn" type="button" id="nextWeek">Next</button>
         </div>
         <div style="text-align:center;flex:1"><span style=" line-height: 38px;font-weight:700">当前学员:@ViewBag.studentName</span></div>
-        <div style="flex:1;text-align:right">
-            <button  class="layui-btn" type="button" onclick="exportPlan()">导出</button>
+        <div style="flex:1;text-align:right;">
+            <div style="display: flex; flex-wrap: wrap">
+                <label class="layui-form-label">导出时间段</label>
+                <input name="StartTime" id="StartTime" placeholder="开始时间" class="layui-input" style="width:100px" />&nbsp;<span style="width: 2px;
+                padding-top: 5px;margin-right: 5px;color: yellowgreen">_</span> &nbsp;
+                <input name="EndTime" id="EndTime" placeholder="截止时间" class="layui-input" style="width:100px" />
+                <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left:5px">导出</button>
+            </div>
         </div>
     </div>
     <table class="layui-table" >
@@ -43,6 +49,24 @@
 @section js{
     <!-- js部分 -->
     <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+            var form = layui.form;
+            var admin = layui.admin;
+            var adminForm = layui.adminForm;
+            var laydate = layui.laydate;
+            //日期
+            laydate.render({
+                elem: '#StartTime'
+                , type: 'date',
+                format: 'yyyy-MM-dd'
+            });
+            laydate.render({
+                elem: '#EndTime'
+                , type: 'date',
+                format: 'yyyy-MM-dd'
+            });
+        });
+
         var plan = {
             isAdd: 0,
             starttime:null,
@@ -257,14 +281,21 @@
                                     }
                                 }
                             }
+                            if (plan.starttime != undefined && plan.starttime != null) {
+                                $("#StartTime").val(plan.starttime);
+                            }
+                            if (plan.endtime != undefined && plan.endtime != null) {
+                                $("#EndTime").val(plan.endtime);
+                            }
                         }
                     });
-             });
+            });
+
         }
         planSearch(plan);
         function exportPlan() {
             var studentUid = $("input[name='StudentUid']").val();
-            window.location.href = '@Url.Action("ExportPlan")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&starttime=' + plan.starttime + '&endtime=' + plan.endtime;
+            window.location.href = '@Url.Action("ExportPlan")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&starttime=' + $("#StartTime").val() + '&endtime=' +$("#EndTime").val();
        }
       function planShow(vmodel) {
         var studentUid = $("input[name='StudentUid']").val();

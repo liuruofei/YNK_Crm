@@ -120,7 +120,7 @@
         if (layEvent === 'edit') { // 修改
             showEditModel(data);
         } else if (layEvent === 'del') { // 删除
-            doDel(data.Id);
+            doDel(data.ClueId);
         }
         else if (layEvent === 'Audit') { // 指派线索
             AssignModel(data);
@@ -153,6 +153,13 @@
                             callBack: function (rou) {
                                 if (rou.data != null) {
                                     layer.msg("合同已创建,请在学员合同管理中查看");
+                                    var title = $('#txtTitle').val();
+                                    insTb.reload({
+                                        where: { title: title }
+                                        , page: {
+                                            curr: 1 //重新从第 1 页开始
+                                        }
+                                    });
                                 }
                             }
                         });
@@ -218,8 +225,9 @@
     }
     //删除
     function doDel(Id) {
-        adminList.delete('@Url.Action("Delete")', { Id: Id}, function () {
+        adminList.delete('@Url.Action("Delete")', { Id: Id}, function (result) {
             insTb.reload();
+            layer.msg(result.msg);
         });
     }
 

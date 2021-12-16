@@ -55,7 +55,9 @@
             <input class="layui-input" name="Collection_Time" id="Collection_Time" type="text" />
         </div>
     </div>
-    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item">
+        <div style="padding-left:39px;color:orangered">提示*:项目详情支持实际到账金额</div>
+    </div>
     <div class="layui-form-item text-right positionbottom">
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
         <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
@@ -123,7 +125,7 @@
             //日期
             laydate.render({
                 elem: '#Collection_Time',
-                format: 'yyyy-MM-dd HH:mm:ss'
+                format: 'yyyy-MM-dd HH:mm'
             });
             formSelects.render('relationShipContrac');
             form.render
@@ -139,10 +141,22 @@
                             //var contracs = r.RelationShip_Contras.split(",");
                             bindContrac(r.StudentUid, r.RelationShip_Contras, r.ListCollectionDetail);
                         }
+                        if (r.Collection_Time != undefined && r.Collection_Time != null) {
+                            $("#Collection_Time").val(dateFtt("yyyy-MM-dd hh:mm", r.Collection_Time));
+                            
+                        }
+                        else {
+                            var timenow = new Date();
+                            $("#Collection_Time").val(dateFtt("yyyy-MM-dd hh:mm", timenow));
+                        }
                     }
                 });
             },
             Save: function (data) {
+                if (data.field.RelationShip_Contras.indexOf(",") > -1) {
+                    layer.msg("为了方便排课明细,请分依次付款子合同");
+                    return false;
+                } 
                 data.field.CollectionDetail = [];
                 $("input[name='ItemAmount']").each(function (i, item) {
                     var ChildDetailId = $(item).attr("data-detailId");
@@ -192,6 +206,7 @@
             }
         })
             function bindContrac(uid, defaultValue, listItem) {
+                console.log(defaultValue);
                 if (defaultValue != null && defaultValue != '' && defaultValue != undefined) {
                     $("input[name='RelationShip_Contras']").val(defaultValue);
                     bindProjectItem(defaultValue, listItem);
@@ -206,10 +221,10 @@
                                 var contrc = "";
                                 for (var i = 0; i < result.length; i++) {
                                     if (i != 0)
-                                        contrc=result[i].Contra_ChildNo;
+                                        contrc+=","+result[i].Contra_ChildNo;
                                     else {
                                         contrc= result[i].Contra_ChildNo;
-                                        bindProjectItem(result[i].Contra_ChildNo, listItem);
+                                        //bindProjectItem(result[i].Contra_ChildNo, listItem);
                                     }
                                 }
                                 $("input[name='RelationShip_Contras']").val(contrc);
@@ -235,7 +250,6 @@
                         dataType: 'json',
                         callBack: function (result) {
                             if (result != null && result != undefined) {
-                                console.log(result);
                                 document.getElementById("oneOfone").style.display = "block";
                                     var html = template("saleItemTemp", { data: result });
                                     document.getElementById("projectItem").innerHTML = html;
@@ -250,5 +264,23 @@
             }
 
         });
+        function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
     </script>
 }

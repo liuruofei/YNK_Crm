@@ -224,11 +224,16 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         [UsersRoleAuthFilter("L-150", FunctionEnum.Delete)]
         public IActionResult Delete(int Id)
         {
-            var result = _currencyService.DbAccess().Deleteable<C_Collection>().Where(p => p.Id == Id).ExecuteCommand();
-            if (result > 0)
-                return Json(new { code = 200, msg = "删除成功" });
+            var vmodel = _currencyService.DbAccess().Queryable<C_Collection>().Where(p => p.Id == Id).First();
+            if (vmodel.PayStatus == 0) {
+                var result = _currencyService.DbAccess().Deleteable<C_Collection>().Where(p => p.Id == Id).ExecuteCommand();
+                if (result > 0)
+                    return Json(new { code = 200, msg = "删除成功" });
+                else
+                    return Json(new { code = 0, msg = "删除失败" });
+            }
             else
-                return Json(new { code = 0, msg = "删除失败" });
+                return Json(new { code = 0, msg = "已确认,无法删除" });
         }
     }
 }

@@ -96,8 +96,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult FindChild(string childcontraNo)
         {
             //ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            C_ContracChildModel vmodel = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(c => c.Contra_ChildNo == childcontraNo)
-            .Select<C_ContracChildModel>(c => new C_ContracChildModel
+            C_ContracChildModel vmodel = _currencyService.DbAccess().Queryable<C_Contrac_Child,C_Class>((c,cl)=>new object[]{JoinType.Left,c.ClassId==cl.ClassId }).Where(c => c.Contra_ChildNo == childcontraNo)
+            .Select<C_ContracChildModel>((c,cl)=> new C_ContracChildModel
             {
                 Id = c.Id,
                 StudyStatus = c.StudyStatus,
@@ -114,8 +114,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 ContraRate = c.ContraRate,
                 Contra_ChildNo = c.Contra_ChildNo,
                 Contra_Property = c.Contra_Property,
-                Discount_Amount = c.Discount_Amount
-            ,
+                Discount_Amount = c.Discount_Amount,
+                ClassName=cl.Class_Name,
                 IsPreferential = c.IsPreferential,
                 Pay_Amount = c.Pay_Amount,
                 Original_Amount = c.Original_Amount

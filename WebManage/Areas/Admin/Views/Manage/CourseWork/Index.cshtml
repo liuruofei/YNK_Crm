@@ -44,7 +44,7 @@
         <li>表格视图</li>
     </ul>
     <div class="layui-tab-content" style="padding:0px;">
-        <div class="layui-tab-item layui-show" style="padding-top:10px">
+        <div class="layui-tab-item layui-show" style="padding-top:10px;">
             <div id='calendar'></div>
         </div>
         <div class="layui-tab-item" style="padding-top:10px">
@@ -54,6 +54,7 @@
                     <input type="text" class="layui-input" name="StartTime" id="StartTime" style="flex:1" />
                     <label class="layui-form-label w-auto">截止时间之前：</label>
                     <input type="text" class="layui-input" name="EndTime" id="EndTime" style="flex:1" />
+                    <input  type="button" value="一键复制课程至下周" class="layui-btn" style="margin-left:10px" id="btnCopy"/>
                 </div>
                 <div style="flex: 1;line-height:39px;text-align:center;font-weight:600">
                     <label id="totalCourseTime"></label>
@@ -298,12 +299,13 @@
     //    calendar.prev();
     //    calendar.render();
     //}
-        layui.use(['adminList', 'element', 'adminForm', 'laydate', 'form'], function () {
+        layui.use(['adminList', 'element', 'adminForm', 'laydate', 'form', 'table'], function () {
             var adminList = layui.adminList;
             var element = layui.element;
             var adminForm = layui.adminForm;
             var laydate = layui.laydate;
             var form = layui.form;
+            var table = layui.table;
             laydate.render({
                 elem: '#StartTime',
                 type: 'date'
@@ -364,7 +366,7 @@
                         },
                         cellMinWidth: 100,
                         cols: [[
-                            { type: 'numbers' },
+                            { type: 'checkbox' },
                             { field: 'Work_Title', title: '上课科目', sort: true },
                             {
                                 field: 'AT_Date', title: '上课日期', sort: true, width: 120, templet: function (d) {
@@ -382,7 +384,7 @@
                             {
                                 field: 'Work_Stutas', title: '状态', sort: true, width: 120, templet: function (d) {
                                     if (d.StudyMode != 3)
-                                        return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已完成</span>" : "未完成";
+                                        return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已点评</span>" : "未点评";
                                     else
                                         return "休息中";
                                 }
@@ -432,6 +434,26 @@
                     });
                 }
             });
+            //一键复制
+            $("#btnCopy").click(function () {
+                var workIds = [];
+                var checkStatus = table.checkStatus('userTable');
+                if (checkStatus.data.length > 0) {
+                    checkStatus.data.forEach(item => {
+                        workIds.push(item.Id);
+                    });
+                    adminForm.Save({
+                        url: '@Url.Action("CopyCourseWork")',
+                        data:{workIds: workIds},
+                        callBack: function () {
+                       
+                        }
+                    })
+                }
+                else {
+                    layer.msg("请选择需要复制的课程");
+                }
+            })
         });
 
     function dateFtt(fmt, val) { //author: meizz

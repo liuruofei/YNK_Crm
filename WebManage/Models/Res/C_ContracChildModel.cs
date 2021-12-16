@@ -109,5 +109,10 @@ namespace WebManage.Models.Res
         /// 目标班级
         /// </summary>
         public int ChangeClassId { get; set; }
+
+        /// <summary>
+        /// 班课名称
+        /// </summary>
+        public string ClassName { get; set; }
     }
 }

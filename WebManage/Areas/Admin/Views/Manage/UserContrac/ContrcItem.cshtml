@@ -1,9 +1,33 @@
 ﻿@{
     var childcontraNo = ViewBag.ChildContraNo;
 }
+<style type="text/css">
+    .classGroup {
+        position: absolute;
+        top: 36px;
+        display: block;
+        width: 100%;
+        background-color: #f8f8f8;
+        padding-top: 1px;
+        z-index: 2;
+        padding-bottom: 20px;
+        display: none;
+    }
+
+        .classGroup .classItem {
+            border-bottom: solid #ddd 1px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            padding-left: 8px;
+            margin-top: 3px;
+            cursor: pointer;
+            width: 96%;
+            z-index: 3;
+        }
+</style>
 <form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
     <input type="hidden" name="Contra_ChildNo" value="@ViewBag.ChildContraNo" />
-    <input type="hidden" name="ContraNo" value="@ViewBag.ContraNo"/>
+    <input type="hidden" name="ContraNo" value="@ViewBag.ContraNo" />
     <div class="layui-form-item" style="display:none">
         <div class="layui-inline">
             <label class="layui-form-label">开始时间</label>
@@ -31,16 +55,17 @@
                 <select name="StudyMode" lay-verify="required" lay-search="" lay-filter="StudyMode">
                     <option value="1">一对一</option>
                     <option value="2">小班</option>
-                    <option value="3">付费教材</option>
-                    <option value="4">考团</option>
                 </select>
             </div>
         </div>
         <div class="layui-inline" id="partClass">
             <label class="layui-form-label">小班</label>
             <div class="layui-input-inline">
-                <select name="ClassId" lay-verify="required" lay-search="" lay-filter="ClassId">
-                </select>
+                <input type="hidden" name="ClassId" />
+                <div class="classGroup" id="classGroup">
+
+                </div>
+                <input type="text" class="layui-input" name="ClassName" />
             </div>
         </div>
         <div class="layui-inline" id="partClassHourse">
@@ -61,6 +86,7 @@
             <label class="layui-form-label">折扣</label>
             <div class="layui-input-inline">
                 <select name="ContraRateSelect" lay-filter="ContraRateSelect">
+                    <option value="10">10</option>
                     <option value="9">9</option>
                     <option value="9.5">9.5</option>
                     <option value="0">无</option>
@@ -79,7 +105,7 @@
         </div>
     </div>
     <div class="layui-form-item">
-        <div class="layui-inline">
+        <div class="layui-inline" style="display:none">
             <label class="layui-form-label">优惠联报</label>
             <div class="layui-input-inline">
                 <input type="checkbox" name="IsPreferential" value="1" lay-filter="ChoiceCheckbox" />
@@ -109,46 +135,48 @@
             </div>
         </div>
     </div>
-    <fieldset class="layui-elem-field layui-field-title" style="margin-bottom:0px">
-        <legend>合同明细</legend>
-    </fieldset>
-    <div class="layui-inline" style="width:100%;text-align:right;">
-        <button type="button" id="addDetail">新增明细</button>
-        <button type="button" id="sumTotal">合计总价</button>
-    </div>
-    <div class="layui-form-item" style="max-height:200px">
-        <table class="layui-table" style="margin-left:10px">
-            <thead>
-                <tr>
-                    <td>考试类型</td>
-                    <td>科目</td>
-                    <td>课时</td>
-                    <td>级别</td>
-                    <td>价格</td>
-                    <td>操作</td>
-                </tr>
-            </thead>
-            <tbody id="child_Contrc_Detail">
-                <tr>
-                    <td><select name="SubjectId"></select></td>
-                    <td><select name="ProjectId"></select></td>
-                    <td><input type="text" name="Course_Time" style="width:80px" class="layui-input" /></td>
-                    <td>
-                        <select name="Level" style="width:60px;">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                        </select>
-                    </td>
-                    <td><input type="text" name="Price" style="width:120px" class="layui-input" /></td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="OneOfOne">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-bottom:0px">
+            <legend>合同明细</legend>
+        </fieldset>
+        <div class="layui-inline" style="width:100%;text-align:right;">
+            <button type="button" id="addDetail">新增明细</button>
+        </div>
+        <div class="layui-form-item" style="max-height:200px">
+            <table class="layui-table" style="margin-left:10px">
+                <thead>
+                    <tr>
+                        <td>考试类型</td>
+                        <td>科目</td>
+                        <td>课时</td>
+                        <td>级别</td>
+                        <td>价格</td>
+                        <td>操作</td>
+                    </tr>
+                </thead>
+                <tbody id="child_Contrc_Detail">
+                    <tr>
+                        <td><select name="SubjectId"></select></td>
+                        <td><select name="ProjectId"></select></td>
+                        <td><input type="text" name="Course_Time" style="width:80px" class="layui-input" /></td>
+                        <td>
+                            <select name="Level" style="width:60px;">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="Price" style="width:120px" class="layui-input" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <div class="layui-form-item text-right positionbottom">
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
         <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+        <button type="button" id="sumTotal" style="float:right;margin-right:20px">合计总价</button>
     </div>
 </form>
 @section js{
@@ -157,7 +185,7 @@
         <tr>
             <td>
                 <select name="SubjectId" lay-filter="SubjectId"></select>
-                <input type="hidden"  name="detailId" value="0"/>
+                <input type="hidden" name="detailId" value="0" />
             </td>
             <td><select name="ProjectId"></select></td>
             <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="1" lay-filter="Course_Time" /></td>
@@ -195,6 +223,13 @@
             <td><input type="text" name="Price" style="width:120px" class="layui-input" value="{{item.Price}}" /></td>
             <td><button type="button" data-id="{{item.Id}}" onclick="DelItem(this)">删除</button></td>
         </tr>
+        {{/each}}
+    </script>
+    <script type="text/template" id="classGroupTemp">
+        {{each data item index}}
+        <div class="classItem">
+            <span data-Id="{{item.ClassId}}" data-price="{{item.Price}}" data-classTime="{{item.Course_Time}}">{{item.Class_Name}}</span>
+        </div>
         {{/each}}
     </script>
     <script>
@@ -238,6 +273,12 @@
                                     $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Level']").val(item.Level);
                                     i++;
                                 });
+                                if (r.StudyMode == 1) {
+                                    $("#OneOfOne").show();
+                                }
+                                else {
+                                    $("#OneOfOne").css("display", "none");
+                                }
                             }
                             else {
                                 $("#child_Contrc_Detail").html("");
@@ -256,8 +297,7 @@
                                             '"  lvel1Price="' + result[i].Lvel1Price + '"  Lvel2Price="' + result[i].Lvel2Price + '" Lvel3Price="' + result[i].Lvel3Price + '"  Lvel4Price="' + result[i].Lvel4Price + '">' + result[i].SubjectName + '</option>');
                                     }
                                     var k = 0;
-                                    if (r != null && r.ListItem != undefined && r.ListItem != null) {
-
+                                    if (r != null && r.ListItem != undefined && r.ListItem != null && r.ListItem != [] && r.ListItem.length>0) {
                                         var subjectIds = [];
                                         r.ListItem.forEach(item => {
                                             $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='SubjectId']").val(item.SubjectId);
@@ -267,7 +307,9 @@
                                             //bindProject(item.SubjectId,k, item.ProjectId);
                                             k++;
                                         });
-                                         bindMoreProject(subjectIds, r.ListItem);
+                                        if (subjectIds.length > 0) {
+                                            bindMoreProject(subjectIds, r.ListItem);
+                                        }
                                     }
                                     else {
                                         var lastSubjectId = $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='SubjectId']").val();
@@ -277,24 +319,6 @@
                                 }
                               }
                             });
-                            adminForm.load({
-                                url: "@Url.Action("QueryClass", "ContracUser")",
-                                dataType: 'json',
-                                data: {typeId:0},
-                                callBack: function (rou) {
-                                    if (rou.data != null) {
-                                        var result = rou.data;
-                                        for (var i = 0; i < result.length; i++) {
-                                            if (r.ClassId == result[i].ClassId) {
-                                                $("select[name='ClassId']").append('<option value ="' + result[i].ClassId + '" selected  price="' + result[i].Price + '" classTime="' + result[i].Course_Time +'">' + result[i].Class_Name + '</option>');
-                                            }
-                                            else {
-                                                $("select[name='ClassId']").append('<option value ="' + result[i].ClassId + '" price="' + result[i].Price + '" classTime="' + result[i].Course_Time +'">' + result[i].Class_Name + '</option>');
-                                            }
-                                        }
-                                    }
-                                }
-                            });
                             if (r.StudyMode == 2) {
                                 $("#partClassHourse").show();
                                 $("#partClass").show();
@@ -302,6 +326,52 @@
                             else {
                                 $("#partClassHourse").css("display","none");
                                 $("#partClass").css("display", "none");
+                            }
+                        }
+                    });
+                },
+                LoadClass: function (className) {
+                    adminForm.load({
+                        url: "@Url.Action("QueryClass", "ContracUser")",
+                        dataType: 'json',
+                        data: { typeId: 0, className: className },
+                        callBack: function (rou) {
+                            if (rou.data != null) {
+                                var result = rou.data;
+                                document.getElementById("classGroup").style.display = "block";
+                                var html = template("classGroupTemp", { data: result });
+                                document.getElementById("classGroup").innerHTML = html;
+                                $("div[class='classItem']").click(function () {
+                                    var studymode = $("select[name='StudyMode']").val()
+                                    var classid = $(this).find("span").attr("data-Id");
+                                    var className = $(this).find("span").text();
+                                    var price = $(this).find("span").attr("data-price");
+                                    var classCourseTime = $(this).find("span").attr("data-classTime");
+                                    document.getElementById("classGroup").style.display = "none";
+                                    $("input[name='ClassId']").val(classid);
+                                    $("input[name='ClassName']").val(className);
+                                    $("input[name='Class_Course_Time']").val(classCourseTime);
+                                    var rate = 0;
+                                    if ($("input[name='ContraRate']").parent().css("display") == "block") {
+                                        rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+                                    }
+                                    else {
+                                        rate = $("select[name='ContraRateSelect']").val() > 0 ? $("select[name='ContraRateSelect']").val() : 10;
+                                        $("input[name='ContraRate']").val(rate);
+                                    }
+                                    if (parseInt(studymode) == 2) {
+                                        $("#child_Contrc_Detail").parents("table").css("display", "none");
+                                        var orgprice = parseFloat(price).toFixed(2);
+                                        $("input[name='Original_Amount']").val(orgprice);
+                                        if (rate > 0) {
+                                            var afterAmount = (parseFloat(rate) / 10) * orgprice;
+                                            $("#Saler_Amount").text(afterAmount.toFixed(2));
+                                            $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                                            $("#Discount_Amount").text((orgprice - afterAmount.toFixed(2)).toFixed(2));
+                                            $("input[name='Discount_Amount']").val((orgprice - afterAmount.toFixed(2)).toFixed(2));
+                                        }
+                                    }
+                                });
                             }
                         }
                     });
@@ -569,7 +639,11 @@
                     $("#Discount_Amount").text((orgAmount - afterAmount.toFixed(2)).toFixed(2));
                     $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
                 }
-            });
+        });
+        $("input[name='ClassName']").keyup(function () {
+            var className = $(this).val();
+            App.LoadClass(className);
+        });
         // 表单提交事件
         form.on('submit(modelUserSubmit)', function (data) {
             App.Save(data);

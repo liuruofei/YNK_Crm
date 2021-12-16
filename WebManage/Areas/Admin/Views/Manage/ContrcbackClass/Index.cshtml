@@ -106,6 +106,7 @@
             { field: 'Contra_ChildNo', title: '合同编号', sort: true },
             { field: 'Student_Name', title: '学生姓名', sort: true },
             { field: 'Original_Amount', title: '初始合同金额', sort: true },
+            { field: 'Saler_Amount', title: '折扣后金额', sort: true },
             { field: 'Pay_Amount', title: '已付金额', sort: true },
             { field: 'Contrac_Child_Status_Name', title: '合同状态', sort: true },
             {
@@ -171,7 +172,7 @@
     adminList.table.on('tool(userTable)', function (obj) {
         var data = obj.data;
         var layEvent = obj.event;
-        if (layEvent === 'config') { // 修改
+        if (layEvent === 'config') { // 确认
             configChange(data);
         } else if (layEvent === 'configReject') { // 驳回
             recject(data);

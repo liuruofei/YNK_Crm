@@ -9,6 +9,8 @@ namespace WebManage.Models.Res
 {
     public class C_ClueRecordModel
     {
+        public int Id { get; set; }
+
         /// <summary>
         /// 跟踪内容
         /// </summary>

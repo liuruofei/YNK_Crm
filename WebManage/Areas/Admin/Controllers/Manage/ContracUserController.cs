@@ -396,10 +396,11 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// 绑定班级
         /// </summary>
         /// <returns></returns>
-        public IActionResult QueryClass(int typeId) {
+        public IActionResult QueryClass(int typeId,string className=null) {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            List<C_Class> list = _currencyService.DbAccess().Queryable<C_Class>().Where(n => n.Status < 1&&n.End_Course_Date>DateTime.Now&&n.CampusId== Convert.ToInt32(campusId)).WhereIF(typeId > 0,n=>n.TypeId== typeId).ToList();
+            List<C_Class> list = _currencyService.DbAccess().Queryable<C_Class>().Where(n => n.Status < 1 && n.End_Course_Date > DateTime.Now && n.CampusId == Convert.ToInt32(campusId))
+                .WhereIF(typeId > 0, n => n.TypeId == typeId).WhereIF(!string.IsNullOrEmpty(className), n => (n.Class_Name.Contains(className) || n.Class_No.Contains(className))).ToPageList(1,50);
             list.Add(new C_Class { ClassId=0,Class_Name="—选择—"});
             list = list.OrderBy(it => it.ClassId).ToList();
             rsg.data = list;
