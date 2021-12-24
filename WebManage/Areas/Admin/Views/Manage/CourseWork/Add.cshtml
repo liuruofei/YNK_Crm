@@ -365,7 +365,11 @@
                 var selectArr = courseDates.getValue('value');    // 获取value字符串值
                 data.field.WorkDateGroup = selectArr;
                 data.field.ProjectId = data.field.StudyMode == 1 ? $("input[name='UserProjectId']").val() : $("select[name='ProjectId']").val();
-                data.field.Work_Title = data.field.StudyMode == 1 ? $("input[name='WorkUserName']").val() : $("input[name='WorkClassName']").val();
+                if (data.field.StudyMode == 1)
+                    data.field.Work_Title = $("input[name='WorkUserName']").val();
+                else if (data.field.StudyMode ==2) {
+                    data.field.Work_Title=$("input[name='WorkClassName']").val()
+                }
                 adminForm.Save({
                     url: KeyId ? '@Url.Action("SaveCourseWork")' : '@Url.Action("SaveCourseWork")',
                     data: data.field,
@@ -399,7 +403,7 @@
                     $("#lineSpanDate").text("上课日期");
                     $("#lineSpanTimeRange").text("上课时段");
                 }
-                else {
+                else if (data.value == 3){
                     $("#PartTa").css("display", "none");
                     $("#PartProject").css("display", "none");
                     $("#ClassPart").css("display", "none");
