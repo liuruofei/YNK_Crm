@@ -9,7 +9,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">学生姓名</label>
             <div class="layui-input-inline" style="line-height: 35px;">
-                <input type="text" class="layui-input" name="Student_Name" value="@Model.StudentName"/>
+                <input type="text" class="layui-input" name="Student_Name" value="@Model.StudentName" />
             </div>
         </div>
         <div class="layui-inline">
@@ -63,7 +63,16 @@
         <div class="layui-inline">
             <label class="layui-form-label">年级</label>
             <div class="layui-input-inline">
-                <input type="text" class="layui-input" name="Grade" value="@Model.Grade" />
+                <select name="Grade">
+                    <option value="七年级">七年级</option>
+                    <option value="八年级">八年级</option>
+                    <option value="九年级">九年级</option>
+                    <option value="高一">高一</option>
+                    <option value="高二">高二</option>
+                    <option value="高三">高三</option>
+                    <option value="大学">大学</option>
+                    <option value="其它">其它</option>
+                </select>
             </div>
         </div>
     </div>
@@ -197,8 +206,14 @@
                         { field: 'Contra_ChildNo', title: '合同编号', sort: true },
                         { field: 'StudyModeName', title: '合同类型', sort: true, width: 100 },
 
-                        { field: 'Original_Amount', title: '合同原价', sort: true, width: 150 },
-                        { field: 'Saler_Amount', title: '折后金额', sort: true, width: 150 },
+                        { field: 'Original_Amount', title: '合同原价', sort: true, width: 120 },
+                        { field: 'Saler_Amount', title: '折后金额', sort: true, width: 120 },
+                        { field: 'Added_Amount', title: '额外优惠', sort: true, width: 120 },
+                        {
+                            field: 'Saler_Amount', title: '实收金额', sort: true, width: 120, templet: function (d) {
+                                return (d.Saler_Amount - d.Added_Amount);
+                            }
+                        },
                         {
                             field: 'Course_Time', title: '课时', sort: true, templet: function (d) {
                                 return d.StudyMode == 1 ? d.Course_Time : d.Class_Course_Time + " / " + d.ClassName;
@@ -322,5 +337,11 @@
             return false;
         });
         });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            var grade="@Model.Grade";
+            $("select[name='Grade']").val(grade);
+        })
     </script>
 }

@@ -34,9 +34,9 @@ namespace ADT.Repository
                         {
                             contrac = db.Queryable<C_Contrac>().Where(it => it.ContraNo.Equals(model.ContraNo)).First();
                         }
-                        if (contrac.Constra_Status == (int)Constra_Status.Confirmationed)
+                        if (model.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk)
                         {
-                            rsg.msg = "合同状态已确认,无法修改";
+                            rsg.msg = "合同已付款完成,无法修改";
                             rsg.code = 300;
                             return rsg;
                         }
@@ -56,6 +56,7 @@ namespace ADT.Repository
                         model.Original_Amount = input.Original_Amount;
                         model.Saler_Amount = Math.Round(input.Original_Amount * (input.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
                         model.Discount_Amount = input.Original_Amount - input.Saler_Amount;
+                        model.Added_Amount = input.Added_Amount;
                         model.Cycle = input.Cycle;
                         model.StudyStatus = input.StudyStatus;
                         model.StartTime = input.StartTime;
@@ -75,6 +76,8 @@ namespace ADT.Repository
                                 {
                                     item.ContraRate = item.ContraRate < 1 ? 10 : item.ContraRate;
                                     contrac.Total_Amount += Math.Round(item.Original_Amount * (item.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
+                                    //减去额外优惠金额
+                                    contrac.Total_Amount = contrac.Total_Amount - item.Added_Amount;
                                 });
                             }
 
@@ -144,6 +147,7 @@ namespace ADT.Repository
                         child.Original_Amount = input.Original_Amount;
                         child.Pay_Amount = 0;
                         child.Saler_Amount = input.Saler_Amount;
+                        child.Added_Amount = input.Added_Amount;
                         child.SignIn_Data = DateTime.Now;
                         child.StartTime = input.StartTime;
                         child.StudentUid = contrac.StudentUid;
@@ -167,6 +171,8 @@ namespace ADT.Repository
                                 {
                                     item.ContraRate = item.ContraRate < 1 ? 10 : item.ContraRate;
                                     contrac.Total_Amount += Math.Round(item.Original_Amount * (item.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
+                                    //减去额外优惠金额
+                                    contrac.Total_Amount = contrac.Total_Amount - item.Added_Amount;
                                 });
                             }
                             //重新更新总合同金额
@@ -276,6 +282,8 @@ namespace ADT.Repository
                             {
                                 item.ContraRate = item.ContraRate < 1 ? 10 : item.ContraRate;
                                 contrac.Total_Amount += Math.Round(item.Original_Amount * (item.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
+                                //减去额外优惠金额
+                                contrac.Total_Amount = contrac.Total_Amount - item.Added_Amount;
                             });
                             contrac.Start_Time = input.Start_Time;
                             contrac.End_Time = input.End_Time;
@@ -308,6 +316,7 @@ namespace ADT.Repository
                                     child.Original_Amount = childInput.Original_Amount;
                                     child.Saler_Amount = Math.Round(childInput.Original_Amount * (childInput.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
                                     child.Discount_Amount = childInput.Original_Amount - childInput.Saler_Amount;
+                                    child.Added_Amount = childInput.Added_Amount;
                                     child.Cycle = childInput.Cycle;
                                     child.StudyStatus = childInput.StudyStatus;
                                     child.StartTime = childInput.StartTime;
@@ -360,6 +369,8 @@ namespace ADT.Repository
                         {
                             item.ContraRate = item.ContraRate < 1 ? 10 : item.ContraRate;
                             contrac.Total_Amount += Math.Round(item.Original_Amount * (item.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
+                            //减去额外优惠金额
+                            contrac.Total_Amount = contrac.Total_Amount - item.Added_Amount;
                         });
                         contrac.Start_Time = input.Start_Time;
                         contrac.End_Time = input.End_Time;
@@ -392,6 +403,7 @@ namespace ADT.Repository
                                 child.Original_Amount = childInput.Original_Amount;
                                 child.Saler_Amount = Math.Round(childInput.Original_Amount * (childInput.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
                                 child.Discount_Amount = childInput.Original_Amount - childInput.Saler_Amount;
+                                child.Added_Amount = childInput.Added_Amount;
                                 child.Cycle = childInput.Cycle;
                                 child.StudyStatus = childInput.StudyStatus;
                                 child.StartTime = childInput.StartTime;
@@ -924,7 +936,7 @@ namespace ADT.Repository
                                 //查询用户已用课时
                                 List<UserCourseTimeModel> userCouses = db.Queryable<C_User_CourseTime, C_Class, C_Subject>((cou, c, sub) => new Object[] {
                                 JoinType.Left,cou.ClassId==c.ClassId,JoinType.Left,cou.SubjectId==sub.SubjectId
-                            }).Where(ite => ite.StudentUid == contrac.StudentUid && ite.Contra_ChildNo.Equals(model.Contra_ChildNo))
+                            }).Where(cou => cou.StudentUid == contrac.StudentUid && cou.Contra_ChildNo.Equals(model.Contra_ChildNo))
                                 .Select<UserCourseTimeModel>((cou, c, sub) => new UserCourseTimeModel
                                 {
                                     ClassId = cou.ClassId,
@@ -978,18 +990,10 @@ namespace ADT.Repository
                                         }
                                     });
                                 }
-                                ////扣除用户未用课时，增加用户余额
-                                //if (model.StudyMode == (int)Study_Mode.OneOfOne)
-                                //{
-                                //    user.Course_Time = user.Course_Time - UnUseCourseTime;
-                                //}
-                                //if (model.StudyMode == (int)Study_Mode.SmallClass)
-                                //{
-                                //    user.Class_Course_Time = user.Class_Course_Time - UnUseClassTime;
-                                //}
                                 //按原价退款
                                 if (inputApply.IsOrg)
                                 {
+                                    UnUsePrice = UnUsePrice - model.Added_Amount;//未用课时兑换成金额后扣除子合同额外优惠金额
                                     user.Amount = user.Amount + UnUsePrice;//用户总金额=(用户账户余额+子合同未用课时金额)
                                 }
                                 //按输入金额退款
@@ -1000,11 +1004,14 @@ namespace ADT.Repository
                                 //更新用户基础数据
                                 db.Updateable<C_Contrac_User>(user).ExecuteCommand();
 
-                                //更新合同总金额
-                                contrac.Total_Amount = contrac.Total_Amount - model.Original_Amount;
                                 int childCount = db.Queryable<C_Contrac_Child>().Where(it => it.ContraNo == model.ContraNo).Count();
-                                if (childCount == 1) {
-                                    contrac.Constra_Status =(int)Constra_Status.BackPayOk;//退费成功
+                                if (childCount == 1)
+                                {
+                                    contrac.Constra_Status = (int)Constra_Status.BackPayOk;//退费成功
+                                }
+                                else if (childCount > 1) {
+                                    //更新合同总金额
+                                    contrac.Total_Amount = contrac.Total_Amount - model.Saler_Amount;
                                 }
                                 db.Updateable<C_Contrac>(contrac).ExecuteCommand();
 
@@ -1087,7 +1094,7 @@ namespace ADT.Repository
                             //查询用户已用课时
                             List<UserCourseTimeModel> userCouses = db.Queryable<C_User_CourseTime, C_Class, C_Subject>((cou, c, sub) => new Object[] {
                                 JoinType.Left,cou.ClassId==c.ClassId,JoinType.Left,cou.SubjectId==sub.SubjectId
-                            }).Where(ite => ite.StudentUid == contrac.StudentUid && ite.Contra_ChildNo.Equals(model.Contra_ChildNo))
+                            }).Where(cou => cou.StudentUid == contrac.StudentUid && cou.Contra_ChildNo.Equals(model.Contra_ChildNo))
                             .Select<UserCourseTimeModel>((cou, c, sub) => new UserCourseTimeModel
                             {
                                 ClassId = cou.ClassId,
@@ -1123,32 +1130,30 @@ namespace ADT.Repository
                             //按原价退款
                             if (inputApply.IsOrg)
                             {
+                                UnUsePrice = UnUsePrice - model.Added_Amount; //退款金额-额外优惠金额
                                 user.Amount = user.Amount + UnUsePrice;//用户总金额=(用户账户余额+子合同未用课时金额之和)
                             }
                             //按输入金额退款
                             if (inputApply.BackCost > 0 && inputApply.IsOrg == false)
                             {
-                                user.Amount = user.Amount + inputApply.BackCost + UnUsePrice;//用户总金额=(用户账户余额+直接输入金额+子合同未用课时金额)
+                                user.Amount = user.Amount + inputApply.BackCost;//用户总金额=(用户账户余额+直接输入金额)
                             }
-                            ////增加用户余额后扣除用户未用小班课时
-                            //if (model.StudyMode == (int)Study_Mode.SmallClass)
-                            //{
-                            //    user.Class_Course_Time = user.Class_Course_Time - unUseClassTime;
-                            //}
                             //更新用户基础数据
                             db.Updateable<C_Contrac_User>(user).ExecuteCommand();
 
-                            //更新合同总金额
-                            contrac.Total_Amount = contrac.Total_Amount - model.Original_Amount;
                             int childCount = db.Queryable<C_Contrac_Child>().Where(it => it.ContraNo == model.ContraNo).Count();
                             if (childCount == 1)
                             {
                                 contrac.Constra_Status = (int)Constra_Status.BackPayOk;//退费成功
                             }
+                            else if (childCount > 1) {
+                                //更新合同总金额
+                                contrac.Total_Amount = contrac.Total_Amount - model.Saler_Amount;
+                            }
                             db.Updateable<C_Contrac>(contrac).ExecuteCommand();
 
                             //清零课时
-                            db.Updateable<C_User_CourseTime>().SetColumns(it => new C_User_CourseTime { Course_Time = 0, Course_UseTime = 0, Class_Course_Time = 0, Class_Course_UseTime = 0 }).Where(it => it.Contra_ChildNo == model.Contra_ChildNo && it.StudentUid == model.StudentUid).ExecuteCommand();
+                            db.Updateable<C_User_CourseTime>().SetColumns(it => new C_User_CourseTime {Class_Course_Time = 0, Class_Course_UseTime = 0 }).Where(it => it.Contra_ChildNo == model.Contra_ChildNo && it.StudentUid == model.StudentUid).ExecuteCommand();
 
                             //更新子合同状态
                             model.UpdateTime = DateTime.Now;
@@ -1253,32 +1258,16 @@ namespace ADT.Repository
                                 });
                             }
                             //按原价退款
+                            UnUsePrice = UnUsePrice - model.Added_Amount; //兑换后金额扣除额外金额
                             user.Amount = user.Amount + UnUsePrice;//用户总金额=(用户账户余额+子合同未用课时金额之和)
-                            //增加用户余额后扣除用户未用小班课时
-                            //if (model.StudyMode == (int)Study_Mode.SmallClass)
-                            //{
-                            //    user.Class_Course_Time = user.Class_Course_Time - unUseClassTime;
-                            //}
+
                             //更新用户基础数据
                             db.Updateable<C_Contrac_User>(user).ExecuteCommand();
 
                             //更新合同总金额
-                            contrac.Total_Amount = contrac.Total_Amount - model.Original_Amount;
+                            //contrac.Total_Amount = contrac.Total_Amount - model.Saler_Amount;
                             db.Updateable<C_Contrac>(contrac).ExecuteCommand();
 
-                            //更新子合同状态
-                            //model.ClassId = inputApply.ChangeClassId;
-                            //model.Original_Amount = inputApply.Original_Amount;
-                            //model.Saler_Amount = inputApply.Saler_Amount;
-                            //model.StartTime = inputApply.StartTime;
-                            //model.StudyMode = inputApply.StudyMode;
-                            //model.StudyStatus = inputApply.StudyStatus;
-                            //model.IsPreferential = inputApply.IsPreferential;
-                            //model.Discount_Amount = inputApply.Discount_Amount;
-                            //model.Cycle = inputApply.Cycle;
-                            //model.Class_Course_Time = inputApply.Class_Course_Time;
-                            //model.ContraRate = inputApply.ContraRate;
-                            //model.Contra_Property = inputApply.Contra_Property;
                             model.UpdateTime = DateTime.Now;
                             model.Contrac_Child_Status = (int)ConstraChild_Status.ChangeClassOk;// 子合同变更状态
                             db.Updateable<C_Contrac_Child>(model).ExecuteCommand();
@@ -1506,7 +1495,7 @@ namespace ADT.Repository
                                             realSum += it.Amount;
                                         });
                                         //分配余额一定和到账收据总金额相等
-                                        if (realSum - collection.DeductAmount == collection.Amount)
+                                        if (realSum - collection.DeductAmount == (collection.Amount+collection.AddedAmount))
                                         {
                                             collecationDetail.ForEach(it =>
                                             {
@@ -1608,7 +1597,7 @@ namespace ADT.Repository
                                 {
                                     var classVmodel = db.Queryable<C_Class>().Where(c => c.ClassId == item.ClassId).First();
                                     //根据所付款计算课时，剩余余额存入用户余额
-                                    decimal sumToatal = collectionAmount + collection.DeductAmount;
+                                    decimal sumToatal = collectionAmount + collection.DeductAmount+collection.AddedAmount;
                                     decimal detailSum = 0;
                                     if (listCourse.Count == 0)
                                     {
@@ -1659,8 +1648,9 @@ namespace ADT.Repository
                             {
                                 item.Pay_Stutas = (int)ConstraChild_Pay_Stutas.PayOk;
                             }
-                            else if (item.Pay_Amount > 0 && item.Pay_Amount < item.Saler_Amount)
+                            else if (item.Pay_Amount > 0 && item.Pay_Amount <item.Saler_Amount) {
                                 item.Pay_Stutas = (int)ConstraChild_Pay_Stutas.PartPay;
+                            }
 
                         });
                         //更新子合同
@@ -1742,6 +1732,7 @@ namespace ADT.Repository
                         collection.StudentUid = input.StudentUid;
                         collection.StudentName = input.StudentName;
                         collection.DeductAmount = input.DeductAmount;
+                        collection.AddedAmount = input.AddedAmount;
                         var result = db.Updateable<C_Collection>(collection).ExecuteCommand();
                         if (result > 0 && input.CollectionDetail != null && input.CollectionDetail.Count > 0)
                         {
@@ -1771,6 +1762,7 @@ namespace ADT.Repository
                         collection.StudentUid = input.StudentUid;
                         collection.PayMothed = input.PayMothed;
                         collection.DeductAmount = input.DeductAmount;
+                        collection.AddedAmount = input.AddedAmount;
                         var result = db.Insertable<C_Collection>(collection).ExecuteReturnIdentity();
                         if (result > 0 && input.CollectionDetail != null && input.CollectionDetail.Count > 0)
                         {

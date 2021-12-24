@@ -281,13 +281,15 @@ namespace ADT.Repository
             {
                 try
                 {
-                    db.BeginTran();
-                    var result = db.Deleteable<C_ClueUser_Subject>().Where(p => p.ClueId == ID).ExecuteCommand();
+                   db.BeginTran();
+                   var result = db.Deleteable<C_ClueUser_Subject>().Where(p => p.ClueId == ID).ExecuteCommand();
                     if (result > 0)
                     {
                         db.Deleteable<C_ClueUser>().Where(p => p.ClueId == ID).ExecuteCommand();
                     }
                     db.CommitTran();
+                    rsg.code = 200;
+                    rsg.msg = "删除成功";
                 }
                 catch (Exception er)
                 {

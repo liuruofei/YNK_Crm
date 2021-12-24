@@ -1,4 +1,5 @@
 ﻿using ADT.Models;
+using ADT.Models.InputModel;
 using ADT.Models.ResModel;
 using ADT.Repository.IRepository;
 using ADT.Service.IService;
@@ -21,7 +22,7 @@ namespace ADT.Service
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public ResResult SaveCourseWork(C_Course_Work input) {
+        public ResResult SaveCourseWork(CourseWorkInput input) {
             return _courseWorkRepository.SaveCourseWork(input);
         }
 
@@ -37,6 +38,18 @@ namespace ADT.Service
         /// <returns></returns>
         public ResResult RemoveCourseWork(int Id, string uid) {
             return _courseWorkRepository.RemoveCourseWork(Id,uid);
+        }
+
+
+        /// <summary>
+        /// 复制课程
+        /// </summary>
+        /// <param name="workIds"></param>
+        /// <param name="uid"></param>
+        /// <param name="workDate"></param>
+        /// <returns></returns>
+        public ResResult CopyCourseWork(int[] workIds, string uid, DateTime? workDate = null) {
+            return _courseWorkRepository.CopyCourseWork(workIds,uid,workDate);
         }
     }
 }

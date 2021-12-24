@@ -65,6 +65,12 @@ namespace ADT.Models.InputModel
         /// 优惠金额
         /// </summary>
         public decimal Discount_Amount { get; set; }
+
+        /// <summary>
+        /// 额外优惠
+        /// </summary>
+        public decimal Added_Amount { get; set; }
+
         /// <summary>
         /// 是否联报优惠
         /// </summary>

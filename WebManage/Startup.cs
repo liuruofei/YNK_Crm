@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.WebEncoders;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -22,6 +23,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 using WebManage.Models.Res;
 
@@ -75,6 +78,13 @@ namespace WebManage
 
             //将配置绑定到JwtSettings实例中
             services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
+
+            //解决编码
+            services.Configure<WebEncoderOptions>(options =>
+            {
+                options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All);
+            });
+
 
             //注册Redis
             services.Configure<RedisConfig>(Configuration.GetSection("RedisConfig"));

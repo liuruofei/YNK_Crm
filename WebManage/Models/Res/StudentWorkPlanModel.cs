@@ -87,5 +87,15 @@ namespace WebManage.Models.Res
         /// </summary>
         public string Seventeen_Nineteen_OlockTitle { get; set; }
         public int Seventeen_Nineteen_Id { get; set; }
+
+        public bool Eight_Ten_Reversion { get; set; } = false;
+
+        public bool Ten_Twelve_Reversion { get; set; } = false;
+
+        public bool Thirteen_Fifteen_Reversion { get; set; } = false;
+
+        public bool Fifteen_Seventeen_Reversion { get; set; } = false;
+
+        public bool Seventeen_Nineteen_Reversion { get; set; } = false;
     }
 }

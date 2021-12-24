@@ -1,4 +1,5 @@
 ﻿using ADT.Models;
+using ADT.Models.InputModel;
 using ADT.Models.ResModel;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ namespace ADT.Repository.IRepository
 {
    public interface IC_CourseWorkRepository : IBaseRepository<C_Course_Work>
     {
-        ResResult SaveCourseWork(C_Course_Work input);
+        ResResult SaveCourseWork(CourseWorkInput input);
 
         /// <summary>
         /// 拖拽
@@ -25,5 +26,15 @@ namespace ADT.Repository.IRepository
         /// <param name="uid"></param>
         /// <returns></returns>
         ResResult RemoveCourseWork(int Id, string uid);
+
+
+        /// <summary>
+        /// 复制课程
+        /// </summary>
+        /// <param name="workIds"></param>
+        /// <param name="uid"></param>
+        /// <param name="workDate"></param>
+        /// <returns></returns>
+        ResResult CopyCourseWork(int[] workIds, string uid, DateTime? workDate = null);
     }
 }

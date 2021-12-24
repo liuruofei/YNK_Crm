@@ -118,6 +118,12 @@
             { field: 'Student_Name', title: '学生姓名', sort: true },
             { field: 'Original_Amount', title: '初始合同金额', sort: true },
             { field: 'Saler_Amount', title: '折扣后合同金额', sort: true },
+            { field: 'Added_Amount', title: '额外优惠', sort: true },
+            {
+                field: 'Added_Amount', title: '应实收金额', sort: true, templet: function (d) {
+                    return (d.Saler_Amount - d.Added_Amount);
+                }
+            },
             { field: 'Pay_Amount', title: '已付金额', sort: true },
             {
                 field: 'Pay_Stutas', title: '付款状态', sort: true, templet: function (d) {
@@ -257,7 +263,7 @@
     }
     //子合同撤销
     function doDel(childContrcNo) {
-        adminList.delete('@Url.Action("ChildContrcCancel")',{childContrcNo:vmodel.Contra_ChildNo}, function () {
+        adminList.delete('@Url.Action("ChildContrcCancel")', { childContrcNo: childContrcNo}, function () {
             insTb.reload();
         });
      }

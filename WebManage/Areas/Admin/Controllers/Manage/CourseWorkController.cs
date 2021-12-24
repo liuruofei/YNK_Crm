@@ -1,5 +1,6 @@
 ﻿using ADT.Models;
 using ADT.Models.Enum;
+using ADT.Models.InputModel;
 using ADT.Models.ResModel;
 using ADT.Service.IService;
 using Microsoft.AspNetCore.Authorization;
@@ -44,6 +45,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         [UsersRoleAuthFilter("V-350", FunctionEnum.Add)]
         public IActionResult Add(string dataStr, string teacherName)
         {
+            if (string.IsNullOrEmpty(dataStr)) {
+                dataStr = DateTime.Now.ToString("yyyy-MM-dd");
+            }
             ViewBag.ID = 0;
             ViewBag.teacherId = "";
             ViewBag.DataStr = dataStr;
@@ -190,7 +194,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// </summary>
         /// <param name="vmodel"></param>
         /// <returns></returns>
-        public IActionResult SaveCourseWork(C_Course_Work vmodel)
+        public IActionResult SaveCourseWork(CourseWorkInput vmodel)
         {
             var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
             vmodel.CreateUid = userId;

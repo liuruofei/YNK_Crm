@@ -84,6 +84,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 StudentUid = cont.StudentUid,
                 Saler_Amount = cont.Saler_Amount,
                 Original_Amount = cont.Original_Amount,
+                Added_Amount=cont.Added_Amount,
                 Course_Time = cont.Course_Time,
                 Class_Course_Time = cont.Class_Course_Time,
                 ClassName = c.Class_Name
@@ -115,7 +116,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 Contra_ChildNo = c.Contra_ChildNo,
                 Contra_Property = c.Contra_Property,
                 Discount_Amount = c.Discount_Amount,
-                ClassName=cl.Class_Name,
+                Added_Amount=c.Added_Amount,
+                ClassName =cl.Class_Name,
                 IsPreferential = c.IsPreferential,
                 Pay_Amount = c.Pay_Amount,
                 Original_Amount = c.Original_Amount

@@ -50,7 +50,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .Where(c=>c.CampusId==Convert.ToInt32(campusId))
                 .WhereIF(query.startTime!=null,(c,cu) => c.Collection_Time>=query.startTime).WhereIF(query.endTime != null, (c, cu) => c.Collection_Time<= query.endTime)
                 .WhereIF(ccUse != null && ccUse.Role_Name == "顾问", (c, cu, ca, sy)=>c.CreateUid==userId).AddParameters(new { CCuid = userId })
-                .OrderBy(c =>c.Registration_Time)
+                .OrderBy(c =>c.Collection_Time,OrderByType.Desc)
                 .Select<C_CollectionModel>((c, cu,ca,sy) => new C_CollectionModel
             {
                 CampusId = c.CampusId,
@@ -100,6 +100,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     StudentName = f.StudentName,
                     Amount = f.Amount,
                     DeductAmount = f.DeductAmount,
+                    AddedAmount=f.AddedAmount,
                     RelationShip_Contras = f.RelationShip_Contras,
                     CampusId = f.CampusId,
                     Collection_Time = f.Collection_Time,
@@ -130,6 +131,22 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             && (f.Contrac_Child_Status == (int)ConstraChild_Status.Confirmationed || f.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk ||f.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk)).ToList();
             return Json(list);
         }
+
+        /// <summary>
+        /// 查询合同信息
+        /// </summary>
+        /// <param name="contracNo"></param>
+        /// <returns></returns>
+        public IActionResult QueryContracVmodel(string childcontracNo) {
+            var vmodel = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(i => i.Contra_ChildNo == childcontracNo).First();
+            //查询该合同收款是否使用过额外优惠金额
+            var anyMount = _currencyService.DbAccess().Queryable<C_Collection>().Where(i => i.RelationShip_Contras == childcontracNo && i.AddedAmount > 0).First();
+            if (anyMount!= null) {
+                vmodel.Added_Amount = 0;
+            }
+            return Json(new {code= 200, msg = "获取成功",data=vmodel});
+        }
+
 
         /// <summary>
         /// 添加
@@ -198,8 +215,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="contrac"></param>
         /// <returns></returns>
         public IActionResult QuerySubjectByContrac(string childcontracNo) {
-          var list=_currencyService.DbAccess().Queryable<C_Contrac_Child_Detail,C_Subject,C_Project>((detail, sub, pro)=>new Object[] { JoinType.Left, detail.SubjectId==sub.SubjectId, JoinType.Left,detail.ProjectId==pro.ProjectId })
-                .Where((detail, sub, pro) => detail.Contra_ChildNo.Equals(childcontracNo)).Select<C_ContracChildDetailModel>((detail, sub, pro)=>new C_ContracChildDetailModel
+          var list=_currencyService.DbAccess().Queryable<C_Contrac_Child_Detail,C_Subject,C_Project,C_Contrac_Child>((detail, sub, pro,chil)=>new Object[] { JoinType.Left, detail.SubjectId==sub.SubjectId, JoinType.Left,detail.ProjectId==pro.ProjectId, JoinType.Left, detail.Contra_ChildNo ==chil.Contra_ChildNo })
+                .Where((detail, sub, pro) => detail.Contra_ChildNo.Equals(childcontracNo)).Select<C_ContracChildDetailModel>((detail, sub, pro, chil) =>new C_ContracChildDetailModel
                 {
                     Id=detail.Id,Contra_ChildNo=detail.Contra_ChildNo,
                     Course_Time=detail.Course_Time,
@@ -209,7 +226,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     SubjectId=detail.SubjectId,
                     SubjectName=sub.SubjectName,
                     ProjectName=pro.ProjectName,
-                    StudentUid=detail.StudentUid
+                    StudentUid=detail.StudentUid,
+                    TotalSelaPrice=detail.Price*(chil.ContraRate>0? chil.ContraRate/10:1)
                 }).ToList();
           return Json(list);
         }

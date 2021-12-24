@@ -200,27 +200,59 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:30");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
-                                it.Eight_Ten_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Eight_Ten_OlockTitle))
+                                {
+                                    it.Eight_Ten_OlockTitle += iv.WorkTitle;
+                                }
+                                else {
+                                    it.Eight_Ten_Reversion = true;
+                                }
                                 it.Eight_Ten_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime2 && endTimestr <= thanendTime2)
                             {
-                                it.Ten_Twelve_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Ten_Twelve_OlockTitle))
+                                {
+                                    it.Ten_Twelve_OlockTitle += iv.WorkTitle;
+                                }
+                                else {
+                                    it.Ten_Twelve_Reversion = true;
+                                }
                                 it.Ten_Twelve_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime3 && endTimestr <= thanendTime3)
                             {
-                                it.Thirteen_Fifteen_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Thirteen_Fifteen_OlockTitle))
+                                {
+                                    it.Thirteen_Fifteen_OlockTitle += iv.WorkTitle;
+                                }
+                                else {
+                                    it.Thirteen_Fifteen_Reversion = true;
+                                }
                                 it.Thirteen_Fifteen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime4 && endTimestr <= thanendTime4)
                             {
-                                it.Fifteen_Seventeen_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Fifteen_Seventeen_OlockTitle))
+                                {
+                                    it.Fifteen_Seventeen_OlockTitle += iv.WorkTitle;
+                                }
+                                else
+                                {
+                                    it.Fifteen_Seventeen_Reversion = true;
+                                }
                                 it.Fifteen_Seventeen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime5 && endTimestr <= thanendTime5)
                             {
-                                it.Seventeen_Nineteen_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Seventeen_Nineteen_OlockTitle))
+                                {
+                                    it.Seventeen_Nineteen_OlockTitle += iv.WorkTitle;
+                                }
+                                else
+                                {
+                                    it.Seventeen_Nineteen_Reversion = true;
+                                }
                                 it.Seventeen_Nineteen_Id = iv.Id;
                             }
                             if (!string.IsNullOrEmpty(iv.SummaryComent) || !string.IsNullOrEmpty(iv.CourseComent) || !string.IsNullOrEmpty(iv.ChouciComent) || !string.IsNullOrEmpty(iv.HomeWorkComent) || !string.IsNullOrEmpty(iv.OtherComent))
@@ -602,27 +634,40 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:30");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
-                                it.Eight_Ten_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Eight_Ten_OlockTitle)) {
+                                    it.Eight_Ten_OlockTitle += iv.WorkTitle;
+                                }
                                 it.Eight_Ten_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime2 && endTimestr <= thanendTime2)
                             {
-                                it.Ten_Twelve_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Ten_Twelve_OlockTitle)) {
+                                    it.Ten_Twelve_OlockTitle += iv.WorkTitle;
+                                }
                                 it.Ten_Twelve_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime3 && endTimestr <= thanendTime3)
                             {
-                                it.Thirteen_Fifteen_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Thirteen_Fifteen_OlockTitle))
+                                {
+                                    it.Thirteen_Fifteen_OlockTitle += iv.WorkTitle;
+                                }
                                 it.Thirteen_Fifteen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime4 && endTimestr <= thanendTime4)
                             {
-                                it.Fifteen_Seventeen_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Fifteen_Seventeen_OlockTitle))
+                                {
+                                    it.Fifteen_Seventeen_OlockTitle += iv.WorkTitle;
+                                }
                                 it.Fifteen_Seventeen_Id = iv.Id;
                             }
                             else if (startTimestr >= thanStartTime5 && endTimestr <= thanendTime5)
                             {
-                                it.Seventeen_Nineteen_OlockTitle+= iv.WorkTitle;
+                                if (string.IsNullOrEmpty(it.Seventeen_Nineteen_OlockTitle))
+                                {
+                                    it.Seventeen_Nineteen_OlockTitle += iv.WorkTitle;
+                                }
                                 it.Seventeen_Nineteen_Id = iv.Id;
                             }
                             if (!string.IsNullOrEmpty(iv.SummaryComent) || !string.IsNullOrEmpty(iv.CourseComent) || !string.IsNullOrEmpty(iv.ChouciComent) || !string.IsNullOrEmpty(iv.HomeWorkComent) || !string.IsNullOrEmpty(iv.OtherComent))

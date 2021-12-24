@@ -37,12 +37,15 @@
             border-color: rgb(224, 224, 224);
             background-color: yellowgreen;
             box-shadow: 0px 0px 0px 1px #fff;
+            color: white;
+            font-size:12px;
         }
         .planPartBlue {
             border-color: rgb(224, 224, 224);
-            background-color:cadetblue;
+            background-color: cadetblue;
             box-shadow: 0px 0px 0px 1px #fff;
-            color:white;
+            color: white;
+            font-size: 12px;
         }
     </style>
 }
@@ -127,7 +130,8 @@
                                                 endTime:'10:00'
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
-                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 ? 'planPartBlue' :'planPart')+">" + (result[j].Eight_Ten_OlockTitle != null ? result[j].Eight_Ten_OlockTitle : "") + "</div></td>");
+                                            var isReversion = result[j].Eight_Ten_Reversion
+                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false? 'planPartBlue' :'planPart')+">" + (result[j].Eight_Ten_OlockTitle != null ? result[j].Eight_Ten_OlockTitle : "") + "</div></td>");
                                         }
                                         $("#plantbody").append("<tr>");
                                     }
@@ -143,7 +147,8 @@
                                                 endTime: '12:00'
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
-                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 ? 'planPartBlue' : 'planPart') +">" + (result[j].Ten_Twelve_OlockTitle == null ? "" : result[j].Ten_Twelve_OlockTitle) +"</div></td>");
+                                            var isReversion = result[j].Ten_Twelve_Reversion
+                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') +">" + (result[j].Ten_Twelve_OlockTitle == null ? "" : result[j].Ten_Twelve_OlockTitle) +"</div></td>");
                                         }
                                         $("#plantbody").append("<tr>");
                                     }
@@ -159,7 +164,8 @@
                                                 endTime: '15:00'
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
-                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 ? 'planPartBlue' : 'planPart') +">" + (result[j].Thirteen_Fifteen_OlockTitle == null ? "" : result[j].Thirteen_Fifteen_OlockTitle) +"</div></td>");
+                                            var isReversion = result[j].Thirteen_Fifteen_Reversion
+                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') + ">" + (result[j].Thirteen_Fifteen_OlockTitle == null ? "" : result[j].Thirteen_Fifteen_OlockTitle) + "</div></td>");
                                         }
                                         $("#plantbody").append("<tr>");
                                     }
@@ -175,7 +181,8 @@
                                                 endTime: '17:10'
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
-                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 ? 'planPartBlue' : 'planPart') +">" + (result[j].Fifteen_Seventeen_OlockTitle == null ? "" : result[j].Fifteen_Seventeen_OlockTitle) +"</div></td>");
+                                            var isReversion = result[j].Fifteen_Seventeen_Reversion
+                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') +">" + (result[j].Fifteen_Seventeen_OlockTitle == null ? "" : result[j].Fifteen_Seventeen_OlockTitle) +"</div></td>");
                                         }
                                         $("#plantbody").append("<tr>");
                                     }
@@ -191,7 +198,8 @@
                                                 endTime: '19:30'
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
-                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 ? 'planPartBlue' : 'planPart') +">" + (result[j].Seventeen_Nineteen_OlockTitle == null ? "" : result[j].Seventeen_Nineteen_OlockTitle) +"</div></td>");
+                                            var isReversion = result[j].Seventeen_Nineteen_Reversion
+                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') +">" + (result[j].Seventeen_Nineteen_OlockTitle == null ? "" : result[j].Seventeen_Nineteen_OlockTitle) +"</div></td>");
                                         }
                                         $("#plantbody").append("<tr>");
                                     }

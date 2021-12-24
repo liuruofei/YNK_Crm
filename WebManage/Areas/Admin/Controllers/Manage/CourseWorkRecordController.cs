@@ -41,7 +41,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             PageList<CourseWorkRecored> pageModel = new PageList<CourseWorkRecored>();
             var list = _currencyService.DbAccess().Queryable<C_Course_Work_Recored, sys_user>((r, u) => new Object[] { JoinType.Left, r.CreateUid == u.User_ID }).WhereIF(!string.IsNullOrEmpty(title), (r, u) => r.Msg.Contains(title))
-                .Where(r=>r.CampusId==Convert.ToInt32(campusId)).OrderBy(r =>r.CreateTime).Select<CourseWorkRecored>((r, u) => new CourseWorkRecored
+                .Where(r=>r.CampusId==Convert.ToInt32(campusId)).OrderBy(r =>r.CreateTime,OrderByType.Desc).Select<CourseWorkRecored>((r, u) => new CourseWorkRecored
             {
                 CreateUid=r.CreateUid,
                 Msg=r.Msg,

@@ -92,7 +92,8 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
         if (layEvent === 'edit') { // 修改
             showEditModel(data);
         } else if (layEvent === 'del') { // 删除
-            doDel(data.CourseId);
+            console.log(data);
+            doDel(data.Id);
         }
     });
 

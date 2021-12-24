@@ -26,6 +26,13 @@ namespace ADT.Models.InputModel
         /// </summary>
         public decimal DeductAmount { get; set; }
 
+
+        /// <summary>
+        /// 使用
+        /// </summary>
+        public decimal AddedAmount { get; set; }
+
+
         /// <summary>
         /// 收款方式
         /// </summary>

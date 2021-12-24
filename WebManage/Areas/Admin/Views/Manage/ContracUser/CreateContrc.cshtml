@@ -99,7 +99,16 @@
         <div class="layui-inline">
             <label class="layui-form-label">年级</label>
             <div class="layui-input-inline">
-                <input type="text" class="layui-input" name="Grade" value="@Model.Grade" />
+                <select name="Grade">
+                    <option value="七年级">七年级</option>
+                    <option value="八年级">八年级</option>
+                    <option value="九年级">九年级</option>
+                    <option value="高一">高一</option>
+                    <option value="高二">高二</option>
+                    <option value="高三">高三</option>
+                    <option value="大学">大学</option>
+                    <option value="其它">其它</option>
+                </select>
             </div>
         </div>
     </div>
@@ -165,7 +174,9 @@
                     <tr>
                         <th>合同编号</th>
                         <th>合同类型</th>
-                        <th>合同折扣后金额</th>
+                        <th>折后金额</th>
+                        <th>额外优惠</th>
+                        <th>实收金额</th>
                         <th>课时/小班号</th>
                         <th>状态</th>
                     </tr>
@@ -273,10 +284,17 @@
                             <input type="radio" name="Contra_Property" value="1" title="续约" lay-filter="ChoiceRadio" />
                         </div>
                     </div>
-                    <div class="layui-inline" style="display:none">
-                        <label class="layui-form-label">优惠联报</label>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">额外优惠</label>
                         <div class="layui-input-inline">
-                            <input type="checkbox" name="IsPreferential" value="1" lay-filter="ChoiceCheckbox" />
+                            <input type="text" name="Added_Amount"  class="layui-input"/>
+                        </div>
+                        
+                        <div style="display:none">
+                            <label class="layui-form-label">优惠联报</label>
+                            <div class="layui-input-inline">
+                                <input type="checkbox" name="IsPreferential" value="1" lay-filter="ChoiceCheckbox" />
+                            </div>
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -370,11 +388,11 @@
                 <span>一对一</span>
                 {{else if item.StudyMode==2}}
                 <span>小班</span>
-                {{else if item.StudyMode==3}}
-                <span>付费教材</span>
                 {{/if}}
             </td>
             <td>{{item.Saler_Amount}}</td>
+            <td>{{item.Added_Amount}}</td>
+            <td>{{item.Saler_Amount-item.Added_Amount}}</td>
             <td>
                 {{if item.StudyMode==2}}
                 <span>{{item.Class_Course_Time}} / {{item.ClassName}}</span>
@@ -455,6 +473,7 @@
             Discount_Amount: 0,
             Contra_Property: 0,
             Saler_Amount: 0,
+            Added_Amount: 0,
             Remarks: '',
             Child_Detail: []
         };
@@ -472,6 +491,7 @@
             Discount_Amount: 0,
             Contra_Property: 0,
             Saler_Amount: 0,
+            Added_Amount: 0,
             Remarks: ''
         }
         layui.use(['form', 'admin', 'adminForm', 'laydate','table'], function () {
@@ -666,6 +686,7 @@
                 Discount_Amount: 0,
                 Contra_Property: 0,
                 Saler_Amount: 0,
+                Added_Amount: 0,
                 Remarks: '',
                 Child_Detail: []
             };
@@ -706,7 +727,11 @@
                     else {
                         newObject[key] = $("input[name='" + key + "']").val();
                     }
-                }
+            }
+            if (newObject.Original_Amount < 1 && newObject.StudyMode == 1) {
+                layer.msg("请点击合计总价");
+                return false;
+            }
                 newObject.CourseTimeTotal = 0;
                 newObject.Child_Detail = [];
                 if (newObject.StudyMode==1) {
@@ -1091,6 +1116,13 @@
                 $("#Discount_Amount").text((original - afterAmount.toFixed(2)).toFixed(2));
                 $("input[name='Discount_Amount']").val((original - afterAmount.toFixed(2)).toFixed(2));
             }
+        })
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            var grade="@Model.Grade";
+            console.log(grade);
+            $("select[name='Grade']").val(grade);
         })
     </script>
 }

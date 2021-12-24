@@ -17,7 +17,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">关联合同</label>
         <div class="layui-input-block">
-            <input name="RelationShip_Contras" type="text" class="layui-input" />
+            <select name="RelationShip_Contras" lay-filter="RelationShip_Contras"></select>
         </div>
     </div>
     <div class="layui-form-item">
@@ -30,6 +30,12 @@
         <label class="layui-form-label">使用余额</label>
         <div class="layui-input-block">
             <input type="text" class="layui-input" name="DeductAmount" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">额外优惠</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="AddedAmount"  disabled/>
         </div>
     </div>
     <div class="layui-form-item">
@@ -69,7 +75,6 @@
         .members {
             position: absolute;
             top: 36px;
-            display: block;
             width: 100%;
             background-color: #f8f8f8;
             padding-top: 1px;
@@ -101,7 +106,7 @@
     <script type="text/template" id="membersTemp">
         {{each data item index}}
         <div class="item">
-            <span data-value="{{item.StudentUid}}">{{item.Student_Name}}</span>
+            <span data-value="{{item.StudentUid}}" data-amount="{{item.Amount}}">{{item.Student_Name}}</span>
         </div>
         {{/each}}
     </script>
@@ -109,7 +114,7 @@
         {{each data item index}}
         <div class="SaleItem">
             <span>{{item.SubjectName}}({{item.ProjectName}})</span>
-            <br/><input name="ItemAmount" data-detailId="{{item.Id}}" class="layui-input" type="number"/> 
+            <br/><input name="ItemAmount" data-detailId="{{item.Id}}" class="layui-input" type="number" value="{{item.TotalSelaPrice}}"/> 
         </div>
         {{/each}}
     </script>
@@ -137,13 +142,14 @@
                     url: "@Url.Action("Find")",
                     dataType: 'json',
                     callBack: function (r) {
+                        console.log(r);
                         if (r.StudentUid != null) {
                             //var contracs = r.RelationShip_Contras.split(",");
                             bindContrac(r.StudentUid, r.RelationShip_Contras, r.ListCollectionDetail);
                         }
                         if (r.Collection_Time != undefined && r.Collection_Time != null) {
                             $("#Collection_Time").val(dateFtt("yyyy-MM-dd hh:mm", r.Collection_Time));
-                            
+
                         }
                         else {
                             var timenow = new Date();
@@ -156,7 +162,7 @@
                 if (data.field.RelationShip_Contras.indexOf(",") > -1) {
                     layer.msg("为了方便排课明细,请分依次付款子合同");
                     return false;
-                } 
+                }
                 data.field.CollectionDetail = [];
                 $("input[name='ItemAmount']").each(function (i, item) {
                     var ChildDetailId = $(item).attr("data-detailId");
@@ -185,21 +191,25 @@
                         data:{username:$(this).val()},
                         dataType: 'json',
                         callBack: function (result) {
-                                if (result != null && result != undefined) {
+                            console.log(result);
+                            if (result != null && result != undefined && result.length>0) {
                                     document.getElementById("members").style.display = "block";
                                     var html = template("membersTemp", { data: result });
                                     document.getElementById("members").innerHTML = html;
                                     $("div[class='item']").click(function () {
                                         var studentuid = $(this).find("span").attr("data-value");
                                         var studentName = $(this).find("span").text();
+                                        var amount = $(this).find("span").attr("data-amount");
                                         document.getElementById("members").style.display = "none";
                                         $("input[name='StudentUid']").val(studentuid);
                                         $("input[name='StudentName']").val(studentName);
+                                        $("input[name='DeductAmount']").val(amount);
                                         bindContrac(studentuid);
                                     });
                                 }
                                 else {
-                                    document.getElementById("members").style.display = "none";
+                                     $("#members").css("display", "none");
+                                     $("#oneOfone").css("display","none");
                                 }
                         }
                     });
@@ -208,7 +218,7 @@
             function bindContrac(uid, defaultValue, listItem) {
                 console.log(defaultValue);
                 if (defaultValue != null && defaultValue != '' && defaultValue != undefined) {
-                    $("input[name='RelationShip_Contras']").val(defaultValue);
+                    $("select[name='RelationShip_Contras']").html("<option value='" + defaultValue + "'>" + defaultValue+"</option>");
                     bindProjectItem(defaultValue, listItem);
                 } else {
                    adminForm.load({
@@ -218,23 +228,29 @@
                         callBack: function (rou) {
                             if (rou != null) {
                                 var result = rou;
-                                var contrc = "";
-                                for (var i = 0; i < result.length; i++) {
-                                    if (i != 0)
-                                        contrc+=","+result[i].Contra_ChildNo;
-                                    else {
-                                        contrc= result[i].Contra_ChildNo;
-                                        //bindProjectItem(result[i].Contra_ChildNo, listItem);
+                                if (result.length == 1) {
+                                    var contrc = result[0].Contra_ChildNo;
+                                    $("select[name='RelationShip_Contras']").html("<option value='" + contrc + "'>" + contrc + "</option>");
+                                    bindProjectItem(result[0].Contra_ChildNo, listItem);
+                                    querychildVmodel(result[0].Contra_ChildNo);
+                                } else {
+                                    $("select[name='RelationShip_Contras']").html("");
+                                    for (var i = 0; i < result.length; i++) {
+                                        $("select[name='RelationShip_Contras']").append("<option value='" + result[i].Contra_ChildNo + "'>" + result[i].Contra_ChildNo + "</option>");
+                                        if (i == 0) {
+                                            bindProjectItem(result[i].Contra_ChildNo, listItem);
+                                            querychildVmodel(result[i].Contra_ChildNo);
+                                        }
                                     }
                                 }
-                                $("input[name='RelationShip_Contras']").val(contrc);
+
                             }
                         }
                     });
                 }
             };
-            $("input[name='RelationShip_Contras']").keyup(function () {
-                var contrcValue = $(this).val();
+            form.on('select(RelationShip_Contras)', function (data) {
+                var contrcValue=data.value;
                 if (contrcValue == "") {
                     document.getElementById("projectItem").innerHTML = "";
                     document.getElementById("oneOfone").style.display = "none";
@@ -251,18 +267,34 @@
                         callBack: function (result) {
                             if (result != null && result != undefined) {
                                 document.getElementById("oneOfone").style.display = "block";
-                                    var html = template("saleItemTemp", { data: result });
-                                    document.getElementById("projectItem").innerHTML = html;
-                                    if (listItem != undefined && listItem != null) {
-                                        listItem.forEach(iv => {
-                                            $("input[name='ItemAmount'][data-detailId='" + iv.ChildDetailId + "']").val(iv.Amount);
-                                        });
-                                    }
+                                var html = template("saleItemTemp", { data: result });
+                                document.getElementById("projectItem").innerHTML = html;
+                                if (listItem != undefined && listItem != null) {
+                                    listItem.forEach(iv => {
+                                        $("input[name='ItemAmount'][data-detailId='" + iv.ChildDetailId + "']").val(iv.Amount);
+                                    });
                                 }
+                            }
+                            else {
+                                document.getElementById("oneOfone").style.display = "none";
+                            }
                         }
                     });
             }
-
+            //带出项目信息
+            function querychildVmodel(contracNo) {
+                      adminForm.load({
+                        url:"@Url.Action("QueryContracVmodel")",
+                        data:{childcontracNo:contracNo},
+                        dataType: 'json',
+                        callBack: function (result) {
+                            if (result != null && result != undefined) {
+                                var childModel = result.data;
+                                $("input[name='AddedAmount']").val(childModel.Added_Amount);
+                            }
+                        }
+                    });
+            }
         });
         function dateFtt(fmt, val) { //author: meizz
             var date = new Date(val);

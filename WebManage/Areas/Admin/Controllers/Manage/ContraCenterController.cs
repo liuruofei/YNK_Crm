@@ -124,5 +124,26 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(rsg);
         }
 
+
+        public IActionResult Delete(int Id) {
+            ResResult rsg = new ResResult() { code = 0, msg = "执行删除合同中心失败" };
+
+            var anyContrc=_currencyService.DbAccess().Queryable<C_Contrac>().Where(v => v.ContraCenterId == Id).First();
+            if (anyContrc == null)
+            {
+                var result = _currencyService.DbAccess().Deleteable<C_ContraCenter>().Where(k => k.Id == Id).ExecuteCommand();
+                if (result > 0)
+                {
+                    rsg.code = 200;
+                    rsg.msg = "删除成功";
+                }
+            }
+            else {
+                rsg.code = 0;
+                rsg.msg = "该合同中心已被使用,无法删除";
+            }
+             
+            return Json(rsg);
+        }
     }
 }

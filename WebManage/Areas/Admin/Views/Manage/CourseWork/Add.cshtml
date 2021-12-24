@@ -28,7 +28,8 @@
     <div class="layui-form-item">
         <label class="layui-form-label" id="lineSpanDate">上课日期</label>
         <div class="layui-input-block">
-            <input type="text" name="AT_Date" class="layui-input" id="AT_Date" multiple="multiple" value="@ViewBag.DataStr" />
+            <div id="courseDates"></div>
+            <input type="text" name="AT_Date" class="layui-input" id="AT_Date" multiple="multiple" value="@ViewBag.DataStr"  style="display:none"/>
         </div>
         <div id="date_all"></div>
     </div>
@@ -133,6 +134,7 @@
 @section js{
     <!-- js部分 -->
     <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script src="~/assets/libs/xm-select/xm-select.js"></script>
     <script type="text/template" id="ClassWorkTemp">
         {{each data item index}}
         <tr onclick="SetTr('{{item}}')">
@@ -141,6 +143,7 @@
         {{/each}}
     </script>
     <script>
+        var currtTime = '@ViewBag.DataStr';
         layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
         var KeyId = '@KeyId';
         var $ = layui.jquery;
@@ -148,6 +151,59 @@
         var admin = layui.admin;
         var adminForm = layui.adminForm;
         var laydate = layui.laydate;
+            var timeList = [];
+            if (currtTime != null && currtTime != "") {
+                timeList.push({ name:currtTime,value:currtTime,selected: true })
+            }
+            var courseDates = xmSelect.render({
+                el: '#courseDates',
+                content: '<div id="laydate" />',
+                height: 'auto',
+                autoRow: true,
+                data: timeList,
+                on: function (data) {
+                    if (!data.isAdd) {
+                        dateSelect(courseDates.getValue('value'));
+                    }
+                }
+        });
+        laydate.render({
+                elem: '#laydate',
+                position: 'static',
+                theme: 'molv',      // 墨绿主题
+                showBottom: false,  // 不显示底部按钮
+                calendar: true,     // 开启公历节日
+                format: 'yyyy-MM-dd',
+                min: minDate(),      // 设置最小可选的日期
+                change: function () {
+                    dateSelect(courseDates.getValue('value'));
+                },
+                done: function (value) {
+                    var values = courseDates.getValue('value');
+                    var index = values.findIndex(function (val) {
+                        return val === value
+                    });
+
+                    if (index != -1) {
+                        values.splice(index, 1);
+                    } else {
+                        values.push(value);
+                    }
+
+                    dateSelect(values);
+
+                    courseDates.update({
+                        data: values.map(function (val) {
+                            return {
+                                name: val,
+                                value: val,
+                                selected: true,
+                            }
+                        })
+                    })
+                },
+                ready: removeAll,
+        });
         laydate.render({
             elem: '#AT_Date',
             type: 'date'
@@ -164,6 +220,25 @@
             format: 'HH:mm',
             ready: formatMinutin
         });
+        function removeAll() {
+            document.querySelectorAll('#laydate td[lay-ymd].layui-this').forEach(function (dom) {
+                dom.classList.remove('layui-this');
+            });
+        }
+
+        function dateSelect(values) {
+            removeAll();
+            values.forEach(function (val) {
+                var dom = document.querySelector('#laydate td[lay-ymd="' + val.replace(/-0([1-9])/g, '-$1') + '"]');
+                dom && dom.classList.add('layui-this');
+            });
+          }
+        // 设置最小可选的日期
+        function minDate() {
+            var now = new Date();
+            return now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
+        }
+
         var App = {
             Load: function () {
                 adminForm.load({
@@ -172,6 +247,14 @@
                     url: "@Url.Action("Find")",
                     dataType: 'json',
                     callBack: function (r) {
+                        if (r != null && r.Id > 0) {
+                            $("#courseDates").css("display", "none");
+                            $("#AT_Date").show();
+                        }
+                        else {
+                            $("#courseDates").show();
+                            $("#AT_Date").css("display", "none");
+                        }
                         if (r.StudyMode == 1) {
                             $("input[name='WorkUserName']").val(r.Work_Title);
                             $("input[name='UserProjectId']").val(r.ProjectId);
@@ -279,6 +362,8 @@
                 });
             },
             Save: function (data) {
+                var selectArr = courseDates.getValue('value');    // 获取value字符串值
+                data.field.WorkDateGroup = selectArr;
                 data.field.ProjectId = data.field.StudyMode == 1 ? $("input[name='UserProjectId']").val() : $("select[name='ProjectId']").val();
                 data.field.Work_Title = data.field.StudyMode == 1 ? $("input[name='WorkUserName']").val() : $("input[name='WorkClassName']").val();
                 adminForm.Save({
