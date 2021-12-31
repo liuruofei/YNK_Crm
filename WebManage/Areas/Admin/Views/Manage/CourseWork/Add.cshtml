@@ -30,7 +30,7 @@
         <label class="layui-form-label" id="lineSpanDate">上课日期</label>
         <div class="layui-input-block">
             <div id="courseDates"></div>
-            <input type="text" name="AT_Date" class="layui-input" id="AT_Date" multiple="multiple" value="@ViewBag.DataStr"  style="display:none"/>
+            <input type="text" name="AT_Date" class="layui-input" id="AT_Date" multiple="multiple" value="@ViewBag.DataStr" style="display:none" />
         </div>
         <div id="date_all"></div>
     </div>
@@ -82,7 +82,24 @@
             </div>
         </div>
     </div>
-    <div class="layui-form-item" id="PartProject">
+    <div class="layui-form-item" id="ListeningPart" style="display:none">
+        <label class="layui-form-label">试听学员</label>
+        <div class="layui-input-block" style="position:relative">
+            <input name="ListeningName" class="layui-input" type="text" />
+            <div id="searcListen" class="searcListen">
+                <table style="width:100%;margin-top: 0px;" class="layui-table">
+                    <tbody id="searchListenbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" id="ListenSubPart" style="display:none">
+        <label class="layui-form-label">试听分类</label>
+        <div class="layui-input-block" style="position:relative">
+            <select name="ListenSubject" lay-filter="ListenSubject"></select>
+        </div>
+    </div>
+    <div class="layui-form-item" id="PartProject" style="display:none">
         <label class="layui-form-label">科目</label>
         <div class="layui-input-block">
             <select name="ProjectId"></select>
@@ -94,7 +111,7 @@
             <select name="TA_Uid"></select>
         </div>
     </div>
-    <div class="layui-form-item" id="PartProject">
+    <div class="layui-form-item">
         <label class="layui-form-label">房间</label>
         <div class="layui-input-block">
             <select name="RoomId"></select>
@@ -121,13 +138,13 @@
             height: 266px !important;
         }
 
-        .searcClass, .searcUser {
+        .searcClass, .searcUser, .searcListen {
             position: absolute;
             box-shadow: 0 10px 60px 0 rgb(29 29 31 / 9%);
             background-color: white;
             z-index: 6;
             width: 345px;
-            display:none;
+            display: none;
         }
     </style>
 }
@@ -139,7 +156,14 @@
     <script type="text/template" id="ClassWorkTemp">
         {{each data item index}}
         <tr onclick="SetTr('{{item}}')">
-            <td><span data-StudyMode="{{item.Contra_ChildNo}}" data-childNo="{{item.Contra_ChildNo}}" data-StudentUid="{{item.StudentUid}}" data-SubjectId="{{item.SubjectId}}" data-ProjectId="{{item.ProjectId}}" data-ClasssId="{{item.ClasssId}}">{{item.StudyModeName}}</span></td>
+            <td><span data-StudyMode="{{item.StudyMode}}" data-childNo="{{item.Contra_ChildNo}}" data-StudentUid="{{item.StudentUid}}" data-SubjectId="{{item.SubjectId}}" data-ProjectId="{{item.ProjectId}}" data-ClasssId="{{item.ClasssId}}">{{item.StudyModeName}}</span></td>
+        </tr>
+        {{/each}}
+    </script>
+    <script type="text/template" id="ListenTemp">
+        {{each data item index}}
+        <tr onclick="SetListenTr('{{item}}')">
+            <td><span data-StudentUid="{{item.StudentUid}}">{{item.Student_Name}}</span></td>
         </tr>
         {{/each}}
     </script>
@@ -266,15 +290,24 @@
                             $("input[name='WorkClassName']").val(r.Work_Title);
                             $("#OneOfPart").css("display", "none");
                             $("#ClassPart").css("display", "block");
-                            bindProject(r.SubjectId,r.ProjectId);
+                            bindProject(r.SubjectId, r.ProjectId);
                         }
-                        else if(r.StudyMode == 3){
+                        else if (r.StudyMode == 3) {
                             $("#PartTa").css("display", "none");
                             $("#PartProject").css("display", "none");
                             $("#ClassPart").css("display", "none");
                             $("#OneOfPart").css("display", "none");
                             $("#lineSpanDate").text("休息日期");
                             $("#lineSpanTimeRange").text("休息时段");
+                        }
+                        else if (r.StudyMode == 4) {
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#PartProject").show();
+                            $("#ListeningPart").show();
+                            $("#ListenSubPart").show();
+                            $("#lineSpanDate").text("试听日期");
+                            $("#lineSpanTimeRange").text("上课时段");
                         }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
@@ -342,6 +375,7 @@
                             }
                         }
                         });
+                        //绑定教室
                         adminForm.load({
                         url: "@Url.Action("QueryRoom")",
                         dataType: 'json',
@@ -358,6 +392,26 @@
                                 }
                             }
                         }
+                        });
+                        //绑定试听分类
+                        adminForm.load({
+                        url: "@Url.Action("QuerySubject","ContracUser")",
+                        dataType: 'json',
+                        callBack: function (rou) {
+                                if (rou.data != null) {
+                                    var result = rou.data;
+                                    $("select[name='ListenSubject']").html("<option value='0'>-分类-</option>");
+                                    for (var i = 0; i < result.length; i++) {
+                                        if (r.SubjectId== result[i].SubjectId) {
+                                            $("select[name='ListenSubject']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName + '</option>');
+                                            bindProject(r.SubjectId, r.ProjectId);
+                                        }
+                                        else {
+                                            $("select[name='ListenSubject']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                                        }
+                                    }
+                            }
+                            }
                         });
                     }
                 });
@@ -394,6 +448,8 @@
                     $("#PartProject").css("display", "none");
                     $("#ClassPart").css("display", "none");
                     $("#OneOfPart").css("display", "block");
+                    $("#ListeningPart").css("display", "none");
+                    $("#ListenSubPart").css("display", "none");
                     $("#lineSpanDate").text("上课日期");
                     $("#lineSpanTimeRange").text("上课时段");
                 }
@@ -401,24 +457,45 @@
                     $("#PartProject").css("display", "block");
                     $("#ClassPart").css("display", "block");
                     $("#OneOfPart").css("display", "none");
+                    $("#ListeningPart").css("display", "none");
+                    $("#ListenSubPart").css("display", "none");
                     $("#lineSpanDate").text("上课日期");
                     $("#lineSpanTimeRange").text("上课时段");
                 }
-                else if (data.value == 3){
+                else if (data.value == 3) {
                     $("#PartTa").css("display", "none");
                     $("#PartProject").css("display", "none");
                     $("#ClassPart").css("display", "none");
                     $("#OneOfPart").css("display", "none");
+                    $("#ListeningPart").css("display", "none");
+                    $("#ListenSubPart").css("display", "none");
                     $("#lineSpanDate").text("休息日期");
                     $("#lineSpanTimeRange").text("休息时段");
                 }
+                else if (data.value == 4) {
+                    $("#ClassPart").css("display", "none");
+                    $("#OneOfPart").css("display", "none");
+                    $("#PartProject").show();
+                    $("#ListeningPart").show();
+                    $("#ListenSubPart").show();
+                    $("#lineSpanDate").text("试听日期");
+                    $("#lineSpanTimeRange").text("上课时段");
+
+                }
             });
+            form.on('select(ListenSubject)', function (data) {
+                var linstenSubjectId = data.value;
+                if (linstenSubjectId > 0) {
+                    $("input[name='SubjectId']").val(linstenSubjectId);
+                    bindProject(linstenSubjectId);
+                }
+            })
         // 表单提交事件
         form.on('submit(modelUserSubmit)', function (data) {
             App.Save(data);
             return false;
         });
-         $("#couseMovel").click(function () {
+        $("#couseMovel").click(function () {
                              layer.confirm('确定要删除该课程吗?', {
                                         btn: ['确定', '取消'] //按钮
                              }, function (index) {
@@ -475,11 +552,14 @@
                         data: { studyModel:1, title: $(this).val() },
                         dataType: 'json',
                         callBack: function (rou) {
-                            if (rou.data != null) {
+                            if (rou.data != null && rou.data.length > 0) {
                                 var result = rou.data;
                                 document.getElementById("searcUser").style.display = "block";
                                 var html = template("ClassWorkTemp", { data: result });
                                 document.getElementById("searcUserbody").innerHTML = html;
+                            }
+                            else {
+                                document.getElementById("searcUser").style.display = "none";
                             }
                         }
                     });
@@ -490,11 +570,29 @@
                     data: { studyModel:1, title: $(this).val() },
                     dataType: 'json',
                     callBack: function (rou) {
-                        if (rou.data != null) {
+                        if (rou.data != null && rou.data.length>0) {
                             var result = rou.data;
                             document.getElementById("searcUser").style.display = "block";
                             var html = template("ClassWorkTemp", { data: result });
                             document.getElementById("searcUserbody").innerHTML = html;
+                        }
+                        else {
+                            document.getElementById("searcUser").style.display = "none";
+                        }
+                    }
+                });
+            });
+            $("input[name='ListeningName']").keyup(function () {
+                adminForm.load({
+                    url: "@Url.Action("QueryListenUser")",
+                    data: { userName: $(this).val() },
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            document.getElementById("searcListen").style.display = "block";
+                            var html = template("ListenTemp", { data: result });
+                            document.getElementById("searchListenbody").innerHTML = html;
                         }
                     }
                 });
@@ -503,7 +601,6 @@
         function SetTr(vmodel) {
             vmodel = JSON.parse(vmodel);
             $("input[name='SubjectId']").val(vmodel.SubjectId);
-            console.log(vmodel);
             if (vmodel.StudyMode == 1) {
                 $("#searcUser").css("display", "none");
                 $("input[name='StudentUid']").val(vmodel.StudentUid);
@@ -518,6 +615,12 @@
                 bindProject(vmodel.SubjectId,null);
             }
         }
+        function SetListenTr(vmodel) {
+            vmodel = JSON.parse(vmodel);
+            $("input[name='StudentUid']").val(vmodel.StudentUid);
+            $("input[name='ListeningName']").val(vmodel.Student_Name);
+            $("#searcListen").css("display", "none");
+        }
         function bindProject(subjectId, defaultProjectId) {
             layui.use(['adminForm'], function () {
                 var adminForm = layui.adminForm;
@@ -527,6 +630,7 @@
                 dataType: 'json',
                 callBack: function (rou) {
                     if (rou.data != null) {
+                        $("select[name='ProjectId']").html("");
                         var result = rou.data;
                         for (var i = 0; i < result.length; i++) {
                             if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0 && defaultProjectId == result[i].ProjectId) {

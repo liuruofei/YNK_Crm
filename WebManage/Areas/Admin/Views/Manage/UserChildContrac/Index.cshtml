@@ -124,7 +124,17 @@
                     return (d.Saler_Amount - d.Added_Amount);
                 }
             },
-            { field: 'Pay_Amount', title: '已付金额', sort: true },
+            {
+                field: 'Pay_Amount', title: '已充金额', sort: true, templet: function (d) {
+                    if (d.IsUseAddedAmount > 0) {
+                        return d.Pay_Amount - d.Added_Amount;
+                    }
+                    else {
+                        return d.Pay_Amount;
+                    }
+                }
+            },
+            { field: 'Amount', title: '用户余额', sort: true },
             {
                 field: 'Pay_Stutas', title: '付款状态', sort: true, templet: function (d) {
                     console.log(d);

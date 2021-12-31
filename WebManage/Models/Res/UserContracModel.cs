@@ -59,6 +59,12 @@ namespace WebManage.Models.Res
         /// </summary>
         public string Student_Name { get; set; }
 
+
+        /// <summary>
+        /// 学员余额
+        /// </summary>
+        public decimal Amount { get; set; }
+
         /// <summary>
         /// 签约人
         /// </summary>

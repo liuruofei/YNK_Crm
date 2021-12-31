@@ -28,5 +28,11 @@ namespace WebManage.Models.Res
         /// </summary>
         public decimal TotalSelaPrice { get; set; }
 
+
+        /// <summary>
+        /// 合同折扣
+        /// </summary>
+        public decimal ContraRate { get; set; }
+
     }
 }

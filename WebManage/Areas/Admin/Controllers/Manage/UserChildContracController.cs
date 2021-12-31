@@ -48,7 +48,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             var ccUse = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Inner, u.User_ID == ur.UserRole_UserID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where(u => u.User_ID == userId).Select<sys_role>().First();
             PageList<UserChildContracModel> pageModel = new PageList<UserChildContracModel>();
-            var list = _currencyService.DbAccess().Queryable(@"(select c.*,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName from C_Contrac_Child c left join C_Contrac_User contracU on c.StudentUid=contracU.StudentUid
+            var list = _currencyService.DbAccess().Queryable(@"(select c.*,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName,contracU.Amount from C_Contrac_Child c left join C_Contrac_User contracU on c.StudentUid=contracU.StudentUid
                 left join Sys_User cc on c.CC_Uid=cc.User_ID where c.CampusId=@CampusId)", "orginSql").AddParameters(new { CampusId = campusId })
                 .WhereIF(contraProperty>-1, "orginSql.Contra_Property=@property").AddParameters(new { property=contraProperty })
                 .WhereIF(studymode > 0, "orginSql.StudyMode=@studyModes").AddParameters(new { studyModes=studymode })

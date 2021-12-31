@@ -14,14 +14,14 @@
         <div class="layui-inline">
             <label class="layui-form-label" style="color:#ddd">性别</label>
             <div class="layui-input-inline">
-                <input type="radio" value="男" name="Sex" title="男" readonly="readonly" disabled/>
-                <input type="radio" value="女" name="Sex" title="女" readonly="readonly" disabled/>
+                <input type="radio" value="男" name="Sex" title="男" readonly="readonly" disabled />
+                <input type="radio" value="女" name="Sex" title="女" readonly="readonly" disabled />
             </div>
         </div>
         <div class="layui-inline">
             <label class="layui-form-label" style="color:#ddd">出生年月</label>
             <div class="layui-input-inline">
-                <input type="text" name="Birthday" id="Birthday" class="layui-input" readonly disabled style="color:#ddd"/>
+                <input type="text" name="Birthday" id="Birthday" class="layui-input" readonly disabled style="color:#ddd" />
             </div>
         </div>
     </div>
@@ -54,13 +54,13 @@
         <div class="layui-inline">
             <label class="layui-form-label">追踪时间</label>
             <div class="layui-input-inline">
-                <input  type="text" name="Follow_Date" id="Follow_Date" class="layui-input" placeholder="选择跟踪时间" />
+                <input type="text" name="Follow_Date" id="Follow_Date" class="layui-input" placeholder="选择跟踪时间" />
             </div>
         </div>
         <div class="layui-inline">
-            <label class="layui-form-label">上门时间</label>
+            <label class="layui-form-label">待办时间</label>
             <div class="layui-input-inline">
-                <input type="text" name="Visit_Date" id="Visit_Date" class="layui-input" placeholder="选择上门时间" />
+                <input type="text" name="TaskDate" id="TaskDate" class="layui-input" placeholder="选择上门时间" />
             </div>
         </div>
     </div>
@@ -71,9 +71,17 @@
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">跟进计划</label>
+        <label class="layui-form-label">待办内容</label>
         <div class="layui-input-block">
-            <textarea name="Follow_Plan" style="width:98%;height:150px;"></textarea>
+            <textarea name="TaskContent" style="width:98%;height:150px;"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">待办重要等级</label>
+        <div class="layui-input-block">
+            <input type="radio" name="ImportLevel" value="1" title="重要" />
+            <input type="radio" name="ImportLevel" value="2" title="中等" />
+            <input type="radio" name="ImportLevel" value="3" title="一般"  checked="true"/>
         </div>
     </div>
     <div class="layui-form-item positionbottomtop"></div>
@@ -118,7 +126,7 @@
             type: 'date'
         });
         laydate.render({
-            elem: '#Visit_Date',
+            elem: '#TaskDate',
             type: 'date'
         });
         var App = {
@@ -131,7 +139,7 @@
                         callBack: function (r) {
                             console.log(r);
                             $("#Birthday").val(dateFtt("yyyy-MM-dd", r.Birthday));
-                            if (r.Follow_Date!=null)
+                            if (r.Follow_Date != null && r.Follow_Date!="")
                                 $("#Follow_Date").val(dateFtt("yyyy-MM-dd", r.Follow_Date));
                             if (r.Visit_Date != null)
                                 $("#Visit_Date").val(dateFtt("yyyy-MM-dd", r.Visit_Date));

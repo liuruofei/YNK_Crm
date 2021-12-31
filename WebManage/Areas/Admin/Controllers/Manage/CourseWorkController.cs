@@ -149,6 +149,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(rsg);
         }
 
+        /// <summary>
+        /// 查询学员名称
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public IActionResult QueryListenUser(string userName) {
+            var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            var list= _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(u => u.Student_Name.Contains(userName)).ToList();
+            rsg.data = list;
+            return Json(rsg);
+        }
 
         /// <summary>
         /// 查询督学
@@ -308,7 +320,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                     .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(projectId > 0, it => it.ProjectId == projectId)
-                    .Where(it => (it.StudentUid == student.StudentUid||classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                    .Where(it => (it.StudentUid == student.StudentUid||classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                     .Sum(it => it.CourseTime);
                 }
             }
@@ -372,7 +384,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                     .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(projectId > 0, it => it.ProjectId == projectId)
-                    .Where(it => (it.StudentUid == student.StudentUid || classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                    .Where(it => (it.StudentUid == student.StudentUid || classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                     .Sum(it => it.CourseTime);
                 }
             }

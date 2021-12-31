@@ -1,0 +1,127 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Id" type="hidden" value="@ViewBag.ID" />
+    <input name="ClueId" type="hidden" value="@ViewBag.ClueId" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">当前线索</label>
+        <div class="layui-input-block">
+            <input name="ClueName" class="layui-input" value="@ViewBag.ClueName" disabled />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">待办时间</label>
+        <div class="layui-input-block">
+            <input name="TaskDate" id="TaskDate" placeholder="待办时间" class="layui-input" lay-verify="required" required />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">待办任务</label>
+        <textarea name="TaskContent" style="width:98%;height:150px;margin:0px 10px 0 33px"></textarea>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">重要等级</label>
+        <div class="layui-input-block">
+            <input type="radio" name="ImportLevel" value="1" title="重要" />
+            <input type="radio" name="ImportLevel" value="2" title="中等" />
+            <input type="radio" name="ImportLevel" value="3" title="一般"  checked="checked"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">处理状态</label>
+        <div class="layui-input-block">
+            <input type="radio" name="TaskStutas" value="1" title="已处理" />
+            <input type="radio" name="TaskStutas" value="0" title="未处理" checked="true"/>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#TaskDate',
+            format: 'yyyy-MM-dd',
+            type: 'date',
+        });
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        $("input[name='TaskDate']").val(dateFormat("YYYY-mm-dd", r.TaskDate));
+                        $("input[name='ImportLevel'][value=" + r.ImportLevel + "]").prop('checked', true);
+                        $("input[name='TaskStutas'][value=" + r.TaskStutas + "]").prop('checked', true);
+                        form.render("radio");
+                    }
+                });
+            },
+            Save: function (data) {
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+        function dateFormat(fmt, datestr) {
+            var date = new Date(datestr);
+            let ret;
+            const opt = {
+                "Y+": date.getFullYear().toString(),        // 年
+                "m+": (date.getMonth() + 1).toString(),     // 月
+                "d+": date.getDate().toString(),            // 日
+                "H+": date.getHours().toString(),           // 时
+                "M+": date.getMinutes().toString(),         // 分
+                "S+": date.getSeconds().toString()          // 秒
+                // 有其他格式化字符需求可以继续添加，必须转化成字符串
+            };
+            for (let k in opt) {
+                ret = new RegExp("(" + k + ")").exec(fmt);
+                if (ret) {
+                    fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+                };
+            };
+            return fmt;
+        }
+    </script>
+}

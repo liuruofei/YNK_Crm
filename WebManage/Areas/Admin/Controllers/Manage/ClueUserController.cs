@@ -53,7 +53,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             PageList<ResClueUserModel> pageModel = new PageList<ResClueUserModel>();
             var list = _currencyService.DbAccess().Queryable("C_ClueUser", "clue").AddJoinInfo(@"Sys_User", "cc", "clue.CC_Uid=cc.User_ID", SqlSugar.JoinType.Left).AddJoinInfo("C_Campus", "camp", "clue.CampusId=camp.CampusId", SqlSugar.JoinType.Left)
                 .AddJoinInfo("C_ClueUser", "clueDefault", "clue.Defualt_ClueId=clueDefault.ClueId", SqlSugar.JoinType.Left).AddJoinInfo(@"Sys_User", "cc2", "clueDefault.CC_Uid=cc2.User_ID", SqlSugar.JoinType.Left)
-                .Where("clue.CampusId=@campusId and clue.Status<1").AddParameters(new { campusId = campusId })
+                .Where("clue.CampusId=@campusId and clue.Status<1 and isnull(clue.Contrac_StudentUid,0)<1").AddParameters(new { campusId = campusId })
                 .WhereIF(!string.IsNullOrEmpty(title), "clue.Student_Name=@title").AddParameters(new { title = title })
                 .WhereIF(!string.IsNullOrEmpty(roleName), "clue.CC_Uid=@CCid").AddParameters(new { CCid = userId })
                 .Select<ResClueUserModel>(@"clue.*,cc.User_Name as CC_UserName,cc2.User_Name as Default_CC_UserName,(select Count(*) from C_ClueUser_Record record where record.ClueId=clue.ClueId) as Follow_Count,
@@ -260,7 +260,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// </summary>
         /// <param name="vmodel"></param>
         /// <returns></returns>
-        public IActionResult SaveClueRecord(C_ClueUser_Record vmodel)
+        public IActionResult SaveClueRecord(ClueRecordInput vmodel)
         {
             ResResult rsg = new ResResult() { code = 0, msg = "保存失败" };
             if (vmodel != null)

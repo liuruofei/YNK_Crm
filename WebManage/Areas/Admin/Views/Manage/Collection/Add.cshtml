@@ -33,9 +33,9 @@
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">额外优惠</label>
+        <label class="layui-form-label">使用额外优惠</label>
         <div class="layui-input-block">
-            <input type="text" class="layui-input" name="AddedAmount"  disabled/>
+            <input type="text" class="layui-input" name="AddedAmount" value="0"/>
         </div>
     </div>
     <div class="layui-form-item">
@@ -232,14 +232,14 @@
                                     var contrc = result[0].Contra_ChildNo;
                                     $("select[name='RelationShip_Contras']").html("<option value='" + contrc + "'>" + contrc + "</option>");
                                     bindProjectItem(result[0].Contra_ChildNo, listItem);
-                                    querychildVmodel(result[0].Contra_ChildNo);
+                                   // querychildVmodel(result[0].Contra_ChildNo);
                                 } else {
                                     $("select[name='RelationShip_Contras']").html("");
                                     for (var i = 0; i < result.length; i++) {
                                         $("select[name='RelationShip_Contras']").append("<option value='" + result[i].Contra_ChildNo + "'>" + result[i].Contra_ChildNo + "</option>");
                                         if (i == 0) {
                                             bindProjectItem(result[i].Contra_ChildNo, listItem);
-                                            querychildVmodel(result[i].Contra_ChildNo);
+                                            //querychildVmodel(result[i].Contra_ChildNo);
                                         }
                                     }
                                 }

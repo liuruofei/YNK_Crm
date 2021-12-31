@@ -230,6 +230,9 @@
                             if (result[i].StudyMode == 3) {
                                 backColor = 'brown';
                             }
+                           else if (result[i].StudyMode == 4) {
+                                backColor = '#60605a';
+                            }
                             events.push({
                                 id: result[i].Id,
                                 title: result[i].Work_Title + '  教师:' + result[i].TeacherName + (result[i].RoomName != null && result[i].RoomName!=""?'  教室:' + result[i].RoomName:''),

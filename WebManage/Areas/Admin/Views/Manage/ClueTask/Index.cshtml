@@ -8,16 +8,13 @@
             <div class="layui-form toolbar">
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <label class="layui-form-label w-auto">科目名称：</label>
+                        <label class="layui-form-label w-auto">待办内容：</label>
                         <div class="layui-input-inline mr0">
                             <input id="txtTitle" class="layui-input" type="text" placeholder="输入标题" />
                         </div>
                     </div>
                     <div class="layui-inline">
                         <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
-                    </div>
-                    <div class="layui-inline">
-                        <button id="btnAdd" class="layui-btn icon-btn" data-power="Add"><i class="layui-icon">&#xe654;</i>添加</button>
                     </div>
                 </div>
             </div>
@@ -63,34 +60,32 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'SubjectName', title: '科目名称', sort: true },
+            { field: 'Student_Name', title: '线索名称', sort: true },
+            { field: 'TaskContent', title: '待办任务', sort: true },
             {
-                field: 'UnitCourse_Time', title: '等级1单价', sort: true, templet: function (d) {
-                    return "¥" + d.Lvel1Price + "/" + d.UnitCourse_Time+"小时";
+                field: 'TaskDate', title: '待办时间', sort: true, templet: function (d) {
+                    return dateFormat("YYYY-mm-dd",d.TaskDate);;
                 }
             },
             {
-                field: 'UnitCourse_Time', title: '等级2单价', sort: true, templet: function (d) {
-                    return "¥" + d.Lvel2Price + "/" + d.UnitCourse_Time + "小时";
+                field: 'ImportLevel', title: '重要等级', sort: true, templet: function (d) {
+                    if (d.ImportLevel == 1) {
+                        return "重要";
+                    }
+                    else if (d.ImportLevel == 2) {
+                        return "中等";
+                    }
+                    else if (d.ImportLevel == 3) {
+                        return "一般";
+                    }
                 }
             },
             {
-                field: 'UnitCourse_Time', title: '等级3单价', sort: true, templet: function (d) {
-                    return "¥" + d.Lvel3Price + "/" + d.UnitCourse_Time + "小时";
+                field: 'TaskStutas', title: '处理状态', sort: true, templet: function (d) {
+                    return d.TaskStutas > 0 ? "<span style='background-color:green;color:white;padding:3px 3px;'>已处理</span>" : "<span>未处理</span>";
                 }
             },
-            {
-                field: 'UnitCourse_Time', title: '等级4单价', sort: true, templet: function (d) {
-                    return "¥" + d.Lvel4Price + "/" + d.UnitCourse_Time + "小时";
-                }
-            },
-            {
-                field: 'Sort', title: '排序', sort: true, width: 120, templet: function (d) {
-                    return "<input type='number' value='" + d.Sort + "' data-id='" + d.ProjectId + "' style='width:80px' onchange='orderBy(this)'/>";
-                }
-            },
-            { field: 'CampusName', title: '校区', sort: true },
-            { field: 'CreateTime', title: '创建时间', sort: true },
+            { field: 'CCUserName', title: '创建人', sort: true },
             {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
         ]]
     });
@@ -118,18 +113,18 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
         if (layEvent === 'edit') { // 修改
             showEditModel(data);
         } else if (layEvent === 'del') { // 删除
-            doDel(data.SubjectId);
+            doDel(data.Id);
         }
     });
 
     //显示表单弹窗
     function showEditModel(vmodel) {
         adminList.form({
-            title: (vmodel ? '修改' : '添加') + '类别科目',
+            title: (vmodel ? '修改' : '添加') + '待办任务',
             type: 2,
-            width: "860px",
-            height: "730px",
-            content: vmodel ? '@Url.Action("Edit")?ID=' + vmodel.SubjectId : '@Url.Action("Add")?ID=0',
+            width: "660px",
+            height: "590px",
+            content: vmodel ? '@Url.Action("Edit")?ID=' + vmodel.Id : '@Url.Action("Add")?ID=0',
             end: function () {
                 insTb.reload();
             }
@@ -148,13 +143,33 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
             $.ajax({
                 type: "post",
                 url: "SetSort",
-                data: { ProjectId: $(obj).attr("data-id"), sort: $(obj).val() },
+                data: { Id: $(obj).attr("data-id"), sort: $(obj).val() },
                 dataType: 'json',
                 contentType: 'application/x-www-form-urlencoded',
                 success: function (data) {
                     console.log(data);
                 }
             });
+        }
+        function dateFormat(fmt, datestr) {
+            var date = new Date(datestr);
+            let ret;
+            const opt = {
+                "Y+": date.getFullYear().toString(),        // 年
+                "m+": (date.getMonth() + 1).toString(),     // 月
+                "d+": date.getDate().toString(),            // 日
+                "H+": date.getHours().toString(),           // 时
+                "M+": date.getMinutes().toString(),         // 分
+                "S+": date.getSeconds().toString()          // 秒
+                // 有其他格式化字符需求可以继续添加，必须转化成字符串
+            };
+            for (let k in opt) {
+                ret = new RegExp("(" + k + ")").exec(fmt);
+                if (ret) {
+                    fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+                };
+            };
+            return fmt;
         }
     </script>
 }

@@ -75,6 +75,16 @@ namespace WebManage.Models.Res
         public decimal Added_Amount { get; set; }
 
         /// <summary>
+        /// 学员余额
+        /// </summary>
+        public decimal Amount { get; set; }
+
+        /// <summary>
+        /// 是否已使用额外优惠
+        /// </summary>
+        public int IsUseAddedAmount { get; set; }
+
+        /// <summary>
         /// 是否联报优惠
         /// </summary>
         public int IsPreferential { get; set; }

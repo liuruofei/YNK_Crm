@@ -87,7 +87,7 @@
             { field: 'Follow_Plan', title: '跟踪计划', sort: true, width: 100 },
             { field: 'Follow_Count', title: '跟进次数', sort: true, width: 100 },
             { field: 'CreateTime', title: '创建时间', sort: true },
-            {align: 'center', toolbar: '#tableBar', title: '操作', width: 360}
+            { align: 'center', toolbar: '#tableBar', title: '操作', width: 360, fixed: 'right'}
         ]]
     });
 
@@ -101,6 +101,7 @@
     $('#btnAddContract').click(function () {
         showAddContract();
     });
+
 
     // 搜索
     $('#btnSearch').click(function () {
@@ -170,7 +171,8 @@
         else {
             layer.msg('请勾选一条线索创建合同!');
         }
-    }
+     }
+
 
     //显示表单弹窗
     function showEditModel(vmodel) {
@@ -210,7 +212,6 @@
         });
     }
     function AddRecord(vmodel) {
-        console.log('a');
             adminList.form({
             title:'添加追踪记录',
             type: 2,

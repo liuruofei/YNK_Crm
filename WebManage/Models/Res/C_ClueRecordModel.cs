@@ -19,7 +19,7 @@ namespace WebManage.Models.Res
         /// 跟踪计划
         /// </summary>
         public string Follow_Plan { get; set; }
-        public DateTime Follow_Date { get; set; }
+        public DateTime? Follow_Date { get; set; }
         public int ContracRate { get; set; }
 
         /// <summary>

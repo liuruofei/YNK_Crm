@@ -106,7 +106,16 @@
             { field: 'Contra_ChildNo', title: '合同编号', sort: true },
             { field: 'Student_Name', title: '学生姓名', sort: true },
             { field: 'Original_Amount', title: '初始合同金额', sort: true },
-            { field: 'Pay_Amount', title: '已付金额', sort: true },
+            {
+                field: 'Pay_Amount', title: '已充金额', sort: true, templet: function (d) {
+                    if (d.IsUseAddedAmount > 0) {
+                        return d.Pay_Amount - d.Added_Amount;
+                    }
+                    else {
+                        return d.Pay_Amount;
+                    }
+                }
+            },
             { field: 'Contrac_Child_Status_Name', title: '合同状态', sort: true },
             {
                 field: 'Contra_Property', title: '合同属性', sort: true, width: 150, templet: function (d) {

@@ -57,6 +57,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 CampusName =ca.CampusName,
                 StudentName = c.StudentName,
                 Amount = c.Amount,
+                AddedAmount=c.AddedAmount,
                 StudentUid = c.StudentUid,
                 PayStatus = c.PayStatus,
                 RelationShip_Contras = c.RelationShip_Contras,
@@ -229,7 +230,20 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     StudentUid=detail.StudentUid,
                     TotalSelaPrice=detail.Price*(chil.ContraRate>0? chil.ContraRate/10:1)
                 }).ToList();
-          return Json(list);
+            var useCourseTimeList = _currencyService.DbAccess().Queryable<C_User_CourseTime>().Where(v => v.Contra_ChildNo == childcontracNo).ToList();
+            if (list != null && list.Count > 0)
+            {
+                list.ForEach(item =>
+                {
+                    var unitPrice = item.TotalSelaPrice / Convert.ToInt32(item.Course_Time);
+                    if (useCourseTimeList != null && useCourseTimeList.Count > 0) {
+                        var hourseModel = useCourseTimeList.FindAll(n => n.SubjectId == item.SubjectId && n.ProjectId == item.ProjectId).First();
+                        decimal useTimePrice = Convert.ToInt32(hourseModel.Course_Time) * unitPrice;
+                        item.TotalSelaPrice = item.TotalSelaPrice - useTimePrice;
+                    }
+                });
+            }
+            return Json(list);
         }
 
 

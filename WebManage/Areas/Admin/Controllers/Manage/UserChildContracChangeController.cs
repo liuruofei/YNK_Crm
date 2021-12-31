@@ -51,7 +51,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             int total = 0;
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             PageList<UserChildContracModel> pageModel = new PageList<UserChildContracModel>();
-            var list = _currencyService.DbAccess().Queryable(@"(select c.*,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName from C_Contrac_Child c left join C_Contrac_User contracU on c.StudentUid=contracU.StudentUid
+            var list = _currencyService.DbAccess().Queryable(@"(select c.*,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName,contracU.Amount from C_Contrac_Child c left join C_Contrac_User contracU on c.StudentUid=contracU.StudentUid
                 left join Sys_User cc on c.CC_Uid=cc.User_ID where c.CampusId=@CampusId)", "orginSql").AddParameters(new { CampusId = campusId })
                 .WhereIF(contraProperty > -1, "orginSql.Contra_Property=@property").AddParameters(new { property = contraProperty })
                 .WhereIF(studymode > 0, "orginSql.StudyMode=@studyModes").AddParameters(new { studyModes = studymode })
