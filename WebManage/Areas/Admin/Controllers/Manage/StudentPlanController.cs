@@ -152,25 +152,25 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime4 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 17:10");
                             var thanStartTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 17:30");
                             var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:30");
-                            if ((startTimestr >= thanStartTime1 && endTimestr <= thanendTime1) || (startTimestr >= thanStartTime1 && startTimestr < thanendTime1 && endTimestr >= thanendTime1))
+                            if ((startTimestr >= thanStartTime1 && endTimestr <= thanendTime1) || (startTimestr >= thanStartTime1 && startTimestr < thanendTime1 && endTimestr >= thanendTime1) || (endTimestr >= thanStartTime1 && endTimestr < thanendTime1))
                             {
-                                it.Eight_Ten_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Eight_Ten_OlockTitle+="  "+ iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
-                            else if ((startTimestr >= thanStartTime2 && endTimestr <= thanendTime2) || (startTimestr >= thanStartTime2 && startTimestr < thanendTime2 && endTimestr >= thanendTime2))
+                            else if ((startTimestr >= thanStartTime2 && endTimestr <= thanendTime2) || (startTimestr >= thanStartTime2 && startTimestr < thanendTime2 && endTimestr >= thanendTime2) || (endTimestr >= thanStartTime2 && endTimestr < thanendTime2))
                             {
-                                it.Ten_Twelve_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Ten_Twelve_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
-                            else if ((startTimestr >= thanStartTime3 && endTimestr <= thanendTime3) || (startTimestr >= thanStartTime3 && startTimestr < thanendTime3 && endTimestr >= thanendTime3))
+                            else if ((startTimestr >= thanStartTime3 && endTimestr <= thanendTime3) || (startTimestr >= thanStartTime3 && startTimestr < thanendTime3 && endTimestr >= thanendTime3) || (endTimestr >= thanStartTime3 && endTimestr < thanendTime3))
                             {
-                                it.Thirteen_Fifteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Thirteen_Fifteen_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
-                            else if ((startTimestr >= thanStartTime4 && endTimestr <= thanendTime4) || (startTimestr >= thanStartTime4 && startTimestr < thanendTime4 && endTimestr >= thanendTime4))
+                            else if ((startTimestr >= thanStartTime4 && endTimestr <= thanendTime4) || (startTimestr >= thanStartTime4 && startTimestr < thanendTime4 && endTimestr >= thanendTime4)|| (endTimestr >= thanStartTime4 && endTimestr < thanendTime4))
                             {
-                                it.Fifteen_Seventeen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Fifteen_Seventeen_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
-                            else if ((startTimestr >= thanStartTime5 && endTimestr <= thanendTime5) || (startTimestr >= thanStartTime5 && startTimestr < thanendTime5 && endTimestr >= thanendTime5))
+                            else if ((startTimestr >= thanStartTime5 && endTimestr <= thanendTime5) || (startTimestr >= thanStartTime5 && startTimestr < thanendTime5 && endTimestr >= thanendTime5) || (endTimestr >= thanStartTime5&& endTimestr < thanendTime5))
                             {
-                                it.Seventeen_Nineteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Seventeen_Nineteen_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
                             if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent)
                                 it.CourseComent += iv.Comment;
@@ -586,23 +586,23 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime4 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 17:10");
                             var thanStartTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 17:30");
                             var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:30");
-                            if ((startTimestr >= thanStartTime1 && endTimestr <= thanendTime1) || (startTimestr >= thanStartTime1 && startTimestr < thanendTime1 && endTimestr >= thanendTime1))
+                            if ((startTimestr >= thanStartTime1 && endTimestr <= thanendTime1) || (startTimestr >= thanStartTime1 && startTimestr < thanendTime1 && endTimestr >= thanendTime1) || (endTimestr >= thanStartTime1 && endTimestr < thanendTime1))
                             {
                                 it.Eight_Ten_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
-                            else if ((startTimestr >= thanStartTime2 && endTimestr <= thanendTime2) || (startTimestr >= thanStartTime2 && startTimestr < thanendTime2 && endTimestr >= thanendTime2))
+                            else if ((startTimestr >= thanStartTime2 && endTimestr <= thanendTime2) || (startTimestr >= thanStartTime2 && startTimestr < thanendTime2 && endTimestr >= thanendTime2) || (endTimestr >= thanStartTime2 && endTimestr < thanendTime2))
                             {
                                 it.Ten_Twelve_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
-                            else if ((startTimestr >= thanStartTime3 && endTimestr <= thanendTime3) || (startTimestr >= thanStartTime3 && startTimestr < thanendTime3 && endTimestr >= thanendTime3))
+                            else if ((startTimestr >= thanStartTime3 && endTimestr <= thanendTime3) || (startTimestr >= thanStartTime3 && startTimestr < thanendTime3 && endTimestr >= thanendTime3) || (endTimestr >= thanStartTime3 && endTimestr < thanendTime3))
                             {
                                 it.Thirteen_Fifteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
-                            else if ((startTimestr >= thanStartTime4 && endTimestr <= thanendTime4) || (startTimestr >= thanStartTime4 && startTimestr < thanendTime4 && endTimestr >= thanendTime4))
+                            else if ((startTimestr >= thanStartTime4 && endTimestr <= thanendTime4) || (startTimestr >= thanStartTime4 && startTimestr < thanendTime4 && endTimestr >= thanendTime4) || (endTimestr >= thanStartTime4 && endTimestr < thanendTime4))
                             {
                                 it.Fifteen_Seventeen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
-                            else if ((startTimestr >= thanStartTime5 && endTimestr <= thanendTime5) || (startTimestr >= thanStartTime5 && startTimestr < thanendTime5 && endTimestr >= thanendTime5))
+                            else if ((startTimestr >= thanStartTime5 && endTimestr <= thanendTime5) || (startTimestr >= thanStartTime5 && startTimestr < thanendTime5 && endTimestr >= thanendTime5) || (endTimestr >= thanStartTime5 && endTimestr < thanendTime5))
                             {
                                 it.Seventeen_Nineteen_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
