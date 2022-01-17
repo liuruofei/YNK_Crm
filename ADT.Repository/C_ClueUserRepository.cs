@@ -234,7 +234,7 @@ namespace ADT.Repository
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
-        public ResResult SaveClueRecord(C_ClueUser_Record record)
+        public ResResult SaveClueRecord(ClueRecordInput input)
         {
             ResResult rsg = new ResResult();
             using (var db = SqlSugarHelper.GetInstance())
@@ -242,7 +242,22 @@ namespace ADT.Repository
                 try
                 {
                     db.BeginTran();
+                    C_ClueUser_Record record = new C_ClueUser_Record() {
+                        CampusId = input.CampusId,
+                        ClueId=input.ClueId,
+                        Follow_Content=input.Follow_Content,
+                        Follow_Date=input.Follow_Date.Value,
+                        ContracRate=input.ContracRate,
+                        Is_Visit=input.Is_Visit,
+                        CreateUid=input.CreateUid
+                    };
                     C_ClueUser clue= db.Queryable<C_ClueUser>().Where(n => n.ClueId == record.ClueId).First();
+                    if (string.IsNullOrEmpty(clue.CC_Uid))
+                    {
+                        rsg.code = 0;
+                        rsg.msg = "无法添加线索记录,请先分配顾问";
+                        return rsg;
+                    }
                     //添加记录
                     record.CC_Uid = clue.CC_Uid;
                     record.CreateTime = DateTime.Now;
@@ -255,6 +270,20 @@ namespace ADT.Repository
                         clue.Is_Visit = record.Is_Visit;
                         clue.Visit_Date = record.Visit_Date;
                         db.Updateable<C_ClueUser>(clue).ExecuteCommand();
+                    }
+                    //创建待办任务
+                    if (input.TaskDate.HasValue&&!string.IsNullOrEmpty(input.TaskContent)) {
+                        C_ClueTask task = new C_ClueTask();
+                        task.TaskDate = input.TaskDate.Value;
+                        task.TaskContent = input.TaskContent;
+                        task.ClueId = input.ClueId;
+                        task.CreateUid = input.CreateUid;
+                        task.CC_Uid = clue.CC_Uid; ;
+                        task.CreateTime = DateTime.Now;
+                        task.CampusId = input.CampusId;
+                        task.ImportLevel = input.ImportLevel;
+                        task.TaskStutas = 0;
+                        var result = db.Insertable<C_ClueTask>(task).ExecuteCommand();
                     }
                     db.CommitTran();
                     rsg.code = 200;

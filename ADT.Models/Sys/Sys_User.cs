@@ -70,5 +70,10 @@ namespace ADT.Models
         /// </summary>
         public int CampusId { get; set; }
 
+        /// <summary>
+        /// 绑定微信关注公众号openId
+        /// </summary>
+        public string OpenId { get; set; }
+
     }
 }

@@ -12,10 +12,7 @@ namespace ADT.Models.InputModel
         /// 线索id
         /// </summary>
         public int ClueId { get; set; }
-        /// <summary>
-        /// 跟踪者uid
-        /// </summary>
-        public int CC_Uid { get; set; }
+
         /// <summary>
         /// 跟踪内容
         /// </summary>
@@ -24,7 +21,7 @@ namespace ADT.Models.InputModel
         /// 跟踪计划
         /// </summary>
         public string Follow_Plan { get; set; }
-        public DateTime Follow_Date { get; set; }
+        public DateTime? Follow_Date { get; set; }
 
         public int ContracRate { get; set; }
 
@@ -42,5 +39,29 @@ namespace ADT.Models.InputModel
 
         public string CreateUid { get; set; }
 
+        /// <summary>
+        /// 校区Id
+        /// </summary>
+        public int CampusId { get; set; }
+
+        /// <summary>
+        /// 跟踪者uid
+        /// </summary>
+        public string CC_Uid { get; set; }
+
+
+        /// <summary>
+        /// 任务时间
+        /// </summary>
+        public DateTime? TaskDate { get; set; }
+        /// <summary>
+        /// 任务内容
+        /// </summary>
+        public string TaskContent { get; set; }
+
+        /// <summary>
+        /// 待办重要等级
+        /// </summary>
+        public int ImportLevel { get; set; }
     }
 }

@@ -29,7 +29,7 @@ namespace ADT.Repository.IRepository
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
-        ResResult SaveClueRecord(C_ClueUser_Record record);
+        ResResult SaveClueRecord(ClueRecordInput record);
 
 
         /// <summary>

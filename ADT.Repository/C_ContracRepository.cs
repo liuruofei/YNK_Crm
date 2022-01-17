@@ -148,6 +148,7 @@ namespace ADT.Repository
                         child.Pay_Amount = 0;
                         child.Saler_Amount = input.Saler_Amount;
                         child.Added_Amount = input.Added_Amount;
+                        child.IsUseAddedAmount = 0;
                         child.SignIn_Data = DateTime.Now;
                         child.StartTime = input.StartTime;
                         child.StudentUid = contrac.StudentUid;
@@ -317,6 +318,7 @@ namespace ADT.Repository
                                     child.Saler_Amount = Math.Round(childInput.Original_Amount * (childInput.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
                                     child.Discount_Amount = childInput.Original_Amount - childInput.Saler_Amount;
                                     child.Added_Amount = childInput.Added_Amount;
+                                    child.IsUseAddedAmount = 0;
                                     child.Cycle = childInput.Cycle;
                                     child.StudyStatus = childInput.StudyStatus;
                                     child.StartTime = childInput.StartTime;
@@ -404,6 +406,7 @@ namespace ADT.Repository
                                 child.Saler_Amount = Math.Round(childInput.Original_Amount * (childInput.ContraRate / 10), 2, MidpointRounding.AwayFromZero);
                                 child.Discount_Amount = childInput.Original_Amount - childInput.Saler_Amount;
                                 child.Added_Amount = childInput.Added_Amount;
+                                child.IsUseAddedAmount = 0;
                                 child.Cycle = childInput.Cycle;
                                 child.StudyStatus = childInput.StudyStatus;
                                 child.StartTime = childInput.StartTime;
@@ -1395,6 +1398,14 @@ namespace ADT.Repository
                         {
                             string childContrac = childContracs[i];
                             C_Contrac_Child ite = db.Queryable<C_Contrac_Child>().Where(v => v.Contra_ChildNo.Equals(childContrac)).First();
+                            if (ite.IsUseAddedAmount > 0) {
+                                rsg.code = 0;
+                                rsg.msg = "该合同额外优惠已被使用,无法重复使用额外优惠";
+                                return rsg;
+                            }
+                            if (collection.AddedAmount > 0) {
+                                ite.IsUseAddedAmount = 1;
+                            }
                             listchild.Add(ite);
                         }
                         //插入课时和更新课时
@@ -1414,8 +1425,7 @@ namespace ADT.Repository
                         }
                         decimal payAmountTotal = 0;//总共付款
                         //遍历子合同
-                        listchild.ForEach(item =>
-                        {
+                        foreach (var item in listchild) {
                             decimal childBackAmount = 0;
                             var chidlContracRate = item.ContraRate > 0 ? item.ContraRate / 10 : 1;
                             //判断子合同是否已付款完成
@@ -1432,7 +1442,17 @@ namespace ADT.Repository
                                     List<C_Contrac_Child_Detail> listDetail = db.Queryable<C_Contrac_Child_Detail>().Where(itv => itv.Contra_ChildNo.Equals(item.Contra_ChildNo)).ToList();
                                     if (listCourse.Count == 0)
                                     {
+                                        decimal realSum = 0;
                                         decimal detailSum = 0;
+                                        collecationDetail.ForEach(it =>
+                                        {
+                                            realSum += it.Amount;
+                                        });
+                                        if (realSum!= (collection.Amount + collection.AddedAmount)) {
+                                            rsg.code = 0;
+                                            rsg.msg = "充值金额和分配明细不相等,请重新确认";
+                                            return rsg;
+                                        }
                                         collecationDetail.ForEach(it =>
                                         {
                                             decimal unitPrice = 0;
@@ -1459,10 +1479,11 @@ namespace ADT.Repository
                                             if (Convert.ToInt32((it.Amount - lessAmount) / unitPrice) > child_detail.Course_Time)
                                             {
                                                 childBackAmount += Convert.ToInt32((Convert.ToInt32((it.Amount - lessAmount) / unitPrice) - child_detail.Course_Time)) * unitPrice;
-                                                detailSum +=Convert.ToInt32(child_detail.Course_Time)* unitPrice;
+                                                detailSum += Convert.ToInt32(child_detail.Course_Time) * unitPrice;
                                                 ucourse.Course_Time = child_detail.Course_Time;
                                             }
-                                            else {
+                                            else
+                                            {
                                                 detailSum += it.Amount - lessAmount;
                                                 ucourse.Course_Time = Convert.ToInt32((it.Amount - lessAmount) / unitPrice);
                                             }
@@ -1495,7 +1516,7 @@ namespace ADT.Repository
                                             realSum += it.Amount;
                                         });
                                         //分配余额一定和到账收据总金额相等
-                                        if (realSum - collection.DeductAmount == (collection.Amount+collection.AddedAmount))
+                                        if (realSum - collection.DeductAmount == (collection.Amount + collection.AddedAmount))
                                         {
                                             collecationDetail.ForEach(it =>
                                             {
@@ -1517,7 +1538,7 @@ namespace ADT.Repository
                                                         unitPrice = subjectModel.Lvel3Price * chidlContracRate;
                                                         break;
                                                 }
-                                                var updateCourseModel = listCourse.Find(c => c.SubjectId == child_detail.SubjectId&& c.ProjectId == child_detail.ProjectId && c.Contra_ChildNo.Equals(child_detail.Contra_ChildNo));
+                                                var updateCourseModel = listCourse.Find(c => c.SubjectId == child_detail.SubjectId && c.ProjectId == child_detail.ProjectId && c.Contra_ChildNo.Equals(child_detail.Contra_ChildNo));
                                                 if (updateCourseModel == null)
                                                 {
                                                     C_User_CourseTime ucourse = new C_User_CourseTime();
@@ -1529,7 +1550,8 @@ namespace ADT.Repository
                                                         detailSum += Convert.ToInt32(child_detail.Course_Time) * unitPrice;
                                                         ucourse.Course_Time = child_detail.Course_Time;
                                                     }
-                                                    else {
+                                                    else
+                                                    {
                                                         detailSum += it.Amount - lessAmount;
                                                         ucourse.Course_Time = Convert.ToInt32((it.Amount - lessAmount) / unitPrice);
                                                     }
@@ -1563,17 +1585,19 @@ namespace ADT.Repository
                                                             updateCourseModel.Course_Time += Convert.ToInt32((it.Amount - lessAmount) / unitPrice);
                                                             detailSum += it.Amount - lessAmount;
                                                         }
-                                                        else {
-                                                            var usPrice =Convert.ToInt32(child_detail.Course_Time - updateCourseModel.Course_Time)*unitPrice;
+                                                        else
+                                                        {
+                                                            var usPrice = Convert.ToInt32(child_detail.Course_Time - updateCourseModel.Course_Time) * unitPrice;
                                                             updateCourseModel.Course_Time += child_detail.Course_Time - updateCourseModel.Course_Time;
                                                             detailSum += usPrice;
-                                                            childBackAmount += (it.Amount - lessAmount- usPrice);
+                                                            childBackAmount += (it.Amount - lessAmount - usPrice);
 
                                                         }
                                                         childBackAmount += lessAmount;
 
                                                     }
-                                                    else {
+                                                    else
+                                                    {
                                                         childBackAmount += it.Amount;
                                                     }
                                                     //新代码截止
@@ -1590,6 +1614,12 @@ namespace ADT.Repository
                                             item.Pay_Amount += detailSum;
                                             item.Last_Pay_Amount = detailSum;
                                         }
+                                        else
+                                        {
+                                            rsg.code = 0;
+                                            rsg.msg = "充值金额和分配明细不相等,请重新确认";
+                                            return rsg;
+                                        }
 
                                     }
                                 }
@@ -1597,19 +1627,30 @@ namespace ADT.Repository
                                 {
                                     var classVmodel = db.Queryable<C_Class>().Where(c => c.ClassId == item.ClassId).First();
                                     //根据所付款计算课时，剩余余额存入用户余额
-                                    decimal sumToatal = collectionAmount + collection.DeductAmount+collection.AddedAmount;
+                                    decimal sumToatal = collectionAmount + collection.DeductAmount + collection.AddedAmount;
                                     decimal detailSum = 0;
                                     if (listCourse.Count == 0)
                                     {
-                                        var coursePrice = classVmodel.Price * chidlContracRate;
-                                        var lessAmount = sumToatal % coursePrice;
-                                        var classCourseTime = (sumToatal - lessAmount) / coursePrice;
+                                        var classPrice = classVmodel.Price * chidlContracRate;
+                                        decimal classUnitPrice = 0;
+                                        var upLess = classPrice%Convert.ToInt32(classVmodel.Course_Time);
+                                        classUnitPrice=(classPrice- upLess)/ Convert.ToInt32(classVmodel.Course_Time);
+                                        var lessAmount = sumToatal % classUnitPrice;
+                                        var classCourseTime = (sumToatal - lessAmount) / classUnitPrice;
                                         C_User_CourseTime ucourse = new C_User_CourseTime();
                                         ucourse.Contra_ChildNo = item.Contra_ChildNo;
                                         ucourse.ClassId = item.ClassId;
-                                        ucourse.Class_Course_Time = Convert.ToInt32(classCourseTime);
-                                        childBackAmount += lessAmount;
-                                        detailSum += (sumToatal - lessAmount);
+                                        //一次性付款
+                                        if (sumToatal == classPrice)
+                                        {
+                                            ucourse.Class_Course_Time = classVmodel.Course_Time;
+                                            detailSum = sumToatal;
+                                        }
+                                        else {
+                                            ucourse.Class_Course_Time = Convert.ToInt32(classCourseTime);
+                                            childBackAmount += lessAmount;
+                                            detailSum += (sumToatal - lessAmount);
+                                        }
                                         ucourse.Class_Course_UseTime = 0;
                                         ucourse.Course_Time = 0;
                                         ucourse.Course_UseTime = 0;
@@ -1626,14 +1667,24 @@ namespace ADT.Repository
                                     {
                                         listCourse.ForEach(iv =>
                                         {
-                                            var coursePrice = classVmodel.Price * chidlContracRate;
-                                            var lessAmount = sumToatal % coursePrice;
-                                            var newClassCourseTime = (sumToatal - lessAmount) / coursePrice;
-                                            iv.Class_Course_Time += Convert.ToInt32(newClassCourseTime);
+                                            var classPrice = classVmodel.Price * chidlContracRate;
+                                            decimal classUnitPrice =0;
+                                            var upLess = classPrice % Convert.ToInt32(classVmodel.Course_Time);
+                                            classUnitPrice =(classPrice- upLess)/ Convert.ToInt32(classVmodel.Course_Time);
+                                            var lessAmount = sumToatal % classUnitPrice;
+                                            var newClassCourseTime = (sumToatal - lessAmount) / classUnitPrice;
+                                            if (item.Pay_Amount + sumToatal== item.Saler_Amount)
+                                            {
+                                                iv.Class_Course_Time = classVmodel.Course_Time;
+                                                detailSum += sumToatal;
+                                            }
+                                            else {
+                                                iv.Class_Course_Time += Convert.ToInt32(newClassCourseTime);
+                                                detailSum += (sumToatal - lessAmount);
+                                                childBackAmount += lessAmount;
+                                            }
                                             iv.UpdateUid = uid;
                                             iv.UpdateTime = DateTime.Now;
-                                            detailSum += (sumToatal - lessAmount);
-                                            childBackAmount += lessAmount;
                                         });
                                         listCourse[0].SubjectId = classVmodel.SubjectId;
                                         updateUcourse.Add(listCourse[0]);
@@ -1644,15 +1695,20 @@ namespace ADT.Repository
                             }
                             stduentU.Amount = userAmount + childBackAmount;
                             payAmountTotal += item.Pay_Amount;
+                            //总额排除额外优惠
+                            if (collection.AddedAmount > 0)
+                            {
+                                payAmountTotal = payAmountTotal - item.Added_Amount;
+                            }
                             if (item.Pay_Amount >= item.Saler_Amount)
                             {
                                 item.Pay_Stutas = (int)ConstraChild_Pay_Stutas.PayOk;
                             }
-                            else if (item.Pay_Amount > 0 && item.Pay_Amount <item.Saler_Amount) {
+                            else if (item.Pay_Amount > 0 && item.Pay_Amount < item.Saler_Amount)
+                            {
                                 item.Pay_Stutas = (int)ConstraChild_Pay_Stutas.PartPay;
                             }
-
-                        });
+                        }
                         //更新子合同
                         db.Updateable<C_Contrac_Child>(listchild).ExecuteCommand();
 
@@ -1668,7 +1724,7 @@ namespace ADT.Repository
                         //更新主合同
                         string manContraNo = listchild[0].ContraNo;
                         C_Contrac contrac = db.Queryable<C_Contrac>().Where(ite => ite.ContraNo.Equals(manContraNo)).First();
-                        contrac.Pay_Amount = contrac.Pay_Amount + payAmountTotal;
+                        contrac.Pay_Amount =payAmountTotal;
                         var allChild = db.Queryable<C_Contrac_Child>().Where(v => v.ContraNo.Equals(contrac.ContraNo)).ToList();
                         var payChilds = listchild.FindAll(ite => ite.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk);
                         var partChilds = listchild.FindAll(ite => ite.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PartPay);
@@ -1725,6 +1781,11 @@ namespace ADT.Repository
                     if (input.Id > 0)
                     {
                         C_Collection collection = db.Queryable<C_Collection>().Where(f => f.Id == input.Id).First();
+                        if (collection.PayStatus == 1) {
+                            rsg.code = 0;
+                            rsg.msg = "确认收款已经完成,此次修改保存无效";
+                            return rsg;
+                        }
                         collection.Amount = input.Amount;
                         collection.PayMothed = input.PayMothed;
                         collection.PayImg = input.PayImg;
@@ -1762,7 +1823,15 @@ namespace ADT.Repository
                         collection.StudentUid = input.StudentUid;
                         collection.PayMothed = input.PayMothed;
                         collection.DeductAmount = input.DeductAmount;
-                        collection.AddedAmount = input.AddedAmount;
+                        var useAddedAny = db.Queryable<C_Collection>().Where(n => n.RelationShip_Contras == input.RelationShip_Contras && n.AddedAmount > 0).First();
+                        //额外优惠未用，则刻继续使用
+                        if (useAddedAny == null)
+                        {
+                            collection.AddedAmount = input.AddedAmount;
+                        }
+                        else {
+                            collection.AddedAmount = 0;
+                        }
                         var result = db.Insertable<C_Collection>(collection).ExecuteReturnIdentity();
                         if (result > 0 && input.CollectionDetail != null && input.CollectionDetail.Count > 0)
                         {

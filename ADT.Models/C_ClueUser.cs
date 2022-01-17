@@ -15,6 +15,12 @@ namespace ADT.Models
         /// 学生名称
         /// </summary>
         public string Student_Name { get; set; }
+
+        /// <summary>
+        /// 签约用户uid
+        /// </summary>
+        public int Contrac_StudentUid { get; set; }
+
         /// <summary>
         /// 性别
         /// </summary>

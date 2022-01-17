@@ -23,6 +23,10 @@ namespace WebManage
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                }).ConfigureLogging((webBuilder, logding) => {
+                    logding.AddFilter("System", LogLevel.Warning);
+                    logding.AddFilter("Microsoft", LogLevel.Warning);
+                    logding.AddLog4Net();
                 });
     }
 }

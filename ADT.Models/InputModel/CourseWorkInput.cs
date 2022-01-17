@@ -81,6 +81,11 @@ namespace ADT.Models.InputModel
         /// </summary>
         public int CampusId { get; set; }
 
+        /// <summary>
+        /// 试听用户
+        /// </summary>
+        public string ListeningName { get; set; }
+
         public int Status { get; set; }
         public DateTime CreateTime { get; set; }
         public string CreateUid { get; set; }

@@ -26,6 +26,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.Tasks;
+using WebManage.Models;
 using WebManage.Models.Res;
 
 namespace WebManage
@@ -41,7 +42,6 @@ namespace WebManage
             repository = LogManager.CreateRepository("NETCoreRepository");
             // 指定配置文件
             XmlConfigurator.Configure(repository, new FileInfo("log4net.config"));
-            log = LogManager.GetLogger(Startup.repository.Name, typeof(Startup));
         }
 
         public IConfiguration Configuration { get; }
@@ -78,6 +78,10 @@ namespace WebManage
 
             //将配置绑定到JwtSettings实例中
             services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
+
+            //绑定微信配置
+            services.Configure<WXSetting>(Configuration.GetSection("WXSetting"));
+
 
             //解决编码
             services.Configure<WebEncoderOptions>(options =>
@@ -191,6 +195,8 @@ namespace WebManage
                 .PropertiesAutowired();
             //注入单个类
             builder.RegisterType<JwtSettings>().AsImplementedInterfaces().PropertiesAutowired();
+            //注入单个类
+            builder.RegisterType<WXSetting>().AsImplementedInterfaces().PropertiesAutowired();
             //注入单个类
             builder.RegisterType<RedisConfig>().AsImplementedInterfaces().PropertiesAutowired();
             //注入程序集应用层

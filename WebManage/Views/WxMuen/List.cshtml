@@ -1,0 +1,126 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" content="text/html;charset=UTF-8" http-equiv="Content-Type">
+    <title>课程列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <!--基础js-->
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <script src="http://crm.younengkao.com/assets/js/jquery-3.2.1.min.js"></script>
+    <script src="http://crm.younengkao.com/assets/libs/layui/layui.js"></script>
+    <script src="http://crm.younengkao.com/assets/js/httpBase2.js"></script>
+    <style type="text/css">
+        .courSecontent {
+            padding: 2rem 2rem;
+        }
+
+        .timeHeard {
+            padding: 2rem 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="timeHeard">
+       <input  placeholder="输入crm系统学员名称或者老师名称,请核对后再绑定，有效性只有一次" name="UseName"/><input  type="button" value="绑定crm系统"  onclick="saveOpenId()"/>
+    </div>
+    <div class="courSecontent">
+
+    </div>
+    <script type="text/javascript">
+        var openId = '';
+        //此页面是菜单二级页面
+        $(function () {
+            redirectToAuthPage();
+        })
+        function redirectToAuthPage() {
+            var link = location.href;
+            //第二步获取网页code
+            var code = getUrlParam('code');
+            $.ajax({
+                url: "http://crm.younengkao.com/WeiChat/QueryOpenID",//获取api签名
+                type: "post",
+                data:{ code: code },
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: "json",
+                success: function (data) {
+                    openId = data.openid;
+                    cehckOpenId(openId);
+                },
+                error: function (error) {
+
+                }
+            });
+
+        }
+        //检查是否绑定
+        function cehckOpenId(openid) {
+            $.ajax({
+                url: "http://crm.younengkao.com/WeiChat/CheckOpenId",//绑定OpenId
+                type: "post",
+                data: { openId: openId},
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: "json",
+                success: function (data) {
+                    if (data.code == 0) {
+                        $("#timeHeard").show();
+                    }
+                    else if(data.code==200){
+
+                    }
+                }
+            });
+        }
+        
+
+        //绑定crm系统
+        function saveOpenId() {
+            var userName = $("input[name='UseName']").val();
+            if (userName.trim() == "") {
+                layer.msg("请输入你的crm系统用户名称");
+                return false;
+            }
+            $.ajax({
+                url: "http://crm.younengkao.com/WeiChat/SaveOpenID",//绑定OpenId
+                type: "post",
+                data: { openId: openId, userName:userName},
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: "json",
+                success: function (data) {
+                    layer.msg(data.msg);
+                }
+            });
+        }
+        
+        function getUrlParam(name) {
+            var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+            let url = window.location.href;
+            let search = url.split('?')[1]
+            //console.log(search)
+            if (search) {
+                var r = search.substr(0).match(reg)
+                if (r !== null) return unescape(r[2])
+                return null
+            } else {
+                return null
+            }
+        }
+        function getUrlCode() {
+            var url = location.search; //获取url中"?"符后的字符串
+            var theRequest = new Object();
+            if (url.indexOf("?") != -1) {
+                var str = url.substr(1);
+                strs = str.split("&");
+                for (var i = 0; i < strs.length; i++) {
+                    theRequest[strs[i].split("=")[0]] = (strs[i].split("=")[1]);
+                }
+            }
+            return theRequest;
+        }
+    </script>
+</body>
+</html>

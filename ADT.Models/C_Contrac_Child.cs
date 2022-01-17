@@ -75,6 +75,12 @@ namespace ADT.Models
         public decimal Added_Amount { get; set; }
 
         /// <summary>
+        /// 是否已使用额外优惠
+        /// </summary>
+        public int IsUseAddedAmount { get; set; }
+
+
+        /// <summary>
         /// 是否联报优惠
         /// </summary>
         public int IsPreferential { get; set; }

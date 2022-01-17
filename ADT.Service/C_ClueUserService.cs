@@ -40,7 +40,7 @@ namespace ADT.Service
         /// </summary>
         /// <param name="record"></param>
         /// <returns></returns>
-        public ResResult SaveClueRecord(C_ClueUser_Record record) {
+        public ResResult SaveClueRecord(ClueRecordInput record) {
             return _clueUserRepository.SaveClueRecord(record);
         }
 

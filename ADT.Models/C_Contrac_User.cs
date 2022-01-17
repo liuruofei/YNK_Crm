@@ -158,6 +158,11 @@ namespace ADT.Models
         /// 备注
         /// </summary>
         public string Remarks { get; set; }
+        /// <summary>
+        /// 绑定微信关注公众号openId
+        /// </summary>
+        public string OpenId { get; set; }
+
         public int Status { get; set; }
         public DateTime CreateTime { get; set; }
         public string CreateUid { get; set; }
