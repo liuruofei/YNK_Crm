@@ -1,0 +1,318 @@
+﻿
+<div style="margin-top: 15px; margin-left: 10px; margin-right: 10px">
+    <div style="text-align:right;" class="layui-form"  >
+        <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left: 5px;display: none">导出</button>
+        <select id="status" name="status" lay-filter="status">
+            <option value="1">有任务</option>
+            <option value="2">无任务</option>
+        </select>
+    </div>
+    <table class="layui-table" >
+        <tbody id="plantbody">
+            <tr><td colspan='8' rowspan='6' style="text-align:center;font-weight:700"> </td> </tr>
+        </tbody>
+    </table>
+</div>
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+        .planPart {
+            border-color: rgb(224, 224, 224);
+            background-color: yellowgreen;
+            box-shadow: 0px 0px 0px 1px #fff;
+            color: white;
+            font-size:12px;
+        }
+        .planPartBlue {
+            border-color: rgb(224, 224, 224);
+            background-color: cadetblue;
+            box-shadow: 0px 0px 0px 1px #fff;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+        var wkDate = dateFtt("yyyy-MM-dd", new Date());
+        function planSearch(status) {
+            layui.use(['form','admin', 'adminForm'], function () {
+                     var admin = layui.admin;
+                    var adminForm = layui.adminForm;
+                    var form = layui.form;
+                     $("#plantbody").html("");
+                     adminForm.load({
+                        url: "@Url.Action("QueryStudentPlan")",
+                         data: { atTime: wkDate,status: status},
+                        dataType: 'json',
+                        callBack: function (rou) {
+                            if (rou != null) {
+                                var result = rou;
+                                $("#plantbody").append("<tr>");
+                                $("#plantbody").append("<td style='text-align:center;' colspan='8'><h2>" + wkDate + "</h2></td>");
+                                $("#plantbody").append("</tr>");
+                                $("#plantbody").append("<tr>");
+                                $("#plantbody").append("<td style='text-align:center;' colspan='8'><h3>当日任务学员</h3></td>");
+                                $("#plantbody").append("</tr>");
+                                $("#plantbody").append("<tr>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700'>序号</td>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:90px'>时间段</td>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700;min-width:100px'>班级/1对1</td>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700'>教师/责任Ta</td>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:150px;'>当日任务</td>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700;min-width:100px'>作业</td>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:90px'>到校时间</td>");
+                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:90px'>离校时间</td>");
+                                $("#plantbody").append("</tr>");
+                                for (var i = 0; i < result.length; i++) {
+                                    var planVmodel = {
+                                        Id:0,
+                                        workTtile:'',
+                                        workDate: result[i].WorkDate,
+                                        startTime: '8:00',
+                                        endTime: '10:00',
+                                        StudentUid: result[i].StudentUid
+                                    }
+                                    for (var trRow = 0; trRow < 6; trRow++) {
+                                        if (trRow == 0) {
+                                            var trStr = "<tr>";
+                                            trStr += "<td style='width:80px;' rowspan='6'>" + result[i].Student_Name + "</td>";
+                                            console.log(result[i].Eight_Ten_Reversion);
+                                            for (var j = 0; j < 7; j++) {
+                                                if (j == 0) {
+                                                    trStr += "<td>8:00-10:00</td>";
+                                                }
+                                                if (j == 1) {
+                                                    trStr += "<td><div class='planPart'>" + (result[i].Eight_Ten_Id < 1 ? (result[i].Eight_Ten_OlockTitle != null ? result[i].Eight_Ten_OlockTitle:'') : '') + "</div></td>";
+                                                }
+                                                if (j == 2) {
+                                                    trStr += "<td>"+ (result[i].Eight_Ten_TeacherName != null ? result[i].Eight_Ten_TeacherName : '') + "</td>";
+                                                }
+                                                if (j == 3) {
+                                                    planVmodel.Id = result[i].Eight_Ten_Id;
+                                                    planVmodel.workTtile = result[i].Eight_Ten_OlockTitle;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Eight_Ten_Reversion == false ? (planVmodel.Id>0&&result[i].Eight_Ten_OlockTitle != null? result[i].Eight_Ten_OlockTitle:'') : "有课程") + "</div></td>";
+                                                }
+                                                if (j == 4) {
+                                                    planVmodel.Id = result[i].Id;
+                                                    planVmodel.workTtile = result[i].HomeWorkComent;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td rowspan='6' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].HomeWorkComent != null ? result[i].HomeWorkComent : '') + "</td>";
+                                                }
+                                                if (j == 5) {
+                                                    planVmodel.Id = result[i].Id;
+                                                    planVmodel.workTtile = result[i].InSchoolTime;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  rowspan='6' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].InSchoolTime != null ? result[i].InSchoolTime:'') + "</td>";
+                                                }
+                                                if (j == 6) {
+                                                    planVmodel.Id = result[i].Id;
+                                                    planVmodel.workTtile = result[i].OutSchoolTime;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  rowspan='6' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].OutSchoolTime != null ? result[i].OutSchoolTime:'') + "</td>";
+                                                }
+                                            }
+                                            trStr += "</tr>";
+                                            $("#plantbody").append(trStr);
+                                        }
+                                        else if (trRow == 1) {
+                                            var trStr = "<tr>";
+                                            for (var j = 0; j < 4; j++) {
+                                                if (j == 0) {
+                                                    trStr += "<td>10:00-12:00</td>";
+                                                }
+                                                if (j == 1) {
+                                                    trStr += "<td ><div class='planPart'>" + (result[i].Ten_Twelve_Id < 1 ? (result[i].Ten_Twelve_OlockTitle != null ? result[i].Ten_Twelve_OlockTitle:''):'') + "</div></td>";
+                                                }
+                                                if (j == 2) {
+                                                    trStr += "<td>" + (result[i].Ten_Twelve_TeacherName != null ? result[i].Ten_Twelve_TeacherName : '')  + "</td>";
+                                                }
+                                                if (j == 3) {
+                                                    planVmodel.Id = result[i].Ten_Twelve_Id;
+                                                    planVmodel.workTtile = result[i].Ten_Twelve_OlockTitle;
+                                                    planVmodel.startTime = "10:00";
+                                                    planVmodel.endTime = "12:00";
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Ten_Twelve_Reversion == false ? (planVmodel.Id > 0 &&result[i].Ten_Twelve_OlockTitle != null ? result[i].Ten_Twelve_OlockTitle:''): "有课程") + "</div></td>";
+                                                }
+                                            }
+                                            trStr += "</tr>";
+                                            $("#plantbody").append(trStr);
+                                        }
+                                        else if (trRow == 2) {
+                                            var trStr = "<tr>";
+                                            for (var j = 0; j < 4; j++) {
+                                                if (j == 0) {
+                                                    trStr += "<td>13:00-15:00</td>";
+                                                }
+                                                if (j == 1) {
+                                                    trStr += "<td ><div class='planPart'>" + (result[i].Thirteen_Fifteen_Id < 1 ? (result[i].Thirteen_Fifteen_OlockTitle != null ? result[i].Thirteen_Fifteen_OlockTitle:''):'') + "</div></td>";
+                                                }
+                                                if (j == 2) {
+                                                    trStr += "<td>" + (result[i].Thirteen_Fifteen_TeacherName != null ? result[i].Thirteen_Fifteen_TeacherName : '') + "</td>";
+                                                }
+                                                if (j == 3) {
+                                                    planVmodel.Id = result[i].Thirteen_Fifteen_Id;
+                                                    planVmodel.workTtile = result[i].Thirteen_Fifteen_OlockTitle;
+                                                    planVmodel.startTime = "13:00";
+                                                    planVmodel.endTime = "15:00";
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Thirteen_Fifteen_Reversion == false ? (planVmodel.Id > 0 &&result[i].Thirteen_Fifteen_OlockTitle != null ? result[i].Thirteen_Fifteen_OlockTitle:'') : "有课程") + "</div></td>";
+                                                }
+                                            }
+                                            trStr += "</tr>";
+                                            $("#plantbody").append(trStr);
+                                        }
+                                        else if (trRow == 3) {
+                                            var trStr = "<tr>";
+                                            for (var j = 0; j < 4; j++) {
+                                                if (j == 0) {
+                                                    trStr += "<td>15:00-17:00</td>";
+                                                }
+                                                if (j == 1) {
+                                                    trStr += "<td ><div class='planPart'>" + (result[i].Fifteen_Seventeen_Id < 1 ? (result[i].Fifteen_Seventeen_OlockTitle != null ? result[i].Fifteen_Seventeen_OlockTitle:''):"") + "</div></td>";
+                                                }
+                                                if (j == 2) {
+                                                    trStr += "<td>" + (result[i].Fifteen_Seventeen_TeacherName != null ? result[i].Fifteen_Seventeen_TeacherName : '')  + "</td>";
+                                                }
+                                                if (j == 3) {
+                                                    planVmodel.Id = result[i].Fifteen_Seventeen_Id;
+                                                    planVmodel.workTtile = result[i].Fifteen_Seventeen_OlockTitle;
+                                                    planVmodel.startTime = "15:00";
+                                                    planVmodel.endTime = "17:00";
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Fifteen_Seventeen_Reversion == false ? (planVmodel.Id > 0 &&result[i].Fifteen_Seventeen_OlockTitle != null ? result[i].Fifteen_Seventeen_OlockTitle:'') : "有课程")+ "</div></td>";
+                                                }
+                                            }
+                                            trStr += "</tr>";
+                                            $("#plantbody").append(trStr);
+                                        }
+                                        else if (trRow == 4) {
+                                            var trStr = "<tr>";
+                                            for (var j = 0; j < 4; j++) {
+                                                if (j == 0) {
+                                                    trStr += "<td>17:00-19:00</td>";
+                                                }
+                                                if (j == 1) {
+                                                    trStr += "<td ><div class='planPart'>" + (result[i].Seventeen_Nineteen_Id < 1 ? (result[i].Seventeen_Nineteen_OlockTitle != null ? result[i].Seventeen_Nineteen_OlockTitle:'') :'') + "</div></td>";
+                                                }
+                                                if (j == 2) {
+                                                    trStr += "<td>" + (result[i].Seventeen_Nineteen_TeacherName != null ? result[i].Seventeen_Nineteen_TeacherName : '')  + "</td>";
+                                                }
+                                                if (j == 3) {
+                                                    planVmodel.Id = result[i].Seventeen_Nineteen_Id;
+                                                    planVmodel.workTtile = result[i].Seventeen_Nineteen_OlockTitle;
+                                                    planVmodel.startTime = "17:00";
+                                                    planVmodel.endTime = "19:00";
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Seventeen_Nineteen_Reversion == false ? (planVmodel.Id > 0 &&result[i].Seventeen_Nineteen_OlockTitle != null ? result[i].Seventeen_Nineteen_OlockTitle:'') : "有课程") + "</div></td>";
+                                                }
+                                            }
+                                            trStr += "</tr>";
+                                            $("#plantbody").append(trStr);
+                                        }
+                                        else if (trRow == 5) {
+                                            var trStr = "<tr style='border-bottom: solid 2px #56a36d'>";
+                                            for (var j = 0; j < 4; j++) {
+                                                if (j == 0) {
+                                                    trStr += "<td>19:00-21:00</td>";
+                                                }
+                                                if (j == 1) {
+                                                    trStr += "<td ><div class='planPart'>" + (result[i].Nineteen_TwentyOne_Id < 1 ? (result[i].Nineteen_TwentyOne_OlockTitle != null ? result[i].Nineteen_TwentyOne_OlockTitle:''):"")+ "</div></td>";
+                                                }
+                                                if (j == 2) {
+                                                    
+                                                    trStr += "<td>" + (result[i].Nineteen_TwentyOne_TeacherName != null ? result[i].Nineteen_TwentyOne_TeacherName:'') + "</td>";
+                                                }
+                                                if (j == 3) {
+                                                    planVmodel.Id = result[i].Nineteen_TwentyOne_Id;
+                                                    planVmodel.workTtile = result[i].Nineteen_TwentyOne_OlockTitle;
+                                                    planVmodel.startTime = "19:00";
+                                                    planVmodel.endTime = "21:00";
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Nineteen_TwentyOne_Reversion == false ? (planVmodel.Id > 0 &&result[i].Nineteen_TwentyOne_OlockTitle != null ? result[i].Nineteen_TwentyOne_OlockTitle:'') : "有课程") + "</div></td>";
+                                                }
+                                            }
+                                            trStr += "</tr>";
+                                            $("#plantbody").append(trStr);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+            });
+
+        };
+      planSearch($("#status").val());
+      function exportPlan() {
+            window.location.href = '@Url.Action("ExportPlan")?starttime=' + $("#StartTime").val() + '&endtime=' +$("#EndTime").val();
+       }
+        layui.use(['form', 'admin', 'adminForm'], function () {
+            var form = layui.form;
+            form.on('select(status)', function (data) {
+                planSearch(data.value);
+            });
+        });
+      function planShow(vmodel) {
+        if (vmodel.Id==0 &&vmodel.workTtile !=null) {return false;}
+         layui.use([ 'adminList'], function () {
+            var adminList = layui.adminList;
+                adminList.form({
+                title: (vmodel.Id > 0 ? '修改' : '添加') + '任务计划',
+                type: 2,
+                width: "660px",
+                height: "530px",
+                content: vmodel.Id > 0 ? '@Url.Action("Edit")?ID=' + vmodel.Id : '@Url.Action("Add")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd",vmodel.workDate) + '&startTime=' + vmodel.startTime + '&endTime=' + vmodel.endTime,
+                end: function () {
+                    planSearch($("#status").val());
+                }
+            });
+        });
+    }
+      function planShow2(vmodel) {
+          if (vmodel.Id == 0 && vmodel.workTtile != null && vmodel.workTtile !='') {return false;}
+         layui.use([ 'adminList'], function () {
+            var adminList = layui.adminList;
+                adminList.form({
+                title: (vmodel.Id > 0 ? '修改' : '添加') + '任务计划',
+                type: 2,
+                width: "660px",
+                height: "530px",
+                content: vmodel.Id > 0 ? '@Url.Action("EditComment")?ID=' + vmodel.Id : '@Url.Action("AddComment")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd",vmodel.workDate),
+                end: function () {
+                    planSearch();
+                }
+            });
+        });
+    }
+      function dateFtt(fmt, val) { //author: meizz
+        var date = new Date(val);
+        var o = {
+            "M+": date.getMonth() + 1,     //月份
+            "d+": date.getDate(),     //日
+            "h+": date.getHours(),     //小时
+            "m+": date.getMinutes(),     //分
+            "s+": date.getSeconds(),     //秒
+            "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+            "S": date.getMilliseconds()    //毫秒
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    </script>
+}

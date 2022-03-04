@@ -175,6 +175,11 @@
                             if (result[i].StudyMode == 3) {
                                 backColor = 'brown';
                             }
+                            else {
+                                if (result[i].Work_Stutas == 1) {
+                                    backColor = '#8b9825';
+                                }
+                            }
                             events.push({
                                 id: result[i].Id,
                                 title:result[i].Work_Title + ' 教师:' + result[i].TeacherName,
@@ -219,8 +224,8 @@
             adminList.form({
                 title:'添加点评',
                 type: 2,
-                width: "760px",
-                height: "680px",
+                width: "820px",
+                height: "690px",
                 content:'@Url.Action("Add")?ID=' + wkId,
                 end: function () {
                     //重新渲染日历

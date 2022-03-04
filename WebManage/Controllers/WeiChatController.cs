@@ -21,6 +21,7 @@ using WebManage.Models;
 using ADT.Models;
 using WebManage.Models.Res;
 using SqlSugar;
+using ADT.Models.Enum;
 
 namespace WebManage.Controllers
 {
@@ -31,25 +32,26 @@ namespace WebManage.Controllers
         private const string token = "younengkao";
         private WXSetting _wxConfig;
         private IMemoryCache _cache;
+        private RedisConfig redisConfig;
         private WXAcceSSToken wxtokenModel = new WXAcceSSToken();
         private ILog log = LogManager.GetLogger(Startup.repository.Name, typeof(WeiChatController));
-        public WeiChatController(ICurrencyService currencyService, IOptions<WXSetting> wxConfig, IMemoryCache memoryCache, IHostingEnvironment hostingEnvironment)
+        public WeiChatController(ICurrencyService currencyService, IOptions<WXSetting> wxConfig, IOptions<RedisConfig> _redisConfig, IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
             _currencyService = currencyService;
             _wxConfig = wxConfig.Value;
-            _cache = memoryCache;
-            var cache = _cache.Get("accessToken");
-            if (cache == null)//如果没有该缓存
+            //_cache = memoryCache;
+            redisConfig = _redisConfig.Value;
+            if (RedisLock.KeyExists("wxAccessToken", redisConfig.RedisCon))
+            {
+                wxtokenModel = RedisLock.GetStringKey<WXAcceSSToken>("wxAccessToken", redisConfig.RedisCon);
+            }
+            else
             {
                 string url = string.Format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}", _wxConfig.AppId, _wxConfig.AppSecret);
                 string tokenCotent = HttpHelper.HttpGet(url);
                 wxtokenModel = JsonConvert.DeserializeObject<WXAcceSSToken>(tokenCotent);
-                _cache.Set("accessToken", tokenCotent, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(wxtokenModel.Expires_in)));
-            }
-            else
-            {
-                wxtokenModel = JsonConvert.DeserializeObject<WXAcceSSToken>(cache.ToString());
+                RedisLock.SetStringKey<WXAcceSSToken>("wxAccessToken", wxtokenModel, wxtokenModel.Expires_in, redisConfig.RedisCon);
             }
         }
 
@@ -86,17 +88,16 @@ namespace WebManage.Controllers
         /// </summary>
         /// <returns></returns>
         public IActionResult QueryToken() {
-            var cache = _cache.Get("accessToken");
-            if (cache == null)//如果没有该缓存
+            if (RedisLock.KeyExists("wxAccessToken", redisConfig.RedisCon))
+            {
+                wxtokenModel = RedisLock.GetStringKey<WXAcceSSToken>("wxAccessToken", redisConfig.RedisCon);
+            }
+            else
             {
                 string url = string.Format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}", _wxConfig.AppId, _wxConfig.AppSecret);
                 string tokenCotent = HttpHelper.HttpGet(url);
                 wxtokenModel = JsonConvert.DeserializeObject<WXAcceSSToken>(tokenCotent);
-                _cache.Set("accessToken", tokenCotent, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(wxtokenModel.Expires_in)));
-            }
-            else
-            {
-                wxtokenModel = JsonConvert.DeserializeObject<WXAcceSSToken>(cache.ToString());
+                RedisLock.SetStringKey<WXAcceSSToken>("wxAccessToken", wxtokenModel, wxtokenModel.Expires_in, redisConfig.RedisCon);
             }
             return Json(wxtokenModel.Access_Token);
         }
@@ -109,7 +110,7 @@ namespace WebManage.Controllers
         /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> CreateMenu() {
-            log.Info("菜单创建路径"+ _hostingEnvironment.ContentRootPath);
+            log.Info("菜单创建路径" + _hostingEnvironment.ContentRootPath);
             var response = "";
             try
             {
@@ -128,7 +129,7 @@ namespace WebManage.Controllers
                 log.Info("菜单创建返回问题" + response);
             }
             catch (Exception er) {
-                log.Info("创建菜单异常" +er.Message);
+                log.Info("创建菜单异常" + er.Message);
             }
             return Content(response);
         }
@@ -139,7 +140,7 @@ namespace WebManage.Controllers
         /// </summary>
         /// <returns></returns>
         public async Task<IActionResult> QueryOpenList() {
-            var api =string.Format("https://api.weixin.qq.com/cgi-bin/user/get?access_token={0}&next_openid=", wxtokenModel.Access_Token);
+            var api = string.Format("https://api.weixin.qq.com/cgi-bin/user/get?access_token={0}&next_openid=", wxtokenModel.Access_Token);
             string opentIdCotent = await HttpHelper.HttpGetAsync(api);
             return Content(opentIdCotent);
         }
@@ -151,10 +152,9 @@ namespace WebManage.Controllers
         /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> QueryOpenID(string code) {
-          var api= string.Format("https://api.weixin.qq.com/sns/oauth2/access_token?appid={0}&secret={1}&grant_type=authorization_code&code={2}", _wxConfig.AppId, _wxConfig.AppSecret,code);
-          string opentJson =await HttpHelper.HttpGetAsync(api);
-          log.Info("返回openId:"+opentJson);
-          return Json(opentJson);
+            var api = string.Format("https://api.weixin.qq.com/sns/oauth2/access_token?appid={0}&secret={1}&grant_type=authorization_code&code={2}", _wxConfig.AppId, _wxConfig.AppSecret, code);
+            string opentJson = await HttpHelper.HttpGetAsync(api);
+            return Json(opentJson);
         }
 
         /// <summary>
@@ -163,24 +163,26 @@ namespace WebManage.Controllers
         /// <param name="openId"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> CheckOpenId(string openId,string dateStr) {
+        public async Task<IActionResult> CheckOpenId(string openId, string dateStr) {
             ResResult rsg = new ResResult() { code = 0, msg = "未绑定" };
             //查询是否老师
             sys_user teacher = _currencyService.DbAccess().Queryable<sys_user>().Where(v => v.OpenId == openId).First();
-            C_Contrac_User student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v => v.OpenId == openId).First();
+            C_Contrac_User student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v => v.OpenId == openId || v.Elder_OpenId == openId || v.Elder2_OpenId == openId).First();
             List<CourseWorkModel> list = new List<CourseWorkModel>();
-            if (teacher != null) {
+            if (teacher != null && !string.IsNullOrEmpty(dateStr)) {
                 list = _currencyService.DbAccess().Queryable(@"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName,cl.Class_Name from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
                 left join C_Room rm on wk.RoomId=rm.Id where wk.TeacherUid=@TeacherUid and wk.AT_Date=CAST(@startStr AS date))", "orginSql")
                .AddParameters(new { startStr = dateStr, TeacherUid = teacher.User_ID })
                 .Select<CourseWorkModel>().OrderBy("orginSql.CreateTime desc").ToList();
+                list.ForEach(it => { it.StudentOpenId = "";it.TeacherOpenId = teacher.OpenId; });
             }
-            if (student != null)
+            if (student != null && !string.IsNullOrEmpty(dateStr))
             {
-                List<int> classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((ch, cl) => new object[] { JoinType.Left, ch.ClassId == cl.ClassId }).Where(ch => ch.StudentUid == student.StudentUid && ch.ClassId > 0).Select(ch => ch.ClassId).ToList();
+                int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                List<int> classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((ch, cl) => new object[] { JoinType.Left, ch.ClassId == cl.ClassId }).Where(ch => ch.StudentUid == student.StudentUid && ch.ClassId > 0&&ch.Contrac_Child_Status != contracStatus).Select(ch => ch.ClassId).ToList();
                 list = _currencyService.DbAccess().Queryable<C_Course_Work, sys_user, C_Room>((cour, ta, room) => new object[] { JoinType.Left, cour.TeacherUid == ta.User_ID, JoinType.Left, cour.RoomId == room.Id })
-                    .Where(cour => (cour.StudentUid == student.StudentUid || classIds.Contains(cour.ClasssId)) && cour.StudyMode != 3 && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00")== DateTime.Parse(dateStr+ " 00:00"))
+                    .Where(cour => (cour.StudentUid == student.StudentUid || classIds.Contains(cour.ClasssId)) && cour.StudyMode != 3 && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") == DateTime.Parse(dateStr + " 00:00"))
                     .Select<CourseWorkModel>((cour, ta, room) => new CourseWorkModel
                     {
                         Id = cour.Id,
@@ -209,6 +211,7 @@ namespace WebManage.Controllers
                         UpdateUid = cour.UpdateUid,
                         RoomName = room.RoomName
                     }).ToList();
+                   list.ForEach(it => { it.StudentOpenId =student.OpenId; it.TeacherOpenId = "";});
             }
             if (student != null || teacher != null) {
                 rsg.code = 200;
@@ -217,6 +220,45 @@ namespace WebManage.Controllers
                 return Json(rsg);
             }
             return Json(rsg);
+        }
+
+
+        public async Task<IActionResult> GetCourseDayArr(string openId, string dtMonth) {
+            ResResult ru = new ResResult() { code = 0, msg = "未获取数据" };
+            string wehredtMonth = DateTime.Parse(dtMonth).ToString("yyyy-MM");
+            List<C_Course_Work> list = new List<C_Course_Work>();
+            sys_user tacher = _currencyService.DbAccess().Queryable<sys_user>().Where(ta => ta.OpenId == openId).First();
+            C_Contrac_User student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(st => st.OpenId == openId || st.Elder_OpenId == openId || st.Elder2_OpenId == openId).First();
+            if (tacher != null) {
+                 
+                list = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(n => n.AT_Date.ToString("yyyy-MM") == wehredtMonth && n.StudyMode != 3)
+                .WhereIF(tacher != null && !string.IsNullOrEmpty(tacher.OpenId), n => n.TeacherUid == tacher.User_ID).ToList();
+            }
+            if (student != null)
+            {
+                int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                List<int> classIds = new List<int>();
+                List<C_Contrac_Child> listchild = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(te => te.StudentUid == student.StudentUid && te.StudyMode == 2&&te.Contrac_Child_Status!= contracStatus).ToList();
+                if (listchild != null && listchild.Count > 0) {
+                    listchild.ForEach(it => {
+                        classIds.Add(it.ClassId);
+                    });
+                }
+                list = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(n => n.AT_Date.ToString("yyyy-MM") == wehredtMonth && n.StudyMode != 3)
+               .WhereIF(student != null, n => n.StudentUid == student.StudentUid|| classIds.Contains(n.ClasssId)).ToList();
+            }
+            if (list != null && list.Count > 0)
+            {
+                List<string> listDay = new List<string>();
+                list.ForEach(it =>
+                {
+                    listDay.Add(it.AT_Date.ToString("yyyy-M-d"));
+                });
+                ru.data = listDay;
+                ru.code = 200;
+                ru.msg = "获取成功";
+            }
+            return Json(ru);
         }
 
         /// <summary>
@@ -232,13 +274,39 @@ namespace WebManage.Controllers
                 int result = 0;
                 //查询是否老师
                 sys_user teacher = _currencyService.DbAccess().Queryable<sys_user>().Where(v => v.User_Name == userName).First();
-                C_Contrac_User student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v => v.Student_Name == userName).First();
+                C_Contrac_User student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v => v.Student_Name == userName||v.Elder_Name==userName || v.Elder2_Name == userName).First();
                 if (teacher != null&&!string.IsNullOrEmpty(openId)) {
+                    if (!string.IsNullOrEmpty(teacher.OpenId))
+                    {
+                        rsg.msg = "该名称已被绑定,无法重复绑定";
+                        return Json(rsg);
+                    }
                     teacher.OpenId = openId;
                     result= _currencyService.DbAccess().Updateable<sys_user>(teacher).ExecuteCommand();
                 }
                 if (student != null && !string.IsNullOrEmpty(openId)) {
-                    result = _currencyService.DbAccess().Updateable<C_Contrac_User>().SetColumns(item => new C_Contrac_User { OpenId = openId }).Where(item=>item.StudentUid==student.StudentUid).ExecuteCommand();
+
+                    if (!string.IsNullOrEmpty(student.OpenId)&&userName==student.Student_Name) {
+                        rsg.msg = "该名称已被绑定,无法重复绑定";
+                        return Json(rsg);
+                    }
+                    //绑定学生
+                    if (student.Student_Name == userName) {
+                        result = _currencyService.DbAccess().Updateable<C_Contrac_User>().SetColumns(item => new C_Contrac_User { OpenId = openId }).Where(item => item.StudentUid == student.StudentUid).ExecuteCommand();
+                    }
+                    //绑定学生家长
+                    if (student.Elder_Name == userName)
+                    {
+                        result = _currencyService.DbAccess().Updateable<C_Contrac_User>().SetColumns(item => new C_Contrac_User { Elder_OpenId = openId }).Where(item => item.StudentUid == student.StudentUid).ExecuteCommand();
+                    }
+                    //绑定学生家长2
+                    if (student.Elder2_Name == userName)
+                    {
+                        result = _currencyService.DbAccess().Updateable<C_Contrac_User>().SetColumns(item => new C_Contrac_User { Elder2_OpenId = openId }).Where(item => item.StudentUid == student.StudentUid).ExecuteCommand();
+                    }
+                }
+                if (student == null && teacher == null) {
+                    rsg.msg = "系统用户不存在,绑定失败";
                 }
                 if (result > 0) {
                     rsg.code = 200;
@@ -248,6 +316,76 @@ namespace WebManage.Controllers
             }
             catch(Exception er) {
                 log.Info("微信公众号绑定用户crm系统"+userName+"失败，失败原因"+er.Message);
+            }
+            return Json(rsg);
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetWorkModel(int wkId) {
+            ResResult rsg = new ResResult() { code = 0, msg = "获取失败" };
+            var model = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(it => it.Id == wkId).First();
+            if (model != null) {
+                rsg.data = model;
+                rsg.code = 200;
+                rsg.msg = "获取成功";
+            }
+            return Json(rsg);
+        }
+
+
+        /// <summary>
+        /// 保存点评
+        /// </summary>
+        /// <param name="openId"></param>
+        /// <param name="wkId"></param>
+        /// <param name="comment"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> SaveComment(string openId,int wkId,string comment) {
+            ResResult rsg = new ResResult() { code = 0, msg = "保存点评失败" };
+            try {
+                var model = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(it => it.Id == wkId).First();
+                var user= _currencyService.DbAccess().Queryable<sys_user>().Where(it => it.OpenId == openId).First();
+                var courseTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
+                if (wkId<1)
+                {
+                    rsg.code = 0;
+                    rsg.msg = "缺少参数,无法点评";
+                }
+                if (user.User_ID!=model.TeacherUid)
+                {
+                    rsg.code = 0;
+                    rsg.msg = "你不属于当前课程老师,无法点评";
+                }
+                else if (string.IsNullOrEmpty(comment))
+                {
+                    rsg.code = 0;
+                    rsg.msg = "点评内容不能为空";
+                }
+                else if (model.IsSendComment==1)
+                {
+                    rsg.code = 0;
+                    rsg.msg = "你的点评已被推送,无法再修改";
+                }
+                else if (DateTime.Now < courseTime)
+                {
+                    rsg.code = 0;
+                    rsg.msg = "当前课程时间还未结束，你无法点评";
+                }
+                else
+                {
+                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = comment, Work_Stutas = 1 }).Where(it => it.Id == wkId).ExecuteCommand();
+                    if (result > 0)
+                    {
+                        rsg.data = model;
+                        rsg.code = 200;
+                        rsg.msg = "点评成功";
+                    }
+                }
+
+            }
+            catch (Exception er)
+            {
+                rsg.msg ="保存点评失败，失败原因"+er.Message;
+                log.Info("保存点评失败，失败原因" + er.Message);
             }
             return Json(rsg);
         }

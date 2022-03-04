@@ -1,0 +1,218 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="SubjectId" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">科目分类</label>
+            <div class="layui-input-inline">
+                <select name="SubjectId" lay-filter="SubjectId"></select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">科目</label>
+            <div class="layui-input-inline">
+                <select name="ProjectId" lay-filter="ProjectId"></select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+            <legend>科目单元</legend>
+        </fieldset>
+        <div style="padding:9px 16px">
+            <button type="button" class="btn btn-primary btn-lg" id="btnAddProject">
+                添加科目单元
+            </button>
+            <table class="layui-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>单元名称</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="child_Project">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script type="text/html" id="templateChild">
+        {{each data item index}}
+        <tr>
+            <td>{{index}} <input type="hidden" name="UnitId" value="{{item.UnitId}}" /></td>
+            <td><input  name="UnitName" value="{{item.UnitName}}"/></td>
+            <td>
+                <button type="button"  onclick="remove(this)">删除</button>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script type="text/html" id="templateAdd">
+        <tr>
+            <td>
+                <input type="hidden" name="UnitId" value="0" />
+            </td>
+            <td>
+                <input type="text" name="UnitName" />
+            </td>
+            <td><button type="button" onclick="remove(this)">删除</button></td>
+        </tr>
+    </script>
+    <script>
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        if (r.UnitList != undefined && r.UnitList != null) {
+                            var html = template("templateChild", { data: r.UnitList});
+                            document.getElementById("child_Project").innerHTML = html;
+                        }
+                        adminForm.load({
+                        url: "@Url.Action("QuerySubject","ContracUser")",
+                        dataType: 'json',
+                        callBack: function (rou) {
+                            if (rou.data != null) {
+                                var result = rou.data;
+                                for (var i = 0; i < result.length; i++) {
+                                    if (r != undefined && r.SubjectId != null && r.SubjectId == result[i].SubjectId) {
+                                        $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName +'</option>');
+                                        bindProject(r.SubjectId, r.ProjectId);
+                                    } else {
+                                        $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                                        if (i == 0) {
+                                            bindProject(result[i].SubjectId);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        });
+                    }
+                });
+            },
+            Save: function (data) {
+                data.field.UnitList = [];
+                $("#child_Project>tr").each(function (i, ite) {
+                    var td = $(ite).find("td");
+                    var UnitId = td.find("input[name='UnitId']").val();
+                    var UnitName = td.find("input[name='UnitName']").val();
+                    data.field.UnitList.push({ UnitId: UnitId,UnitName:UnitName});
+                });
+                if (data.field.UnitList.length < 1) {
+                    layer.msg("请添加单元科目");
+                    return false;
+                }
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        App.Load();
+        form.on('select(SubjectId)', function (data) {
+            var subjectId = data.value;
+            if (subjectId > 0) {
+                document.getElementById("child_Project").innerHTML = "";
+                bindProject(subjectId);
+            }
+        });
+        form.on('select(ProjectId)', function (data) {
+            var projectId = data.value;
+            if (projectId > 0) {
+                document.getElementById("child_Project").innerHTML = "";
+                adminForm.load({
+                url: "@Url.Action("GetProjetUnitByProjectId")",
+                data:{projectId:projectId },
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        var result = rou.data;
+                        var html = template("templateChild", { data:result});
+                        document.getElementById("child_Project").innerHTML = html;
+                    }
+                  }
+                });
+            }
+        });
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+
+        $("#btnAddProject").click(function () {
+            $("#child_Project").append($("#templateAdd").html());
+        })
+    });
+        function remove(obj) {
+            var unitId = $(obj).parents("tr").find("td").find("input[name='UnitId']").val();
+            if (unitId < 1) {
+                $(obj).parents("tr").remove();
+            }
+        }
+        function bindProject(subjectId, defaultProjectId) {
+            layui.use(['adminForm'], function () {
+                var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryProject")",
+                data: { subjectId: subjectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='ProjectId']").html("");
+                        var result = rou.data;
+                        for (var i = 0; i < result.length; i++) {
+                            if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0 && defaultProjectId == result[i].ProjectId) {
+                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + ' selected>' + result[i].ProjectName + '</option>');
+                            }
+                            else {
+                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                        }
+                    }
+                }
+              });
+            });
+        }
+
+    </script>
+}

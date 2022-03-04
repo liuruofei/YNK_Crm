@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "WPYxZ+FGlGYSB6TUs1Rg42r/EzgxuJNMCE0h63uXxXjBX6YBenFhtPoLoiMHro/TmB6ppbwxLS1qqyIgsrt5ng==",
+  "dgSpecHash": "lZtP+xiny/ue3l9fQSHTwCqEQvC54gjyYHJH/EIiWFVjBt1UsRQSc/ucQCdK1NB9dbMMlHhKL+jm1qBPbJR2PA==",
   "success": true,
   "projectFilePath": "D:\\YNK_Crm\\WebManage\\WebManage.csproj",
   "expectedPackageFiles": [
@@ -64,11 +64,12 @@
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\2.2.0\\microsoft.extensions.fileproviders.physical.2.2.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\2.2.0\\microsoft.extensions.filesystemglobbing.2.2.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.hosting.abstractions\\2.0.0\\microsoft.extensions.hosting.abstractions.2.0.0.nupkg.sha512",
-    "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging\\2.0.0\\microsoft.extensions.logging.2.0.0.nupkg.sha512",
-    "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\2.0.0\\microsoft.extensions.logging.abstractions.2.0.0.nupkg.sha512",
+    "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging\\2.0.1\\microsoft.extensions.logging.2.0.1.nupkg.sha512",
+    "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\2.0.1\\microsoft.extensions.logging.abstractions.2.0.1.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging.configuration\\2.0.0\\microsoft.extensions.logging.configuration.2.0.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging.console\\2.0.0\\microsoft.extensions.logging.console.2.0.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging.debug\\2.0.0\\microsoft.extensions.logging.debug.2.0.0.nupkg.sha512",
+    "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.logging.log4net.aspnetcore\\2.1.0\\microsoft.extensions.logging.log4net.aspnetcore.2.1.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.objectpool\\2.2.0\\microsoft.extensions.objectpool.2.2.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.options\\2.2.0\\microsoft.extensions.options.2.2.0.nupkg.sha512",
     "C:\\Users\\86158\\.nuget\\packages\\microsoft.extensions.options.configurationextensions\\2.2.0\\microsoft.extensions.options.configurationextensions.2.2.0.nupkg.sha512",

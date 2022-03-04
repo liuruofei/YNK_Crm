@@ -282,14 +282,22 @@
                 title: (wkId ? '调整' : '添加') + '排课',
                 type: 2,
                 width: "760px",
-                height: "680px",
+                height: "720px",
                 content: wkId ? '@Url.Action("Edit")?ID=' + wkId : '@Url.Action("Add")?ID=0&teacherName=' + teacherName+'&dataStr=' + dataStr,
                 end: function () {
                     //重新渲染日历
                     calendar.refetchEvents();
                     if (iniTable != undefined && iniTable != null) {
+                        var stTime = $("input[name='StartTime']").val();
+                        var edTime = $("input[name='EndTime']").val();
+                        if (stTime == "" || stTime == null) {
+                            stTime = defaultStartTime;
+                        }
+                        if (edTime == "" || edTime == null) {
+                            edTime = defaultEndTime;
+                        }
                         iniTable.reload({
-                            where: { startStr: defaultStartTime, endStr: defaultEndTime, userName: $("#txtTitle").val(),subjectId:$("select[name='SubjectId']").val(), projectId:$("select[name='ProjectId']").val()}
+                            where: { startStr: stTime, endStr: edTime, userName: $("#txtTitle").val(),subjectId:$("select[name='SubjectId']").val(), projectId:$("select[name='ProjectId']").val()}
                         });
                     }
                 }

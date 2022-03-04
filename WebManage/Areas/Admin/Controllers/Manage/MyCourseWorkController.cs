@@ -1,14 +1,21 @@
-﻿using ADT.Models;
+﻿using ADT.Common;
+using ADT.Models;
+using ADT.Models.Enum;
 using ADT.Models.ResModel;
 using ADT.Service.IService;
+using log4net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WebManage.Areas.Admin.Filter;
 using WebManage.Areas.Admin.Models;
+using WebManage.Models;
 using WebManage.Models.Res;
 
 namespace WebManage.Areas.Admin.Controllers.Manage
@@ -19,11 +26,16 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         private ICurrencyService _currencyService;
         private IC_ContracService _contrac;
         private IC_CourseWorkService _courseWork;
-        public MyCourseWorkController(ICurrencyService currencyService, IC_ContracService contrac, IC_CourseWorkService courseWork)
+        private RedisConfig _redsconfig;
+        private WXSetting _wxConfig;
+        private ILog log = LogManager.GetLogger(Startup.repository.Name, typeof(MyCourseWorkController));
+        public MyCourseWorkController(ICurrencyService currencyService, IC_ContracService contrac, IOptions<WXSetting> wxConfig, IOptions<RedisConfig> redisConfig, IC_CourseWorkService courseWork)
         {
             _currencyService = currencyService;
             _contrac = contrac;
             _courseWork = courseWork;
+            _wxConfig = wxConfig.Value;
+            _redsconfig = redisConfig.Value;
         }
 
         protected override void Init()
@@ -92,6 +104,194 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 }
             }
             return Json(rsg);
+        }
+        /// <summary>
+        /// 手动推送点评消息
+        /// </summary>
+        /// <param name="wkId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public IActionResult SendCourseComment(int wkId) {
+            ResResult rsg = new ResResult() { code = 200, msg = "推送点评成功" };
+            try
+            {
+                var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+                WXAcceSSToken wxtokenModel = new WXAcceSSToken(); ;
+                if (RedisLock.KeyExists("wxAccessToken", _redsconfig.RedisCon))
+                {
+                    wxtokenModel = RedisLock.GetStringKey<WXAcceSSToken>("wxAccessToken", _redsconfig.RedisCon);
+                }
+                else
+                {
+                    string url = string.Format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}", _wxConfig.AppId, _wxConfig.AppSecret);
+                    string tokenCotent = HttpHelper.HttpGet(url);
+                    wxtokenModel = JsonConvert.DeserializeObject<WXAcceSSToken>(tokenCotent);
+                    RedisLock.SetStringKey<WXAcceSSToken>("wxAccessToken", wxtokenModel, wxtokenModel.Expires_in, _redsconfig.RedisCon);
+                }
+                CourseWorkModel item = _currencyService.DbAccess().Queryable<C_Course_Work, sys_user, C_Room, C_Contrac_User>((cour, ta, room, u) => new object[] { JoinType.Left, cour.TeacherUid == ta.User_ID, JoinType.Left, cour.RoomId == room.Id, JoinType.Left, cour.StudentUid == u.StudentUid })
+                    .Where(cour => cour.Id == wkId).Select<CourseWorkModel>((cour, ta, room, u) => new CourseWorkModel
+                    {
+                        Id = cour.Id,
+                        AT_Date = cour.AT_Date,
+                        ClasssId = cour.ClasssId,
+                        Comment = cour.Comment,
+                        Contra_ChildNo = cour.Contra_ChildNo,
+                        CourseTime = cour.CourseTime,
+                        CreateTime = cour.CreateTime,
+                        CreateUid = cour.CreateUid,
+                        EndTime = cour.EndTime,
+                        ProjectId = cour.ProjectId,
+                        RangTimeId = cour.RangTimeId,
+                        RoomId = cour.RoomId,
+                        StartTime = cour.StartTime,
+                        StudentUid = cour.StudentUid,
+                        StudyMode = cour.StudyMode,
+                        SubjectId = cour.SubjectId,
+                        TA_Uid = cour.TA_Uid,
+                        TeacherName = ta.User_Name,
+                        TeacherUid = cour.TeacherUid,
+                        Work_Stutas = cour.Work_Stutas,
+                        Work_Title = cour.Work_Title,
+                        Status = cour.Status,
+                        UpdateTime = cour.UpdateTime,
+                        UpdateUid = cour.UpdateUid,
+                        RoomName = room.RoomName,
+                        Student_Name = u.Student_Name,
+                        StudentOpenId = u.OpenId,
+                        ElderOpenId = u.Elder_OpenId,
+                        Elder2OpenId = u.Elder2_OpenId,
+                        TeacherOpenId = ta.OpenId,
+                        IsSendComment=cour.IsSendComment
+                    }).First();
+                if (string.IsNullOrEmpty(item.Comment))
+                {
+                    rsg.code = 0;
+                    rsg.msg = "当前课程未点评,无法推送";
+                    return Json(rsg);
+                }
+                if (item.IsSendComment == 1)
+                {
+                    rsg.code = 0;
+                    rsg.msg = "当前课程已被推送,无法连续推送";
+                    return Json(rsg);
+                }
+                string msg = "课程点评消息";
+                string wkTime = item.AT_Date.ToString("yyyy-MM-dd") + " " + item.StartTime + "-" + item.EndTime;
+                if (item.StudyMode == 1)
+                {
+                    //推送消息给学生
+                    if (!string.IsNullOrEmpty(item.StudentOpenId) && !string.IsNullOrEmpty(item.Comment)&&!string.IsNullOrEmpty(wxtokenModel.Access_Token))
+                    {
+                        SendMsg(item.StudentOpenId, _wxConfig.TemplateIdComend, wxtokenModel.Access_Token, msg, item.Work_Title, item.TeacherName, wkTime, item.Comment, item.Student_Name, item.Id);
+                    }
+                    //推送消息给家长1
+                    if (!string.IsNullOrEmpty(item.ElderOpenId) && !string.IsNullOrEmpty(item.Comment) && !string.IsNullOrEmpty(wxtokenModel.Access_Token))
+                    {
+                       SendMsg(item.ElderOpenId, _wxConfig.TemplateIdComend, wxtokenModel.Access_Token, msg, item.Work_Title, item.TeacherName, wkTime, item.Comment, item.Student_Name, item.Id);
+                    }
+                    //推送消息给家长2
+                    if (!string.IsNullOrEmpty(item.Elder2OpenId) && !string.IsNullOrEmpty(item.Comment) && !string.IsNullOrEmpty(wxtokenModel.Access_Token))
+                    {
+                        SendMsg(item.Elder2OpenId, _wxConfig.TemplateIdComend, wxtokenModel.Access_Token, msg, item.Work_Title, item.TeacherName, wkTime, item.Comment, item.Student_Name, item.Id);
+                    }
+                }
+                else if (item.StudyMode == 2)
+                {
+                    List<string> studentOpenIds = new List<string>();
+                    List<string> elderOpenIds = new List<string>();
+                    List<string> elderOpenIds2 = new List<string>();
+                    int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                    List<C_Contrac_User> listchild = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Contrac_User>((contrac, u) => new object[] { JoinType.Left, contrac.StudentUid == u.StudentUid }).Where(contrac => contrac.ClassId == item.ClasssId&&contrac.Contrac_Child_Status!= contracStatus).Select((contrac, u)=>u).ToList();
+                    listchild.ForEach(iv =>
+                    {
+                        if (!string.IsNullOrEmpty(iv.OpenId)&&!studentOpenIds.Contains(iv.OpenId))
+                        {
+                            studentOpenIds.Add(iv.OpenId);
+                        }
+                        if (!string.IsNullOrEmpty(iv.Elder_OpenId) && !elderOpenIds.Contains(iv.Elder_OpenId))
+                        {
+                            elderOpenIds.Add(iv.Elder_OpenId);
+                        }
+                        if (!string.IsNullOrEmpty(iv.Elder2_OpenId) && !elderOpenIds2.Contains(iv.Elder2_OpenId))
+                        {
+                            elderOpenIds2.Add(iv.Elder2_OpenId);
+                        }
+                    });
+                    //推送给学生
+                    studentOpenIds.ForEach(iv =>
+                    {
+                        var studentUser = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(cm => cm.OpenId == iv).First();
+                        if (!string.IsNullOrEmpty(item.Comment) && studentUser != null&&wxtokenModel!=null && !string.IsNullOrEmpty(wxtokenModel.Access_Token))
+                        {
+                            SendMsg(iv, _wxConfig.TemplateIdComend, wxtokenModel.Access_Token, msg, item.Work_Title, item.TeacherName, wkTime, item.Comment, studentUser.Student_Name, item.Id);
+                        }
+                    });
+                    //推送给家长1
+                    elderOpenIds.ForEach(iv =>
+                    {
+                        var studentUser = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(cm => cm.Elder_OpenId == iv).First();
+                        if (!string.IsNullOrEmpty(item.Comment) && studentUser != null&&wxtokenModel!=null && !string.IsNullOrEmpty(wxtokenModel.Access_Token))
+                        {
+                            SendMsg(iv, _wxConfig.TemplateIdComend, wxtokenModel.Access_Token, msg, item.Work_Title, item.TeacherName, wkTime, item.Comment, studentUser.Student_Name, item.Id);
+                        }
+                    });
+                    //推送给家长2
+                    elderOpenIds2.ForEach(iv =>
+                    {
+                        var studentUser = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(cm => cm.Elder2_OpenId == iv).First();
+                        if (!string.IsNullOrEmpty(item.Comment)&&studentUser!=null && wxtokenModel != null && !string.IsNullOrEmpty(wxtokenModel.Access_Token))
+                        {
+                            SendMsg(iv, _wxConfig.TemplateIdComend, wxtokenModel.Access_Token, msg, item.Work_Title, item.TeacherName, wkTime, item.Comment, studentUser.Student_Name, item.Id);
+                        }
+                    });
+                }
+                var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { IsSendComment = 1 }).Where(it => it.Id == wkId).ExecuteCommand();
+                if (result > 0)
+                {
+                    rsg.code = 200;
+                    rsg.msg = "推送点评成功";
+                }
+
+            }
+            catch (Exception er) {
+                log.Info(er.Message);
+                rsg.code = 0;
+                rsg.msg = "推送异常,异常原因"+er.Message;
+            }
+            return Json(rsg);
+        }
+
+        public void SendMsg(string openId, string templateId, string wxaccessToken, string msg, string wkTitle, string wkTeacher, string wkTime, string commend, string studentName, int wkId)
+        {
+            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
+            jsonObject.Add("touser", openId);   // openid
+            jsonObject.Add("template_id", templateId);
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            Dictionary<string, string> first = new Dictionary<string, string>();
+            first.Add("value", msg);
+            first.Add("color", "#173177");
+            Dictionary<string, string> keyword1 = new Dictionary<string, string>();
+            keyword1.Add("value", studentName);
+            keyword1.Add("color", "#173177");
+            Dictionary<string, string> keyword2 = new Dictionary<string, string>();
+            keyword2.Add("value", wkTitle);
+            keyword2.Add("color", "#173177");
+            Dictionary<string, string> keyword3 = new Dictionary<string, string>();
+            keyword3.Add("value", "任课老师");
+            keyword3.Add("color", "#173177");
+            Dictionary<string, string> remark = new Dictionary<string, string>();
+            remark.Add("value", "点评内容:" + commend);
+            remark.Add("color", "#173177");
+            data.Add("first", first);
+            data.Add("keyword1", keyword1);
+            data.Add("keyword2", keyword2);
+            data.Add("keyword3", keyword3);
+            data.Add("remark", remark);
+            jsonObject.Add("data", data);
+            jsonObject.Add("url", "http://crm.younengkao.com/WxTemplateChild/Index?wkId=" + wkId);//设置链接
+            var jsonStr = JsonConvert.SerializeObject(jsonObject);
+            var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
+            string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
         }
 
 

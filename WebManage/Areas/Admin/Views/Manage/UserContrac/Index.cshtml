@@ -19,8 +19,6 @@
                             <select id="StudyMode" name="StudyMode" lay-filter="StudyMode">
                                 <option value="1">一对一</option>
                                 <option value="2">小班</option>
-                                <option value="3">付费教材</option>
-                                <option value="4">考团</option>
                             </select>
                         </div>
                     </div>
@@ -44,6 +42,7 @@
     <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">修改合同</a>
 
     <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="seach">查看</a>
 </script>
 
 @section css{
@@ -78,17 +77,16 @@
             cellMinWidth: 100,
             cols: [[
                 { type: 'numbers' },
-                { field: 'ContraNo', title: '合同编号', sort: true },
-                { field: 'Student_Name', title: '学生姓名', sort: true },
+                { field: 'ContraNo', title: '合同编号', sort: true, fixed: 'left' },
+                { field: 'Student_Name', title: '学生姓名', sort: true, fixed: 'left' },
                 { field: 'Constra_Status_Name', title: '合同状态', sort: true },
-                { field: 'StudyModesName', title: '所含子合同类型', sort: true, width: 150 },
-                { field: 'CCUserName', title: '签约人', sort: true },
-                { field: 'CampusName', title: '签约校区', sort: true },
+                { field: 'StudyModesName', title: '所含子合同类型', sort: true, width: 120 },
+                { field: 'Amount', title: '学员余额', sort: true },
                 { field: 'CreateTime', title: '创建日期', sort: true },
                 { field: 'Total_Amount', title: '合同总金额', sort: true },
                 { field: 'Pay_Amount', title: '已充总金额', sort: true },
-                { field: 'Amount', title: '学员余额', sort: true },
-                {align: 'center', toolbar: '#tableBar', title: '操作', width: 300}
+                { field: 'CCUserName', title: '签约人', sort: true },
+                { align: 'center', toolbar: '#tableBar', title: '操作', width: 300, fixed: 'right'}
             ]]
         });
 
@@ -120,11 +118,14 @@
             if (layEvent === 'edit') { // 修改
                 showEditModel(data);
             } else if (layEvent === 'del') { // 删除
-                doDel(data.CourseId);
+                doDel(data.ContraNo);
             } else if (layEvent === 'audit') {
                 Audit({ Id: data.ContracId, thought: true });
             } else if (layEvent === 'auditRreject') {
                 Audit({ Id: data.ContracId, thought: false });
+            }
+            else if (layEvent == "seach") {
+                seachModel(data);
             }
         });
         //审核状态
@@ -152,9 +153,22 @@
             }
             });
         }
+        //查看合同
+        function seachModel(vmodel) {
+            adminList.form({
+            title: '修改合同',
+            type: 2,
+            width: "1060px",
+                height: "690px",
+                content: '@Url.Action("SeachContrc")?contraNo=' + vmodel.ContraNo,
+                end: function (data) {
+                    insTb.reload();
+            }
+            });
+        }
         //删除
-        function doDel(Id) {
-            adminList.delete('@Url.Action("Delete")', { Id: Id}, function () {
+        function doDel(contrcNo) {
+            adminList.delete('@Url.Action("Delete")', { contrcNo: contrcNo}, function () {
                 insTb.reload();
             });
         }

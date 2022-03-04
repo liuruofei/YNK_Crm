@@ -101,13 +101,14 @@
     <div class="layui-form-item">
         <label class="layui-form-label">点评</label>
         <div class="layui-input-block">
-            <textarea name="Comment" class="layui-textarea"></textarea>
+            <textarea name="Comment" class="layui-textarea" style="height:150px;"></textarea>
         </div>
     </div>
     <div class="layui-form-item positionbottomtop"></div>
     <div class="layui-form-item text-right positionbottom">
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
         <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存点评</button>
+        <button class="layui-btn" type="button" value="推送点评至家长和学生" id="sendComment">推送点评至公众号</button>
     </div>
 </form>
 
@@ -311,6 +312,15 @@
         form.on('submit(modelUserSubmit)', function (data) {
             App.Save(data);
             return false;
+        });
+            $("#sendComment").click(function () {
+            adminForm.Save({
+                url: '@Url.Action("SendCourseComment")',
+                data: { wkId:'@KeyId'},
+                callBack: function (data) {
+
+                }
+             })
         });
         function formatMinutin() {
             $(".laydate-time-list li ol").eq(2).parent("li").remove();

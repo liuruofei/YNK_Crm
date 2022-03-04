@@ -82,6 +82,37 @@ namespace WebManage.Models.Res
         public DateTime UpdateTime { get; set; }
         public string UpdateUid { get; set; }
 
+
+        /// <summary>
+        /// 学生OpenId
+        /// </summary>
+        public string StudentOpenId { get; set; }
+        /// <summary>
+        /// 家长OpenId
+        /// </summary>
+        public string ElderOpenId { get; set; }
+
+        /// <summary>
+        /// 家长2OpenId
+        /// </summary>
+        public string Elder2OpenId { get; set; }
+
+        /// <summary>
+        /// 教师OpenId
+        /// </summary>
+        public string TeacherOpenId { get; set; }
+
+        /// <summary>
+        /// 是否被推送
+        /// </summary>
+        public int IsSendComment { get; set; }
+
+        /// <summary>
+        /// 学生名称
+        /// </summary>
+        public string Student_Name { get; set; }
+
+
         /// <summary>
         /// 评语
         /// </summary>

@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADT.Repository", "..\ADT.Re
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ADT.Service", "..\ADT.Service\ADT.Service.csproj", "{0C5DF9FF-FA94-4EE6-A7A6-BC58DFC6F418}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrmApi", "..\CrmApi\CrmApi.csproj", "{B09112F6-56B7-48B8-9A45-4A2D18995A04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrmApi", "..\CrmApi\CrmApi.csproj", "{B09112F6-56B7-48B8-9A45-4A2D18995A04}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WindowsServiceDemo", "..\WindowsServiceDemo\WindowsServiceDemo.csproj", "{5128622E-4628-445A-B734-05B54AD936DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{B09112F6-56B7-48B8-9A45-4A2D18995A04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B09112F6-56B7-48B8-9A45-4A2D18995A04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B09112F6-56B7-48B8-9A45-4A2D18995A04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5128622E-4628-445A-B734-05B54AD936DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5128622E-4628-445A-B734-05B54AD936DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5128622E-4628-445A-B734-05B54AD936DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5128622E-4628-445A-B734-05B54AD936DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

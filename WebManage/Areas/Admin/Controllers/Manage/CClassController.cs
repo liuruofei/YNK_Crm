@@ -121,6 +121,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     project.UpdateTime = DateTime.Now;
                     project.UpdateUid = userId;
                     var result = _currencyService.DbAccess().Updateable<C_Class>(project).ExecuteCommand();
+                    if (vmodel.SubjectId != project.SubjectId) {
+                        _currencyService.DbAccess().Updateable<C_User_CourseTime>().SetColumns(con=>new C_User_CourseTime{SubjectId=vmodel.SubjectId }).Where(con=>con.ClassId==project.ClassId).ExecuteCommand();
+                    }
                     if (result > 0)
                     {
                         rsg.code = 200;

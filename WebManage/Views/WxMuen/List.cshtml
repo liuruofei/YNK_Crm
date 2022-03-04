@@ -2,125 +2,511 @@
     Layout = null;
 }
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" content="text/html;charset=UTF-8" http-equiv="Content-Type">
-    <title>课程列表</title>
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <!--基础js-->
-    <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
-    <script src="http://crm.younengkao.com/assets/js/jquery-3.2.1.min.js"></script>
-    <script src="http://crm.younengkao.com/assets/libs/layui/layui.js"></script>
-    <script src="http://crm.younengkao.com/assets/js/httpBase2.js"></script>
-    <style type="text/css">
-        .courSecontent {
-            padding: 2rem 2rem;
-        }
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" content="text/html;charset=UTF-8" http-equiv="Content-Type">
+        <title>课程列表</title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no" />
+        <style>
+            .box {
+                width: 100%;
+                margin: 0 auto;
+                box-sizing: border-box;
+                padding: 0 1px;
+            }
 
-        .timeHeard {
-            padding: 2rem 2rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="timeHeard">
-       <input  placeholder="输入crm系统学员名称或者老师名称,请核对后再绑定，有效性只有一次" name="UseName"/><input  type="button" value="绑定crm系统"  onclick="saveOpenId()"/>
-    </div>
-    <div class="courSecontent">
+            table {
+                width: 100%;
+            }
 
-    </div>
-    <script type="text/javascript">
-        var openId = '';
-        //此页面是菜单二级页面
-        $(function () {
+            th, td {
+                width: 100px;
+                text-align: center;
+            }
+
+            th {
+                height: 30px;
+                line-height: 30px;
+                background: #e0e5e5;
+            }
+
+            td {
+                line-height: 45px;
+                background: #f3f5f5;
+            }
+
+            .show {
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                line-height: 42px;
+                font-weight: 700;
+            }
+
+            .timeHeard {
+                padding: 1rem 0rem 1rem 0rem;
+                padding-top: 1rem;
+                text-align: center;
+                margin-top: 0rem;
+                display: flex;
+            }
+
+            .courseCotent {
+                padding: 1px 0.3rem;
+            }
+            .courseitem {
+                margin-top:2px;
+                box-shadow:2px 2px 6px 3px #ddd;
+                border-color:#ff9900;
+                padding:3px 2px 3px 0px;
+                font-size:14px;
+                display: flex;
+            }
+
+            .calardIn {
+                position: relative;
+            }
+
+                .calardIn:before {
+                    content: '';
+                    position: absolute;
+                    right: 0;
+                    bottom: 0;
+                    border: 9px solid #609063;
+                    border-top-color: transparent;
+                    border-left-color: transparent;
+                }
+
+            .commendcontainer {
+                width: 100%;
+                position: absolute; /* 给最外层元素设置绝对定位，让其内部进行滚动 */
+                top: 0;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                overflow-y: scroll;
+                -webkit-overflow-scrolling: touch; /* 增加弹性 */
+                user-select: none; /* 移动端一般会设置不可选中 */
+            }
+
+            .con {
+                width: 100%;
+                background-color: white;
+                padding-top: 0.5rem;
+            }
+
+            #dialog {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .wrapper {
+                width: 90%;
+                height:422px;
+                border-radius: 5px;
+                background: #fff;
+                font-size: 16px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap:wrap;
+            }
+                .configmComm {
+                   flex:1;
+                   display:flex;
+                }
+                    .configmComm button {
+                        height: 50px;
+                        width: 80px;
+                    }
+
+        </style>
+        <script src="http://crm.younengkao.com/assets/js/jquery-3.2.1.min.js"></script>
+        <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    </head>
+    <body>
+        <div class="commendcontainer">
+            <div class="con">
+                <div id="boxHeard" style="display:none">
+                    <div class="timeHeard">
+                        <input placeholder="crm系统学员或者老师名称" name="UseName" style=" height: 30px;margin-left: 1px;width: 100%;" /><input type="button" value="绑定crm系统" style="height:37px" id="btnSaveOpen" />
+                    </div>
+                </div>
+                <div class="show">
+                    <button id="pre" style=" width:120px; height:40px;float:left">上月</button>
+                    <span id="showtime">2019-01</span>
+                    <button id="next" style=" width:120px; height:40px;float:right">下月</button>
+                </div>
+                <div class="box" id="box">
+                </div>
+                <div class="courseCotent" id="courseCotent">
+                </div>
+            </div>
+        </div>
+        <div id="dialog">
+            <div class="wrapper">
+                <div style="width: 100%;height: 82px;padding-left:4px;">
+                    <div style="display:flex">
+                        <div>课程：</div>
+                        <div id="courseTitle" style="flex:1 auto;">课程</div>
+                    </div>
+                    <p />
+                    <div style="display:flex">
+                        <div>日期：</div>
+                        <div id="wkDate" style="flex:1 auto;"></div>
+                    </div>
+                    <p />
+                    <div style="display:flex">
+                        <div>时间：</div>
+                        <div style="flex:1 auto;"><span id="startTime"></span>-<span id="endTime"></span></div>
+                    </div>
+                </div>
+                <div style="width:100%; height:220px;padding-left:2px">
+                    <textarea name="commendText" id="commendText" style="width: 97%; height:220px; border: solid 2px #ddd;" placeholder="请输入点评内容"></textarea>
+                </div>
+                <div class="configmComm">
+                    <div style="flex:1;text-align: center;"><button onClick="saveComment()">确定</button></div>
+                    <div style="flex:1;text-align: center;"><button onClick="closeDialog()">关闭</button></div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var openId = '';
+            var wkId = 0;
+            // 获取本月第一天
+            function getMonthDay(date) {
+                date = new Date(date.valueOf())
+                date.setDate(1);
+                return date
+            }
+            // 获取本月最后一天
+            function getMonthLastDay(date) {
+                date = new Date(date.valueOf())
+                date.setMonth(date.getMonth() + 1);
+                date.setDate(0);
+                return date
+            }
+            //获取本月的时间对象集合
+            function getMonth(date) {
+                var arr = []
+                // 获取本月第一天
+                var _date = getMonthDay(date)
+                // // 获取本月最后一天
+                var dataLast = getMonthLastDay(date).getDate()
+                arr.push(new Date(_date.valueOf()))
+                // 处理本月第一天 到本月最后一天
+                for (var i = 1; i < dataLast; i++) {
+                    _date.setDate(_date.getDate() + 1)
+                    arr.push(new Date(_date.valueOf()))
+                }
+                // 向前补全，重置为本月一号
+                _date = getMonthDay(date)
+                var forln = _date.getDay()
+                for (var i = 0; i < forln; i++) {
+                    _date.setDate(_date.getDate() - 1)
+                    //arr.unshift(new Date(_date.valueOf()))
+                    arr.unshift(0);
+                }
+                // 向后补全,重置为本月最后一天
+                _date = getMonthLastDay(date)
+                forln = _date.getDay()
+                for (var i = forln; i < 6; i++) {
+                    _date.setDate(_date.getDate() + 1)
+                    // arr.push(new Date(_date.valueOf()))
+                    arr.push(0)
+                }
+                return arr
+            }
+            // 将集合渲染到页面
+            function renderTable(monthDateArr, date, apiDateArr) {
+                document.getElementById("showtime").innerHTML = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
+                var table = document.createElement('table')
+                var trTh = document.createElement('tr')
+                trTh.innerHTML = `
+                                                <th>周日</th>
+                                                <th>周一</th>
+                                                <th>周二</th>
+                                                <th>周三</th>
+                                                <th>周四</th>
+                                                <th>周五</th>
+                                                <th>周六</th>
+                                            `
+                table.appendChild(trTh)
+                var tr = document.createElement('tr')
+                for (let i in monthDateArr) {
+                    var td = document.createElement('td')
+                    if (monthDateArr[i] == 0) {
+                        td.innerHTML = "";
+                    }
+                    else {
+                        var hasvalue = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + monthDateArr[i].getDate();
+                        if ($.inArray(hasvalue, apiDateArr) > -1) {
+                            td.innerHTML = "<div class='calerdartd calardIn' dtvalue='" + hasvalue + "'>" + monthDateArr[i].getDate() + "</div>"
+                        }
+                        else {
+                            td.innerHTML = "<div class='calerdartd' dtvalue='" + hasvalue + "'>" + monthDateArr[i].getDate() + "</div>"
+                        }
+                        if (date.getMonth() + 1 == monthDateArr[i].getMonth() + 1 && date.getFullYear() == monthDateArr[i].getFullYear() && date.getDate() == monthDateArr[i].getDate()) {
+                            td.style.backgroundColor = "#83abab";
+                        }
+                    }
+                    tr.appendChild(td)
+                    if ((i * 1 + 1) % 7 === 0) {
+                        table.appendChild(tr)
+                        tr = document.createElement('tr')
+                    } else if (i == monthDateArr.length - 1) {
+                        table.appendChild(tr)
+                    }
+                }
+                document.getElementById("box").innerHTML = table.outerHTML
+                $(".calerdartd").click(function (obj) {
+                    $(".calerdartd").parent().css("background", "#f3f5f5");
+                    $(this).parent().css("background-color", "#83abab");
+                    document.getElementById("showtime").innerHTML = $(this).attr("dtvalue");
+                    cehckOpenId(openId, $(this).attr("dtvalue"));
+                });
+            }
+            var date = new Date();
+            var nowdate = new Date();
+            document.getElementById('pre').onclick = function () {
+                //date.setDate(1)
+                date.setMonth(date.getMonth() - 1)
+                if (date.getMonth() + 1 != nowdate.getMonth() + 1) {
+                    date.setDate(1)
+                }
+                else {
+                    date.setDate(nowdate.getDate())
+                }
+                bindOpenIdCourseArr(openId, date.getFullYear() + "-" + (date.getMonth() + 1));
+                cehckOpenId(openId, date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
+                //renderTable(getMonth(date), date,[]);
+            }
+            document.getElementById('next').onclick = function () {
+                //date.setDate(1)
+                date.setMonth(date.getMonth() + 1)
+                if (date.getMonth() + 1 != nowdate.getMonth() + 1) {
+                    date.setDate(1)
+                }
+                else {
+                    date.setDate(nowdate.getDate())
+                }
+                bindOpenIdCourseArr(openId, date.getFullYear() + "-" + (date.getMonth() + 1));
+                cehckOpenId(openId, date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
+                //renderTable(getMonth(date), date,[]);
+            }
             redirectToAuthPage();
-        })
-        function redirectToAuthPage() {
-            var link = location.href;
-            //第二步获取网页code
-            var code = getUrlParam('code');
-            $.ajax({
-                url: "http://crm.younengkao.com/WeiChat/QueryOpenID",//获取api签名
-                type: "post",
-                data:{ code: code },
-                contentType: 'application/x-www-form-urlencoded',
-                dataType: "json",
-                success: function (data) {
-                    openId = data.openid;
-                    cehckOpenId(openId);
-                },
-                error: function (error) {
-
-                }
-            });
-
-        }
-        //检查是否绑定
-        function cehckOpenId(openid) {
-            $.ajax({
-                url: "http://crm.younengkao.com/WeiChat/CheckOpenId",//绑定OpenId
-                type: "post",
-                data: { openId: openId},
-                contentType: 'application/x-www-form-urlencoded',
-                dataType: "json",
-                success: function (data) {
-                    if (data.code == 0) {
-                        $("#timeHeard").show();
-                    }
-                    else if(data.code==200){
+            //openId = 'oEjwO5xlzz8CofS0SojJEt2qwzGg';
+            //bindOpenIdCourseArr(openId, '2022-2');
+            //cehckOpenId(openId, '2022-2-23');
+            function redirectToAuthPage() {
+                var link = location.href;
+                //第二步获取网页code
+                var code = getUrlParam('code');
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/QueryOpenID",//获取api签名
+                    type: "post",
+                    data: { code: code },
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        var result = JSON.parse(data);
+                        openId = result.openid;
+                        var datastr = dateFtt("yyyy-MM-dd", new Date());
+                        var dtMonth = dateFtt("yyyy-M", new Date());
+                        bindOpenIdCourseArr(openId, dtMonth);
+                        cehckOpenId(openId, datastr);
+                        $("#btnSaveOpen").click(function () {
+                            saveOpenId(openId);
+                        })
+                    },
+                    error: function (error) {
 
                     }
-                }
-            });
-        }
-        
+                });
 
-        //绑定crm系统
-        function saveOpenId() {
-            var userName = $("input[name='UseName']").val();
-            if (userName.trim() == "") {
-                layer.msg("请输入你的crm系统用户名称");
-                return false;
             }
-            $.ajax({
-                url: "http://crm.younengkao.com/WeiChat/SaveOpenID",//绑定OpenId
-                type: "post",
-                data: { openId: openId, userName:userName},
-                contentType: 'application/x-www-form-urlencoded',
-                dataType: "json",
-                success: function (data) {
-                    layer.msg(data.msg);
+            //获取用户该月份的上课日期
+            function bindOpenIdCourseArr(openid, dtMonth) {
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/GetCourseDayArr",
+                    type: "post",
+                    data: { openId: openid, dtMonth: dtMonth },
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 200) {
+                            renderTable(getMonth(date), date, data.data);
+                        }
+                        else {
+                            renderTable(getMonth(date), date, []);
+                        }
+                    }
+                });
+            }
+
+            //检查是否绑定
+            function cehckOpenId(openid, datastr) {
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/CheckOpenId",//绑定OpenId
+                    type: "post",
+                    data: { openId: openid, dateStr: datastr },
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 0) {
+                            $("#boxHeard").show();
+                        }
+                        else if (data.code == 200) {
+                            $("#boxHeard").css("display", "none");
+                            //绑定课程列表
+                            $("#courseCotent").html("");
+                            $.each(data.data, function (index, item) {
+                                var courseitemStr = "<div class='courseitem'><div style='flex:1 auto;padding-top:3px;padding-left:3px;'>" + item.Work_Title + "，日期:" + item.AT_Date + ",时间:" + item.StartTime + "-" + item.EndTime + "</div>";
+                                if (item.Work_Stutas < 1 && item.TeacherOpenId != "" && item.TeacherOpenId == openid) {
+                                    courseitemStr += "<input value='点评' type='button' style='width:62px;height=45px' onclick='btnopenComment(" + item.Id + ")'/>";
+                                }
+                                else if (item.Work_Stutas >0 && item.TeacherOpenId != "" && item.TeacherOpenId == openid) {
+                                    courseitemStr += "<input value='已点评' type='button' style='width:62px;height=45px;' onclick='btnopenComment(" + item.Id + ")'/>";
+                                }
+                                courseitemStr += "</div>"
+                                $("#courseCotent").append(courseitemStr)
+                            })
+                        }
+                    }
+                });
+            }
+            function btnopenComment(Id) {
+                wkId = Id;
+                console.log(wkId);
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/GetWorkModel",//绑定OpenId
+                    type: "post",
+                    data: { wkId: Id},
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.code == 200) {
+                            var vmodel = data.data;
+                            document.getElementById("dialog").style.display = "flex";
+                            $("#courseTitle").text(vmodel.Work_Title);
+                            $("#wkDate").text(vmodel.AT_Date);
+                            $("#startTime").text(vmodel.StartTime);
+                            $("#endTime").text(vmodel.EndTime);
+                            $("#commendText").val(vmodel.Comment);
+                        }
+                        else {
+                            alert("获取失败!");
+                        }
+                    }
+                });
+
+            }
+
+            function saveComment() {
+                var comentText = $("#commendText").val();
+                if (comentText == "") {
+                    alert("评论不能为空！");
+                    return false;
                 }
-            });
-        }
-        
-        function getUrlParam(name) {
-            var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
-            let url = window.location.href;
-            let search = url.split('?')[1]
-            //console.log(search)
-            if (search) {
-                var r = search.substr(0).match(reg)
-                if (r !== null) return unescape(r[2])
-                return null
-            } else {
-                return null
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/SaveComment",//绑定OpenId
+                    type: "post",
+                    data: { openId: openId, wkId: wkId,comment: comentText},
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        alert(data.msg);
+                        if (data.code == 200) {
+                            var result = data.data;
+                            wkId = 0;
+                            $("#commendText").val("");
+                            document.getElementById("dialog").style.display = "none";
+                            var datastr = dateFtt("yyyy-MM-dd", result.AT_Date);
+                            cehckOpenId(openId, datastr);
+                        }
+                    }
+                });
             }
-        }
-        function getUrlCode() {
-            var url = location.search; //获取url中"?"符后的字符串
-            var theRequest = new Object();
-            if (url.indexOf("?") != -1) {
-                var str = url.substr(1);
-                strs = str.split("&");
-                for (var i = 0; i < strs.length; i++) {
-                    theRequest[strs[i].split("=")[0]] = (strs[i].split("=")[1]);
+
+            //绑定crm系统
+            function saveOpenId(openid) {
+                var userName = $("input[name='UseName']").val();
+                if (userName.trim() == "") {
+                    alert("请输入你的crm系统用户名称");
+                    return false;
+                }
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/SaveOpenID",//绑定OpenId
+                    type: "post",
+                    data: { openId: openid, userName: userName },
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        alert(data.msg);
+                        if (data.code == 200) {
+                            var datastr = dateFtt("yyyy-MM-dd", new Date());
+                            cehckOpenId(openId, datastr);
+                        }
+                    }
+                });
+            }
+            const closeDialog = () => {
+                wkId = 0;
+                document.getElementById("dialog").style.display = "none";
+            };
+
+            //获取编码参数
+            function getUrlParam(name) {
+                var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+                let url = window.location.href;
+                let search = url.split('?')[1]
+                if (search) {
+                    var r = search.substr(0).match(reg)
+                    if (r !== null) return unescape(r[2])
+                    return null
+                } else {
+                    return null
                 }
             }
-            return theRequest;
-        }
-    </script>
-</body>
-</html>
+            function dateFtt(fmt, val) {
+                var date = new Date(val);
+                var o = {
+                    "M+": date.getMonth() + 1,     //月份
+                    "d+": date.getDate(),     //日
+                    "h+": date.getHours(),     //小时
+                    "m+": date.getMinutes(),     //分
+                    "s+": date.getSeconds(),     //秒
+                    "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                    "S": date.getMilliseconds()    //毫秒
+                };
+                if (/(y+)/.test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+                for (var k in o)
+                    if (new RegExp("(" + k + ")").test(fmt))
+                        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                return fmt;
+            }
+
+            function formatDate(dateStr) {
+                var dataFmt = new Date(dateStr);
+                var y = dataFmt.getFullYear();
+                var m = dataFmt.getMonth() + 1;
+                m = m < 10 ? '0' + m : m;
+                var d = dataFmt.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                return y + '-' + m + '-' + d;
+            };
+        </script>
+    </body>
+    </html>
+
+

@@ -250,6 +250,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 motion.Elder_Name = user.Elder_Name;
                 motion.Elder_Phone = user.Elder_Phone;
                 motion.Elder_Wechat = user.Elder_Wechat;
+                motion.Elder2_Email = user.Elder2_Email;
+                motion.Elder2_Name = user.Elder2_Name;
+                motion.Elder2_Phone = user.Elder2_Phone;
+                motion.Elder2_Wechat = user.Elder2_Wechat;
                 motion.Grade = user.Grade;
                 motion.InSchool = user.InSchool;
                 motion.Sex = user.Sex;
@@ -273,6 +277,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     motion.Elder_Name = user.Elder_Name;
                     motion.Elder_Phone = user.Elder_Phone;
                     motion.Elder_Wechat = user.Elder_Wechat;
+                    motion.Elder2_Email = clue.Elder_Email2;
+                    motion.Elder2_Name = clue.Elder_Name2;
+                    motion.Elder2_Phone = clue.Elder_Phone2;
                     motion.Grade = user.Grade;
                     motion.InSchool = user.InSchool;
                     motion.Sex = user.Sex;
@@ -303,6 +310,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     motion.Elder_Name = clue.Elder_Name;
                     motion.Elder_Phone = clue.Elder_Phone;
                     motion.Elder_Wechat = clue.Elder_Wechat;
+                    motion.Elder2_Email = clue.Elder_Email2;
+                    motion.Elder2_Name = clue.Elder_Name2;
+                    motion.Elder2_Phone = clue.Elder_Phone2;
                     motion.Grade = clue.Grade;
                     motion.InSchool = clue.InSchool;
                     motion.Sex = clue.Sex;

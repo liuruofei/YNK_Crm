@@ -81,7 +81,7 @@
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'StudentName', title: '学员', sort: true },
+            { field: 'StudentName', title: '学员', fixed: 'left', sort: true },
             { field: 'Amount', title: '收款金额', sort: true },
             { field: 'AddedAmount', title: '使用优惠金额', sort: true },
             {
@@ -103,7 +103,7 @@
                     return d.PayStatus==0?"待确认":"已确认";
                 }
             },
-            {align: 'center', toolbar: '#tableBar', title: '操作', width: 300}
+            { align: 'center', toolbar: '#tableBar', fixed: 'right', title: '操作', width: 300}
         ]]
     });
 

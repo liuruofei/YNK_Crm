@@ -5,7 +5,7 @@
 <form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
     <input name="Id" type="hidden" value="@ViewBag.ID" />
     <input name="Contra_ChildNo" type="hidden" />
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="teacherPart">
         <div class="layui-inline">
             <label class="layui-form-label">上课教师</label>
             <div class="layui-input-block">
@@ -22,6 +22,8 @@
                     <option value="2">小班</option>
                     <option value="3">休息</option>
                     <option value="4">试听</option>
+                    <option value="5">模考</option>
+                    <option value="6">实考</option>
                 </select>
             </div>
         </div>
@@ -82,8 +84,14 @@
             </div>
         </div>
     </div>
+    <div class="layui-form-item" style="display:none" id="mockPart">
+        <label class="layui-form-label" id="spanMockTitle">模考标题</label>
+        <div class="layui-input-block">
+            <input type="text" name="mockTitle" id="mockTitle" class="layui-input" />
+        </div>
+    </div>
     <div class="layui-form-item" id="ListeningPart" style="display:none">
-        <label class="layui-form-label">试听学员</label>
+        <label class="layui-form-label" id="spanStudentName">试听学员</label>
         <div class="layui-input-block" style="position:relative">
             <input name="ListeningName" class="layui-input" type="text" />
             <div id="searcListen" class="searcListen">
@@ -94,7 +102,7 @@
         </div>
     </div>
     <div class="layui-form-item" id="ListenSubPart" style="display:none">
-        <label class="layui-form-label">试听分类</label>
+        <label class="layui-form-label" id="spanCatogalogName">试听分类</label>
         <div class="layui-input-block" style="position:relative">
             <select name="ListenSubject" lay-filter="ListenSubject"></select>
         </div>
@@ -143,7 +151,8 @@
             box-shadow: 0 10px 60px 0 rgb(29 29 31 / 9%);
             background-color: white;
             z-index: 6;
-            width: 345px;
+            width: 480px;
+            min-height:200px;
             display: none;
         }
     </style>
@@ -156,7 +165,14 @@
     <script type="text/template" id="ClassWorkTemp">
         {{each data item index}}
         <tr onclick="SetTr('{{item}}')">
-            <td><span data-StudyMode="{{item.StudyMode}}" data-childNo="{{item.Contra_ChildNo}}" data-StudentUid="{{item.StudentUid}}" data-SubjectId="{{item.SubjectId}}" data-ProjectId="{{item.ProjectId}}" data-ClasssId="{{item.ClasssId}}">{{item.StudyModeName}}</span></td>
+            <td>
+                <span data-StudyMode="{{item.StudyMode}}" data-childNo="{{item.Contra_ChildNo}}" data-StudentUid="{{item.StudentUid}}" data-SubjectId="{{item.SubjectId}}" data-ProjectId="{{item.ProjectId}}" data-ClasssId="{{item.ClasssId}}">{{item.StudyModeName}}</span>
+                {{if item.StudyMode==1}}
+                <span>({{item.Course_UseTime}}/{{item.Course_Time}})</span>
+                {{else}}
+                <span>({{item.Class_Course_UseTime}}/{{item.Class_Course_Time}})</span>
+                {{/if}}
+            </td>
         </tr>
         {{/each}}
     </script>
@@ -308,6 +324,38 @@
                             $("#ListenSubPart").show();
                             $("#lineSpanDate").text("试听日期");
                             $("#lineSpanTimeRange").text("上课时段");
+                            $("#spanStudentName").text("试听学员");
+                            $("#spanCatogalogName").text("试听分类");
+                        }
+                        else if (r.StudyMode == 5) {
+                            $("input[name='mockTitle']").val(r.Work_Title);
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#teacherPart").css("display", "none");
+                            $("#PartProject").show();
+                            $("#ListeningPart").show();
+                            $("#ListenSubPart").show();
+                            $("#spanMockTitle").text("模考标题");
+                            $("#lineSpanDate").text("模考日期");
+                            $("#lineSpanTimeRange").text("模考时段");
+                            $("#spanStudentName").text("模考学员");
+                            $("#spanCatogalogName").text("模考分类");
+                            $("#mockPart").show();
+                        }
+                        else if (r.StudyMode == 6) {
+                            $("input[name='mockTitle']").val(r.Work_Title);
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#teacherPart").css("display", "none");
+                            $("#PartProject").show();
+                            $("#ListeningPart").show();
+                            $("#ListenSubPart").show();
+                            $("#spanMockTitle").text("实考标题");
+                            $("#lineSpanDate").text("实考日期");
+                            $("#lineSpanTimeRange").text("实考时段");
+                            $("#spanStudentName").text("实考学员");
+                            $("#spanCatogalogName").text("实考分类");
+                            $("#mockPart").show();
                         }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
@@ -423,7 +471,43 @@
                 if (data.field.StudyMode == 1)
                     data.field.Work_Title = $("input[name='WorkUserName']").val();
                 else if (data.field.StudyMode ==2) {
-                    data.field.Work_Title=$("input[name='WorkClassName']").val()
+                    data.field.Work_Title = $("input[name='WorkClassName']").val();
+                }
+                else if (data.field.StudyMode == 4) {
+                    if (data.field.ProjectId == null || data.field.ProjectId == "") {
+                        layer.msg("试听科目不能为空");
+                        return false;
+                    }
+                }
+                else if (data.field.StudyMode == 5) {
+                    data.field.Work_Title = $("input[name='mockTitle']").val();
+                    if (data.field.Work_Title== "") {
+                        layer.msg("模考标题不能为空");
+                        return false;
+                    }
+                    if (data.field.ListeningName == "") {
+                        layer.msg("模考学员不能为空");
+                        return false;
+                        }
+                    if (data.field.ProjectId == null || data.field.ProjectId=="") {
+                        layer.msg("模考科目不能为空");
+                        return false;
+                    }
+                }
+                else if (data.field.StudyMode == 6) {
+                    data.field.Work_Title = $("input[name='mockTitle']").val();
+                    if (data.field.Work_Title == "") {
+                        layer.msg("实考标题不能为空");
+                        return false;
+                    }
+                    if (data.field.ListeningName == "") {
+                        layer.msg("实考学员不能为空");
+                        return false;
+                    }
+                    if (data.field.ProjectId == null || data.field.ProjectId == "") {
+                        layer.msg("实考科目不能为空");
+                        return false;
+                    }
                 }
                 adminForm.Save({
                     url: KeyId ? '@Url.Action("SaveCourseWork")' : '@Url.Action("SaveCourseWork")',
@@ -452,6 +536,7 @@
                     $("#ListenSubPart").css("display", "none");
                     $("#lineSpanDate").text("上课日期");
                     $("#lineSpanTimeRange").text("上课时段");
+                    $("#mockPart").css("display", "none");
                 }
                 else if (data.value == 2) {
                     $("#PartProject").css("display", "block");
@@ -461,6 +546,7 @@
                     $("#ListenSubPart").css("display", "none");
                     $("#lineSpanDate").text("上课日期");
                     $("#lineSpanTimeRange").text("上课时段");
+                    $("#mockPart").css("display", "none");
                 }
                 else if (data.value == 3) {
                     $("#PartTa").css("display", "none");
@@ -471,6 +557,7 @@
                     $("#ListenSubPart").css("display", "none");
                     $("#lineSpanDate").text("休息日期");
                     $("#lineSpanTimeRange").text("休息时段");
+                    $("#mockPart").css("display", "none");
                 }
                 else if (data.value == 4) {
                     $("#ClassPart").css("display", "none");
@@ -480,7 +567,37 @@
                     $("#ListenSubPart").show();
                     $("#lineSpanDate").text("试听日期");
                     $("#lineSpanTimeRange").text("上课时段");
-
+                    $("#spanStudentName").text("试听学员");
+                    $("#spanCatogalogName").text("试听分类");
+                    $("#mockPart").css("display", "none");
+                }
+                else if (data.value == 5) {
+                    $("#ClassPart").css("display", "none");
+                    $("#OneOfPart").css("display", "none");
+                    $("#teacherPart").css("display", "none");
+                    $("#PartProject").show();
+                    $("#ListeningPart").show();
+                    $("#ListenSubPart").show();
+                    $("#spanMockTitle").text("模考标题");
+                    $("#lineSpanDate").text("模考日期");
+                    $("#lineSpanTimeRange").text("模考时段");
+                    $("#spanStudentName").text("模考学员");
+                    $("#spanCatogalogName").text("模考分类");
+                    $("#mockPart").show();
+                }
+                else if (data.value == 6) {
+                    $("#ClassPart").css("display", "none");
+                    $("#OneOfPart").css("display", "none");
+                    $("#teacherPart").css("display", "none");
+                    $("#PartProject").show();
+                    $("#ListeningPart").show();
+                    $("#ListenSubPart").show();
+                    $("#spanMockTitle").text("实考标题");
+                    $("#lineSpanDate").text("实考日期");
+                    $("#lineSpanTimeRange").text("实考时段");
+                    $("#spanStudentName").text("实考学员");
+                    $("#spanCatogalogName").text("实考分类");
+                    $("#mockPart").show();
                 }
             });
             form.on('select(ListenSubject)', function (data) {
@@ -588,11 +705,19 @@
                     data: { userName: $(this).val() },
                     dataType: 'json',
                     callBack: function (rou) {
-                        if (rou.data != null) {
+                        if (rou.data != null && rou.data != []) {
                             var result = rou.data;
-                            document.getElementById("searcListen").style.display = "block";
-                            var html = template("ListenTemp", { data: result });
-                            document.getElementById("searchListenbody").innerHTML = html;
+                            if (result.length > 0) {
+                                document.getElementById("searcListen").style.display = "block";
+                                var html = template("ListenTemp", { data: result });
+                                document.getElementById("searchListenbody").innerHTML = html;
+                            }
+                            else {
+                                document.getElementById("searcListen").style.display = "none";
+                            }
+                        }
+                        else {
+                            document.getElementById("searcListen").style.display = "none";
                         }
                     }
                 });

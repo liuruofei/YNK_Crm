@@ -58,6 +58,45 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return View(vmodel);
         }
 
+        /// <summary>
+        /// 查看合同
+        /// </summary>
+        /// <param name="contraNo"></param>
+        /// <returns></returns>
+        public IActionResult SeachContrc(string contraNo)
+        {
+            ViewBag.ContraNo = contraNo;
+            ContracInfmotion vmodel = _currencyService.DbAccess().Queryable<C_Contrac, C_Contrac_User>((c, cu) => new Object[] { JoinType.Inner, c.StudentUid == cu.StudentUid }).Where((c, cu) => c.ContraNo == contraNo)
+                .Select<ContracInfmotion>((c, cu) => new ContracInfmotion
+                {
+                    CampusId = c.CampusId,
+                    ContraNo = c.ContraNo,
+                    Amount = cu.Amount,
+                    ContraCenterId = c.ContraCenterId,
+                    StudentNo = cu.Student_No,
+                    StudentName = cu.Student_Name,
+                    Sex = cu.Sex,
+                    Student_Phone = cu.Student_Phone,
+                    Grade = cu.Grade,
+                    Student_Wechat = cu.Student_Wechat,
+                    InSchool = cu.InSchool,
+                    Elder_Name = cu.Elder_Name,
+                    Elder_Phone = cu.Elder_Phone,
+                    Elder_Wechat = cu.Elder_Wechat,
+                    Birthday = cu.Birthday
+
+                }).First();
+            return View(vmodel);
+        }
+
+
+        public IActionResult SeachItem(string childContraNo, string contraNo) {
+            ViewBag.ChildContraNo = childContraNo;
+            ViewBag.ContraNo = contraNo;
+            return View();
+        }
+
+
         public IActionResult ContrcItem(string childContraNo, string contraNo)
         {
             ViewBag.ChildContraNo = childContraNo;
@@ -136,10 +175,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             var ccUse = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Inner, u.User_ID == ur.UserRole_UserID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where(u => u.User_ID == userId).Select<sys_role>().First();
             PageList<UserContracModel> pageModel = new PageList<UserContracModel>();
-            var list = _currencyService.DbAccess().Queryable(@"(select c.*,stuff((select ','+convert(varchar(25), child.StudyMode) FROM C_Contrac_Child child WHERE child.ContraNo=c.ContraNo AND child.StudentUid =c.StudentUid 
-                FOR XML PATH('')), 1, 1, '') as StudyModes,camp.CampusName,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName,contracU.Amount from C_Contrac c left join C_Contrac_User contracU on contracU.StudentUid=c.StudentUid
-                left join Sys_User cc on c.CC_Uid=cc.User_ID left join C_Campus camp on c.CampusId=camp.CampusId where c.CampusId=@CampusId)", "orginSql").AddParameters(new { CampusId = campusId })
-                .WhereIF(!string.IsNullOrEmpty(title), " charindex(@title,orginSql.Student_Name)>0 or charindex(@title,orginSql.Student_Phone)>0 charindex(@title,orginSql.ContraNo)>0").AddParameters(new { title = title })
+            string where = "";
+            if (!string.IsNullOrEmpty(title)) {
+                where += " AND  (charindex(@title,u.Student_Name)>0 or charindex(@title,cl.Class_Name)>0)";
+            }
+            var list = _currencyService.DbAccess().Queryable("(select c.*,stuff((select ','+convert(varchar(25), child.StudyMode) FROM C_Contrac_Child child left join C_Class cl on child.ClassId=cl.ClassId left join C_Contrac_User u on child.StudentUid=u.StudentUid  WHERE child.ContraNo=c.ContraNo AND child.StudentUid =c.StudentUid " + where+
+                "FOR XML PATH('')), 1, 1, '') as StudyModes,camp.CampusName,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName,contracU.Amount from C_Contrac c left join C_Contrac_User contracU on contracU.StudentUid=c.StudentUid" +
+                " left join Sys_User cc on c.CC_Uid=cc.User_ID left join C_Campus camp on c.CampusId=camp.CampusId  where c.CampusId=@CampusId)", "orginSql").AddParameters(new { CampusId = campusId })
+                .WhereIF(!string.IsNullOrEmpty(title), " charindex(@title,orginSql.Student_Name)>0 or charindex(@title,orginSql.Student_Phone)>0 or charindex(@title,orginSql.ContraNo)>0").AddParameters(new { title = title })
                 .WhereIF(studymode > 0, "charindex('" + studymode + "',orginSql.StudyModes)>0")
                 .WhereIF(ccUse != null && ccUse.Role_Name == "顾问", "orginSql.CC_Uid=@CCuid").AddParameters(new { CCuid=userId})
                 .Select<UserContracModel>("*").OrderBy("orginSql.CreateTime desc").ToPageList(page, limit, ref total);
@@ -194,6 +237,26 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             ResResult reg = new ResResult();
             reg = _contrac.Audit(Id,thought); 
             return Json(reg);
+        }
+        /// <summary>
+        /// 删除合同
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public IActionResult Delete(string contrcNo) {
+            ResResult reg = new ResResult();
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            if (!string.IsNullOrEmpty(contrcNo))
+            {
+                reg = _contrac.MasterContracCancel(contrcNo, userId);
+            }
+            else
+            {
+                reg.msg = "缺少参数";
+                reg.code = 300;
+            }
+            return Json(reg);
+
         }
     }
 }

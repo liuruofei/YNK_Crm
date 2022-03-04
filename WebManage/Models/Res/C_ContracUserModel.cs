@@ -104,6 +104,20 @@ namespace WebManage.Models.Res
         public int Status { get; set; }
         public DateTime CreateTime { get; set; }
 
+        /// <summary>
+        /// 绑定公众号OpenId
+        /// </summary>
+        public string OpenId { get; set; }
+
+        /// <summary>
+        /// 绑定的家长公众号OpenId
+        /// </summary>
+        public string Elder_OpenId { get; set; }
+        /// <summary>
+        /// 家长2OpenId
+        /// </summary>
+        public string Elder2_OpenId { get; set; }
+
 
         /// <summary>
         /// 顾问名称
@@ -119,5 +133,7 @@ namespace WebManage.Models.Res
         /// 校区名称
         /// </summary>
         public string CampusName { get; set; }
+
+
     }
 }

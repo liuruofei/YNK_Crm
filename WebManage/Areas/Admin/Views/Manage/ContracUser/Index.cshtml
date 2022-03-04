@@ -119,13 +119,29 @@
             { type: 'checkbox', fixed: 'left' },
             { type: 'numbers' },
             {
-                field: 'Student_Name', title: '学生名称', sort: true, templet: function (d) {
+                field: 'Student_Name', title: '学生名称', fixed: 'left', sort: true, templet: function (d) {
                     return "<div id='boxCounrseDetail" + d.StudentUid + "' onmouseover=\"showCourseDetailDiv(" + d.StudentUid + ");\" onmouseleave='closeTips();' >" + d.Student_Name + "</div>";
                 }
             },
             { field: 'Sex', title: '性别', sort: true,width:50 },
             { field: 'Grade', title: '年级', sort: true },
             { field: 'Student_Phone', title: '手机', sort: true },
+            { field: 'Amount', title: '余额', sort: true, width: 100 },
+            {
+                field: 'OpenId', title: '学生公众号', sort: true, width: 120, templet: function (d) {
+                    return (d.OpenId != "" && d.OpenId != null ? "<span style='color: white;background-color:green;padding:3px;'>已绑定</span>" : "未绑定");
+                }
+            },
+            {
+                field: 'OpenId', title: '家长1', sort: true, width: 120, templet: function (d) {
+                    return (d.Elder_OpenId != "" && d.Elder_OpenId != null ? "<span style='color: white;background-color:green;padding:3px;'>已绑定</span>" : "未绑定");
+                }
+            },
+            {
+                field: 'OpenId', title: '家长2', sort: true, width: 120, templet: function (d) {
+                    return (d.Elder2_OpenId != "" && d.Elder2_OpenId != null ? "<span style='color: white;background-color:green;padding:3px;'>已绑定</span>" : "未绑定");
+                }
+            },
             { field: 'CC_UserName', title: '顾问', sort: true },
             { field: 'CR_UserName', title: 'CR', sort: true },
             { field: 'CampusName', title: '校区', sort: true },
@@ -134,9 +150,8 @@
                     return (d.Student_Account != "" && d.Student_Account != null) ?"<span style='color:green'>"+d.Student_Account+" <i class='layui-icon layui-icon-ok'></i></span>":"";
                 }
             },
-            { field: 'Amount', title: '余额', sort: true, width: 100 },
             { field: 'Elder_Name', title: '联系人', sort: true },
-            { align: 'center', toolbar: '#tableBar', title: '操作', width: 250 }
+            { align: 'center', toolbar: '#tableBar', fixed: 'right' , title: '操作', width: 250 }
         ]]
     });
 

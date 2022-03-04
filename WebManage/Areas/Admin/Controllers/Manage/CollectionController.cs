@@ -49,7 +49,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var list = _currencyService.DbAccess().Queryable<C_Collection,C_Contrac_User,C_Campus,sys_user>((c, cu,ca,sy) => new Object[] { JoinType.Inner, c.StudentUid==cu.StudentUid,JoinType.Left,cu.CampusId==ca.CampusId, JoinType.Left, c.CreateUid == sy.User_ID }).WhereIF(!string.IsNullOrEmpty(query.title), (c,cu)=>cu.Student_Name.Contains(query.title))
                 .Where(c=>c.CampusId==Convert.ToInt32(campusId))
                 .WhereIF(query.startTime!=null,(c,cu) => c.Collection_Time>=query.startTime).WhereIF(query.endTime != null, (c, cu) => c.Collection_Time<= query.endTime)
-                .WhereIF(ccUse != null && ccUse.Role_Name == "顾问", (c, cu, ca, sy)=>c.CreateUid==userId).AddParameters(new { CCuid = userId })
+                //.WhereIF(ccUse != null && ccUse.Role_Name == "顾问", (c, cu, ca, sy)=>c.CreateUid==userId).AddParameters(new { CCuid = userId })
                 .OrderBy(c =>c.Collection_Time,OrderByType.Desc)
                 .Select<C_CollectionModel>((c, cu,ca,sy) => new C_CollectionModel
             {

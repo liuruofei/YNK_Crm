@@ -26,7 +26,7 @@ namespace WebManage.Areas.Admin.Controllers.Sys
             this.MenuID = "Z-150";
         }
         // GET: /<controller>/
-        [UsersRoleAuthFilter("Z-120", FunctionEnum.Have)]
+        [UsersRoleAuthFilter("Z-150", FunctionEnum.Have)]
         public IActionResult Index()
         {
             var model = _sys_UserService.FindByClause(p => p.User_ID == account.UserID);
@@ -35,7 +35,7 @@ namespace WebManage.Areas.Admin.Controllers.Sys
         }
 
         [HttpPost]
-        [UsersRoleAuthFilter("Z-120", FunctionEnum.Edit)]
+        [UsersRoleAuthFilter("Z-150", FunctionEnum.Edit)]
         public IActionResult ChangePwd(string oldpwd, string newpwd, string newlypwd)
         {
             if (string.IsNullOrEmpty(oldpwd))

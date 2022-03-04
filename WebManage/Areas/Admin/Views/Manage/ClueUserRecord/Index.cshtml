@@ -63,13 +63,13 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
             { type: 'numbers' },
             { field: 'CCUserName', title: '顾问', sort: true },
             { field: 'Student_Name', title: '学员', sort: true },
-            { field: 'Follow_Content', title: '追踪内容', sort: true },
-            { field: 'Follow_Plan', title: '跟进计划', sort: true },
-            { field: 'Follow_Date', title: '跟进日期', sort: true },
-            { field: 'IsVisitName', title: '是否上门', sort: true },
-            { field: 'Visit_Date', title: '上门时间', sort: true },
-            { field: 'ContracRateName', title: '签约可能性', sort: true },
-            { field: 'CreateTime', title: '创建时间', sort: true },
+            { field: 'Follow_Content', title: '追踪内容', sort: true, width: 300},
+            { field: 'Follow_Plan', title: '跟进计划', sort: true, width: 300 },
+            { field: 'Follow_Date', title: '跟进日期', sort: true, width: 150},
+            //{ field: 'IsVisitName', title: '是否上门', sort: true },
+            //{ field: 'Visit_Date', title: '上门时间', sort: true },
+            //{ field: 'ContracRateName', title: '签约可能性', sort: true },
+            //{ field: 'CreateTime', title: '创建时间', sort: true },
             {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
         ]]
     });

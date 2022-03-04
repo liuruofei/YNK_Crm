@@ -95,10 +95,10 @@
                         callBack: function (rou) {
                             if (rou != null) {
                                 var result = rou;
-                                for (var i = 0; i < 14; i++) {
+                                for (var i = 0; i < 17; i++) {
                                     if (i == 0) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td style='min-width:80px'>日期</td>");
+                                        $("#plantbody").append("<td style='width:80px;'>日期</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             if (j == 0) {
                                                 plan.starttime = dateFtt("yyyy-MM-dd", result[j].WorkDate);
@@ -106,21 +106,21 @@
                                             if (j == result.length-1) {
                                                 plan.endtime = dateFtt("yyyy-MM-dd", result[j].WorkDate);
                                             }
-                                            $("#plantbody").append("<td style='text-align:center;min-width:72px;'> " + dateFtt("yyyy-MM-dd", result[j].WorkDate) + " </td>");
+                                            $("#plantbody").append("<td style='text-align:center;min-width:160px;'> " + dateFtt("yyyy-MM-dd", result[j].WorkDate) + " </td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
                                     else if (i == 1) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>星期</td>");
+                                        $("#plantbody").append("<td style='width:80px;'>星期</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             $("#plantbody").append("<td style='text-align:center;'>" + result[j].WorkDateName + "</td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
                                     else if (i == 2) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>8:00-10:00</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>8:00-10:00</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Eight_Ten_Id,
@@ -133,11 +133,11 @@
                                             var isReversion = result[j].Eight_Ten_Reversion
                                             $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false? 'planPartBlue' :'planPart')+">" + (result[j].Eight_Ten_OlockTitle != null ? result[j].Eight_Ten_OlockTitle : "") + "</div></td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
                                     else if (i == 3) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>10:00-12:00</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>10:00-12:00</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Ten_Twelve_Id,
@@ -150,11 +150,11 @@
                                             var isReversion = result[j].Ten_Twelve_Reversion
                                             $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') +">" + (result[j].Ten_Twelve_OlockTitle == null ? "" : result[j].Ten_Twelve_OlockTitle) +"</div></td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
                                     else if (i == 4) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>13:00-15:00</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>13:00-15:00</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Thirteen_Fifteen_Id,
@@ -167,45 +167,62 @@
                                             var isReversion = result[j].Thirteen_Fifteen_Reversion
                                             $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') + ">" + (result[j].Thirteen_Fifteen_OlockTitle == null ? "" : result[j].Thirteen_Fifteen_OlockTitle) + "</div></td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
                                     else if (i == 5) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>15:10-17:10</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>15:00-17:00</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Fifteen_Seventeen_Id,
                                                 workTtile: result[j].Fifteen_Seventeen_OlockTitle,
                                                 workDate: result[j].WorkDate,
-                                                startTime: '15:10',
-                                                endTime: '17:10'
+                                                startTime: '15:00',
+                                                endTime: '17:00'
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             var isReversion = result[j].Fifteen_Seventeen_Reversion
                                             $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') +">" + (result[j].Fifteen_Seventeen_OlockTitle == null ? "" : result[j].Fifteen_Seventeen_OlockTitle) +"</div></td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
                                     else if (i == 6) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>17:30-19:30</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>17:00-19:00</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Seventeen_Nineteen_Id,
                                                 workTtile: result[j].Seventeen_Nineteen_OlockTitle,
                                                 workDate: result[j].WorkDate,
-                                                startTime: '17:30',
-                                                endTime: '19:30'
+                                                startTime: '17:00',
+                                                endTime: '19:00'
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             var isReversion = result[j].Seventeen_Nineteen_Reversion
                                             $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') +">" + (result[j].Seventeen_Nineteen_OlockTitle == null ? "" : result[j].Seventeen_Nineteen_OlockTitle) +"</div></td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
                                     else if (i == 7) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>单词</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>19:00-21:00</td>");
+                                        for (var j = 0; j < result.length; j++) {
+                                            var planVmodel = {
+                                                Id: result[j].Nineteen_TwentyOne_Id,
+                                                workTtile: result[j].Nineteen_TwentyOne_OlockTitle,
+                                                workDate: result[j].WorkDate,
+                                                startTime: '19:00',
+                                                endTime: '21:00'
+                                            }
+                                            var jsonVmodel = JSON.stringify(planVmodel);
+                                            var isReversion = result[j].Nineteen_TwentyOne_Reversion
+                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + (planVmodel.Id > 0 && isReversion == false ? 'planPartBlue' : 'planPart') + ">" + (result[j].Nineteen_TwentyOne_OlockTitle == null ? "" : result[j].Nineteen_TwentyOne_OlockTitle) + "</div></td>");
+                                        }
+                                        $("#plantbody").append("</tr>");
+                                    }
+                                    else if (i == 8) {
+                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("<td style='width:100px;'>单词</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -215,11 +232,11 @@
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel+")'>" + (result[j].ChouciComent == null ? "" : result[j].ChouciComent)+"</td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 8) {
+                                    else if (i == 9) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>课程</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>课程</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -229,11 +246,11 @@
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel +")'>" + (result[j].CourseComent == null ? "" : result[j].CourseComent) +"</td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 9) {
+                                    else if (i == 10) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>作业</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>作业</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -243,11 +260,11 @@
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel +")'>" + (result[j].HomeWorkComent == null ? "" : result[j].HomeWorkComent) +"</td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 10) {
+                                    else if (i == 11) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>其它</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>其它</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -257,11 +274,11 @@
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel +")'>" + (result[j].OtherComent == null ? "" : result[j].OtherComent)+ "</td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 11) {
+                                    else if (i == 12) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>责任助教</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>责任助教</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -271,11 +288,11 @@
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel + ")'>" + (result[j].TaUseName == null ? "" : result[j].TaUseName)+ "</td>");
                                         }
-                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 12) {
+                                    else if (i == 13) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td>每日总结</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>每日总结</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -285,7 +302,35 @@
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel +")'>" + (result[j].SummaryComent == null ? "" : result[j].SummaryComent)+ "</td>");
                                         }
+                                        $("#plantbody").append("</tr>");
+                                    }
+                                    else if (i == 14) {
                                         $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("<td style='width:100px;'>到校时间</td>");
+                                        for (var j = 0; j < result.length; j++) {
+                                            var planVmodel = {
+                                                Id: result[j].Id,
+                                                workTtile: result[j].InSchoolTime,
+                                                workDate: result[j].WorkDate
+                                            }
+                                            var jsonVmodel = JSON.stringify(planVmodel);
+                                            $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel + ")'>" + (result[j].InSchoolTime == null ? "" : result[j].InSchoolTime) + "</td>");
+                                        }
+                                        $("#plantbody").append("</tr>");
+                                    }
+                                    else if (i == 15) {
+                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("<td style='width:100px;'>离校时间</td>");
+                                        for (var j = 0; j < result.length; j++) {
+                                            var planVmodel = {
+                                                Id: result[j].Id,
+                                                workTtile: result[j].OutSchoolTime,
+                                                workDate: result[j].WorkDate
+                                            }
+                                            var jsonVmodel = JSON.stringify(planVmodel);
+                                            $("#plantbody").append("<td onclick='planShow2(" + jsonVmodel + ")'>" + (result[j].OutSchoolTime == null ? "" : result[j].OutSchoolTime) + "</td>");
+                                        }
+                                        $("#plantbody").append("</tr>");
                                     }
                                 }
                             }

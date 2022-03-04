@@ -169,8 +169,9 @@ namespace WebManage
             string uploadPath = Directory.GetCurrentDirectory() + "\\" + ADT.Common.ConfigHelper.GetConfig("FilePath");
             app.UseStaticFiles(new StaticFileOptions()
             {
-                FileProvider = new PhysicalFileProvider(uploadPath),
-                RequestPath = new PathString("/upload")
+                FileProvider = new PhysicalFileProvider(Directory.GetCurrentDirectory()),
+                RequestPath = ""
+                //RequestPath = new PathString("/upload")
             });
             app.UseRouting();
             app.UseAuthentication();

@@ -1,0 +1,292 @@
+﻿@model WebManage.Models.Res.ContracInfmotion
+@{
+    var contraNo = ViewBag.ContraNo;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="ContraNo" type="hidden" value="@ViewBag.ContraNo" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">学生姓名</label>
+            <div class="layui-input-inline" style="line-height: 35px;">
+                <input type="text" class="layui-input" name="Student_Name" value="@Model.StudentName" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">编号</label>
+            <div class="layui-input-inline" style="line-height: 36px;">
+                <span>@Model.StudentNo</span>
+                <input name="Student_No" type="hidden" value="@Model.StudentNo" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">余额</label>
+            <div class="layui-input-inline" style="line-height: 36px;">
+                <span>@Model.Amount</span>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">合同编号</label>
+            <div class="layui-input-inline" style="line-height: 36px;">
+                <span>@Model.ContraNo</span>
+                <input name="ContraNo" type="hidden" value="@Model.ContraNo" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">合同中心</label>
+            <div class="layui-input-inline">
+                <select name="ContraCenterId"></select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">上课校区</label>
+            <div class="layui-input-inline">
+                <select name="CampusId"></select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">学员手机</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Student_Phone" value="@Model.Student_Phone" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">学员微信</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Student_Wechat" value="@Model.Student_Wechat" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">年级</label>
+            <div class="layui-input-inline">
+                <select name="Grade">
+                    <option value="七年级">七年级</option>
+                    <option value="八年级">八年级</option>
+                    <option value="九年级">九年级</option>
+                    <option value="高一">高一</option>
+                    <option value="高二">高二</option>
+                    <option value="高三">高三</option>
+                    <option value="大学">大学</option>
+                    <option value="其它">其它</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">性别</label>
+            <div class="layui-input-inline">
+                @if (Model.Sex == "男")
+                {
+                    <input type="radio" value="男" name="Sex" title="男" checked />
+                    <input type="radio" value="女" name="Sex" title="女" />
+                }
+                else
+                {
+                    <input type="radio" value="男" name="Sex" title="男" />
+                    <input type="radio" value="女" name="Sex" title="女" checked />
+                }
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">生日</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Birthday" value="@Model.Birthday" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">在读学校</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="InSchool" value="@Model.InSchool" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">家长姓名</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Elder_Name" value="@Model.Elder_Name" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">家长手机</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Elder_Phone" value="@Model.Elder_Phone" />
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">家长微信</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="Elder_Wechat" value="@Model.Elder_Wechat" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 28px;margin-bottom:0px">
+            <legend>子合同列表</legend>
+        </fieldset>
+        <div style="padding:9px 16px">
+            <table class="layui-table" id="tablechild" lay-filter="tablechild">
+                @*<thead>
+                        <tr>
+                            <th>合同编号</th>
+                            <th>合同类型</th>
+                            <th>合同金额</th>
+                            <th>课时/小班号</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="child_Contrc">
+                    </tbody>*@
+            </table>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+    </div>
+</form>
+
+@section css{
+}
+
+@section js{
+    <!-- js部分 -->
+    <script type="text/html" id="tableBar">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">查看合同</a>
+    </script>
+    <script>
+        var campusList = [];
+        var childList = [];
+        layui.use(['form', 'admin', 'adminForm', 'laydate', 'adminList','table'], function () {
+        var $ = layui.jquery;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        var adminList = layui.adminList;
+        var form = layui.form;
+        var table = layui.table;
+        //日期
+        laydate.render({
+            elem: '#StartTime',
+            format: 'yyyy-MM-dd'
+        });
+        var initTable = {
+            init: function(){
+                table.render({
+                    elem: '#tablechild'
+                    , data: childList
+                    , page: true //开启分页
+                    , cols: [[ //表头
+                        { type: 'numbers' },
+                        { field: 'Contra_ChildNo', title: '合同编号', sort: true },
+                        { field: 'StudyModeName', title: '合同类型', sort: true, width: 100 },
+
+                        { field: 'Original_Amount', title: '合同原价', sort: true, width: 120 },
+                        { field: 'Saler_Amount', title: '折后金额', sort: true, width: 120 },
+                        { field: 'Added_Amount', title: '额外优惠', sort: true, width: 120 },
+                        {
+                            field: 'Saler_Amount', title: '实收金额', sort: true, width: 120, templet: function (d) {
+                                return (d.Saler_Amount - d.Added_Amount);
+                            }
+                        },
+                        {
+                            field: 'Course_Time', title: '课时', sort: true, templet: function (d) {
+                                return d.StudyMode == 1 ? d.Course_Time : d.Class_Course_Time + " / " + d.ClassName;
+                            }
+                        },
+                        { align: 'center', toolbar: '#tableBar', title: '操作', width: 200 }
+                    ]]
+                });
+            }
+        }
+        var App = {
+            Load: function () {
+                adminForm.load({
+                url: "@Url.Action("QueryFind")",
+                data: { contraNo:"@contraNo"},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        childList = rou.data.childList;
+                        initTable.init();
+                        adminForm.load({
+                            url: "@Url.Action("QueryCampus", "ContracUser")",
+                            dataType: 'json',
+                            callBack: function (r) {
+                                if (r.data != null) {
+                                    var result = r.data;
+                                    campusList = result;
+                                    for (var i = 0; i < result.length; i++) {
+                                        if (rou.CampusId != undefined && rou.CampusId != null && rou.CampusId == result[i].CampusId) {
+                                            $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + ' selected>' + result[i].CampusName + '</option>');
+                                        }
+                                        else {
+                                            $("select[name='CampusId']").append('<option value = ' + result[i].CampusId + '>' + result[i].CampusName + '</option>');
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        adminForm.load({
+                            url: "@Url.Action("QueryContraCenter", "ContracUser")",
+                            dataType: 'json',
+                            callBack: function (r) {
+                                if (r.data != null) {
+                                    var result = r.data;
+                                    for (var i = 0; i < result.length; i++) {
+                                        if (rou.ContraCenterId != undefined && rou.ContraCenterId != null && rou.ContraCenterId == result[i].Id) {
+                                            $("select[name='ContraCenterId']").append('<option value = ' + result[i].Id + ' selected>' + result[i].ContraCenter_Name + '</option>');
+                                        }
+                                        else {
+                                            $("select[name='ContraCenterId']").append('<option value = ' + result[i].Id + '>' + result[i].ContraCenter_Name + '</option>');
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+                });
+            }
+        }
+        App.Load();
+       function showEditModel(vmodel){
+           var contracChildNo = vmodel.Contra_ChildNo;
+           if (contracChildNo != undefined) {
+                adminList.form({
+                    title: '子合同信息',
+                    type: 2,
+                    width: "1060px",
+                        height: "790px",
+                    content: '@Url.Action("SeachItem")?childcontraNo=' + contracChildNo,
+                        end: function (data) {
+                            App.Load();
+                    }
+                });
+           }
+        }
+
+
+        // 工具条点击事件
+            adminList.table.on('tool(tablechild)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') { // 审核
+                showEditModel(data);
+            } 
+        });
+
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            var grade="@Model.Grade";
+            $("select[name='Grade']").val(grade);
+        })
+    </script>
+}

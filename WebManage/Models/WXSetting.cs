@@ -12,5 +12,10 @@ namespace WebManage.Models
         public string AppSecret { get; set; }
 
         public string TemplateId { get; set; }
+
+        /// <summary>
+        /// 评论模板
+        /// </summary>
+        public string TemplateIdComend { get; set; }
     }
 }

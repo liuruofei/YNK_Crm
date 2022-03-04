@@ -8,6 +8,12 @@
             <div class="layui-form toolbar">
                 <div class="layui-form-item">
                     <div class="layui-inline">
+                        <label class="layui-form-label w-auto">关键词：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="title" class="layui-input" type="text" placeholder="关键词" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
                         <label class="layui-form-label w-auto">合同类型：</label>
                         <div class="layui-input-inline mr0">
                             <select id="Contra_Property" name="Contra_Property" lay-filter="Contra_Property">
@@ -21,10 +27,9 @@
                         <label class="layui-form-label w-auto">授课方式：</label>
                         <div class="layui-input-inline mr0">
                             <select id="StudyMode" name="StudyMode" lay-filter="StudyMode">
+                                <option value="-1">-全部-</option>
                                 <option value="1">一对一</option>
                                 <option value="2">小班</option>
-                                <option value="3">付费教材</option>
-                                <option value="4">考团</option>
                             </select>
                         </div>
                     </div>
@@ -114,8 +119,8 @@
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'Contra_ChildNo', title: '合同编号', sort: true },
-            { field: 'Student_Name', title: '学生姓名', sort: true },
+            { field: 'Contra_ChildNo', title: '合同编号', sort: true, fixed: 'left' },
+            { field: 'Student_Name', title: '学生姓名', sort: true, fixed: 'left'},
             { field: 'Original_Amount', title: '初始合同金额', sort: true },
             { field: 'Saler_Amount', title: '折扣后合同金额', sort: true },
             { field: 'Added_Amount', title: '额外优惠', sort: true },
@@ -147,53 +152,56 @@
                 }
             },
             { field: 'Contrac_Child_Status_Name', title: '合同状态', sort: true },
+            { field: 'StudyModeName', title: '授课方式', sort: true, width: 130 },
             {
-                field: 'Contra_Property', title: '合同属性', sort: true, width: 150, templet: function (d) {
+                field: 'Contra_Property', title: '合同属性', sort: true, width: 100, templet: function (d) {
                     return d.Contra_Property==0?"新签":"续约";
                 }
             },
-            { field: 'StudyModeName', title: '授课方式', sort: true, width: 150 },
             { field: 'CCUserName', title: '签约人', sort: true },
             { field: 'SignIn_Data', title: '签约日期', sort: true },
-            {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
+            { align: 'center', toolbar: '#tableBar', title: '操作', width: 200, fixed: 'right'}
         ]]
     });
 
     // 搜索
-    $('#btnSearch').click(function () {
+      $('#btnSearch').click(function () {
+        var title = $('#title').val();
         var contra_Property = parseInt($('#Contra_Property').val());
         var studymode = parseInt($('#StudyMode').val());
         var startTime = $('#startTime').val();
         var endTime = $('#endTime').val();
         insTb.reload({
-            where: { contraProperty: contra_Property, studymode: studymode, startime: startTime,endTime: endTime}
+            where: { title:title,contraProperty: contra_Property, studymode: studymode, startime: startTime,endTime: endTime}
             , page: {
                 curr: 1 //重新从第 1 页开始
             }
         });
     });
-    form.on('select(StudyMode)', function (data) {
+       form.on('select(StudyMode)', function (data) {
+        var title = $('#title').val();
         var contra_Property = parseInt($('#Contra_Property').val());
         var studymode = parseInt(data.value);
         var startTime = $('#startTime').val();
         var endTime = $('#endTime').val();
         console.log(studymode, contra_Property);
         insTb.reload({
-            where: { contraProperty: contra_Property, studymode: studymode, startime: startTime, endTime: endTime}
+            where: { title: title,contraProperty: contra_Property, studymode: studymode, startime: startTime, endTime: endTime}
             , page: {
                 curr: 1 //重新从第 1 页开始
             }
         });
     });
 
-    form.on('select(Contra_Property)', function (data) {
+      form.on('select(Contra_Property)', function (data) {
+        var title = $('#title').val();
         var contra_Property = parseInt(data.value);
         var studymode = parseInt($('#StudyMode').val());
         var startTime = $('#startTime').val();
         var endTime = $('#endTime').val();
         console.log(studymode, contra_Property);
         insTb.reload({
-            where: { contraProperty: contra_Property, studymode: studymode, startime: startTime, endTime: endTime }
+            where:{title:title,contraProperty: contra_Property, studymode: studymode, startime: startTime, endTime: endTime }
             , page: {
                 curr: 1 //重新从第 1 页开始
             }

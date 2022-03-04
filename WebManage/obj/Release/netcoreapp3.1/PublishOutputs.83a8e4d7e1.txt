@@ -73,6 +73,7 @@ D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\js\boot
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\js\bootstrap.min.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\js\common.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\js\httpBase.js
+D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\js\httpBase2.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\js\jquery-3.2.1.min.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\js\template-web.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\echarts\echarts.min.js
@@ -358,6 +359,7 @@ D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\la
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\layui\lay\modules\tree.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\layui\lay\modules\upload.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\layui\lay\modules\util.js
+D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\xm-select\xm-select.js
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\zTree\css\metroStyle\img\line_conn.png
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\zTree\css\metroStyle\img\loading.gif
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\assets\libs\zTree\css\metroStyle\img\metro.gif
@@ -990,6 +992,7 @@ D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\log4net.config
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\appsettings.Development.json
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\appsettings.json
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\host.json
+D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\JsonConfig\wxMenu.json
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\refs\Microsoft.AspNetCore.Antiforgery.dll
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\refs\Microsoft.AspNetCore.Authentication.Abstractions.dll
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\refs\Microsoft.AspNetCore.Authentication.Cookies.dll
@@ -1300,6 +1303,7 @@ D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.CodeAnalysis
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.CodeAnalysis.Razor.dll
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.Data.Sqlite.dll
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.Extensions.DependencyModel.dll
+D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.Extensions.Logging.Log4Net.AspNetCore.dll
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.IdentityModel.JsonWebTokens.dll
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.IdentityModel.Logging.dll
 D:\YNK_Crm\WebManage\obj\Release\netcoreapp3.1\PubTmp\Out\Microsoft.IdentityModel.Protocols.dll

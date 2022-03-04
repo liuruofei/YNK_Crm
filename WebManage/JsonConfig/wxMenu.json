@@ -2,30 +2,20 @@
   "button": [
     {
       "type": "view",
-      "name": "课程",
-      "sub_button": [
-        {
-          "type": "view",
-          "name": "我的课程",
-          "url": "http://crm.younengkao.com/WxMuen/Index"
-        }
-      ],
+      "name": "课程表",
+      "url": "http://crm.younengkao.com/WxMuen/Index",
+      "sub_button":[],
       "key": "V_younengkaoCourse"
     },
     {
-      "name": "菜单",
-      "sub_button": [
-        {
-          "type": "view",
-          "name": "搜索",
-          "url": "http://www.soso.com/"
-        },
-        {
-          "type": "click",
-          "name": "赞一下我们",
-          "key": "V1001_GOOD"
-        }
-      ]
+      "type": "view",
+      "name": "留学咨询",
+      "url": "http://younengkao.com"
+    },
+    {
+      "type": "view",
+      "name": "微讲堂",
+      "url": "https://appkiy2lpbh5215.h5.xiaoeknow.com"
     }
   ]
 }

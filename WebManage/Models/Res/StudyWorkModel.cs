@@ -28,6 +28,12 @@ namespace WebManage.Models.Res
 
         public string ClassName { get; set; }
 
+
+        public float Course_Time { get; set; }
+        public float Course_UseTime { get; set; }
+        public float Class_Course_Time { get; set; }
+        public float Class_Course_UseTime { get; set; }
+
         public string StudyModeName{ get {
                 if (StudyMode == 1)
                 {
