@@ -228,10 +228,10 @@ namespace ADT.Models.Enum
         [Description("小班")]
         SmallClass=2,
 
-        [Description("付费教材")]
+        [Description("休息")]
         PayMaterial=3,
 
-        [Description("考团")]
+        [Description("试听")]
         TestGroup=4,
     }
 }

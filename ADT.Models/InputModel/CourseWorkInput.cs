@@ -102,5 +102,16 @@ namespace ADT.Models.InputModel
         /// 时间组
         /// </summary>
         public string[] WorkDateGroup { get; set; }
+
+
+        /// <summary>
+        /// 微信公众号token
+        /// </summary>
+        public string wxaccessToken { get; set; }
+
+        /// <summary>
+        /// 模板Id
+        /// </summary>
+        public string templateId { get; set; }
     }
 }

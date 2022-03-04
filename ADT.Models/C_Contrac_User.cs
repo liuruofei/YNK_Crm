@@ -74,6 +74,26 @@ namespace ADT.Models
         public string Elder_Wechat { get; set; }
 
         /// <summary>
+        /// 家长2邮箱
+        /// </summary>
+        public string Elder2_Email { get; set; }
+
+        /// <summary>
+        /// 家长2姓名
+        /// </summary>
+        public string Elder2_Name { get; set; }
+
+        /// <summary>
+        /// 家长2手机
+        /// </summary>
+        public string Elder2_Phone { get; set; }
+
+        /// <summary>
+        /// 家长2微信
+        /// </summary>
+        public string Elder2_Wechat { get; set; }
+
+        /// <summary>
         /// 生日
         /// </summary>
         public DateTime? Birthday { get; set; }
@@ -162,6 +182,15 @@ namespace ADT.Models
         /// 绑定微信关注公众号openId
         /// </summary>
         public string OpenId { get; set; }
+
+        /// <summary>
+        /// 绑定的家长公众号OpenId
+        /// </summary>
+        public string Elder_OpenId { get; set; }
+        /// <summary>
+        /// 家长2OpenId
+        /// </summary>
+        public string Elder2_OpenId { get; set; }
 
         public int Status { get; set; }
         public DateTime CreateTime { get; set; }

@@ -26,8 +26,8 @@ namespace ADT.Service
             return _courseWorkRepository.SaveCourseWork(input);
         }
 
-        public ResResult DropCourseWork(int Id, DateTime upAtDate, string uid) {
-            return _courseWorkRepository.DropCourseWork(Id, upAtDate, uid);
+        public ResResult DropCourseWork(int Id, DateTime upAtDate, string uid,  string templateId) {
+            return _courseWorkRepository.DropCourseWork(Id, upAtDate, uid, templateId);
         }
 
         /// <summary>
@@ -36,8 +36,8 @@ namespace ADT.Service
         /// <param name="Id"></param>
         /// <param name="uid"></param>
         /// <returns></returns>
-        public ResResult RemoveCourseWork(int Id, string uid) {
-            return _courseWorkRepository.RemoveCourseWork(Id,uid);
+        public ResResult RemoveCourseWork(int Id, string uid, string templateId) {
+            return _courseWorkRepository.RemoveCourseWork(Id,uid, templateId);
         }
 
 
@@ -48,8 +48,8 @@ namespace ADT.Service
         /// <param name="uid"></param>
         /// <param name="workDate"></param>
         /// <returns></returns>
-        public ResResult CopyCourseWork(int[] workIds, string uid, DateTime? workDate = null) {
-            return _courseWorkRepository.CopyCourseWork(workIds,uid,workDate);
+        public ResResult CopyCourseWork(int[] workIds, string uid,string templateId, DateTime? workDate = null) {
+            return _courseWorkRepository.CopyCourseWork(workIds,uid,templateId,workDate);
         }
     }
 }

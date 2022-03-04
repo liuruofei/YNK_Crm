@@ -152,6 +152,16 @@ namespace ADT.Service
         }
 
         /// <summary>
+        /// 主合同删除
+        /// </summary>
+        /// <param name="contraNo"></param>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public ResResult MasterContracCancel(string contraNo, string uid) {
+            return _contracRepository.MasterContracCancel(contraNo, uid);
+        }
+
+        /// <summary>
         /// 子合同确认
         /// </summary>
         /// <param name="Contra_ChildNo"></param>

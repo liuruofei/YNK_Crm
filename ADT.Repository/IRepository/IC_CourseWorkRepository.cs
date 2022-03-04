@@ -17,7 +17,7 @@ namespace ADT.Repository.IRepository
         /// <param name="Id"></param>
         /// <param name="upAtDate"></param>
         /// <returns></returns>
-        ResResult DropCourseWork(int Id, DateTime upAtDate, string uid);
+        ResResult DropCourseWork(int Id, DateTime upAtDate, string uid, string templateId);
 
         /// <summary>
         /// 删除排课
@@ -25,7 +25,7 @@ namespace ADT.Repository.IRepository
         /// <param name="Id"></param>
         /// <param name="uid"></param>
         /// <returns></returns>
-        ResResult RemoveCourseWork(int Id, string uid);
+        ResResult RemoveCourseWork(int Id, string uid, string templateId);
 
 
         /// <summary>
@@ -35,6 +35,6 @@ namespace ADT.Repository.IRepository
         /// <param name="uid"></param>
         /// <param name="workDate"></param>
         /// <returns></returns>
-        ResResult CopyCourseWork(int[] workIds, string uid, DateTime? workDate = null);
+        ResResult CopyCourseWork(int[] workIds, string uid, string templateId, DateTime? workDate = null);
     }
 }

@@ -51,6 +51,12 @@ namespace ADT.Models
         /// 科目id
         /// </summary>
         public int ProjectId { get; set; }
+
+        /// <summary>
+        /// 单元Id
+        /// </summary>
+        public int UnitId { get; set; }
+
         /// <summary>
         /// 小班Id
         /// </summary>
@@ -96,5 +102,10 @@ namespace ADT.Models
         /// 评语
         /// </summary>
         public string Comment { get; set; }
+
+        /// <summary>
+        /// 是否已发送点评推送
+        /// </summary>
+        public int IsSendComment { get; set; }
     }
 }

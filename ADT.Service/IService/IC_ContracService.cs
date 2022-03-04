@@ -124,6 +124,15 @@ namespace ADT.Service.IService
 
 
         /// <summary>
+        /// 主合同删除
+        /// </summary>
+        /// <param name="contraNo"></param>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        ResResult MasterContracCancel(string contraNo, string uid);
+
+
+        /// <summary>
         /// 子合同确认
         /// </summary>
         /// <param name="Contra_ChildNo"></param>

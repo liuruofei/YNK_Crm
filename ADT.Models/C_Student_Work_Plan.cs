@@ -29,6 +29,15 @@ namespace ADT.Models
         /// 每日总结
         /// </summary>
         public string SummaryComent { get; set; }
+        /// <summary>
+        /// 离校时间
+        /// </summary>
+        public string OutSchoolTime { get; set; }
+
+        /// <summary>
+        /// 到校时间
+        /// </summary>
+        public string InSchoolTime { get; set; }
 
         /// <summary>
         /// 助教

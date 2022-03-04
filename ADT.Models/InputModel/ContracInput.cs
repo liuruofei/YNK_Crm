@@ -52,6 +52,26 @@ namespace ADT.Models.InputModel
         public string Elder_Wechat { get; set; }
 
         /// <summary>
+        /// 家长2邮箱
+        /// </summary>
+        public string Elder2_Email { get; set; }
+
+        /// <summary>
+        /// 家长2姓名
+        /// </summary>
+        public string Elder2_Name { get; set; }
+
+        /// <summary>
+        /// 家长2手机
+        /// </summary>
+        public string Elder2_Phone { get; set; }
+
+        /// <summary>
+        /// 家长2微信
+        /// </summary>
+        public string Elder2_Wechat { get; set; }
+
+        /// <summary>
         /// 生日
         /// </summary>
         public DateTime? Birthday { get; set; }
