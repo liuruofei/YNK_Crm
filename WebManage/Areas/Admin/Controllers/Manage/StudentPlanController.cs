@@ -159,30 +159,39 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime6= DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
                             if (((startTimestr >= thanStartTime1 && startTimestr < thanendTime1) && (endTimestr > thanStartTime1 && endTimestr <= thanendTime1)) || ((endTimestr > thanStartTime1 && thanStartTime1 >= startTimestr) && (endTimestr <= thanendTime1 && thanendTime1 > startTimestr)))
                             {
-                                it.Eight_Ten_OlockTitle+="  "+ iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Eight_Ten_OlockTitle+="  "+ iv.Work_Title + (iv.StudyMode!=5&&iv.StudyMode!=6?" 教师:" + iv.TeacherName:"") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
+                                it.Eight_Ten_StudyMode = iv.StudyMode;
                             }
-                            else if (((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && (endTimestr > thanStartTime2 && endTimestr <= thanendTime2)) || ((endTimestr > thanStartTime2 && thanStartTime2 >= startTimestr) && (endTimestr <= thanendTime2 && thanendTime2 > startTimestr)))
+                            else if (((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && (endTimestr > thanStartTime2 && endTimestr <= thanendTime2)) || ((endTimestr > thanStartTime2 && thanStartTime2 >= startTimestr) && (endTimestr <= thanendTime2 && thanendTime2 > startTimestr))||((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) &&endTimestr<= thanStartTime3))
                             {
-                                it.Ten_Twelve_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Ten_Twelve_OlockTitle+= "  " + iv.Work_Title + (iv.StudyMode != 5 && iv.StudyMode != 6 ? " 教师:" + iv.TeacherName : "") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Ten_Twelve_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime3 && startTimestr < thanendTime3) && (endTimestr > thanStartTime3 && endTimestr <= thanendTime3)) || ((endTimestr > thanStartTime3 && thanStartTime3 >= startTimestr) && (endTimestr <= thanendTime3 && thanendTime3 > startTimestr)))
                             {
-                                it.Thirteen_Fifteen_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Thirteen_Fifteen_OlockTitle+= "  " + iv.Work_Title + (iv.StudyMode != 5 && iv.StudyMode != 6 ? " 教师:" + iv.TeacherName : "") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Thirteen_Fifteen_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime4 && startTimestr < thanendTime4) && (endTimestr > thanStartTime4 && endTimestr <= thanendTime4)) || ((endTimestr > thanStartTime4 && thanStartTime4 >= startTimestr) && (endTimestr <= thanendTime4 && thanendTime4 > startTimestr)))
                             {
-                                it.Fifteen_Seventeen_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Fifteen_Seventeen_OlockTitle+= "  " + iv.Work_Title + (iv.StudyMode != 5 && iv.StudyMode != 6 ? " 教师:" + iv.TeacherName : "") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Fifteen_Seventeen_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime5 && startTimestr < thanendTime5) && (endTimestr > thanStartTime5 && endTimestr <= thanendTime5)) || ((endTimestr > thanStartTime5 && thanStartTime5 >= startTimestr) && (endTimestr <= thanendTime5 && thanendTime5 > startTimestr)))
                             {
-                                it.Seventeen_Nineteen_OlockTitle+= "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Seventeen_Nineteen_OlockTitle+= "  " + iv.Work_Title + (iv.StudyMode != 5 && iv.StudyMode != 6 ? " 教师:" + iv.TeacherName : "") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Seventeen_Nineteen_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime6 && startTimestr < thanendTime6) && (endTimestr > thanStartTime6 && endTimestr <= thanendTime6)) || ((endTimestr > thanStartTime6 && thanStartTime6 >= startTimestr) && (endTimestr <= thanendTime6 && thanendTime6 > startTimestr)))
                             {
-                                it.Nineteen_TwentyOne_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Nineteen_TwentyOne_OlockTitle += "  " + iv.Work_Title + (iv.StudyMode != 5 && iv.StudyMode != 6 ? " 教师:" + iv.TeacherName : "") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.Nineteen_TwentyOne_StudyMode = iv.StudyMode;
                             }
-                            if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent)
-                                it.CourseComent += "<div style=\"height:20px;border-top:solid 3px\"><p></p></div>" +iv.Comment;
+                            if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent&& iv.StudyMode != 5 && iv.StudyMode != 6)
+                                it.CourseComent += "<div style=\"height:20px;border-top:solid 3px\"></div>" +iv.Comment;
+                            if ((iv.StudyMode == 5 || iv.StudyMode== 6) && !string.IsNullOrEmpty(iv.Comment)) {
+                                it.OtherComent += "<div style=\"height:20px;border-top:solid 3px\"></div>" + iv.Comment;
+                            }
                         });
                     }
 
@@ -641,7 +650,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             {
                                 it.Eight_Ten_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
-                           else  if (((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && (endTimestr > thanStartTime2 && endTimestr <= thanendTime2)) || ((endTimestr > thanStartTime2 && thanStartTime2 >= startTimestr) && (endTimestr <= thanendTime2 && thanendTime2 > startTimestr)))
+                           else  if (((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && (endTimestr > thanStartTime2 && endTimestr <= thanendTime2)) || ((endTimestr > thanStartTime2 && thanStartTime2 >= startTimestr) && (endTimestr <= thanendTime2 && thanendTime2 > startTimestr)) || ((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && endTimestr <= thanStartTime3))
                             {
                                 it.Ten_Twelve_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                             }
@@ -661,8 +670,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             {
                                 it.Nineteen_TwentyOne_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
-                            if (!string.IsNullOrEmpty(iv.Comment)&& iv.Comment!=it.CourseComent)
+                            if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent && iv.StudyMode != 5 && iv.StudyMode != 6)
+                            {
                                 it.CourseComent += iv.Comment;
+                            }
+                            if ((iv.StudyMode == 5 || iv.StudyMode == 6) && !string.IsNullOrEmpty(iv.Comment))
+                            {
+                                it.OtherComent += iv.Comment;
+                            }
+
                         });
                     }
 

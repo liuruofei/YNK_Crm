@@ -100,6 +100,9 @@
 @section js{
     <!-- 表格操作列 -->
     <script type="text/html" id="tableBar">
+        {{# if(d.StudyMode==5||d.StudyMode==6){ }}
+        <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="dianpin">考试点评</a>
+        {{#}}}
         <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">修改</a>
         <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
     </script>
@@ -226,6 +229,7 @@
                             var atDate = dateFtt("yyyy-MM-dd", result[i].AT_Date)
                             var atStart = atDate + " " + result[i].StartTime;
                             var atEnd = atDate + " " + result[i].EndTime;
+                            var isMokTeacherName = '  教师:' + result[i].TeacherName;
                             var backColor = 'yellowgreen';
                             if (result[i].StudyMode == 3) {
                                 backColor = 'brown';
@@ -233,9 +237,17 @@
                            else if (result[i].StudyMode == 4) {
                                 backColor = '#60605a';
                             }
+                            else if (result[i].StudyMode == 5) {
+                                backColor = '#c6b62e';
+                                isMokTeacherName = ' 模考学员:' + result[i].ListeningName;
+                            }
+                            else if (result[i].StudyMode == 6) {
+                                backColor='#a24d65';
+                                isMokTeacherName = ' 实考学员:' + result[i].ListeningName;
+                            }
                             events.push({
                                 id: result[i].Id,
-                                title: result[i].Work_Title + '  教师:' + result[i].TeacherName + (result[i].RoomName != null && result[i].RoomName!=""?'  教室:' + result[i].RoomName:''),
+                                title: result[i].Work_Title + isMokTeacherName + (result[i].RoomName != null && result[i].RoomName!=""?'  教室:' + result[i].RoomName:''),
                                 start: atStart,
                                 end: atEnd,
                                 display:'block',
@@ -303,6 +315,36 @@
                 }
             });
 
+        });
+    }
+
+
+
+        function ShowComment(wkId, iniTable) {
+         layui.use([ 'adminList'], function () {
+            var adminList = layui.adminList;
+                adminList.form({
+                title: '考试点评',
+                type: 2,
+                width: "660px",
+                height: "630px",
+                content: '@Url.Action("AddComment")?ID='+ wkId,
+                end: function () {
+                    if (iniTable != undefined && iniTable != null) {
+                        var stTime = $("input[name='StartTime']").val();
+                        var edTime = $("input[name='EndTime']").val();
+                        if (stTime == "" || stTime == null) {
+                            stTime = defaultStartTime;
+                        }
+                        if (edTime == "" || edTime == null) {
+                            edTime = defaultEndTime;
+                        }
+                        iniTable.reload({
+                            where: { startStr: stTime, endStr: edTime, userName: $("#txtTitle").val(), subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val() }
+                        });
+                    }
+                }
+            });
         });
     }
 
@@ -415,7 +457,11 @@
                         var layEvent = obj.event;
                         if (layEvent === 'edit') { // 修改
                             showEditModel(data.Id, '', initable);
-                        } else if (layEvent === 'del') { // 删除
+                        }
+                        else if (layEvent === 'dianpin') {
+                            ShowComment(data.Id, initable);
+                        }
+                        else if (layEvent === 'del') { // 删除
                              layer.confirm('确定要删除该课程吗?', {
                                         btn: ['确定', '取消'] //按钮
                              }, function (index) {
@@ -457,7 +503,7 @@
                         url: '@Url.Action("CopyCourseWork")',
                         data:{workIds: workIds},
                         callBack: function () {
-                       
+
                         }
                     })
                 }

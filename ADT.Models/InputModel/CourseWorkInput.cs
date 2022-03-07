@@ -52,6 +52,12 @@ namespace ADT.Models.InputModel
         /// 科目id
         /// </summary>
         public int ProjectId { get; set; }
+
+        /// <summary>
+        /// 单元Id，模考时才有
+        /// </summary>
+        public int UnitId { get; set; }
+
         /// <summary>
         /// 小班Id
         /// </summary>

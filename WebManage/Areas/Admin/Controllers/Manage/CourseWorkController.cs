@@ -96,6 +96,11 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(list);
         }
 
+        public IActionResult AddComment(int ID) {
+            ViewBag.ID = ID;
+            return View();
+        }
+
         /// <summary>
         /// 查询老师
         /// </summary>
@@ -244,6 +249,17 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             rsg.data = list;
             return Json(rsg);
         }
+        /// <summary>
+        /// 查询科目单元
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        public IActionResult QueryUnit(int projectId) {
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            List<C_Project_Unit> list = _currencyService.DbAccess().Queryable<C_Project_Unit>().Where(it => it.ProjectId == projectId).ToList();
+            rsg.data = list;
+            return Json(rsg);
+        }
 
         /// <summary>
         /// 保存排课课程
@@ -254,7 +270,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult SaveCourseWork(CourseWorkInput vmodel)
         {
             var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             vmodel.CreateUid = userId;
+            vmodel.CampusId=int.Parse(campusId);
             var ccOrSale = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
              .Where((u, ur, r) => u.User_ID == userId &&(r.Role_Name == "销售主管"||r.Role_Name=="顾问" || r.Role_Name == "销售")).First();
             ResResult rsg = new ResResult() { code = 200, msg = "保存排课课程成功" };
@@ -309,6 +327,37 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             rsg = _courseWork.CopyCourseWork(workIds, userId,_wxConfig.TemplateId, workDate);
             return Json(rsg);
         }
+
+
+        /// <summary>
+        /// 保存模考和实考点评
+        /// </summary>
+        /// <param name="vmodel"></param>
+        /// <returns></returns>
+        public IActionResult SaveCommend(C_Course_Work vmodel)
+        {
+            ResResult rsg = new ResResult() { code = 200, msg = "保存点评成功" };
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            var model = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(it => it.Id == vmodel.Id).First();
+            var courseTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
+            if (DateTime.Now < courseTime)
+            {
+                rsg.code = 0;
+                rsg.msg = "当前课程时间还未结束，你无法点评";
+            }
+            else
+            {
+                vmodel.CreateUid = userId;
+                var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = vmodel.Comment, Work_Stutas = 1,Score=vmodel.Score }).Where(it => it.Id == vmodel.Id).ExecuteCommand();
+                if (result > 0)
+                {
+                    rsg.code = 200;
+                    rsg.msg = "点评成功";
+                }
+            }
+            return Json(rsg);
+        }
+
         /// <summary>
         /// 获取微信公众号accesstoken
         /// </summary>

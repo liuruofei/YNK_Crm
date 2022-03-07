@@ -10,6 +10,8 @@ namespace WebManage.Models.Res
         public int Id { get; set; }
         public int StudentUid { get; set; }
 
+
+
         /// <summary>
         /// 学生姓名
         /// </summary>
@@ -84,14 +86,15 @@ namespace WebManage.Models.Res
         public string Eight_Ten_OlockTitle { get; set; }
         public int Eight_Ten_Id { get; set; }
         public string Eight_Ten_TeacherName { get; set; }
+        public int Eight_Ten_StudyMode { get; set; }
 
         /// <summary>
         /// 10-12点内容
         /// </summary>
         public string Ten_Twelve_OlockTitle { get; set; }
         public int Ten_Twelve_Id { get; set; }
-
         public string Ten_Twelve_TeacherName { get; set; }
+        public int Ten_Twelve_StudyMode { get; set; }
         /// <summary>
         /// 13-15点内容
         /// </summary>
@@ -99,6 +102,8 @@ namespace WebManage.Models.Res
         public int Thirteen_Fifteen_Id { get; set; }
 
         public string Thirteen_Fifteen_TeacherName { get; set; }
+
+        public int Thirteen_Fifteen_StudyMode { get; set; }
         /// <summary>
         /// 15-17点内容
         /// </summary>
@@ -106,6 +111,8 @@ namespace WebManage.Models.Res
         public int Fifteen_Seventeen_Id { get; set; }
 
         public string Fifteen_Seventeen_TeacherName { get; set; }
+
+        public int Fifteen_Seventeen_StudyMode { get; set; }
         /// <summary>
         /// 17-19点内容
         /// </summary>
@@ -113,14 +120,15 @@ namespace WebManage.Models.Res
         public int Seventeen_Nineteen_Id { get; set; }
 
         public string Seventeen_Nineteen_TeacherName { get; set; }
+
+        public int Seventeen_Nineteen_StudyMode { get; set; }
         /// <summary>
         ///19-21点内容
         /// </summary>
         public string Nineteen_TwentyOne_OlockTitle { get; set; }
         public int Nineteen_TwentyOne_Id { get; set; }
-
         public string Nineteen_TwentyOne_TeacherName { get; set; }
-
+        public int Nineteen_TwentyOne_StudyMode { get; set; }
 
 
         public bool Eight_Ten_Reversion { get; set; } = false;

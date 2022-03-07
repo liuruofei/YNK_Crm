@@ -92,6 +92,11 @@ namespace ADT.Models
         /// </summary>
         public string ListeningName { get; set; }
 
+        /// <summary>
+        /// 成绩
+        /// </summary>
+        public float Score { get; set; }
+
         public int Status { get; set; }
         public DateTime CreateTime { get; set; }
         public string CreateUid { get; set; }

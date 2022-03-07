@@ -110,7 +110,13 @@
     <div class="layui-form-item" id="PartProject" style="display:none">
         <label class="layui-form-label">科目</label>
         <div class="layui-input-block">
-            <select name="ProjectId"></select>
+            <select name="ProjectId" lay-filter="ProjectId"></select>
+        </div>
+    </div>
+    <div class="layui-form-item" id="PartUnit" style="display:none">
+        <label class="layui-form-label">科目单元</label>
+        <div class="layui-input-block">
+            <select name="UnitId"></select>
         </div>
     </div>
     <div class="layui-form-item" id="PartTa">
@@ -306,7 +312,7 @@
                             $("input[name='WorkClassName']").val(r.Work_Title);
                             $("#OneOfPart").css("display", "none");
                             $("#ClassPart").css("display", "block");
-                            bindProject(r.SubjectId, r.ProjectId);
+                            bindProject(r.SubjectId, r.ProjectId,null);
                         }
                         else if (r.StudyMode == 3) {
                             $("#PartTa").css("display", "none");
@@ -452,7 +458,7 @@
                                     for (var i = 0; i < result.length; i++) {
                                         if (r.SubjectId== result[i].SubjectId) {
                                             $("select[name='ListenSubject']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName + '</option>');
-                                            bindProject(r.SubjectId, r.ProjectId);
+                                            bindProject(r.SubjectId, r.ProjectId, r.UnitId);
                                         }
                                         else {
                                             $("select[name='ListenSubject']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
@@ -537,6 +543,7 @@
                     $("#lineSpanDate").text("上课日期");
                     $("#lineSpanTimeRange").text("上课时段");
                     $("#mockPart").css("display", "none");
+                    $("#PartUnit").css("display", "none");
                 }
                 else if (data.value == 2) {
                     $("#PartProject").css("display", "block");
@@ -547,6 +554,7 @@
                     $("#lineSpanDate").text("上课日期");
                     $("#lineSpanTimeRange").text("上课时段");
                     $("#mockPart").css("display", "none");
+                    $("#PartUnit").css("display","none");
                 }
                 else if (data.value == 3) {
                     $("#PartTa").css("display", "none");
@@ -558,6 +566,7 @@
                     $("#lineSpanDate").text("休息日期");
                     $("#lineSpanTimeRange").text("休息时段");
                     $("#mockPart").css("display", "none");
+                    $("#PartUnit").css("display", "none");
                 }
                 else if (data.value == 4) {
                     $("#ClassPart").css("display", "none");
@@ -570,6 +579,7 @@
                     $("#spanStudentName").text("试听学员");
                     $("#spanCatogalogName").text("试听分类");
                     $("#mockPart").css("display", "none");
+                    $("#PartUnit").css("display", "none");
                 }
                 else if (data.value == 5) {
                     $("#ClassPart").css("display", "none");
@@ -584,6 +594,7 @@
                     $("#spanStudentName").text("模考学员");
                     $("#spanCatogalogName").text("模考分类");
                     $("#mockPart").show();
+                    $("#PartUnit").show();
                 }
                 else if (data.value == 6) {
                     $("#ClassPart").css("display", "none");
@@ -598,6 +609,7 @@
                     $("#spanStudentName").text("实考学员");
                     $("#spanCatogalogName").text("实考分类");
                     $("#mockPart").show();
+                    $("#PartUnit").show();
                 }
             });
             form.on('select(ListenSubject)', function (data) {
@@ -605,6 +617,18 @@
                 if (linstenSubjectId > 0) {
                     $("input[name='SubjectId']").val(linstenSubjectId);
                     bindProject(linstenSubjectId);
+                }
+                else {
+                    $("select[name='ProjectId']").html("");
+                    $("select[name='UnitId']").html("");
+                }
+            })
+            form.on('select(ProjectId)', function (data) {
+                var crrtProjectId = data.value;
+                var studyModel = $("select[name='StudyMode']").val();
+                if (crrtProjectId > 0 &&(studyModel== 5||studyModel== 6)) {
+                    $("#PartUnit").show();
+                    bindUnit(crrtProjectId);
                 }
             })
         // 表单提交事件
@@ -737,7 +761,7 @@
                 $("#searcClass").css("display","none");
                 $("input[name='WorkClassName']").val(vmodel.StudyModeName);
                 $("input[name='ClasssId']").val(vmodel.ClasssId);
-                bindProject(vmodel.SubjectId,null);
+                bindProject(vmodel.SubjectId,null,null);
             }
         }
         function SetListenTr(vmodel) {
@@ -746,9 +770,10 @@
             $("input[name='ListeningName']").val(vmodel.Student_Name);
             $("#searcListen").css("display", "none");
         }
-        function bindProject(subjectId, defaultProjectId) {
+        function bindProject(subjectId, defaultProjectId, defaultUnitId) {
             layui.use(['adminForm'], function () {
                 var adminForm = layui.adminForm;
+                var studyModel = $("select[name='StudyMode']").val();
                adminForm.load({
                 url: "@Url.Action("QueryProject")",
                 data: { subjectId: subjectId},
@@ -763,6 +788,34 @@
                             }
                             else {
                                 $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                            if (i == 0 && (studyModel == 5 || studyModel== 6)) {
+                                bindUnit(result[i].ProjectId, defaultUnitId);
+                            }
+                        }
+                    }
+                }
+              });
+            });
+        }
+        function bindUnit(projectId, defaulUnitId) {
+            layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryUnit")",
+                data: { projectId: projectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("#PartUnit").show();
+                        $("select[name='UnitId']").html("");
+                        var result = rou.data;
+                        for (var i = 0; i < result.length; i++) {
+                            if (defaulUnitId != undefined && defaulUnitId != null && defaulUnitId > 0 && defaulUnitId == result[i].UnitId) {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + ' selected>' + result[i].UnitName + '</option>');
+                            }
+                            else {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + '>' + result[i].UnitName + '</option>');
                             }
                         }
                     }

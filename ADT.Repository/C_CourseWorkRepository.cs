@@ -74,7 +74,8 @@ namespace ADT.Repository
                         RoomId=vmodel.RoomId,
                         ListeningName=vmodel.ListeningName,
                         CreateUid=vmodel.CreateUid,
-                        UpdateUid=vmodel.UpdateUid
+                        UpdateUid=vmodel.UpdateUid,
+                        UnitId=vmodel.UnitId
                     };
                     db.BeginTran();
                     if (input.RangTimeId > 0)
@@ -100,15 +101,15 @@ namespace ADT.Repository
                                 C_Contrac_User u2 = db.Queryable<C_Contrac_User>().Where(it => it.StudentUid == input.StudentUid).First();
                                 C_Subject sub2 = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                                 C_Project pro2 = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
-                                msg = "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName + "课程，日期" + work.AT_Date.ToString("yyyy-MM-dd")+",时间 "+work.StartTime+work.EndTime+"变更为" +
-                                    "1对1(" + u2.Student_Name + ")_" + sub2.SubjectName + "_" + pro2.ProjectName+ "日期" + input.AT_Date.ToString("yyyy-MM-dd") + ",时间 " + input.StartTime + input.EndTime;
+                                msg = "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName + "课程，日期" + work.AT_Date.ToString("yyyy-MM-dd") + ",时间 " + work.StartTime + work.EndTime + "变更为" +
+                                    "1对1(" + u2.Student_Name + ")_" + sub2.SubjectName + "_" + pro2.ProjectName + "日期" + input.AT_Date.ToString("yyyy-MM-dd") + ",时间 " + input.StartTime + input.EndTime;
                                 recored.Msg = msg;
                             }
                             else
                             {
                                 if (input.AT_Date != work.AT_Date || !input.StartTime.Equals(work.StartTime) || !input.EndTime.Equals(work.EndTime))
                                 {
-                                    msg= work.Work_Title + "更改课程时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
+                                    msg = work.Work_Title + "更改课程时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
                                         "已改成" + input.AT_Date.ToString("yyyy/MM/dd") + " " + input.StartTime + "-" + input.EndTime;
                                     recored.Msg = msg;
                                 }
@@ -125,10 +126,11 @@ namespace ADT.Repository
                             work.AT_Date = input.AT_Date;
                             work.StartTime = input.StartTime;
                             work.EndTime = input.EndTime;
-                            if (!string.IsNullOrEmpty(work.TeacherUid)&&!string.IsNullOrEmpty(input.TeacherUid) && work.TeacherUid != input.TeacherUid) {
+                            if (!string.IsNullOrEmpty(work.TeacherUid) && !string.IsNullOrEmpty(input.TeacherUid) && work.TeacherUid != input.TeacherUid)
+                            {
                                 sys_user teachb = db.Queryable<sys_user>().Where(it => it.User_ID == input.TeacherUid).First();
-                                 msg= "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName+ work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime
-                                    + "由老师"+teacha.User_Name+"更改成"+teachb.User_Name;
+                                msg = "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime
+                                   + "由老师" + teacha.User_Name + "更改成" + teachb.User_Name;
                                 recored.Msg = msg;
                             }
                             work.TeacherUid = input.TeacherUid;
@@ -150,7 +152,7 @@ namespace ADT.Repository
                                 }
                                 //判断学员课程是否冲突
                                 C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
-                                    .Where("c.Id!=@workId and (c.StudentUid=@StudentUid or c.TeacherUid=@TeacherUid"+ where + ") and " +
+                                    .Where("c.Id!=@workId and (c.StudentUid=@StudentUid or c.TeacherUid=@TeacherUid" + where + ") and " +
                                     "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
                                     " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                     " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
@@ -192,7 +194,8 @@ namespace ADT.Repository
                                     }
                                     db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
                                 }
-                                else {
+                                else
+                                {
                                     C_User_CourseTime olduseCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == oldwork.SubjectId && it.ProjectId == oldwork.ProjectId).First();
                                     olduseCourseTime.Course_UseTime = olduseCourseTime.Course_UseTime - oldwork.CourseTime;
                                     db.Updateable<C_User_CourseTime>(olduseCourseTime).ExecuteCommand();
@@ -215,7 +218,7 @@ namespace ADT.Repository
                                 }
                                 //判断学员课程是否冲突
                                 C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
-                                    .Where("c.Id!=@workId and (c.StudentUid=@StudentUid or c.TeacherUid=@TeacherUid"+ where + ") and " +
+                                    .Where("c.Id!=@workId and (c.StudentUid=@StudentUid or c.TeacherUid=@TeacherUid" + where + ") and " +
                                     "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
                                     " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                     " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
@@ -267,13 +270,13 @@ namespace ADT.Repository
                             }
                             string msg = "";
                             C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
-                         .Where("c.Id!=@workId and (c.ClasssId=@ClasssId or c.TeacherUid=@TeacherUid"+ where + ") and " +
-                         "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))"+
+                         .Where("c.Id!=@workId and (c.ClasssId=@ClasssId or c.TeacherUid=@TeacherUid" + where + ") and " +
+                         "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
                          " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                          " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                          " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                          ")")
-                         .AddParameters(new { workId = input.Id,ClasssId = input.ClasssId, TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime,EndTime = input.EndTime }).First();
+                         .AddParameters(new { workId = input.Id, ClasssId = input.ClasssId, TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime }).First();
                             if (anyValue != null)
                             {
                                 rsg.msg = "此时间段，当天该课程老师或者该小班成员已有其它课程,无法排课";
@@ -284,13 +287,18 @@ namespace ADT.Repository
                             //只更新小班课时，不允许更换小班
                             if (input.AT_Date != work.AT_Date || !input.StartTime.Equals(work.StartTime) || !input.EndTime.Equals(work.EndTime))
                             {
-                                msg= input.Work_Title + "更改课程时间由原时间" + work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime +
+                                msg = input.Work_Title + "更改课程时间由原时间" + work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime +
                                     "已改成" + input.AT_Date.ToString("yyyy/MM/dd") + " " + input.StartTime + "-" + input.EndTime;
                                 recored.Msg = msg;
                             }
                             else
                             {
                                 recored.Msg = cla.Class_Name + "已修改";
+                            }
+                            if (work.ProjectId != input.ProjectId)
+                            {
+                                C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                                work.Work_Title = cla.Class_Name + "_" + pro.ProjectName;
                             }
                             work.Contra_ChildNo = input.Contra_ChildNo;
                             work.StudyMode = input.StudyMode;
@@ -304,12 +312,12 @@ namespace ADT.Repository
                             work.TA_Uid = input.TA_Uid;
                             work.ClasssId = input.ClasssId;
                             work.RoomId = input.RoomId;
-                            work.CampusId =cla.CampusId;
+                            work.CampusId = cla.CampusId;
                             TimeSpan span = Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime) - Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime);
 
 
                             //查询当前班级所有学员的课时
-                            List<C_User_CourseTime> useCourseTimelist = db.Queryable<C_User_CourseTime>().Where(it => it.ClassId == work.ClasssId && it.Contra_ChildNo.Equals(work.Contra_ChildNo)&&it.SubjectId==cla.SubjectId).ToList();
+                            List<C_User_CourseTime> useCourseTimelist = db.Queryable<C_User_CourseTime>().Where(it => it.ClassId == work.ClasssId && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == cla.SubjectId).ToList();
                             List<C_User_CourseTime> updateUseCourseTimes = new List<C_User_CourseTime>();
                             var hourse = span.Hours;
                             foreach (var item in useCourseTimelist)
@@ -339,13 +347,15 @@ namespace ADT.Repository
                                 updateUseCourseTimes.Add(item);
                             }
                             //批量更新所在班级所在学员课时
-                            if (updateUseCourseTimes.Count > 0) {
+                            if (updateUseCourseTimes.Count > 0)
+                            {
                                 db.Updateable<C_User_CourseTime>(updateUseCourseTimes).ExecuteCommand();
                             }
                             work.CourseTime = span.Hours;
 
                         }
-                        else if(input.StudyMode==4& work.Work_Stutas == 0){
+                        else if (input.StudyMode == 4 & work.Work_Stutas == 0)
+                        {
                             C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                             C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
                             string where = "";
@@ -355,7 +365,7 @@ namespace ADT.Repository
                             }
                             //判断学员课程是否冲突
                             C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
-                                .Where("c.Id!=@workId and ("+ where + " c.TeacherUid=@TeacherUid or c.ListeningName=@ListeningName) and " +
+                                .Where("c.Id!=@workId and (" + where + " c.TeacherUid=@TeacherUid or c.ListeningName=@ListeningName) and " +
                                 "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
                                 " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                 " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
@@ -371,10 +381,12 @@ namespace ADT.Repository
                             if (input.AT_Date != work.AT_Date || !input.StartTime.Equals(work.StartTime) || !input.EndTime.Equals(work.EndTime))
                             {
 
-                                recored.Msg =input.ListeningName+"_"+ sub.SubjectName+"_"+pro.ProjectName+ "试听课课程时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
+                                recored.Msg = input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName + "试听课课程时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
                                     "已改成" + input.AT_Date.ToString("yyyy/MM/dd") + " " + input.StartTime + "-" + input.EndTime;
                             }
                             sys_user teach = db.Queryable<sys_user>().Where(it => it.User_ID == input.TeacherUid).First();
+                            TimeSpan span = Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime) - Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime);
+                            work.CourseTime = span.Hours;
                             work.StudyMode = input.StudyMode;
                             work.SubjectId = input.SubjectId;
                             work.ProjectId = input.ProjectId;
@@ -389,6 +401,49 @@ namespace ADT.Repository
                             work.StudentUid = input.StudentUid;
                             work.Work_Title = "试听课" + input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName;
                         }
+                        else if (input.StudyMode == 5 || input.StudyMode == 6) {
+                            work.TeacherUid = "";
+                            C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
+                            C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                            C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
+                            //判断学员课程是否冲突
+                            string where = "";
+                            if (input.StudentUid > 0)
+                            {
+                                where = "c.StudentUid=@StudentUid or ";
+                            }
+                            C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
+                                .Where("c.Id!=@workId and (" + where + " c.ListeningName=@ListeningName) and " +
+                                "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                              " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                              " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                              " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                ")")
+                                .AddParameters(new { workId = input.Id, StudentUid = input.StudentUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = input.ListeningName }).First();
+                            if (anyValue != null)
+                            {
+                                rsg.msg = "此时间段，当天该学员已有其它课程,无法排课";
+                                rsg.code = 0;
+                                return rsg;
+                            }
+                            TimeSpan span = Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime) - Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime);
+                            work.CourseTime = span.Hours;
+                            work.StudyMode = input.StudyMode;
+                            work.SubjectId = input.SubjectId;
+                            work.ProjectId = input.ProjectId;
+                            work.UnitId = input.UnitId;
+                            work.AT_Date = input.AT_Date;
+                            work.StartTime = input.StartTime;
+                            work.EndTime = input.EndTime;
+                            work.RangTimeId = input.RangTimeId;
+                            work.TA_Uid = input.TA_Uid;
+                            work.RoomId = input.RoomId;
+                            work.StudentUid = input.StudentUid;
+                            work.Work_Title = input.Work_Title;
+                            //添加记录
+                            recored.CampusId = vmodel.CampusId;
+                            recored.Msg = "更改"+ (input.StudyMode == 5 ? "模考" : "实考")+ work.Work_Title + input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName + "_单元" + unt.UnitName + ",日期:" + input.AT_Date + " 时间段:" + input.StartTime + "-" + input.EndTime;
+                        }
                         else
                         {
                             if (work.Work_Stutas == 1)
@@ -397,7 +452,8 @@ namespace ADT.Repository
                                 rsg.code = 0;
                                 return rsg;
                             }
-                            else {
+                            else
+                            {
                                 sys_user teach = db.Queryable<sys_user>().Where(it => it.User_ID == input.TeacherUid).First();
                                 C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
                                 .Where("c.Id!=@workId and c.TeacherUid=@TeacherUid and " +
@@ -406,7 +462,7 @@ namespace ADT.Repository
                                 " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                 " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                               ")")
-                                .AddParameters(new { workId= input.Id,TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime,EndTime = input.EndTime }).First();
+                                .AddParameters(new { workId = input.Id, TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime }).First();
                                 if (anyValue != null)
                                 {
                                     rsg.code = 0;
@@ -423,7 +479,7 @@ namespace ADT.Repository
                                 recored.CreateTime = DateTime.Now;
                                 recored.CreateUid = input.CreateUid;
                                 work.CampusId = teach.CampusId;
-                                recored.Msg ="更新"+teach.User_Name + input.AT_Date.ToString("yyyy/MM/dd") + " 休息,时间：" + input.StartTime + " - " + input.EndTime;
+                                recored.Msg = "更新" + teach.User_Name + input.AT_Date.ToString("yyyy/MM/dd") + " 休息,时间：" + input.StartTime + " - " + input.EndTime;
 
                             }
                         }
@@ -676,7 +732,7 @@ namespace ADT.Repository
                                 input.TeacherUid = "";
                                 C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                                 C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
-
+                                C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
                                 //判断学员课程是否冲突
                                 string where = "";
                                 if (input.StudentUid > 0)
@@ -697,12 +753,13 @@ namespace ADT.Repository
                                     rsg.code = 0;
                                     return rsg;
                                 }
+                                input.Work_Title = input.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName+")";
                                 input.CampusId = vmodel.CampusId;
                                 TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
                                 input.CourseTime = span.Hours;
                                 //添加记录
                                 recored.CampusId = vmodel.CampusId;
-                                recored.Msg = "新增模考" + input.ListeningName+input.Work_Title + "_" + sub.SubjectName + "_" + pro.ProjectName + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
+                                recored.Msg = "新增"+(input.StudyMode==5? "模考,":"实考.") + input.Work_Title + ",学员"+input.ListeningName + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
 
                             }
                             input.AT_Date =DateTime.Parse(wkTime);
@@ -818,6 +875,41 @@ namespace ADT.Repository
                         if (work.AT_Date != upAtDate)
                         {
                             recored.Msg = "更改试听课" + teach.User_Name + "_" + work.Work_Title + "时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
+                                "已改成" + upAtDate.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime;
+                        }
+                        recored.CampusId = work.CampusId;
+                        recored.CreateUid = uid;
+                        recored.CreateTime = DateTime.Now;
+                        db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                    }
+                    //模考和实考
+                    else if (work.StudyMode == 5 || work.StudyMode == 6)
+                    {
+
+                        //判断学员课程是否冲突
+                        string where = "";
+                        if (work.StudentUid > 0)
+                        {
+                            where = "c.StudentUid=@StudentUid or ";
+                        }
+                        C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
+                            .Where("c.Id!=@workId and (" + where + " c.ListeningName=@ListeningName) and " +
+                            "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                          " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                          " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                          " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                            ")")
+                            .AddParameters(new { workId = work.Id, StudentUid = work.StudentUid, AtDate = work.AT_Date.ToString("yyyy-MM-dd"), StartTime = work.StartTime, EndTime = work.EndTime, ListeningName = work.ListeningName }).First();
+                        if (anyValue != null)
+                        {
+                            rsg.msg = "此时间段，当天该学员已有其它课程,无法排课";
+                            rsg.code = 0;
+                            return rsg;
+                        }
+                        C_Course_Work_Recored recored = new C_Course_Work_Recored();
+                        if (work.AT_Date != upAtDate)
+                        {
+                            recored.Msg = "更改课程" + work.Work_Title + "时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
                                 "已改成" + upAtDate.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime;
                         }
                         recored.CampusId = work.CampusId;
