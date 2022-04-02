@@ -1,0 +1,135 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Id" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">考试标题</label>
+        <div class="layui-input-block">
+            <input name="Work_Title" type="text" id="Work_Title" class="layui-input" disabled="disabled" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">学员</label>
+        <div class="layui-input-block">
+            <input name="ListeningName" type="text" id="ListeningName" class="layui-input" disabled="disabled" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">日期</label>
+        <div class="layui-input-block">
+            <input name="AT_Date" type="text" id="AT_Date" class="layui-input" disabled="disabled" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">时间</label>
+        <div class="layui-input-inline">
+            <input type="text" name="StartTime" id="StartTime" class="layui-input" disabled="disabled" />
+        </div>
+        <div class="layui-input-inline" style="width:6px;line-height:39px">
+            -
+        </div>
+        <div class="layui-input-inline">
+            <input type="text" name="EndTime" id="EndTime" class="layui-input" disabled="disabled" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">成绩</label>
+        <div class="layui-input-block">
+            <input name="Score" type="text" id="Score" class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">点评</label>
+        <div class="layui-input-block">
+            <textarea name="Comment" class="layui-textarea" placeholder="输入评语" style="height:180px;"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 366px !important;
+        }
+        .layui-disabled, .layui-disabled:hover {
+            color: #5c5858 !important;
+            cursor: not-allowed !important;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        if (r.AT_Date != null && r.AT_Date != undefined) {
+                            $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
+                        }
+                        console.log(r);
+                    }
+                });
+            },
+            Save: function (data) {
+                adminForm.Save({
+                    url: '@Url.Action("SaveCommend")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+         App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+        function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+    </script>
+}
