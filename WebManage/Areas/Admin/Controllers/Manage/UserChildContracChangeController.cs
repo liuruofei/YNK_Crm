@@ -21,6 +21,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public UserChildContracChangeController(ICurrencyService currencyService, IC_ContracService contrac)
         {
             _currencyService = currencyService;
+            _contrac = contrac;
         }
 
         protected override void Init()
@@ -76,13 +77,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             if (!string.IsNullOrEmpty(childContrcNo))
             {
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
-                C_Contrac_Child model = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(ite => ite.Contra_ChildNo.Equals(childContrcNo)).First();
-                model.UpdateUid = userId;
-                model.UpdateTime = DateTime.Now;
-                model.Contrac_Child_Status = (int)ConstraChild_Status.ChangeOk;
-                _currencyService.DbAccess().Updateable<C_Contrac_Child>(model).ExecuteCommand();
-                rsg.code = 200;
-                rsg.msg = "保存成功";
+                rsg=_contrac.ContracChildChangeConfig(childContrcNo, userId);
             }
             return Json(rsg);
         }

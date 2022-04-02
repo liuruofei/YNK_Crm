@@ -166,6 +166,20 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(new { code = code, msg = "缺少参数" });
         }
 
+        public IActionResult DeleteUnit(int Id) {
+            ResResult rsg = new ResResult() { code =200, msg = "删除成功" };
+            var anyWorkHas = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(km => km.UnitId== Id).First();
+            if (anyWorkHas != null) {
+                rsg.code = 0;
+                rsg.msg = "该单元已被使用，无法删除";
+            }
+            else
+            {
+                _currencyService.DbAccess().Deleteable<C_Project_Unit>().Where(con => con.UnitId == Id).ExecuteCommand();
+            }
+            return Json(rsg);
+        }
+
         /// <summary>
         /// 查询科目集合
         /// </summary>

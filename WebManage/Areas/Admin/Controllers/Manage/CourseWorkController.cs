@@ -348,7 +348,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             else
             {
                 vmodel.CreateUid = userId;
-                var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = vmodel.Comment, Work_Stutas = 1,Score=vmodel.Score }).Where(it => it.Id == vmodel.Id).ExecuteCommand();
+                var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = vmodel.Comment, Work_Stutas = 1,Score=vmodel.Score,Comment_Time=DateTime.Now }).Where(it => it.Id == vmodel.Id).ExecuteCommand();
                 if (result > 0)
                 {
                     rsg.code = 200;
@@ -417,7 +417,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             else
             {
                 if (!string.IsNullOrEmpty(userName))
-                    sql += " and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,cl.Class_Name)>0) ";
+                    sql += " and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,wk.ListeningName)>0 or charindex(@userName,cl.Class_Name)>0) ";
             }
             if (subjectId > 0) {
                 sql += " and wk.SubjectId="+subjectId;
@@ -481,7 +481,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             else
             {
                 if (!string.IsNullOrEmpty(userName))
-                    sql += " and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,cl.Class_Name)>0) ";
+                    sql += " and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,wk.ListeningName)>0 or charindex(@userName,cl.Class_Name)>0) ";
             }
             if (subjectId > 0)
             {

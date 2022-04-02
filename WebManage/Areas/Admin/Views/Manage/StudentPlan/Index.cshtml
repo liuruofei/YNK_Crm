@@ -109,7 +109,7 @@
                         callBack: function (rou) {
                             if (rou != null) {
                                 var result = rou;
-                                for (var i = 0; i < 17; i++) {
+                                for (var i = 0; i < 18; i++) {
                                     if (i == 0) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:80px;'>日期</td>");
@@ -334,7 +334,7 @@
                                     }
                                     else if (i == 9) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td style='width:100px;'>课程</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>课程点评</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -348,7 +348,15 @@
                                     }
                                     else if (i == 10) {
                                         $("#plantbody").append("<tr>");
-                                        $("#plantbody").append("<td style='width:100px;'>作业</td>");
+                                        $("#plantbody").append("<td style='width:100px;'>布置作业</td>");
+                                        for (var j = 0; j < result.length; j++) {
+                                            $("#plantbody").append("<td>" + (result[j].CourseWorkCotent == null ? "" : result[j].CourseWorkCotent) + "</td>");
+                                        }
+                                        $("#plantbody").append("</tr>");
+                                    }
+                                    else if (i == 11) {
+                                        $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("<td style='width:100px;'>作业完成情况</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -360,7 +368,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 11) {
+                                    else if (i == 12) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>其它</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -374,7 +382,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 12) {
+                                    else if (i == 13) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>责任助教</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -388,7 +396,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 13) {
+                                    else if (i == 14) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>每日总结</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -402,7 +410,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 14) {
+                                    else if (i == 15) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>到校时间</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -416,7 +424,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 15) {
+                                    else if (i == 16) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>离校时间</td>");
                                         for (var j = 0; j < result.length; j++) {

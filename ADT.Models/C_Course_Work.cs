@@ -112,5 +112,20 @@ namespace ADT.Models
         /// 是否已发送点评推送
         /// </summary>
         public int IsSendComment { get; set; }
+
+        /// <summary>
+        /// 点评时间
+        /// </summary>
+        public DateTime? Comment_Time { get; set; }
+
+        /// <summary>
+        /// 课程作业
+        /// </summary>
+        public string CourseWork { get; set; }
+
+        /// <summary>
+        /// 是否已发送家庭作业
+        /// </summary>
+        public int IsSendWork { get; set; }
     }
 }

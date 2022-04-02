@@ -101,7 +101,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult QueryStudentTotal(int studentUid)
         {
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            var list = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Project, C_Subject, C_Class>((time, pro, sub, cla) => new object[] {
+            List<C_UserCourseTimeModel> list = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Project, C_Subject, C_Class>((time, pro, sub, cla) => new object[] {
              JoinType.Left,time.ProjectId==pro.ProjectId,JoinType.Left,time.SubjectId==sub.SubjectId,JoinType.Left,time.ClassId==cla.ClassId
             }).Where((time, pro, sub, cla) => time.StudentUid == studentUid).Select<C_UserCourseTimeModel>((time, pro, sub, cla) =>
                 new C_UserCourseTimeModel
@@ -115,9 +115,19 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     Contra_ChildNo = time.Contra_ChildNo,
                     Course_Time = time.Course_Time,
                     Course_UseTime = time.Course_UseTime,
+                    IsLinsting=0,
                     Class_Course_Time = time.Class_Course_Time,
                     Class_Course_UseTime = time.Class_Course_UseTime
                 }).ToList();
+            List<C_UserCourseTimeModel> list2= _currencyService.DbAccess().Queryable("(select sum(wk.CourseTime)as Course_Time,sub.SubjectName,pro.ProjectName,u.StudentUid,IsLinsting=1 from C_Course_Work wk left join C_Subject sub on wk.SubjectId=sub.SubjectId" +
+                " left join C_Project pro on wk.ProjectId=pro.ProjectId left join C_Contrac_User u on wk.ListeningName=u.Student_Name where wk.StudyMode=4 and wk.StudentUid="+ studentUid + " group by sub.SubjectName,pro.ProjectName,u.StudentUid)",
+                "orginSql").Select<C_UserCourseTimeModel>().ToList();
+            if (list2 != null && list2.Count > 0) {
+                list2.ForEach(item =>
+                {
+                    list.Add(item);
+                });
+            }
             rsg.code = 200;
             rsg.msg = "获取成功";
             rsg.data = list;

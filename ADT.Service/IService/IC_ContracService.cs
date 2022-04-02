@@ -141,6 +141,14 @@ namespace ADT.Service.IService
         ResResult ContracChildConfig(string Contra_ChildNo, string uid);
 
         /// <summary>
+        /// 子合同变更确认
+        /// </summary>
+        /// <param name="Contra_ChildNo"></param>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        ResResult ContracChildChangeConfig(string Contra_ChildNo, string uid);
+
+        /// <summary>
         /// 确认收款
         /// </summary>
         /// <param name="collectionId"></param>

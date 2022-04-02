@@ -171,6 +171,15 @@ namespace ADT.Service
             return _contracRepository.ContracChildConfig(Contra_ChildNo, uid);
         }
 
+        /// <summary>
+        /// 子合同确认变更
+        /// </summary>
+        /// <param name="Contra_ChildNo"></param>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public ResResult ContracChildChangeConfig(string Contra_ChildNo, string uid) {
+            return _contracRepository.ContracChildChangeConfig(Contra_ChildNo, uid);
+        }
 
         /// <summary>
         ///确认收款

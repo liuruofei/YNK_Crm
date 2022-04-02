@@ -107,6 +107,9 @@ namespace WebManage.Models.Res
         /// </summary>
         public int IsSendComment { get; set; }
 
+
+        public DateTime? Comment_Time { get; set; }
+
         /// <summary>
         /// 学生名称
         /// </summary>
@@ -117,6 +120,11 @@ namespace WebManage.Models.Res
         /// 评语
         /// </summary>
         public string Comment { get; set; }
+
+        /// <summary>
+        /// 布置作业
+        /// </summary>
+        public string CourseWork { get; set; }
 
         /// <summary>
         /// 教师名称

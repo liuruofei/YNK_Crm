@@ -372,7 +372,7 @@ namespace WebManage.Controllers
                 }
                 else
                 {
-                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = comment, Work_Stutas = 1 }).Where(it => it.Id == wkId).ExecuteCommand();
+                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = comment, Work_Stutas = 1, Comment_Time=DateTime.Now }).Where(it => it.Id == wkId).ExecuteCommand();
                     if (result > 0)
                     {
                         rsg.data = model;

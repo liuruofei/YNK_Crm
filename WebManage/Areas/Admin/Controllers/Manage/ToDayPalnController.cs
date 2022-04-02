@@ -98,7 +98,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             Status = cour.Status,
                             UpdateTime = cour.UpdateTime,
                             UpdateUid = cour.UpdateUid,
-                            RoomName = room.RoomName
+                            RoomName = room.RoomName,
+                            CourseWork=cour.CourseWork
                         }).ToList();
                     //当前学生任务计划
                     var plans = listPlans.Where(con => con.StudentUid == stu.StudentUid).ToList();
@@ -125,34 +126,42 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             {
                                 stu.Eight_Ten_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
                                 stu.Eight_Ten_TeacherName = iv.TeacherName;
+                                stu.Eight_Ten_StudyMode = iv.StudyMode;
                             }
-                            else if (((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && (endTimestr > thanStartTime2 && endTimestr <= thanendTime2)) || ((endTimestr > thanStartTime2 && thanStartTime2 >= startTimestr) && (endTimestr <= thanendTime2 && thanendTime2 > startTimestr)))
+                            else if (((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && (endTimestr > thanStartTime2 && endTimestr <= thanendTime2)) || ((endTimestr > thanStartTime2 && thanStartTime2 >= startTimestr) && (endTimestr <= thanendTime2 && thanendTime2 > startTimestr)) || ((startTimestr >= thanStartTime2 && startTimestr < thanendTime2) && endTimestr <= thanStartTime3))
                             {
                                 stu.Ten_Twelve_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                                 stu.Ten_Twelve_TeacherName = iv.TeacherName;
+                                stu.Ten_Twelve_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime3 && startTimestr < thanendTime3) && (endTimestr > thanStartTime3 && endTimestr <= thanendTime3)) || ((endTimestr > thanStartTime3 && thanStartTime3 >= startTimestr) && (endTimestr <= thanendTime3 && thanendTime3 > startTimestr)))
                             {
                                 stu.Thirteen_Fifteen_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                                 stu.Thirteen_Fifteen_TeacherName = iv.TeacherName;
+                                stu.Thirteen_Fifteen_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime4 && startTimestr < thanendTime4) && (endTimestr > thanStartTime4 && endTimestr <= thanendTime4)) || ((endTimestr > thanStartTime4 && thanStartTime4 >= startTimestr) && (endTimestr <= thanendTime4 && thanendTime4 > startTimestr)))
                             {
                                 stu.Fifteen_Seventeen_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                                 stu.Fifteen_Seventeen_TeacherName = iv.TeacherName;
+                                stu.Fifteen_Seventeen_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime5 && startTimestr < thanendTime5) && (endTimestr > thanStartTime5 && endTimestr <= thanendTime5)) || ((endTimestr > thanStartTime5 && thanStartTime5 >= startTimestr) && (endTimestr <= thanendTime5 && thanendTime5 > startTimestr)))
                             {
                                 stu.Seventeen_Nineteen_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                                 stu.Seventeen_Nineteen_TeacherName = iv.TeacherName;
+                                stu.Seventeen_Nineteen_StudyMode = iv.StudyMode;
                             }
                             else if (((startTimestr >= thanStartTime6 && startTimestr < thanendTime6) && (endTimestr > thanStartTime6 && endTimestr <= thanendTime6)) || ((endTimestr > thanStartTime6 && thanStartTime6 >= startTimestr) && (endTimestr <= thanendTime6 && thanendTime6 > startTimestr)))
                             {
                                 stu.Nineteen_TwentyOne_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                                 stu.Nineteen_TwentyOne_TeacherName = iv.TeacherName;
+                                stu.Nineteen_TwentyOne_StudyMode = iv.StudyMode;
                             }
                             if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != stu.CourseComent)
                                 stu.CourseComent += iv.Comment;
+                            if (!string.IsNullOrEmpty(iv.CourseWork) && iv.CourseWork != stu.CourseWorkCotent)
+                                stu.CourseWorkCotent += iv.CourseWork + "<div style=\"height:15px;border-top:solid 3px\"></div>";
                         });
                     }
                     //循环计划

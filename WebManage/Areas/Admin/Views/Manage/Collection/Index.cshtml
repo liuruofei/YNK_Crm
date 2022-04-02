@@ -100,7 +100,15 @@
             { field: 'User_Name', title: '创建人', sort: true },
             {
                 field: 'PayStatus', title: '状态', sort: true, width: 120, templet: function (d) {
-                    return d.PayStatus==0?"待确认":"已确认";
+                    if (d.PayStatus == 0) {
+                        return "待确认";
+                    }
+                   else  if (d.PayStatus ==1) {
+                        return "已确认";
+                    }
+                   else if (d.PayStatus == 2) {
+                        return "已驳回";
+                    }
                 }
             },
             { align: 'center', toolbar: '#tableBar', fixed: 'right', title: '操作', width: 300}

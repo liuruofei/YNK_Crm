@@ -188,6 +188,22 @@
             if (unitId < 1) {
                 $(obj).parents("tr").remove();
             }
+            else {
+                layui.use(['adminForm'], function () {
+                    var adminForm = layui.adminForm;
+                    adminForm.Save({
+                    url: '@Url.Action("DeleteUnit")',
+                    data: {Id:unitId},
+                    callBack: function (result) {
+                        if (result.code == 200) {
+                            layer.msg(result.msg);
+                            $(obj).parents("tr").remove();
+                        }
+                    }
+                })
+
+                });
+            }
         }
         function bindProject(subjectId, defaultProjectId) {
             layui.use(['adminForm'], function () {

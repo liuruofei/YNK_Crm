@@ -36,13 +36,14 @@ namespace WebManage.Controllers
                 {
                     WxHomeWorkModel homeModel = new WxHomeWorkModel();
                     homeModel.Comment = work.Comment;
-                    List<C_Student_Work_Plan> plan = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(v => v.StudentUid == work.StudentUid&&v.WorkDate.ToString("yyyy-MM-dd")==work.AT_Date.ToString("yyyy-MM-dd")).ToList();
-                    if (plan != null && plan.Count > 0) {
-                        plan.ForEach(ite =>
-                        {
-                            homeModel.HomeWorkComent +=ite.HomeWorkComent+" ";
-                        });
-                    }
+                    //List<C_Student_Work_Plan> plan = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(v => v.StudentUid == work.StudentUid&&v.WorkDate.ToString("yyyy-MM-dd")==work.AT_Date.ToString("yyyy-MM-dd")).ToList();
+                    //if (plan != null && plan.Count > 0) {
+                    //    plan.ForEach(ite =>
+                    //    {
+                    //        homeModel.HomeWorkComent= CourseWork;
+                    //    });
+                    //}
+                    homeModel.HomeWorkComent = work.CourseWork;
                     rg.msg = "获取成功";
                     rg.data = homeModel;
                     rg.code = 200;

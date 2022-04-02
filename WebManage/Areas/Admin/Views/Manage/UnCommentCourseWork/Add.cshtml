@@ -7,13 +7,13 @@
     <div class="layui-form-item">
         <label class="layui-form-label">课程名称</label>
         <div class="layui-input-block">
-            <input name="Work_Title" type="text"  class="layui-input" disabled/>
+            <input name="Work_Title" type="text" class="layui-input" disabled />
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">日期</label>
         <div class="layui-input-block">
-            <input name="AT_Date" type="text" class="layui-input"  disabled/>
+            <input name="AT_Date" type="text" class="layui-input" disabled />
         </div>
     </div>
     <div class="layui-form-item">
@@ -23,19 +23,26 @@
         </div>
         -
         <div class="inline-block">
-          <input name="EndTime" type="text" class="layui-input" disabled style="width:60px" />
+            <input name="EndTime" type="text" class="layui-input" disabled style="width:60px" />
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">评语</label>
         <div class="layui-input-block">
-            <textarea name="Comment" class="layui-textarea"  placeholder="输入课程评语"  style="height:360px"></textarea>
+            <textarea name="Comment" class="layui-textarea" placeholder="输入课程评语" style="height:360px"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">课程作业</label>
+        <div class="layui-input-block">
+            <textarea name="CourseWork" id="CourseWork" class="layui-textarea" placeholder="输入课程评语" style="height:260px"></textarea>
         </div>
     </div>
     <div class="layui-form-item positionbottomtop"></div>
     <div class="layui-form-item text-right positionbottom">
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
-        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存点评</button>
+        <button class="layui-btn" type="button" id="saveWork">保存作业并推送</button>
     </div>
 </form>
 
@@ -93,6 +100,21 @@
         form.on('submit(modelUserSubmit)', function (data) {
             App.Save(data);
             return false;
+        });
+        //保存作业
+       $("#saveWork").click(function () {
+           var cwork = $("#CourseWork").val();
+           if (cwork == null || cwork == '') {
+               layer.msg("作业不能为空！");
+               return false;
+           }
+            adminForm.Save({
+                url: '@Url.Action("SaveWork")',
+                data: { Id: $("input[name='Id']").val(),CourseWork: cwork},
+                callBack: function (data) {
+                    admin.closeThisDialog();
+                }
+             })
         });
         function formatMinutin() {
             $(".laydate-time-list li ol").eq(2).parent("li").remove();

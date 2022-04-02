@@ -30,6 +30,12 @@ namespace WebManage.Models.Res
         /// 课程评论
         /// </summary>
         public string CourseComent { get; set; }
+
+        /// <summary>
+        /// 课程老师布置作业
+        /// </summary>
+        public string CourseWorkCotent { get; set; }
+
         /// <summary>
         /// 家庭作业评论
         /// </summary>

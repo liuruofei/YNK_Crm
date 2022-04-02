@@ -119,7 +119,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     Status = cour.Status,
                     UpdateTime = cour.UpdateTime,
                     UpdateUid = cour.UpdateUid,
-                    RoomName = room.RoomName
+                    RoomName = room.RoomName,
+                    CourseWork = cour.CourseWork
                 }).ToList();
             //查询学生任务计划
             List<C_Student_Work_Plan> listPlan = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(it => it.StudentUid == studentUid && DateTime.Parse(it.WorkDate.ToString("yyyy-MM-dd") + " 00:00") >= DateTime.Parse(dateWeekFirstDay.ToString("yyyy-MM-dd") + " 00:00") && DateTime.Parse(it.WorkDate.ToString("yyyy-MM-dd") + " 00:00") <= DateTime.Parse(dateWeekLastDay.ToString("yyyy-MM-dd") + " 00:00")).ToList();
@@ -192,6 +193,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             if ((iv.StudyMode == 5 || iv.StudyMode== 6) && !string.IsNullOrEmpty(iv.Comment)) {
                                 it.OtherComent += "<div style=\"height:20px;border-top:solid 3px\"></div>" + iv.Comment;
                             }
+                            if (!string.IsNullOrEmpty(iv.CourseWork) && iv.CourseWork != it.CourseWorkCotent)
+                                it.CourseWorkCotent +=iv.CourseWork+ "<div style=\"height:20px;border-top:solid 3px\"></div>";
+
                         });
                     }
 
@@ -324,13 +328,13 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             {
                                 var taskComent = iv.Task_Name + ",平均反应时间" + iv.AvgSpell + ",正确率" + iv.Accuracy + ",正确数量" + iv.isRightCount;
                                 if (it.ChouciComent != taskComent)
-                                    it.ChouciComent += taskComent;
+                                    it.ChouciComent += "<div style=\"height:20px;border-top:solid 3px\"></div>"+taskComent;
                             }
                             else
                             {
                                 var taskComent = iv.Task_Name + ",拼写单词-单词数量" + iv.Words_Count + ",正确率" + iv.Accuracy + ",正确数量" + iv.isRightCount;
                                 if (it.ChouciComent != taskComent)
-                                    it.ChouciComent += taskComent;
+                                    it.ChouciComent += "<div style=\"height:20px;border-top:solid 3px\"></div>"+taskComent;
                             }
                         });
                     }
@@ -674,6 +678,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             {
                                 it.CourseComent += iv.Comment;
                             }
+                            if (!string.IsNullOrEmpty(iv.CourseWork) && iv.CourseWork != it.CourseWorkCotent)
+                            {
+                                it.CourseWorkCotent += iv.CourseWork;
+                            }
                             if ((iv.StudyMode == 5 || iv.StudyMode == 6) && !string.IsNullOrEmpty(iv.Comment))
                             {
                                 it.OtherComent += iv.Comment;
@@ -699,12 +707,12 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime2 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 12:00");
                             var thanStartTime3 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 13:00");
                             var thanendTime3 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 15:00");
-                            var thanStartTime4 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 15:10");
-                            var thanendTime4 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 17:10");
-                            var thanStartTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 17:30");
-                            var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:30");
-                            var thanStartTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:30");
-                            var thanendTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:30");
+                            var thanStartTime4 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 15:00");
+                            var thanendTime4 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 17:00");
+                            var thanStartTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 17:00");
+                            var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
+                            var thanStartTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
+                            var thanendTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:00");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
                                 if (string.IsNullOrEmpty(it.Eight_Ten_OlockTitle)) {
@@ -816,7 +824,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var sheet = workbook.CreateSheet(u.Student_Name + "任务计划");
             sheet.DefaultColumnWidth = 25;
             //循环行
-            for (var y = 0; y < 17; y++)
+            for (var y = 0; y < 18; y++)
             {
                 if (y == 0)
                 {
@@ -957,7 +965,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
-                    cell.SetCellValue("课程");
+                    cell.SetCellValue("课程点评");
                     cell.CellStyle = headStyle;
                     var x = 1;
                     tdlistTime.ForEach(it =>
@@ -972,7 +980,22 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
-                    cell.SetCellValue("作业");
+                    cell.SetCellValue("布置作业");
+                    cell.CellStyle = headStyle;
+                    var x = 1;
+                    tdlistTime.ForEach(it =>
+                    {
+                        cell = row.CreateCell(x);
+                        cell.SetCellValue(it.CourseWorkCotent);
+                        cell.CellStyle = headStyle;
+                        x++;
+                    });
+                }
+                if (y == 11)
+                {
+                    var row = sheet.CreateRow(y);
+                    var cell = row.CreateCell(0);
+                    cell.SetCellValue("作业完成情况");
                     cell.CellStyle = headStyle;
                     var x = 1;
                     tdlistTime.ForEach(it =>
@@ -983,7 +1006,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 11)
+                if (y == 12)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -998,7 +1021,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 12)
+                if (y == 13)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1013,7 +1036,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 13)
+                if (y == 14)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1028,7 +1051,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 14)
+                if (y == 15)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1043,7 +1066,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 15)
+                if (y == 16)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);

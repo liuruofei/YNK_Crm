@@ -29,6 +29,7 @@
                                 <option value="-1">-未选择-</option>
                                 <option value="1">一对一</option>
                                 <option value="2">小班</option>
+                                <option value="4">试听</option>
                             </select>
                         </div>
                     </div>
@@ -114,7 +115,6 @@
             { field: 'TeacherName', title: '教师', sort: true },
             {
                 field: 'StudyMode', title: '上课模式', sort: true, templet: function (d) {
-                    console.log(d);
                     if (d.StudyMode ==1)
                         return "1对1";
                     else if (d.StudyMode ==2)
@@ -124,6 +124,7 @@
                 }
             },
             { field: 'Comment', title: '点评内容', sort: true },
+            { field: 'Comment_Time', title: '点评时间', sort: true },
             {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
         ]]
     });

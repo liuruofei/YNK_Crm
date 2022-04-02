@@ -104,10 +104,17 @@
             <textarea name="Comment" class="layui-textarea" style="height:150px;"></textarea>
         </div>
     </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">作业</label>
+        <div class="layui-input-block">
+            <textarea name="CourseWork" id="CourseWork" class="layui-textarea" style="height:150px;"></textarea>
+        </div>
+    </div>
     <div class="layui-form-item positionbottomtop"></div>
     <div class="layui-form-item text-right positionbottom">
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
         <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存点评</button>
+        <button class="layui-btn" type="button" id="saveWork">保存作业并推送</button>
         <button class="layui-btn" type="button" value="推送点评至家长和学生" id="sendComment">推送点评至公众号</button>
     </div>
 </form>
@@ -302,7 +309,7 @@
                     url: KeyId ? '@Url.Action("SaveCourseWork")' : '@Url.Action("SaveCourseWork")',
                     data: data.field,
                     callBack: function () {
-                        admin.closeThisDialog();
+                        
                     }
                 })
             }
@@ -313,12 +320,28 @@
             App.Save(data);
             return false;
         });
-            $("#sendComment").click(function () {
+        //手动推送点评
+        $("#sendComment").click(function () {
             adminForm.Save({
                 url: '@Url.Action("SendCourseComment")',
                 data: { wkId:'@KeyId'},
                 callBack: function (data) {
 
+                }
+             })
+        });
+        //保存作业
+        $("#saveWork").click(function () {
+            var cwork = $("#CourseWork").val();
+            if (cwork == null || cwork == '') {
+                layer.msg("作业不能为空！");
+                return false;
+            }
+            adminForm.Save({
+                url: '@Url.Action("SaveWork")',
+                data: { Id: $("input[name='Id']").val(), CourseWork: cwork},
+                callBack: function (data) {
+                    //admin.closeThisDialog();
                 }
              })
         });

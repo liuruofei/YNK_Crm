@@ -44,5 +44,10 @@ namespace WebManage.Models.Res
         ///分类名称
         /// </summary>
         public string SubjectName { get; set; }
+
+        /// <summary>
+        /// 是否是试听
+        /// </summary>
+        public int IsLinsting { get; set; }
     }
 }
