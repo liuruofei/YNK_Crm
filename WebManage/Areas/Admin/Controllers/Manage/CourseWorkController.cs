@@ -261,6 +261,20 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(rsg);
         }
 
+        //查询学员，教师，或者班级的名称
+        public IActionResult QueryNameAll(string title) {
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            List<SeachUNameModel> listSerchName = new List<SeachUNameModel>();
+            if (!string.IsNullOrEmpty(title)) {
+                listSerchName = _currencyService.DbAccess().Queryable(@"(select u.Student_Name as Name from C_Contrac_User u where  charindex(@title,u.Student_Name)>0 union all
+             (select tach.User_Name as Name from Sys_User tach left join Sys_UserRole ur on tach.User_ID=ur.UserRole_UserID left join Sys_Role r on ur.UserRole_RoleID=r.Role_ID 
+              where  (r.Role_Name='教师' or r.Role_Name='教学校长') and charindex(@title,tach.User_Name)>0) union all 
+             select c.Class_Name as Name from  C_Class c where  charindex(@title,c.Class_Name)>0)", "orgin").AddParameters(new { title = title }).Select<SeachUNameModel>().ToList();
+                rsg.data = listSerchName;
+            }
+            return Json(rsg);
+        }
+
         /// <summary>
         /// 保存排课课程
         /// </summary>

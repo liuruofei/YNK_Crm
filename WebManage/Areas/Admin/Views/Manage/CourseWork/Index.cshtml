@@ -7,10 +7,15 @@
         <div class="layui-card-body">
             <div class="layui-form toolbar">
                 <div class="layui-form-item">
-                    <div class="layui-inline">
+                    <div class="layui-inline" style="position:relative">
                         <label class="layui-form-label w-auto">标题：</label>
                         <div class="layui-input-inline mr0">
-                            <input id="txtTitle" class="layui-input" type="text" placeholder="学员或教师或班级" autocomplete="off" />
+                            <input id="txtTitle" name="txtTitle" class="layui-input" type="text" placeholder="学员或教师或班级" autocomplete="off" />
+                            <div class="searchName" id="searchName">
+                                <table style="width:100%;margin-top: 0px;" class="layui-table">
+                                    <tbody id="searcNamebody"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -54,7 +59,7 @@
                     <input type="text" class="layui-input" name="StartTime" id="StartTime" style="flex:1" />
                     <label class="layui-form-label w-auto">截止时间之前：</label>
                     <input type="text" class="layui-input" name="EndTime" id="EndTime" style="flex:1" />
-                    <input  type="button" value="一键复制课程至下周" class="layui-btn" style="margin-left:10px" id="btnCopy"/>
+                    <input type="button" value="一键复制课程至下周" class="layui-btn" style="margin-left:10px" id="btnCopy" />
                 </div>
                 <div style="flex: 1;line-height:39px;text-align:center;font-weight:600">
                     <label id="totalCourseTime"></label>
@@ -95,9 +100,25 @@
         .tagbackColor {
             background-color: yellowgreen;
         }
+       .searchName {
+            position: absolute;
+            box-shadow: 0 10px 60px 0 rgb(29 29 31 / 9%);
+            background-color: white;
+            z-index: 6;
+            width: 380px;
+            min-height: 200px;
+            display: none;
+        }
     </style>
 }
 @section js{
+    <script type="text/template" id="searchNameTemp">
+        {{each data item index}}
+        <tr onclick="SetListenTr('{{item}}')">
+            <td><span>{{item.Name}}</span></td>
+        </tr>
+        {{/each}}
+    </script>
     <!-- 表格操作列 -->
     <script type="text/html" id="tableBar">
         {{# if(d.StudyMode==5||d.StudyMode==6){ }}
@@ -320,7 +341,7 @@
 
 
 
-        function ShowComment(wkId, iniTable) {
+    function ShowComment(wkId, iniTable) {
          layui.use([ 'adminList'], function () {
             var adminList = layui.adminList;
                 adminList.form({
@@ -352,7 +373,7 @@
     //    calendar.prev();
     //    calendar.render();
     //}
-        layui.use(['adminList', 'element', 'adminForm', 'laydate', 'form', 'table'], function () {
+     layui.use(['adminList', 'element', 'adminForm', 'laydate', 'form', 'table'], function () {
             var adminList = layui.adminList;
             var element = layui.element;
             var adminForm = layui.adminForm;
@@ -511,7 +532,51 @@
                     layer.msg("请选择需要复制的课程");
                 }
             })
-        });
+
+
+         $("input[name='txtTitle']").click(function () {
+                adminForm.load({
+                        url: "@Url.Action("QueryNameAll")",
+                        data: {title: $(this).val() },
+                        dataType: 'json',
+                        callBack: function (rou) {
+                            if (rou.data != null && rou.data.length > 0) {
+                                var result = rou.data;
+                                document.getElementById("searchName").style.display = "block";
+                                var html = template("searchNameTemp", { data: result });
+                                document.getElementById("searcNamebody").innerHTML = html;
+                            }
+                            else {
+                                document.getElementById("searchName").style.display = "none";
+                            }
+                        }
+                    });
+            })
+         $("input[name='txtTitle']").keyup(function () {
+                adminForm.load({
+                    url: "@Url.Action("QueryNameAll")",
+                    data: {title: $(this).val() },
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null && rou.data.length>0) {
+                            var result = rou.data;
+                            document.getElementById("searchName").style.display = "block";
+                            var html = template("searchNameTemp", { data: result });
+                            document.getElementById("searcNamebody").innerHTML = html;
+                        }
+                        else {
+                            document.getElementById("searchName").style.display = "none";
+                        }
+                    }
+                });
+            });
+     });
+
+        function SetListenTr(vmodel) {
+            vmodel = JSON.parse(vmodel);
+            $("input[name='txtTitle']").val(vmodel.Name);
+            $("#searchName").css("display", "none");
+        }
 
     function dateFtt(fmt, val) { //author: meizz
         var date = new Date(val);
