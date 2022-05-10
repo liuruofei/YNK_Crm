@@ -75,7 +75,8 @@ namespace ADT.Repository
                         ListeningName=vmodel.ListeningName,
                         CreateUid=vmodel.CreateUid,
                         UpdateUid=vmodel.UpdateUid,
-                        UnitId=vmodel.UnitId
+                        UnitId=vmodel.UnitId,
+                        IsUsePresent=vmodel.IsUsePresent
                     };
                     db.BeginTran();
                     if (input.RangTimeId > 0)
@@ -168,41 +169,107 @@ namespace ADT.Repository
                                 var oldwork = db.Queryable<C_Course_Work>().Where(c => c.Id == work.Id).First();
                                 if (work.SubjectId == oldwork.SubjectId && work.ProjectId == oldwork.ProjectId)
                                 {
-                                    C_User_CourseTime useCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == work.SubjectId && it.ProjectId == work.ProjectId).First();
-                                    var hourse = span.Hours;
-                                    //原来已上课时大于现在修改课时，则扣掉用户已用课时
-                                    if (work.CourseTime > hourse)
+                                    if (work.IsUsePresent == 0)
                                     {
-                                        var less = work.CourseTime - hourse;
-                                        useCourseTime.Course_UseTime = useCourseTime.Course_UseTime - less;
-                                    }
-                                    //原来已上课时小于现在修改课时，则增加用户已用课时
-                                    else if (work.CourseTime < hourse)
-                                    {
-                                        var more = hourse - work.CourseTime;
-                                        if (useCourseTime.Course_UseTime + more > useCourseTime.Course_Time)
+                                        C_User_CourseTime useCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == work.SubjectId && it.ProjectId == work.ProjectId).First();
+                                        var hourse = span.Hours;
+                                        //原来已上课时大于现在修改课时，则扣掉用户已用课时
+                                        if (work.CourseTime > hourse)
                                         {
-                                            rsg.code = 0;
-                                            rsg.msg = "学员所剩课时不足！无法再排课";
-                                            return rsg;
+                                            var less = work.CourseTime - hourse;
+                                            useCourseTime.Course_UseTime = useCourseTime.Course_UseTime - less;
                                         }
-                                        else if (useCourseTime.Course_UseTime + more <= useCourseTime.Course_Time)
+                                        //原来已上课时小于现在修改课时，则增加用户已用课时
+                                        else if (work.CourseTime < hourse)
                                         {
-                                            useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + more;
-                                        }
+                                            var more = hourse - work.CourseTime;
+                                            if (useCourseTime.Course_UseTime + more > useCourseTime.Course_Time)
+                                            {
+                                                rsg.code = 0;
+                                                rsg.msg = "学员所剩课时不足！无法再排课";
+                                                return rsg;
+                                            }
+                                            else if (useCourseTime.Course_UseTime + more <= useCourseTime.Course_Time)
+                                            {
+                                                useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + more;
+                                            }
 
+                                        }
+                                        db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
                                     }
-                                    db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
+                                    else {
+                                        C_User_PresentTime useCourseTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo)).First();
+                                        var hourse = span.Hours;
+                                        //原来已上课时大于现在修改课时，则扣掉用户已用课时
+                                        if (work.CourseTime > hourse)
+                                        {
+                                            var less = work.CourseTime - hourse;
+                                            useCourseTime.Present_UseTime = useCourseTime.Present_UseTime - less;
+                                        }
+                                        //原来已上课时小于现在修改课时，则增加用户已用课时
+                                        else if (work.CourseTime < hourse)
+                                        {
+                                            var more = hourse - work.CourseTime;
+                                            if (useCourseTime.Present_UseTime + more > useCourseTime.Present_Time)
+                                            {
+                                                rsg.code = 0;
+                                                rsg.msg = "学员所剩赠送课时不足！无法再排课";
+                                                return rsg;
+                                            }
+                                            else if (useCourseTime.Present_UseTime + more <= useCourseTime.Present_Time)
+                                            {
+                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + more;
+                                            }
+
+                                        }
+                                        db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
+                                        work.Work_Title = oldwork.Work_Title;
+                                    }
+       
                                 }
                                 else
                                 {
-                                    C_User_CourseTime olduseCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == oldwork.SubjectId && it.ProjectId == oldwork.ProjectId).First();
-                                    olduseCourseTime.Course_UseTime = olduseCourseTime.Course_UseTime - oldwork.CourseTime;
-                                    db.Updateable<C_User_CourseTime>(olduseCourseTime).ExecuteCommand();
-                                    var hourse = span.Hours;
-                                    C_User_CourseTime usenewCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == input.SubjectId && it.ProjectId == input.ProjectId).First();
-                                    usenewCourseTime.Course_UseTime = usenewCourseTime.Course_UseTime + hourse;
-                                    db.Updateable<C_User_CourseTime>(usenewCourseTime).ExecuteCommand();
+                                    if (work.IsUsePresent == 0)
+                                    {
+                                        C_User_CourseTime olduseCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == oldwork.SubjectId && it.ProjectId == oldwork.ProjectId).First();
+                                        olduseCourseTime.Course_UseTime = olduseCourseTime.Course_UseTime - oldwork.CourseTime;
+                                        db.Updateable<C_User_CourseTime>(olduseCourseTime).ExecuteCommand();
+                                        var hourse = span.Hours;
+                                        C_User_CourseTime usenewCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == input.SubjectId && it.ProjectId == input.ProjectId).First();
+                                        usenewCourseTime.Course_UseTime = usenewCourseTime.Course_UseTime + hourse;
+                                        db.Updateable<C_User_CourseTime>(usenewCourseTime).ExecuteCommand();
+                                    }
+                                    else {
+                                        C_User_PresentTime useCourseTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo)).First();
+                                        var hourse = span.Hours;
+                                        //原来已上课时大于现在修改课时，则扣掉用户已用课时
+                                        if (work.CourseTime > hourse)
+                                        {
+                                            var less = work.CourseTime - hourse;
+                                            useCourseTime.Present_UseTime = useCourseTime.Present_UseTime - less;
+                                        }
+                                        //原来已上课时小于现在修改课时，则增加用户已用课时
+                                        else if (work.CourseTime < hourse)
+                                        {
+                                            var more = hourse - work.CourseTime;
+                                            if (useCourseTime.Present_UseTime + more > useCourseTime.Present_Time)
+                                            {
+                                                rsg.code = 0;
+                                                rsg.msg = "学员所剩赠送课时不足！无法再排课";
+                                                return rsg;
+                                            }
+                                            else if (useCourseTime.Present_UseTime + more <= useCourseTime.Present_Time)
+                                            {
+                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + more;
+                                            }
+
+                                        }
+                                        db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
+                                        C_Subject sub2 = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
+                                        C_Project pro2 = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                                        work.Work_Title = "1对1("+ u.Student_Name + ")_"+ sub2.SubjectName+ "_"+ pro2.ProjectName;
+
+                                    }
                                 }
                                 work.CourseTime = span.Hours;
                             }
@@ -489,6 +556,7 @@ namespace ADT.Repository
                         rsg.msg = "更新课程成功";
                         recored.CreateTime = DateTime.Now;
                         recored.CreateUid = input.CreateUid;
+                        recored.CampusId = work.CampusId;
                         db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                     }
                     else
@@ -526,38 +594,72 @@ namespace ADT.Repository
                                     return rsg;
                                 }
                                 C_Contrac_User u = db.Queryable<C_Contrac_User>().Where(it => it.StudentUid == input.StudentUid).First();
-                                //C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
-                                //C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
                                 TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
                                 sys_user teach = db.Queryable<sys_user>().Where(it => it.User_ID == input.TeacherUid).First();
-                                //计算学员课时
-                                C_User_CourseTime useCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == input.StudentUid && it.Contra_ChildNo.Equals(input.Contra_ChildNo) && it.SubjectId == input.SubjectId && it.ProjectId == input.ProjectId).First();
                                 var hourse = span.Hours;
-                                if (useCourseTime == null)
+                                if (input.IsUsePresent == 0)
                                 {
-                                    rsg.code = 0;
-                                    rsg.msg = "学员未充课时！无法再排课";
-                                    return rsg;
+                                    C_User_CourseTime useCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == input.StudentUid && it.Contra_ChildNo.Equals(input.Contra_ChildNo) && it.SubjectId == input.SubjectId && it.ProjectId == input.ProjectId).First();
+                                    //计算学员课时
+                                    if (useCourseTime == null)
+                                    {
+                                        rsg.code = 0;
+                                        rsg.msg = "学员未充课时！无法再排课";
+                                        return rsg;
+                                    }
+                                    //判断新学员所剩课时是否足够
+                                    if (useCourseTime.Course_UseTime + hourse > useCourseTime.Course_Time)
+                                    {
+                                        rsg.code = 0;
+                                        rsg.msg = "学员所剩课时不足！无法再排课";
+                                        return rsg;
+                                    }
+                                    else if (useCourseTime.Course_UseTime + hourse <= useCourseTime.Course_Time)
+                                    {
+                                        useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + hourse;
+                                    }
+                                    //批量更新所在班级所在学员课时
+                                    db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
                                 }
-                                //判断新学员所剩课时是否足够
-                                if (useCourseTime.Course_UseTime + hourse > useCourseTime.Course_Time)
-                                {
-                                    rsg.code = 0;
-                                    rsg.msg = "学员所剩课时不足！无法再排课";
-                                    return rsg;
+                                else {
+                                    C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
+                                    C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                                    C_User_PresentTime useCourseTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == input.StudentUid&&it.Contra_ChildNo==input.Contra_ChildNo).First();
+                                    if (useCourseTime == null)
+                                    {
+                                        rsg.code = 0;
+                                        rsg.msg = "学员未充课时！无法再排课";
+                                        return rsg;
+                                    }
+                                    //判断新学员所剩课时是否足够
+                                    if (useCourseTime.Present_UseTime + hourse > useCourseTime.Present_Time)
+                                    {
+                                        rsg.code = 0;
+                                        rsg.msg = "学员赠送课时不足！无法再排课";
+                                        return rsg;
+                                    }
+                                    else if (useCourseTime.Present_UseTime + hourse <= useCourseTime.Present_Time)
+                                    {
+                                        useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + hourse;
+                                    }
+                                    db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
+                                    input.Work_Title = "1对1(" + u.Student_Name + ")_"+ sub.SubjectName+ "_"+pro.ProjectName;
                                 }
-                                else if (useCourseTime.Course_UseTime + hourse <= useCourseTime.Course_Time)
-                                {
-                                    useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + hourse;
-                                }
+
                                 input.CourseTime = hourse;
                                 input.CampusId = u.CampusId;
-                                //批量更新所在班级所在学员课时
-                                db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
                                 //添加记录
                                 recored.CampusId = u.CampusId;
                                 string msg = "新建课程" + input.Work_Title + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime + ", 教师-" + teach.User_Name;
                                 recored.Msg = msg;
+
+                                //公共模块
+                                input.AT_Date = DateTime.Parse(wkTime);
+                                input.CreateTime = DateTime.Now;
+                                db.Insertable<C_Course_Work>(input).ExecuteCommand();
+                                recored.CreateTime = DateTime.Now;
+                                recored.CreateUid = input.CreateUid;
+                                db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                             }
                             //小班
                             else if (input.StudyMode == 2)
@@ -664,7 +766,14 @@ namespace ADT.Repository
                                 //添加记录
                                 recored.CampusId = cla.CampusId;
                                 recored.Msg = "新增班课(" + input.Work_Title + ")" + ",日期: " + input.AT_Date.ToString("yyyy-MM-dd") + " 时间段: " + input.StartTime + " - " + input.EndTime + ",教师 - " + teach.User_Name;
-
+                               
+                                //公共模块
+                                input.AT_Date = DateTime.Parse(wkTime);
+                                input.CreateTime = DateTime.Now;
+                                db.Insertable<C_Course_Work>(input).ExecuteCommand();
+                                recored.CreateTime = DateTime.Now;
+                                recored.CreateUid = input.CreateUid;
+                                db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                             }
                             //休息
                             else if (input.StudyMode == 3)
@@ -686,11 +795,17 @@ namespace ADT.Repository
                                 }
                                 input.Work_Title = teach.User_Name + wkTime + " 休息";
                                 //记录日志
-                                recored.CreateTime = DateTime.Now;
-                                recored.CreateUid = input.CreateUid;
                                 input.CampusId = teach.CampusId;
                                 recored.CampusId = teach.CampusId;
                                 recored.Msg = "新增" + teach.User_Name + wkTime + " 休息时间：" + input.StartTime + " - " + input.EndTime;
+
+
+                                //公共模块
+                                input.AT_Date = DateTime.Parse(wkTime);
+                                input.CreateTime = DateTime.Now;
+                                db.Insertable<C_Course_Work>(input).ExecuteCommand();
+                                recored.CreateTime = DateTime.Now;
+                                recored.CreateUid = input.CreateUid;
                                 db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                             }
                             //试听
@@ -726,48 +841,107 @@ namespace ADT.Repository
                                 //添加记录
                                 recored.CampusId = teach.CampusId;
                                 recored.Msg = "新增试听课" + input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime + ", 教师-" + teach.User_Name;
+                                //公共模块
+                                input.AT_Date = DateTime.Parse(wkTime);
+                                input.CreateTime = DateTime.Now;
+                                db.Insertable<C_Course_Work>(input).ExecuteCommand();
+                                recored.CreateTime = DateTime.Now;
+                                recored.CreateUid = input.CreateUid;
+                                db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                             }
                             //模考和实考
-                            else if (input.StudyMode == 5|| input.StudyMode == 6) {
+                            else if (input.StudyMode == 5)
+                            {
                                 input.TeacherUid = "";
                                 C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                                 C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
                                 C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
                                 //判断学员课程是否冲突
-                                string where = "";
-                                if (input.StudentUid > 0)
-                                {
-                                    where = "c.StudentUid=@StudentUid or ";
+                                for (var q = 0; q < vmodel.arrShikaoUser.Count; q++) {
+                                    string where = "";
+                                    if (vmodel.arrShikaoUser[q].StudentUid > 0)
+                                    {
+                                        where = "c.StudentUid=@StudentUid or ";
+                                    }
+                                    C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
+                                        .Where("c.Id!=@workId and (" + where + " c.ListeningName=@ListeningName) and " +
+                                        "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                                      " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                      " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                      " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                        ")")
+                                        .AddParameters(new { workId = input.Id, StudentUid = vmodel.arrShikaoUser[q].StudentUid, AtDate = wkTime, StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = vmodel.arrShikaoUser[q].Student_Name }).First();
+                                    if (anyValue != null)
+                                    {
+                                        rsg.msg = "此时间段，当天学员"+ vmodel.arrShikaoUser[q].Student_Name + "已有其它课程,无法排课";
+                                        rsg.code = 0;
+                                        return rsg;
+                                    }
+                                    input.ListeningName = vmodel.arrShikaoUser[q].Student_Name;
+                                    input.StudentUid = vmodel.arrShikaoUser[q].StudentUid;
+                                    input.Work_Title = vmodel.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName + ")";
+                                    input.CampusId = vmodel.CampusId;
+                                    TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
+                                    input.CourseTime = span.Hours;
+                                    //添加记录
+                                    recored.CampusId = vmodel.CampusId;
+                                    recored.Msg = "新增" + (input.StudyMode == 5 ? "模考," : "实考.") + input.Work_Title + ",学员" + vmodel.arrShikaoUser[q].Student_Name + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
+
+                                    //公共模块
+                                    input.AT_Date = DateTime.Parse(wkTime);
+                                    input.CreateTime = DateTime.Now;
+                                    db.Insertable<C_Course_Work>(input).ExecuteCommand();
+                                    recored.CreateTime = DateTime.Now;
+                                    recored.CreateUid = input.CreateUid;
+                                    db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                                 }
-                                C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
-                                    .Where("c.Id!=@workId and (" + where + " c.ListeningName=@ListeningName) and " +
-                                    "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
-                                  " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
-                                  " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
-                                  " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
-                                    ")")
-                                    .AddParameters(new { workId = input.Id, StudentUid = input.StudentUid,AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = input.ListeningName }).First();
-                                if (anyValue != null)
-                                {
-                                    rsg.msg = "此时间段，当天该学员已有其它课程,无法排课";
-                                    rsg.code = 0;
-                                    return rsg;
-                                }
-                                input.Work_Title = input.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName+")";
-                                input.CampusId = vmodel.CampusId;
-                                TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
-                                input.CourseTime = span.Hours;
-                                //添加记录
-                                recored.CampusId = vmodel.CampusId;
-                                recored.Msg = "新增"+(input.StudyMode==5? "模考,":"实考.") + input.Work_Title + ",学员"+input.ListeningName + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
 
                             }
-                            input.AT_Date =DateTime.Parse(wkTime);
-                            input.CreateTime = DateTime.Now;
-                            db.Insertable<C_Course_Work>(input).ExecuteCommand();
-                            recored.CreateTime = DateTime.Now;
-                            recored.CreateUid = input.CreateUid;
-                            db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                            else if (input.StudyMode == 6) {
+                                input.TeacherUid = "";
+                                C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
+                                C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                                C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
+                                //判断学员课程是否冲突
+                                for (var q = 0; q < vmodel.arrShikaoUser.Count; q++) {
+                                    string where = "";
+                                    if (vmodel.arrShikaoUser[q].StudentUid> 0)
+                                    {
+                                        where = "and c.StudentUid=@StudentUid ";
+                                    }
+                                    C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
+                                        .Where("c.Id!=@workId  " + where + " and " +
+                                        "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                                      " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                      " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                      " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                        ")")
+                                        .AddParameters(new { workId = input.Id, StudentUid = vmodel.arrShikaoUser[q].StudentUid, AtDate = wkTime, StartTime = input.StartTime, EndTime = input.EndTime}).First();
+                                    if (anyValue != null)
+                                    {
+                                        rsg.msg = "此时间段，学员"+ vmodel.arrShikaoUser[q].Student_Name + "已有其它课程,无法排课";
+                                        rsg.code = 0;
+                                        return rsg;
+                                    }
+                                    input.ListeningName = vmodel.arrShikaoUser[q].Student_Name;
+                                    input.StudentUid = vmodel.arrShikaoUser[q].StudentUid;
+                                    input.Work_Title = vmodel.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName + ")";
+                                    input.CampusId = vmodel.CampusId;
+                                    TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
+                                    input.CourseTime = span.Hours;
+                                    //添加记录
+                                    recored.CampusId = vmodel.CampusId;
+                                    recored.Msg = "新增" + (input.StudyMode == 5 ? "模考," : "实考.") + input.Work_Title + ",学员" + vmodel.arrShikaoUser[q].Student_Name + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
+                                   
+                                    //公共模块
+                                    input.AT_Date = DateTime.Parse(wkTime);
+                                    input.CreateTime = DateTime.Now;
+                                    db.Insertable<C_Course_Work>(input).ExecuteCommand();
+                                    recored.CreateTime = DateTime.Now;
+                                    recored.CreateUid = input.CreateUid;
+                                    db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                                }
+                            }
                         }
                         rsg.msg = "新增课程成功";
                       
@@ -984,21 +1158,43 @@ namespace ADT.Repository
                     {
                         float oldCourseTime = 0;
                         C_Contrac_User u = db.Queryable<C_Contrac_User>().Where(it=>it.StudentUid==work.StudentUid).First();
-                        C_User_CourseTime useTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.SubjectId == work.SubjectId && it.ProjectId == work.ProjectId && it.Contra_ChildNo == work.Contra_ChildNo).First();
-                        if (useTime != null) {
-                            oldCourseTime = useTime.Course_UseTime;
-                            useTime.Course_UseTime = useTime.Course_UseTime - work.CourseTime;//恢复学员原来已用课时
+                        if (work.IsUsePresent == 0)
+                        {
+                            C_User_CourseTime useTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.SubjectId == work.SubjectId && it.ProjectId == work.ProjectId && it.Contra_ChildNo == work.Contra_ChildNo).First();
+                            if (useTime != null)
+                            {
+                                oldCourseTime = useTime.Course_UseTime;
+                                useTime.Course_UseTime = useTime.Course_UseTime - work.CourseTime;//恢复学员原来已用课时
+                            }
+                            C_Course_Work_Recored recored = new C_Course_Work_Recored();
+                            recored.Msg = "课程" + teach.User_Name + "_" + work.Work_Title + " " + work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime + "已删除，学员" + u.Student_Name + "已使用课时由" + oldCourseTime + "小时变回" + useTime.Course_UseTime + "小时";
+                            recored.CampusId = work.CampusId;
+                            recored.CreateUid = uid;
+                            recored.CreateTime = DateTime.Now;
+                            string msg = "课程" + teach.User_Name + "_" + work.Work_Title + " " + work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime + "已删除";
+                            //更新学员课时
+                            db.Updateable<C_User_CourseTime>(useTime).ExecuteCommand();
+                            //添加记录
+                            db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                         }
-                        C_Course_Work_Recored recored = new C_Course_Work_Recored();
-                        recored.Msg ="课程"+teach.User_Name + "_" + work.Work_Title+" "+work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime+"已删除，学员" + u.Student_Name+"已使用课时由"+oldCourseTime+"小时变回"+useTime.Course_UseTime+"小时";
-                        recored.CampusId = work.CampusId;
-                        recored.CreateUid = uid;
-                        recored.CreateTime = DateTime.Now;
-                        string msg = "课程" + teach.User_Name + "_" + work.Work_Title + " " + work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime + "已删除";
-                        //更新学员课时
-                        db.Updateable<C_User_CourseTime>(useTime).ExecuteCommand();
-                        //添加记录
-                        db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                        else {
+                            C_User_PresentTime useTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo == work.Contra_ChildNo).First();
+                            if (useTime != null)
+                            {
+                                oldCourseTime = useTime.Present_UseTime;
+                                useTime.Present_UseTime = useTime.Present_UseTime - work.CourseTime;//恢复学员原来已用课时
+                            }
+                            C_Course_Work_Recored recored = new C_Course_Work_Recored();
+                            recored.Msg = "课程" + teach.User_Name + "_" + work.Work_Title + " " + work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime + "已删除，学员" + u.Student_Name + "已使用赠送课时由" + oldCourseTime + "小时变回" + useTime.Present_UseTime + "小时";
+                            recored.CampusId = work.CampusId;
+                            recored.CreateUid = uid;
+                            recored.CreateTime = DateTime.Now;
+                            string msg = "课程" + teach.User_Name + "_" + work.Work_Title + " " + work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime + "已删除";
+                            //更新学员课时
+                            db.Updateable<C_User_PresentTime>(useTime).ExecuteCommand();
+                            //添加记录
+                            db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                        }
                     }
                     else if (work.StudyMode == 2 && work.Work_Stutas == 0)
                     {
@@ -1014,6 +1210,7 @@ namespace ADT.Repository
                         C_Course_Work_Recored recored = new C_Course_Work_Recored();
                         recored.Msg = "班课" + teach.User_Name + "_" + work.Work_Title+" "+ work.AT_Date.ToString("yyyy/MM//dd") + " " + work.StartTime + "-" + work.EndTime  + "已删除";
                         recored.CreateUid = uid;
+                        recored.CampusId = work.CampusId;
                         recored.CreateTime = DateTime.Now;
                         //批量更新学员课时
                         if (upCourseTime.Count > 0) {

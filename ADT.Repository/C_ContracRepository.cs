@@ -57,6 +57,7 @@ namespace ADT.Repository
                         model.StudyMode = input.StudyMode;
                         model.SignIn_Data = DateTime.Now;
                         model.Remarks = input.Remarks;
+                        model.PresentTime = input.PresentTime;
                         model.UpdateTime = DateTime.Now;
                         model.Contrac_Child_Status = (int)ConstraChild_Status.Change;// 子合同变更状态
                         var contracChildId = db.Updateable<C_Contrac_Child>(model).ExecuteCommand();
@@ -87,12 +88,13 @@ namespace ADT.Repository
                                 {
                                     if (model.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk)
                                     {
+
                                         decimal detailSum = 0;
                                         input.Child_Detail.ForEach(con => {
                                             detailSum += con.Price;
                                         });
                                         //金额相同(只改动了科目)允许改动
-                                        if ((detailSum*(model.ContraRate/10))+model.Added_Amount>model.Pay_Amount)
+                                        if ((detailSum*(model.ContraRate/10))!=model.Pay_Amount + model.Added_Amount)
                                         {
                                             rsg.code = 300;
                                             rsg.msg = "该合同为已支付合同,子合同项目最终价格合计已超过已支付价格,无法完成更改";
@@ -102,6 +104,7 @@ namespace ADT.Repository
                                         updateList.ForEach(con =>
                                         {
                                             var inputDeatail = input.Child_Detail.Find(cv => cv.Id == con.Id);
+                                            //更改科目
                                             if (inputDeatail != null &&(con.SubjectId== inputDeatail.SubjectId||con.ProjectId != inputDeatail.ProjectId)) {
                                                 db.Updateable<C_User_CourseTime>().SetColumns(vm => new C_User_CourseTime {SubjectId=inputDeatail.SubjectId,ProjectId= inputDeatail.ProjectId })
                                                .Where(vm => vm.Contra_ChildNo == model.Contra_ChildNo && vm.StudentUid == model.StudentUid && vm.SubjectId == con.SubjectId&&vm.ProjectId== con.ProjectId).ExecuteCommand();
@@ -178,6 +181,7 @@ namespace ADT.Repository
                         child.CC_Uid = contrac.CC_Uid;
                         child.UpdateUid = contrac.CreateUid;
                         child.CampusId = contrac.CampusId;
+                        child.PresentTime = input.PresentTime;
                         var contracChildId = db.Insertable<C_Contrac_Child>(child).ExecuteCommand();
                         if (contracChildId > 0)
                         {
@@ -345,6 +349,7 @@ namespace ADT.Repository
                                     child.StudyMode = childInput.StudyMode;
                                     child.SignIn_Data = DateTime.Now;
                                     child.Remarks = childInput.Remarks;
+                                    child.PresentTime = childInput.PresentTime;
                                     child.CreateUid = input.CreateUid;
                                     child.CreateTime = DateTime.Now;
                                     child.UpdateUid = input.CreateUid;
@@ -432,6 +437,7 @@ namespace ADT.Repository
                                 child.StartTime = childInput.StartTime;
                                 child.StudyMode = childInput.StudyMode;
                                 child.SignIn_Data = DateTime.Now;
+                                child.PresentTime = childInput.PresentTime;
                                 child.Remarks = childInput.Remarks;
                                 child.CreateUid = input.CreateUid;
                                 child.CreateTime = DateTime.Now;
@@ -1485,6 +1491,101 @@ namespace ADT.Repository
 
 
         /// <summary>
+        /// 子合同变更确认
+        /// </summary>
+        /// <param name="Contra_ChildNo"></param>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public ResResult ContracChildChangeConfig(string Contra_ChildNo, string uid)
+        {
+            ResResult rsg = new ResResult();
+            using (var db = SqlSugarHelper.GetInstance())
+            {
+                try
+                {
+                    db.BeginTran();
+                    if (!string.IsNullOrEmpty(Contra_ChildNo))
+                    {
+                        var model = db.Queryable<C_Contrac_Child>().Where(ite => ite.Contra_ChildNo.Equals(Contra_ChildNo)).First();
+                        model.UpdateUid = uid;
+                        model.UpdateTime = DateTime.Now;
+                        model.Contrac_Child_Status = (int)ConstraChild_Status.ChangeOk;
+                        db.Updateable<C_Contrac_Child>(model).ExecuteCommand();
+                        var updateList = db.Queryable<C_Contrac_Child_Detail>().Where(it => it.Contra_ChildNo ==Contra_ChildNo).ToList();
+                        var useCourTimeList = db.Queryable<C_User_CourseTime>().Where(con => con.Contra_ChildNo == model.Contra_ChildNo && con.StudentUid == model.StudentUid).ToList();
+                        decimal detailSum = 0;
+                        updateList.ForEach(con => {
+                            detailSum += con.Price;
+                        });
+                        //判断1对1,并且更改后价格相同则更改课时
+                        if (model.StudyMode == 1&& model.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk&& useCourTimeList!=null&& useCourTimeList.Count>0&& (detailSum * (model.ContraRate / 10))==model.Pay_Amount + model.Added_Amount) {
+                           foreach(var item in updateList) {
+                                var itemTime = useCourTimeList.Find(con => con.Contra_ChildNo == Contra_ChildNo && con.SubjectId == item.SubjectId && con.ProjectId == item.ProjectId&&con.StudentUid==model.StudentUid);
+                                //当课时不相同则修改
+                                if (item.Course_Time != itemTime.Course_Time) {
+                                    //如果已使用课时大于当前课时，则无法修改
+                                    if (itemTime.Course_UseTime > item.Course_Time)
+                                    {
+                                        var project = db.Queryable<C_Project>().Where(pro => pro.ProjectId == item.ProjectId).First();
+                                        rsg.code = 300;
+                                        rsg.msg = "科目" + project.ProjectName + "课时已使用" + itemTime.Course_UseTime + "小时,无法降低课时,请重新修改后再确认";
+                                        return rsg;
+                                    }
+                                    else if (itemTime.Course_Time == item.Course_Time) {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        db.Updateable<C_User_CourseTime>().SetColumns(vm => new C_User_CourseTime { Course_Time = item.Course_Time })
+                                        .Where(vm => vm.Contra_ChildNo == model.Contra_ChildNo && vm.StudentUid == model.StudentUid && vm.SubjectId == item.SubjectId && vm.ProjectId == item.ProjectId).ExecuteCommand();
+                                    }
+                                   
+                                }
+                            }
+                        }
+                        if (model.StudyMode == 1 && model.Pay_Stutas== (int)ConstraChild_Pay_Stutas.PayOk) {
+                            //赠送课时
+                            var presentTime = db.Queryable<C_User_PresentTime>().Where(pre => pre.Contra_ChildNo == model.Contra_ChildNo && pre.StudentUid == model.StudentUid).First();
+                            if (model.PresentTime > 0)
+                            {
+                                if (presentTime != null)
+                                {
+                                    presentTime.Present_Time = model.PresentTime;
+                                    presentTime.UpdateUid = model.CreateUid;
+                                    presentTime.UpdateTime = DateTime.Now;
+                                    db.Updateable<C_User_PresentTime>(presentTime).ExecuteCommand();
+                                }
+                                else
+                                {
+                                    db.Insertable<C_User_PresentTime>(new C_User_PresentTime
+                                    {
+                                        Contra_ChildNo = model.Contra_ChildNo,
+                                        Present_Time = model.PresentTime,
+                                        Present_UseTime = 0,
+                                        StudentUid = model.StudentUid,
+                                        CreateTime = DateTime.Now,
+                                        CreateUid = model.CreateUid,
+                                        UpdateTime = DateTime.Now
+                                    }).ExecuteCommand();
+                                }
+                            }
+                        }
+                    }
+                    db.CommitTran();
+                    rsg.code = 200;
+                    rsg.msg = "子合同已确认变更";
+                }
+                catch (Exception er)
+                {
+                    db.RollbackTran();//回滚
+                    rsg.msg = "子合同已确认变更失败-" + er.Message;
+                }
+            }
+            return rsg;
+        }
+
+
+        /// <summary>
         /// 确认收款
         /// </summary>
         /// <param name="collectionId"></param>
@@ -1858,6 +1959,20 @@ namespace ADT.Repository
                             if (item.Pay_Amount >= item.Saler_Amount)
                             {
                                 item.Pay_Stutas = (int)ConstraChild_Pay_Stutas.PayOk;
+                                //赠送课时有效
+                                var giveTime = db.Queryable<C_User_PresentTime>().Where(tm => tm.Contra_ChildNo == item.Contra_ChildNo).First();
+                                if (giveTime == null&&item.StudyMode==1) {
+                                    db.Insertable<C_User_PresentTime>(new C_User_PresentTime {
+                                        Contra_ChildNo = item.Contra_ChildNo,
+                                        Present_Time = item.PresentTime,
+                                        Present_UseTime = 0,
+                                        StudentUid = item.StudentUid,
+                                        CreateTime = DateTime.Now,
+                                        CreateUid = uid,
+                                        UpdateTime = DateTime.Now
+                                    }).ExecuteCommand();
+                                }
+
                             }
                             else if (item.Pay_Amount > 0 && item.Pay_Amount < item.Saler_Amount)
                             {
@@ -1949,6 +2064,7 @@ namespace ADT.Repository
                         collection.StudentName = input.StudentName;
                         collection.DeductAmount = input.DeductAmount;
                         collection.AddedAmount = input.AddedAmount;
+                        collection.PayStatus = 0;
                         var result = db.Updateable<C_Collection>(collection).ExecuteCommand();
                         if (result > 0 && input.CollectionDetail != null && input.CollectionDetail.Count > 0)
                         {
@@ -2011,6 +2127,53 @@ namespace ADT.Repository
             }
             return rsg;
 
+        }
+
+
+        public ResResult BackPartCostByTimeId(PartBackCostInput input) {
+            ResResult rsg = new ResResult();
+            using (var db = SqlSugarHelper.GetInstance())
+            {
+                try
+                {
+                    db.BeginTran();
+                    if (input.Id > 0)
+                    {
+                        var timeModel = db.Queryable<C_User_CourseTime>().Where(t => t.Id == input.Id).First();
+                        var stundent= db.Queryable<C_Contrac_User>().Where(t => t.StudentUid == timeModel.StudentUid).First();
+                        //更新科目课时
+                        if (timeModel.Course_Time == timeModel.Course_UseTime)
+                        {
+                            rsg.code = 0;
+                            rsg.msg = "无法部分退费,课时已用完";
+                        }
+                        else if (timeModel.Course_Time - input.BackCourseTime < timeModel.Course_UseTime)
+                        {
+                            rsg.code = 0;
+                            rsg.msg = "无法部分退费，课时只够退" + (timeModel.Course_Time - timeModel.Course_UseTime) + "小时";
+                        }
+                        else {
+                            db.Updateable<C_User_CourseTime>().SetColumns(v=>new C_User_CourseTime {Course_Time=(timeModel.Course_Time - input.BackCourseTime) }).Where(v=>v.Id==input.Id).ExecuteCommand();
+                            //更新学员余额
+                            db.Updateable<C_Contrac_User>().SetColumns(v => new C_Contrac_User { Amount = (stundent.Amount + input.BackAmount) }).Where(v => v.StudentUid ==timeModel.StudentUid).ExecuteCommand();
+                            rsg.code = 200;
+                            rsg.msg = "部分退费成功";
+                        }
+                    }
+                    else
+                    {
+                        rsg.code = 0;
+                        rsg.msg = "缺少参数";
+                    }
+                    db.CommitTran();
+                }
+                catch (Exception er)
+                {
+                    db.RollbackTran();//回滚
+                    rsg.msg = "保存到款收据操作失败-" + er.Message;
+                }
+            }
+            return rsg;
         }
     }
 }

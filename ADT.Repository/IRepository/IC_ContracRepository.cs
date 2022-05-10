@@ -131,6 +131,15 @@ namespace ADT.Repository.IRepository
 
 
         /// <summary>
+        /// 子合同确认变更
+        /// </summary>
+        /// <param name="Contra_ChildNo"></param>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        ResResult ContracChildChangeConfig(string Contra_ChildNo, string uid);
+
+
+        /// <summary>
         ///确认收款
         /// </summary>
         /// <param name="collectionId"></param>
@@ -145,5 +154,12 @@ namespace ADT.Repository.IRepository
         /// <param name="input"></param>
         /// <returns></returns>
         ResResult SaveCollection(CollectionInput input);
+
+        /// <summary>
+        /// 部分小时退费
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        ResResult BackPartCostByTimeId(PartBackCostInput input);
     }
 }

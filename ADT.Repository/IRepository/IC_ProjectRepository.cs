@@ -1,4 +1,5 @@
 ﻿using ADT.Models;
+using ADT.Models.InputModel;
 using ADT.Models.ResModel;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,12 @@ namespace ADT.Repository.IRepository
         /// <param name="input"></param>
         /// <returns></returns>
         ResResult SaveProjectUnit(ProjectUnitInput input);
+
+        /// <summary>
+        /// 保存单元考试局
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        ResResult SaveProjectUnitTime(ProjectUnitTimeInput input);
     }
 }
