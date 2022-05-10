@@ -127,5 +127,10 @@ namespace ADT.Models
         /// 是否已发送家庭作业
         /// </summary>
         public int IsSendWork { get; set; }
+
+        /// <summary>
+        /// 是否使用赠送课时
+        /// </summary>
+        public int IsUsePresent { get; set; }
     }
 }

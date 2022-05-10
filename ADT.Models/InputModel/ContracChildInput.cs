@@ -103,6 +103,11 @@ namespace ADT.Models.InputModel
         public string Remarks { get; set; }
 
         /// <summary>
+        /// 赠送课时
+        /// </summary>
+        public float PresentTime { get; set; }
+
+        /// <summary>
         /// 子合同明细
         /// </summary>
         public List<C_Contrac_Child_Detail> Child_Detail { get; set; }

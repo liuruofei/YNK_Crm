@@ -11,6 +11,12 @@ namespace ADT.Models
     {
         public int UnitId { get; set; }
         public string UnitName { get; set; }
+
+        /// <summary>
+        /// 单元编码
+        /// </summary>
+        public string UnitCode { get; set; }
+
         public int ProjectId { get; set; }
         public int SubjectId { get; set; }
         public int Sort { get; set; }

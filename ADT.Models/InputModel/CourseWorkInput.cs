@@ -88,6 +88,11 @@ namespace ADT.Models.InputModel
         public int CampusId { get; set; }
 
         /// <summary>
+        /// 是否使用赠送课时
+        /// </summary>
+        public int IsUsePresent { get; set; }
+
+        /// <summary>
         /// 试听用户
         /// </summary>
         public string ListeningName { get; set; }
@@ -119,5 +124,15 @@ namespace ADT.Models.InputModel
         /// 模板Id
         /// </summary>
         public string templateId { get; set; }
+
+        /// <summary>
+        /// 实考学员
+        /// </summary>
+        public List<ShikaoUser> arrShikaoUser { get; set; }
+    }
+
+    public class ShikaoUser {
+        public int StudentUid { get; set; }
+        public string Student_Name { get; set; }
     }
 }
