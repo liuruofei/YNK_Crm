@@ -1,4 +1,5 @@
 ﻿using ADT.Models;
+using ADT.Models.InputModel;
 using ADT.Models.ResModel;
 using ADT.Repository.IRepository;
 using ADT.Service.IService;
@@ -23,6 +24,15 @@ namespace ADT.Service
         /// <returns></returns>
         public ResResult SaveProjectUnit(ProjectUnitInput input) {
             return _projectRepository.SaveProjectUnit(input);
+        }
+
+        /// <summary>
+        /// 保存单元考试局
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public ResResult SaveProjectUnitTime(ProjectUnitTimeInput input) {
+            return _projectRepository.SaveProjectUnitTime(input);
         }
     }
 }

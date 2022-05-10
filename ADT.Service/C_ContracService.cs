@@ -200,5 +200,14 @@ namespace ADT.Service
         public ResResult SaveCollection(CollectionInput input) {
             return _contracRepository.SaveCollection(input);
         }
+
+        /// <summary>
+        /// 部分小时退费
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public ResResult BackPartCostByTimeId(PartBackCostInput input) {
+            return _contracRepository.BackPartCostByTimeId(input);
+        }
     }
 }

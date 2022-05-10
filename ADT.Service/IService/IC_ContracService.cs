@@ -164,5 +164,12 @@ namespace ADT.Service.IService
         /// <param name="input"></param>
         /// <returns></returns>
         ResResult SaveCollection(CollectionInput input);
+
+        /// <summary>
+        /// 部分小时退费
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        ResResult BackPartCostByTimeId(PartBackCostInput input);
     }
 }
