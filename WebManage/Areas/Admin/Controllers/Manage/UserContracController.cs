@@ -159,7 +159,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 ClassName =cl.Class_Name,
                 IsPreferential = c.IsPreferential,
                 Pay_Amount = c.Pay_Amount,
-                Original_Amount = c.Original_Amount
+                Original_Amount = c.Original_Amount,
+                PresentTime=c.PresentTime
             }).First();
             if (!string.IsNullOrEmpty(childcontraNo))
                 vmodel.ListItem = _currencyService.DbAccess().Queryable<C_Contrac_Child_Detail>().Where(n => n.Contra_ChildNo == childcontraNo).ToList();

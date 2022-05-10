@@ -16,25 +16,31 @@
                 <select name="ProjectId" lay-filter="ProjectId"></select>
             </div>
         </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">单元</label>
+            <div class="layui-input-inline">
+                <select name="UnitId" lay-filter="UnitId"></select>
+            </div>
+        </div>
     </div>
     <div class="layui-form-item">
         <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
-            <legend>科目单元</legend>
+            <legend>考试日</legend>
         </fieldset>
         <div style="padding:9px 16px">
             <button type="button" class="btn btn-primary btn-lg" id="btnAddProject">
-                添加科目单元
+                添加考试日
             </button>
             <table class="layui-table">
                 <thead>
                     <tr>
-                        <th>序号</th>
-                        <th>单元名称</th>
-                        <th>单元编码</th>
+                        <th>考试类型</th>
+                        <th>考试季</th>
+                        <th>考试日期</th>
                         <th>操作</th>
                     </tr>
                 </thead>
-                <tbody id="child_Project">
+                <tbody id="child_UnitTime">
                 </tbody>
             </table>
         </div>
@@ -64,27 +70,25 @@
     <script type="text/html" id="templateChild">
         {{each data item index}}
         <tr>
-            <td>{{index}} <input type="hidden" name="UnitId" value="{{item.UnitId}}" /></td>
-            <td><input  name="UnitName" value="{{item.UnitName}}"/></td>
-            <td><input name="UnitCode" value="{{item.UnitCode}}"/></td>
+            <td><input name="Unit_TimeType" value="{{item.Unit_TimeType}}" /></td>
+            <td><input name="Unit_TimeName" value="{{item.Unit_TimeName}}" /></td>
+            <td><input name="At_Date" value="{{item.At_Date}}" /></td>
             <td>
-                <button type="button"  onclick="remove(this)">删除</button>
+                <input type="hidden" name="Id" value="{{item.Id}}" />
+                <button type="button" onclick="remove(this)">删除</button>
             </td>
         </tr>
         {{/each}}
     </script>
     <script type="text/html" id="templateAdd">
         <tr>
+            <td><input name="Unit_TimeType" /></td>
+            <td><input name="Unit_TimeName" /></td>
+            <td><input name="At_Date"/></td>
             <td>
-                <input type="hidden" name="UnitId" value="0" />
+                <input type="hidden" name="Id" value="0" />
+                <button type="button" onclick="remove(this)">删除</button>
             </td>
-            <td>
-                <input type="text" name="UnitName" />
-            </td>
-            <td>
-                <input type="text" name="UnitCode" />
-            </td>
-            <td><button type="button" onclick="remove(this)">删除</button></td>
         </tr>
     </script>
     <script>
@@ -103,9 +107,9 @@
                     url: "@Url.Action("Find")",
                     dataType: 'json',
                     callBack: function (r) {
-                        if (r.UnitList != undefined && r.UnitList != null) {
-                            var html = template("templateChild", { data: r.UnitList});
-                            document.getElementById("child_Project").innerHTML = html;
+                        if (r.UnitTimeList != undefined && r.UnitTimeList != null) {
+                            var html = template("templateChild", { data: r.UnitTimeList});
+                            document.getElementById("child_UnitTime").innerHTML = html;
                         }
                         adminForm.load({
                         url: "@Url.Action("QuerySubject","ContracUser")",
@@ -116,11 +120,11 @@
                                 for (var i = 0; i < result.length; i++) {
                                     if (r != undefined && r.SubjectId != null && r.SubjectId == result[i].SubjectId) {
                                         $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName +'</option>');
-                                        bindProject(r.SubjectId, r.ProjectId);
+                                        bindProject(r.SubjectId, r.ProjectId, r.UnitId);
                                     } else {
                                         $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
                                         if (i == 0) {
-                                            bindProject(result[i].SubjectId);
+                                            bindProject(result[i].SubjectId,null,null);
                                         }
                                     }
                                 }
@@ -131,16 +135,18 @@
                 });
             },
             Save: function (data) {
-                data.field.UnitList = [];
-                $("#child_Project>tr").each(function (i, ite) {
+                data.field.UnitTimeList = [];
+                $("#child_UnitTime>tr").each(function (i, ite) {
                     var td = $(ite).find("td");
-                    var UnitId = td.find("input[name='UnitId']").val();
-                    var UnitName = td.find("input[name='UnitName']").val();
-                    var UnitCode = td.find("input[name='UnitCode']").val();
-                    data.field.UnitList.push({ UnitId: UnitId, UnitName: UnitName, UnitCode: UnitCode});
+                    var Id = td.find("input[name='Id']").val();
+                    var Unit_TimeType = td.find("input[name='Unit_TimeType']").val();
+                    var Unit_TimeName = td.find("input[name='Unit_TimeName']").val();
+                    var At_Date = td.find("input[name='At_Date']").val();
+                    data.field.UnitTimeList.push({ Id: Id, Unit_TimeType: Unit_TimeType, Unit_TimeName: Unit_TimeName, At_Date:At_Date});
                 });
-                if (data.field.UnitList.length < 1) {
-                    layer.msg("请添加单元科目");
+                if (data.field.UnitTimeList.length < 1) {
+                    console.log(data.field.UnitTimeList);
+                    layer.msg("请添加考试日");
                     return false;
                 }
                 adminForm.Save({
@@ -156,23 +162,30 @@
         form.on('select(SubjectId)', function (data) {
             var subjectId = data.value;
             if (subjectId > 0) {
-                document.getElementById("child_Project").innerHTML = "";
+                document.getElementById("child_UnitTime").innerHTML = "";
                 bindProject(subjectId);
             }
         });
         form.on('select(ProjectId)', function (data) {
             var projectId = data.value;
             if (projectId > 0) {
-                document.getElementById("child_Project").innerHTML = "";
+                document.getElementById("child_UnitTime").innerHTML = "";
+                bindUnit(projectId);
+            }
+        });
+        form.on('select(UnitId)', function (data) {
+            var unitId = data.value;
+            if (unitId > 0) {
+                document.getElementById("child_UnitTime").innerHTML = "";
                 adminForm.load({
-                url: "@Url.Action("GetProjetUnitByProjectId")",
-                data:{projectId:projectId },
+                url: "@Url.Action("GetTimeByUnitId")",
+                data: { unitId: unitId },
                 dataType: 'json',
                 callBack: function (rou) {
                     if (rou.data != null) {
                         var result = rou.data;
                         var html = template("templateChild", { data:result});
-                        document.getElementById("child_Project").innerHTML = html;
+                        document.getElementById("child_UnitTime").innerHTML = html;
                     }
                   }
                 });
@@ -185,20 +198,20 @@
         });
 
         $("#btnAddProject").click(function () {
-            $("#child_Project").append($("#templateAdd").html());
+            $("#child_UnitTime").append($("#templateAdd").html());
         })
     });
         function remove(obj) {
-            var unitId = $(obj).parents("tr").find("td").find("input[name='UnitId']").val();
-            if (unitId < 1) {
+            var timeId = $(obj).parents("tr").find("td").find("input[name='Id']").val();
+            if (timeId < 1) {
                 $(obj).parents("tr").remove();
             }
             else {
                 layui.use(['adminForm'], function () {
                     var adminForm = layui.adminForm;
                     adminForm.Save({
-                    url: '@Url.Action("DeleteUnit")',
-                    data: {Id:unitId},
+                    url: '@Url.Action("Delete")',
+                    data: { Id: timeId},
                     callBack: function (result) {
                         if (result.code == 200) {
                             layer.msg(result.msg);
@@ -210,7 +223,7 @@
                 });
             }
         }
-        function bindProject(subjectId, defaultProjectId) {
+        function bindProject(subjectId, defaultProjectId,defulatUnitId) {
             layui.use(['adminForm'], function () {
                 var adminForm = layui.adminForm;
                adminForm.load({
@@ -224,9 +237,40 @@
                         for (var i = 0; i < result.length; i++) {
                             if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0 && defaultProjectId == result[i].ProjectId) {
                                 $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + ' selected>' + result[i].ProjectName + '</option>');
+                                if (defulatUnitId != null && defulatUnitId != undefined) {
+                                    bindUnit(defaultProjectId, defulatUnitId);
+                                }
                             }
                             else {
                                 $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                                if (i == 0) {
+                                    bindUnit(result[i].ProjectId);
+                                }
+                            }
+                        }
+                    }
+                }
+              });
+            });
+        }
+
+        function bindUnit(projectId, defaultUnitId) {
+             layui.use(['adminForm'], function () {
+              var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryUnit")",
+                data: { projetId: projectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='UnitId']").html("");
+                        var result = rou.data;
+                        for (var i = 0; i < result.length; i++) {
+                            if (defaultUnitId != undefined && defaultUnitId != null && defaultUnitId > 0 && defaultUnitId == result[i].UnitId) {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + ' selected>' + result[i].UnitName + '</option>');
+                            }
+                            else {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + '>' + result[i].UnitName + '</option>');
                             }
                         }
                     }

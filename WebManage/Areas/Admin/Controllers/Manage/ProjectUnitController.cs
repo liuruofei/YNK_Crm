@@ -52,6 +52,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     UnitId=unt.UnitId,
                     UnitName=unt.UnitName,
+                    UnitCode=unt.UnitCode,
                     SubjectId = unt.SubjectId,
                     SubjectName = sub.SubjectName,
                     ProjectId=unt.ProjectId,

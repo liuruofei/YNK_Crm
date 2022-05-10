@@ -30,6 +30,8 @@
                                 <option value="1">一对一</option>
                                 <option value="2">小班</option>
                                 <option value="4">试听</option>
+                                <option value="5">模考</option>
+                                <option value="6">实考</option>
                             </select>
                         </div>
                     </div>
@@ -47,6 +49,7 @@
                     </div>
                     <div class="layui-inline">
                         <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                        <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left:5px">导出</button>
                     </div>
                 </div>
             </div>
@@ -121,6 +124,33 @@
                         return "小班";
                     else if (d.StudyMode == 4)
                         return "试听";
+                    else if (d.StudyMode == 5)
+                        return "模考";
+                    else if (d.StudyMode == 6)
+                        return "实考";
+                }
+            },
+            {
+                field: 'Comment', title: '学员', sort: true, templet: function (d) {
+                    if (d.StudyMode == 1 || d.StudyMode == 5 || d.StudyMode == 6) {
+                        return d.Student_Name;
+                    }
+                    else if (d.StudyMode == 4) {
+                        return d.ListeningName;
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            },
+            {
+                field: 'Score', title: '成绩', sort: true, width: 120, templet: function (d) {
+                    if (d.StudyMode == 5 || d.StudyMode == 6) {
+                        return "<input type='number' value='" + d.Score + "' data-id='" + d.Id + "' style='width:80px' onchange='SetScore(this)'/>";
+                    }
+                    else {
+                        return "";
+                    }
                 }
             },
             { field: 'Comment', title: '点评内容', sort: true },
@@ -196,6 +226,27 @@
         });
     };
         });
+     function SetScore(obj) {
+            console.log($(obj).attr("data-id"));
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("SetScore")",
+                data: { Id: $(obj).attr("data-id"), Score: $(obj).val() },
+                dataType: 'json',
+                contentType: 'application/x-www-form-urlencoded',
+                success: function (data) {
+                    layer.msg(data.msg);
+                }
+            });
+        }
+     function exportPlan() {
+         var title = $('#title').val();
+         var workStutas = parseInt($('#Work_Stutas').val());
+         var studymode = parseInt($('#StudyMode').val());
+         var startTime = $('#startTime').val();
+         var endTime = $('#endTime').val();
+         window.location.href = '@Url.Action("ExportPlan")?title=' + title + '&workStutas=' + workStutas + '&studymode=' + studymode + '&startTime=' + startTime + '&endTime=' + endTime;
+     }
         function dateFtt(fmt, val) { //author: meizz
             var date = new Date(val);
             var o = {

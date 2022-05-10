@@ -1,0 +1,251 @@
+﻿
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">关键字：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="txtTitle" class="layui-input" type="text" placeholder="输入标题" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">类别：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="SubjectId" id="SubjectId" lay-filter="SubjectId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">科目：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="ProjectId" id="ProjectId" lay-filter="ProjectId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">单元：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="UnitId" id="UnitId" lay-filter="UnitId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                        <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left:5px">导出</button>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="StudentUid" value="@ViewBag.studentUid" id="StudentUid" />
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    @*<a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">查看</a>*@
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var form = layui.form;
+    var adminList = layui.adminList;
+    var adminForm = layui.adminForm;
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        page: true,
+        where: { title: '', studentUid: $('#StudentUid').val() },
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            {
+                field: 'StudyMode', title: '考试类型', sort: true, templet: function (d) {
+                    return d.StudyMode==5 ? "模考" : "其它";
+                }
+            },
+            { field: 'Student_Name', title: '姓名', sort: true },
+            {
+                field: 'AT_Date', title: '日期', sort: true,templet: function (d) {
+                    return dateFtt("yyyy-MM-dd", d.AT_Date);
+                }
+            },
+            {
+                field: 'StartTime', title: '时间', sort: true, templet: function (d) {
+                    return d.StartTime + '-' + d.EndTime;
+                }
+            },
+            { field: 'SubjectName', title: '类别', sort: true },
+            { field: 'ProjectName', title: '科目', sort: true },
+            { field: 'UnitName', title: '单元', sort: true },
+            { field: 'Score', title: '成绩', sort: true },
+        ]]
+    });
+
+    adminForm.load({
+    url: "@Url.Action("QuerySubject","ContracUser")",
+    dataType: 'json',
+    callBack: function (rou) {
+        if (rou.data != null) {
+            var result = rou.data;
+            $("select[name='SubjectId']").append('<option value ="0">-请选择-</option>');
+            for (var i = 0; i < result.length; i++) {
+                $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+            }
+        }
+    }
+    });
+
+    form.on('select(SubjectId)', function (data) {
+            var title = $('#txtTitle').val();
+            var subjectId = data.value;
+           if (parseInt(subjectId)> 0) {
+                bindProject(subjectId);
+                insTb.reload({
+                    where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: 0 }
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+            }
+            else {
+                console.log(subjectId);
+                $("select[name='ProjectId']").html("");
+                $("select[name='UnitId']").html("");
+            }
+        });
+    form.on('select(ProjectId)', function (data) {
+                var title = $('#txtTitle').val();
+                var subjectId = $('#SubjectId').val();
+                var projectid = data.value;
+                if (projectid > 0) {
+                    bindUnit(projectid);
+                    insTb.reload({
+                        where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: projectid, unitId:0}
+                        , page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
+                }
+            });
+    form.on('select(UnitId)', function (data) {
+                var title = $('#txtTitle').val();
+                var subjectId = $('#SubjectId').val();
+                var projectid = $('#ProjectId').val();
+                var unitId = data.value;
+                if (projectid > 0) {
+                    insTb.reload({
+                        where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: projectid,unitId:unitId}
+                        , page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
+                }
+            });
+
+    // 搜索
+    $('#btnSearch').click(function () {
+        var title = $('#txtTitle').val();
+        var subjectId = $('#SubjectId').val();
+        var projectid = $('#ProjectId').val();
+        var unitId = $('#UnitId').val();
+        insTb.reload({
+            where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: projectid, unitId: unitId }
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+    });
+});
+     function bindProject(subjectId) {
+            layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryProject","ProjectUnitTime")",
+                data: { subjectId: subjectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='ProjectId']").html("");
+                        var result = rou.data;
+                        $("select[name='ProjectId']").append('<option value ="0">-请选择-</option>');
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                        }
+                    }
+                }
+              });
+            });
+        }
+     function bindUnit(projetId) {
+            layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryUnit","ProjectUnitTime")",
+                data: { projetId: projetId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='UnitId']").html("");
+                        var result = rou.data;
+                        $("select[name='UnitId']").append('<option value ="0">-请选择-</option>');
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + '>' + result[i].UnitName + '</option>');
+                        }
+                    }
+                }
+              });
+            });
+        }
+
+     function exportPlan() {
+         var studentUid = $("input[name='StudentUid']").val();
+         var title = $('#txtTitle').val();
+         var subjectId = $('#SubjectId').val();
+         var projectid = $('#ProjectId').val();
+         var unitId = $('#UnitId').val();
+         window.location.href = '@Url.Action("ExportPlan")?studentUid=' + studentUid + '&subjectId=' + subjectId + '&projectid=' + projectid + '&unitId=' + unitId;
+     }
+
+     function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+    </script>
+}

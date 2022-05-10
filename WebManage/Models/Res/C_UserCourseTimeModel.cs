@@ -49,5 +49,35 @@ namespace WebManage.Models.Res
         /// 是否是试听
         /// </summary>
         public int IsLinsting { get; set; }
+
+        /// <summary>
+        /// 是否赠送课时
+        /// </summary>
+        public int IsPresent { get; set; }
+
+        /// <summary>
+        /// 等级1价格
+        /// </summary>
+        public decimal Lvel1Price { get; set; }
+
+        /// <summary>
+        /// 等级2价格
+        /// </summary>
+        public decimal Lvel2Price { get; set; }
+
+        /// <summary>
+        /// 等级3价格
+        /// </summary>
+        public decimal Lvel3Price { get; set; }
+
+        /// <summary>
+        /// 等级4价格
+        /// </summary>
+        public decimal Lvel4Price { get; set; }
+
+        /// <summary>
+        /// 单价
+        /// </summary>
+        public decimal UnitPrice { get; set; }
     }
 }

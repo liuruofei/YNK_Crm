@@ -26,6 +26,7 @@ namespace WebManage.Controllers
             return View();
         }
 
+
         [HttpPost]
         public IActionResult GetWorkModel(int wkId) {
             ResResult rg = new ResResult() { code = 0, msg = "获取失败" };

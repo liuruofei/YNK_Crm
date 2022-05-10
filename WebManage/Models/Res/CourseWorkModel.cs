@@ -146,5 +146,15 @@ namespace WebManage.Models.Res
         /// </summary>
         public string SubjectName { get; set; }
 
+        /// <summary>
+        /// 成绩
+        /// </summary>
+        public float Score { get; set; }
+
+        /// <summary>
+        /// 试听用户
+        /// </summary>
+        public string ListeningName { get; set; }
+
     }
 }

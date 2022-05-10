@@ -245,8 +245,6 @@
                             <select name="StudyMode" lay-verify="required" lay-search="" lay-filter="StudyMode">
                                 <option value="1">一对一</option>
                                 <option value="2">小班</option>
-                                <option value="3">付费教材</option>
-                                <option value="4">考团</option>
                             </select>
                         </div>
                     </div>
@@ -264,6 +262,12 @@
                         <label class="layui-form-label">课时</label>
                         <div class="layui-input-inline">
                             <input name="Class_Course_Time" type="text" class="layui-input" value="0" disabled />
+                        </div>
+                    </div>
+                    <div class="layui-inline" id="partPresentTime">
+                        <label class="layui-form-label">赠送课时</label>
+                        <div class="layui-input-inline">
+                            <input name="PresentTime"  type="number" class="layui-input" value="0" />
                         </div>
                     </div>
                 </div>
@@ -353,7 +357,7 @@
                             <tr>
                                 <td><select name="SubjectId"></select></td>
                                 <td><select name="ProjectId"></select></td>
-                                <td><input type="text" name="Course_Time" style="width:80px" class="layui-input" /></td>
+                                <td style="width:80px"><select name="Course_Time"  /></td>
                                 <td>
                                     <select name="Level" style="width:60px;">
                                         <option value="1">1</option>
@@ -431,7 +435,7 @@
         <tr>
             <td><select name="SubjectId" lay-filter="SubjectId"></select></td>
             <td><select name="ProjectId"></select></td>
-            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="1" lay-event="Course_Time" lay-filter="Course_Time" /></td>
+            <td  style="width:80px"><select name="Course_Time"  lay-filter="Course_Time" /></td>
             <td>
                 <select name="Level" style="width:60px;" lay-filter="Level">
                     <option value="1">1</option>
@@ -450,8 +454,8 @@
         {{each data item index}}
         <tr>
             <td><select name="SubjectId" lay-filter="SubjectId"></select></td>
-            <td><select name="ProjectId"></select></td>
-            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="{{item.Course_Time}}" lay-event="Course_Time" lay-filter="Course_Time" /></td>
+            <td style="width:80px"><select name="ProjectId"></select></td>
+            <td><select name="Course_Time" lay-filter="Course_Time"  /></td>
             <td>
                 <select name="Level" style="width:60px;" lay-filter="Level">
                     <option value="1">1</option>
@@ -473,6 +477,7 @@
         {{/each}}
     </script>
     <script>
+        var timeList = [];
         var subjectList = [];
         var campusList = [];
         var classList = [];
@@ -494,6 +499,7 @@
             Contra_Property: 0,
             Saler_Amount: 0,
             Added_Amount: 0,
+            PresentTime:0,
             Remarks: '',
             Child_Detail: []
         };
@@ -512,6 +518,7 @@
             Contra_Property: 0,
             Saler_Amount: 0,
             Added_Amount: 0,
+            PresentTime: 0,
             Remarks: ''
         }
         layui.use(['form', 'admin', 'adminForm', 'laydate','table'], function () {
@@ -570,8 +577,11 @@
                             }
                         }
                     }
-                  });
-
+                   });
+                //初始化160个小时
+                for (var f = 1; f < 161; f++) {
+                    timeList.push(f);
+                }
             },
             LoadClass: function (className) {
                    adminForm.load({
@@ -678,12 +688,18 @@
        $("#addDetail").click(function () {
            $("#child_Contrc_Detail").append($("#templateItemAdd").html());
            LastInitSubject();
+           for (var k = 0; k < timeList.length; k++) {
+               $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k]+'</option>');
+           } 
        });
         $("#btnAddChild").click(function () {
             $("#childContrcDilog").show();
             $("#child_Contrc_Detail").html("");
             $("#child_Contrc_Detail").append($("#templateItemAdd").html());
             LastInitSubject();
+            for (var k = 0; k < timeList.length; k++) {
+                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+            } 
             var contraNo = $("input[name='ContraNo']").val();
             childList.sort((a, b) => {
                 if (a.Sort > b.Sort) return -1;
@@ -707,6 +723,7 @@
                 Contra_Property: 0,
                 Saler_Amount: 0,
                 Added_Amount: 0,
+                PresentTime:0,
                 Remarks: '',
                 Child_Detail: []
             };
@@ -760,7 +777,7 @@
                         var sbujectId = td.find("select[name='SubjectId']").val();
                         var projectId = td.find("select[name='ProjectId']").val();
                         var level = td.find("select[name='Level']").val();
-                        var courseTime = td.find("input[name='Course_Time']").val();
+                        var courseTime = td.find("select[name='Course_Time']").val();
                         var price = td.find("input[name='Price']").val();
                         newObject.CourseTimeTotal += parseFloat(courseTime);
                         newObject.Child_Detail.push({ Course_Time: courseTime, ProjectId: projectId, SubjectId: sbujectId, Level: level, Price: price });
@@ -797,7 +814,7 @@
                 $("#child_Contrc_Detail").find("tr").each(function (index, item) {
                     var td = $(item).find("td");
                     var level = td.find("select[name='Level']").val();
-                    var courseTime = td.find("input[name='Course_Time']").val();
+                    var courseTime = td.find("select[name='Course_Time']").val();
                     var price = td.find("input[name='Price']");
                     var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
                     var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
@@ -846,7 +863,7 @@
             var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
             var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
             var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
-            var courseTime = td.find("input[name='Course_Time']").val();
+            var courseTime = td.find("select[name='Course_Time']").val();
             var price = td.find("input[name='Price']");
            adminForm.load({
                     url: "@Url.Action("QueryProject")?subjectId=" + sujectId,
@@ -883,7 +900,7 @@
                 var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
                 var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
                 var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
-                var courseTime = td.find("input[name='Course_Time']").val();
+                var courseTime = td.find("select[name='Course_Time']").val();
                 if (level == 1) {
                     price.val((courseTime * leve1Price).toFixed(2));
                 }
@@ -897,16 +914,40 @@
                     price.val((courseTime * leve4Price).toFixed(2));
                 }
         });
+        form.on('select(Course_Time)', function (data) {
+                var td = $(this).parents("tr").find("td");
+                var price = td.find("input[name='Price']");
+                var level = td.find("select[name='Level']").val();
+                var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+                var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+                var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+                var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+                var courseTime = data.value;
+                if (level == 1) {
+                    price.val((courseTime * leve1Price).toFixed(2));
+                }
+                if (level == 2) {
+                    price.val((courseTime * leve2Price).toFixed(2));
+                }
+                if (level == 3) {
+                    price.val((courseTime * leve3Price).toFixed(2));
+                }
+                if (level == 4) {
+                    price.val((courseTime * leve4Price).toFixed(2));
+                }
+            });
 
         form.on('select(StudyMode)', function (data) {
             var studymode = data.value;
             if (parseInt(studymode) == 2) {
+                $("input[name='PresentTime']").val(0);
                 $("#OneOfOne").css("display","none");
                 $("#child_Contrc_Detail").find("tr").remove();
                 $("#partClassHourse").show();
                 $("#partClass").show();
                 $("#sumTotal").css("display", "none");
                 $("#addDetail").css("display", "none");
+                $("#partPresentTime").css("display", "none");
             }
             else {
                 $("#OneOfOne").show();
@@ -914,6 +955,7 @@
                 $("#partClass").css("display", "none");
                 $("#sumTotal").show();
                 $("#addDetail").show();
+                $("#partPresentTime").show();
             }
         });
         form.on('select(ClassId)', function (data) {
@@ -962,10 +1004,6 @@
                 }
         });
 
-        form.on('input(Course_Time)', function (obj) {
-            var data = obj.data; var layEvent = obj.event;
-            console.log(data);
-        });
         // 表单提交事件
         form.on('submit(modelUserSubmit)', function (data) {
             App.Save(data);
@@ -985,10 +1023,14 @@
                 $("#child_Contrc_Detail").find("tr").find("td").find("select[name='SubjectId']").append('<option value ="' + subjectList[i].SubjectId +
                     '" lvel1Price="' + subjectList[i].Lvel1Price + '"  Lvel2Price="' + subjectList[i].Lvel2Price + '"  Lvel3Price="' + subjectList[i].Lvel3Price+'"  Lvel4Price="' + subjectList[i].Lvel4Price+'">' + subjectList[i].SubjectName + '</option>');
             }
+            for (var k = 0; k < timeList.length; k++) {
+                $("#child_Contrc_Detail").find("tr").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+            } 
             var i = 0;
             childInfo.Child_Detail.forEach(item => {
                 $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='SubjectId']").val(item.SubjectId);
                 $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Level']").val(item.Level);
+                $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Course_Time']").val(item.Course_Time);
                 i++;
             });
             childInfo.Child_Detail.forEach(item => {
@@ -1075,12 +1117,14 @@
                 $("#partClassHourse").show();
                 $("#partClass").show();
                 $("#sumTotal").css("display", "none");
+                $("#partPresentTime").css("display", "none");
             }
             else {
                 $("#OneOfOne").show();
                 $("#partClassHourse").css("display","none");
                 $("#partClass").css("display", "none");
                 $("#sumTotal").show();
+                $("#partPresentTime").show();
             }
             $("#childContrcDilog").css("display", "block");
         }

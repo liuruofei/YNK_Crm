@@ -74,6 +74,12 @@
                 <input name="Class_Course_Time" type="text" class="layui-input" />
             </div>
         </div>
+        <div class="layui-inline" id="partPresentTime">
+            <label class="layui-form-label">赠送课时</label>
+            <div class="layui-input-inline">
+                <input name="PresentTime" type="number" class="layui-input" value="0" />
+            </div>
+        </div>
     </div>
     <div class="layui-form-item">
         <div class="layui-inline">
@@ -164,7 +170,7 @@
                     <tr>
                         <td><select name="SubjectId"></select></td>
                         <td><select name="ProjectId"></select></td>
-                        <td><input type="text" name="Course_Time" style="width:80px" class="layui-input" /></td>
+                        <td  style="width:80px"><select type="text" name="Course_Time"/></td>
                         <td>
                             <select name="Level" style="width:60px;">
                                 <option value="1">1</option>
@@ -182,7 +188,7 @@
     <div class="layui-form-item text-right positionbottom">
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
         <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
-        <button type="button" id="sumTotal" style="float:right;margin-right:20px">合计总价</button>
+        <button type="button" id="sumTotal" style="float: right;border:0px;margin-left: 20px;height: 38px;line-height:38px;padding:0 18px;background-color: #d94718;color: white">合计总价</button>
     </div>
 </form>
 @section js{
@@ -194,7 +200,7 @@
                 <input type="hidden" name="detailId" value="0" />
             </td>
             <td><select name="ProjectId"></select></td>
-            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="1" lay-filter="Course_Time" /></td>
+            <td style="width:80px"><select  name="Course_Time"   lay-filter="Course_Time" /></td>
             <td>
                 <select name="Level" style="width:60px;" lay-filter="Level">
                     <option value="1">1</option>
@@ -217,7 +223,7 @@
                 <input type="hidden" name="detailId" value="{{item.Id}}" />
             </td>
             <td><select name="ProjectId" lay-filter="ProjectId{{index}}"></select></td>
-            <td><input type="number" name="Course_Time" style="width:80px" class="layui-input" value="{{item.Course_Time}}" lay-filter="Course_Time" /></td>
+            <td style="width:80px"><select name="Course_Time"  lay-filter="Course_Time"/></td>
             <td>
                 <select name="Level" style="width:60px;" lay-filter="Level">
                     <option value="1">1</option>
@@ -239,6 +245,7 @@
         {{/each}}
     </script>
     <script>
+        var timeList = [];
         var subjectList = [];
         var listitem = [];
         layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
@@ -254,6 +261,10 @@
             });
             var App = {
                 Load: function () {
+                    //初始化160个小时
+                    for (var f = 1; f < 161; f++) {
+                        timeList.push(f);
+                    }
                     adminForm.load({
                         formName: 'modelUserForm',
                         url: "@Url.Action("FindChild")",
@@ -274,9 +285,13 @@
                                 }
                                 var html = template("templateItem", { data: r.ListItem });
                                 document.getElementById("child_Contrc_Detail").innerHTML = html;
+                                for (var k = 0; k < timeList.length; k++) {
+                                    $("#child_Contrc_Detail").find("tr").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+                                } 
                                 var i = 0;
                                 r.ListItem.forEach(item => {
                                     $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Level']").val(item.Level);
+                                    $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Course_Time']").val(item.Course_Time);
                                     i++;
                                 });
                                 if (r.StudyMode == 1) {
@@ -289,6 +304,9 @@
                             else {
                                 $("#child_Contrc_Detail").html("");
                                 $("#child_Contrc_Detail").append($("#templateItemAdd").html());
+                                for (var k = 0; k < timeList.length; k++) {
+                                    $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+                                } 
 
                             }
                             adminForm.load({
@@ -328,10 +346,13 @@
                             if (r.StudyMode == 2) {
                                 $("#partClassHourse").show();
                                 $("#partClass").show();
+                                $("#partPresentTime").css("display", "none");
                             }
                             else {
                                 $("#partClassHourse").css("display","none");
                                 $("#partClass").css("display", "none");
+                                $("#partPresentTime").show();
+                                
                             }
                         }
                     });
@@ -391,7 +412,7 @@
                             var subjectid = td.find("select[name='SubjectId']").val();
                             var projectid = td.find("select[name='ProjectId']").val();
                             var level = td.find("select[name='Level']").val();
-                            var coursetime = td.find("input[name='Course_Time']").val();
+                            var coursetime = td.find("select[name='Course_Time']").val();
                             var price = td.find("input[name='Price']").val();
                             data.field.Child_Detail.push({Id:detailId,Course_Time: coursetime, SubjectId: subjectid, ProjectId: projectid, Level: level, Price: price});
                         });
@@ -496,6 +517,9 @@
         $("#addDetail").click(function () {
             $("#child_Contrc_Detail").append($("#templateItemAdd").html());
             LastInitSubject();
+            for (var k = 0; k < timeList.length; k++) {
+                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+            } 
         });
         App.Load();
         form.on('select(SubjectId)', function (data) {
@@ -507,7 +531,7 @@
             var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
             var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
             var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
-            var courseTime = td.find("input[name='Course_Time']").val();
+            var courseTime = td.find("select[name='Course_Time']").val();
             var price = td.find("input[name='Price']");
             $("#child_Contrc_Detail").find("tr:eq(" + trindex + ")").find("td").find("select[name='ProjectId']").html("");
             bindProject(sujectId, trindex);
@@ -533,7 +557,7 @@
                 var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
                 var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
                 var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
-                var courseTime = td.find("input[name='Course_Time']").val();
+                var courseTime = td.find("select[name='Course_Time']").val();
                 if (level == 1) {
                     price.val((courseTime * leve1Price).toFixed(2));
                 }
@@ -547,6 +571,28 @@
                     price.val((courseTime * leve4Price).toFixed(2));
                 }
         });
+        form.on('select(Course_Time)', function (data) {
+                var td = $(this).parents("tr").find("td");
+                var level = td.find("select[name='Level']").val();
+                var price = td.find("input[name='Price']");
+                var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+                var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+                var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+                var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+                var courseTime = data.value;
+                if (level == 1) {
+                    price.val((courseTime * leve1Price).toFixed(2));
+                }
+                if (level == 2) {
+                    price.val((courseTime * leve2Price).toFixed(2));
+                }
+                if (level == 3) {
+                    price.val((courseTime * leve3Price).toFixed(2));
+                }
+                if (level == 4) {
+                    price.val((courseTime * leve4Price).toFixed(2));
+                }
+            });
         form.on('select(StudyMode)', function (data) {
             var studymode = data.value;
             if (parseInt(studymode) == 2) {
@@ -609,7 +655,7 @@
                 $("#child_Contrc_Detail").find("tr").each(function (index, item) {
                     var td = $(item).find("td");
                     var level = td.find("select[name='Level']").val();
-                    var courseTime = td.find("input[name='Course_Time']").val();
+                    var courseTime = td.find("select[name='Course_Time']").val();
                     var price = td.find("input[name='Price']");
                     var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
                     var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");

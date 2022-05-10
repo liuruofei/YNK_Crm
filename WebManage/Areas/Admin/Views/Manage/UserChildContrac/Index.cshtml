@@ -115,6 +115,7 @@
     var insTb = adminList.tableLayUI({
         elem: '#userTable',
         url: '@Url.Action("GetDataSource")',
+        where:{ title:'',contraProperty:-1,studymode:0, startime:null, endTime: null },
         page: true,
         cellMinWidth: 100,
         cols: [[

@@ -101,7 +101,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         }
 
         /// <summary>
-        /// 子合同转班审核
+        ///余额申请退款审核
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
@@ -113,7 +113,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 var model = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v => v.StudentUid == uid).First();
                 if (through)
+                {
                     model.IsBackAmount = 2;
+                    model.Amount = 0;
+                }
                 else
                     model.IsBackAmount = 3;
                 var result = _currencyService.DbAccess().Updateable<C_Contrac_User>(model).ExecuteCommand();

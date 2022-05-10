@@ -153,7 +153,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     ProjectName = pr.ProjectName
                 }).ToPageList(1, 30);
                 if (list != null && list.Count > 0) {
-                  var arrChildNo = list.Select(n => n.Contra_ChildNo).ToList(); ;
+                  var arrChildNo = list.Select(n => n.Contra_ChildNo).ToList(); 
                   var arrCourseTime = _currencyService.DbAccess().Queryable<C_User_CourseTime>().Where(cour => arrChildNo.Contains(cour.Contra_ChildNo)).ToList();
                   if (arrCourseTime != null && arrCourseTime.Count > 0) {
                   list.ForEach(it =>{
@@ -167,6 +167,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                   });
                  }
                 }
+                list = list.Where(n => n.Course_UseTime != n.Course_Time).ToList();
                 rsg.data = list;
             }
             else
@@ -193,8 +194,41 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         });
                     }
                 }
+                list = list.Where(n => n.Class_Course_Time != n.Class_Course_UseTime).ToList();
                 rsg.data = list;
             }
+            return Json(rsg);
+        }
+
+
+        /// <summary>
+        /// 获取赠送课时用户
+        /// </summary>
+        /// <param name="title"></param>
+        /// <returns></returns>
+        public IActionResult QueryGiveCourseUser(string title) {
+            var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            var list = _currencyService.DbAccess().Queryable<C_Contrac_Child,C_Contrac_User>((ctr,u)=>new object[] {JoinType.Left,ctr.StudentUid==u.StudentUid}).Where((ctr, u)=>ctr.StudyMode==1&&ctr.PresentTime>0&&
+            ctr.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk && ctr.CampusId == Convert.ToInt32(campusId))
+                .WhereIF(!string.IsNullOrEmpty(title), (ctr, u)=>u.Student_Name.Contains(title)).Select((ctr, u)=>new StudyWorkModel { 
+             Student_Name=u.Student_Name,
+             Contra_ChildNo=ctr.Contra_ChildNo,
+             StudentUid=u.StudentUid
+            }).ToPageList(1, 30);
+            if (list != null && list.Count > 0) {
+                var arrChildNo = list.Select(n => n.Contra_ChildNo).ToList();
+                var arrCourseTime = _currencyService.DbAccess().Queryable<C_User_PresentTime>().Where(cour => arrChildNo.Contains(cour.Contra_ChildNo)).ToList();
+                list.ForEach(it => {
+                    var currtTime = arrCourseTime.Where(v => v.Contra_ChildNo == it.Contra_ChildNo&& v.StudentUid == it.StudentUid).First();
+                    if (currtTime != null)
+                    {
+                        it.Course_Time = currtTime.Present_Time;
+                        it.Course_UseTime = currtTime.Present_UseTime;
+                    }
+                });
+            }
+            rsg.data = list;
             return Json(rsg);
         }
 

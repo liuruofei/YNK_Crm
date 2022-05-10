@@ -101,6 +101,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult QueryStudentTotal(int studentUid)
         {
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            //1对1和班课(不包含赠送课)
             List<C_UserCourseTimeModel> list = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Project, C_Subject, C_Class>((time, pro, sub, cla) => new object[] {
              JoinType.Left,time.ProjectId==pro.ProjectId,JoinType.Left,time.SubjectId==sub.SubjectId,JoinType.Left,time.ClassId==cla.ClassId
             }).Where((time, pro, sub, cla) => time.StudentUid == studentUid).Select<C_UserCourseTimeModel>((time, pro, sub, cla) =>
@@ -116,14 +117,37 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     Course_Time = time.Course_Time,
                     Course_UseTime = time.Course_UseTime,
                     IsLinsting=0,
+                    IsPresent= 0,
                     Class_Course_Time = time.Class_Course_Time,
                     Class_Course_UseTime = time.Class_Course_UseTime
                 }).ToList();
+            //已试听课
             List<C_UserCourseTimeModel> list2= _currencyService.DbAccess().Queryable("(select sum(wk.CourseTime)as Course_Time,sub.SubjectName,pro.ProjectName,u.StudentUid,IsLinsting=1 from C_Course_Work wk left join C_Subject sub on wk.SubjectId=sub.SubjectId" +
                 " left join C_Project pro on wk.ProjectId=pro.ProjectId left join C_Contrac_User u on wk.ListeningName=u.Student_Name where wk.StudyMode=4 and wk.StudentUid="+ studentUid + " group by sub.SubjectName,pro.ProjectName,u.StudentUid)",
                 "orginSql").Select<C_UserCourseTimeModel>().ToList();
             if (list2 != null && list2.Count > 0) {
                 list2.ForEach(item =>
+                {
+                    item.IsPresent = 0;
+                    list.Add(item);
+                });
+            }
+            List<C_UserCourseTimeModel> list3 = _currencyService.DbAccess().Queryable<C_User_PresentTime>().Where(time => time.StudentUid == studentUid).Select<C_UserCourseTimeModel>(time =>
+                new C_UserCourseTimeModel
+                {
+                    Id = time.Id,
+                    StudentUid = time.StudentUid,
+                    Contra_ChildNo = time.Contra_ChildNo,
+                    Course_Time = time.Present_Time,
+                    Course_UseTime = time.Present_UseTime,
+                    IsLinsting = 0,
+                    IsPresent = 1,
+                    Class_Course_Time =0,
+                    Class_Course_UseTime = 0
+                }).ToList();
+            if (list3 != null && list3.Count > 0)
+            {
+                list3.ForEach(item =>
                 {
                     list.Add(item);
                 });

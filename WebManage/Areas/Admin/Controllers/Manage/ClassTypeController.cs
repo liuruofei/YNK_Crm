@@ -157,11 +157,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         [UsersRoleAuthFilter("C-158", FunctionEnum.Delete)]
         public IActionResult Delete(int Id)
         {
-            var result = _currencyService.DbAccess().Updateable<C_ClassType>().SetColumns(p=>new C_ClassType{Status=1}).Where(p => p.Id == Id).ExecuteCommand();
-            if (result > 0)
-                return Json(new { code = 200, msg = "删除成功" });
-            else
-                return Json(new { code = 0, msg = "删除失败" });
+            var anyClas = _currencyService.DbAccess().Queryable<C_Class>().Where(n => n.TypeId == Id).First();
+            if (anyClas == null)
+            {
+                var result = _currencyService.DbAccess().Deleteable<C_ClassType>().Where(p => p.Id == Id).ExecuteCommand();
+                if (result > 0)
+                    return Json(new { code = 200, msg = "删除成功" });
+                else
+                    return Json(new { code = 0, msg = "删除失败" });
+            }
+            else {
+                return Json(new { code = 0, msg = "该类型有班级，无法删除" });
+            }
         }
     }
 }

@@ -21,6 +21,9 @@
                     <option value="1">一对一</option>
                     <option value="2">小班</option>
                     <option value="3">休息</option>
+                    <option value="4">试听</option>
+                    <option value="5">模考</option>
+                    <option value="6">实考</option>
                 </select>
             </div>
         </div>
@@ -78,6 +81,23 @@
                     <tbody id="searcClassbody"></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+    <div class="layui-form-item" id="ListeningPart" style="display:none">
+        <label class="layui-form-label" id="spanStudentName">试听学员</label>
+        <div class="layui-input-block" style="position:relative">
+            <input name="ListeningName" class="layui-input" type="text" autocomplete="off" disabled />
+            <div id="searcListen" class="searcListen">
+                <table style="width:100%;margin-top: 0px;" class="layui-table">
+                    <tbody id="searchListenbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" id="ListenSubPart" style="display:none">
+        <label class="layui-form-label" id="spanCatogalogName">试听分类</label>
+        <div class="layui-input-block" style="position:relative">
+            <select name="ListenSubject" lay-filter="ListenSubject" disabled></select>
         </div>
     </div>
     <div class="layui-form-item" id="PartProject">
@@ -198,6 +218,17 @@
                             $("#lineSpanDate").text("休息日期");
                             $("#lineSpanTimeRange").text("休息时段");
                         }
+                        else if (r.StudyMode == 4) {
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#PartProject").show();
+                            $("#ListeningPart").show();
+                            $("#ListenSubPart").show();
+                            $("#lineSpanDate").text("试听日期");
+                            $("#lineSpanTimeRange").text("上课时段");
+                            $("#spanStudentName").text("试听学员");
+                            $("#spanCatogalogName").text("试听分类");
+                        }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
                         }
@@ -282,7 +313,27 @@
                             }
                         }
                         });
+                        //绑定试听分类
+                        adminForm.load({
+                        url: "@Url.Action("QuerySubject","ContracUser")",
+                        dataType: 'json',
+                        callBack: function (rou) {
+                                if (rou.data != null) {
+                                    var result = rou.data;
+                                    $("select[name='ListenSubject']").html("<option value='0'>-分类-</option>");
+                                    for (var i = 0; i < result.length; i++) {
+                                        if (r.SubjectId== result[i].SubjectId) {
+                                            $("select[name='ListenSubject']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName + '</option>');
+                                        }
+                                        else {
+                                            $("select[name='ListenSubject']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                                        }
+                                    }
+                            }
+                            }
+                        });
 
+                        //绑定科目
                         adminForm.load({
                         url: "@Url.Action("QueryProject", "ContracUser")?subjectId=" + r.SubjectId,
                         dataType: 'json',
@@ -309,7 +360,7 @@
                     url: KeyId ? '@Url.Action("SaveCourseWork")' : '@Url.Action("SaveCourseWork")',
                     data: data.field,
                     callBack: function () {
-                        
+
                     }
                 })
             }

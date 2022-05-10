@@ -102,6 +102,11 @@ namespace WebManage.Models.Res
         public string Remarks { get; set; }
 
         /// <summary>
+        /// 赠送课时
+        /// </summary>
+        public float PresentTime { get; set; }
+
+        /// <summary>
         /// 数据行状态
         /// </summary>
         public int Status { get; set; }

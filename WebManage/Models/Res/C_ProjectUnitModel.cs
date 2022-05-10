@@ -38,6 +38,11 @@ namespace WebManage.Models.Res
         public string UnitName { get; set; }
 
         /// <summary>
+        /// 单元编码
+        /// </summary>
+        public string UnitCode { get; set; }
+
+        /// <summary>
         /// 排序
         /// </summary>
         public int Sort { get; set; }

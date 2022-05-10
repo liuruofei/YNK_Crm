@@ -59,7 +59,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .WhereIF(startime != null && !string.IsNullOrEmpty(startime.ToString()), "orginSql.Pay_Time>=@startime").AddParameters(new { startime = startime })
                 .WhereIF(endtime != null && !string.IsNullOrEmpty(endtime.ToString()), "orginSql.Pay_Time<=@endtime").AddParameters(new { endtime = endtime })
                 .Where("(orginSql.Contrac_Child_Status="+ (int)ConstraChild_Status.Change+ " or orginSql.Contrac_Child_Status="+ (int)ConstraChild_Status.ChangeOk+ ")")
-                .Select<UserChildContracModel>("*").OrderBy("orginSql.CreateTime desc").ToPageList(page, limit, ref total);
+                .Select<UserChildContracModel>("*").OrderBy("orginSql.UpdateTime desc").ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;
             pageModel.count = total;

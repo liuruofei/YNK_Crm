@@ -58,12 +58,13 @@
 
             },
             Save: function (data) {
-                   layer.confirm('确定退出该班吗？', {
+                   layer.confirm('确定退款该合同吗？', {
                         btn: ['确定', '取消'] //按钮
-                        }, function () {
+                   }, function () {
+                           var IsOrg = $("input[name='IsOrg']").prop("checked") ? 1 : 0;
                            adminForm.Save({
                                url: '@Url.Action("ChildContrcbackCost")',
-                               data: { Contra_ChildNo: $("#Contra_ChildNo").val(), IsOrg: $("input[name='IsOrg']").val(), BackCost: $("input[name='BackCost']").val(), Msg: $("textarea[Name='Msg']").text()},
+                               data: { Contra_ChildNo: $("#Contra_ChildNo").val(), IsOrg:IsOrg, BackCost: $("input[name='BackCost']").val(), Msg: $("textarea[Name='Msg']").text()},
                                callBack: function (result) {
                                    layer.msg(result.msg);
                                }
