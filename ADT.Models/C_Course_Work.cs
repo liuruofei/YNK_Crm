@@ -132,5 +132,10 @@ namespace ADT.Models
         /// 是否使用赠送课时
         /// </summary>
         public int IsUsePresent { get; set; }
+
+        /// <summary>
+        /// 作业完成状态
+        /// </summary>
+        public int FinishStatus { get; set; }
     }
 }

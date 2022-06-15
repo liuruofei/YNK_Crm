@@ -69,5 +69,10 @@ namespace ADT.Models
         public DateTime? UpdateTime { get; set; }
 
         public string UpdateUid { get; set; }
+
+        /// <summary>
+        /// 作业完成状态
+        /// </summary>
+        public int FinishStatus { get; set; }
     }
 }
