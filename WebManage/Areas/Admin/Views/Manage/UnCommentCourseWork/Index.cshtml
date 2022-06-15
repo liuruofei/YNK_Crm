@@ -154,9 +154,18 @@
                 }
             },
             { field: 'Comment', title: '点评内容', sort: true },
-            { field: 'Comment_Time', title: '点评时间', sort: true },
+            {
+                field: 'Comment_Time', title: '点评时间', sort: true
+            },
             {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
-        ]]
+        ]],
+        done: function (res, curr, count) {
+            res.data.forEach(function (item, index) {
+                if (item.Work_Stutas < 1 && item.Comment != null && item.Comment != '') {
+                    $(".layui-table").find("tr[data-index='" + index + "']").css("background-color", "rgb(231 195 195)");
+                }
+            });
+        }
     });
 
     // 搜索

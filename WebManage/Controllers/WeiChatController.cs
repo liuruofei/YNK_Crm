@@ -373,7 +373,21 @@ namespace WebManage.Controllers
                 }
                 else
                 {
-                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = comment, Work_Stutas = 1, Comment_Time=DateTime.Now }).Where(it => it.Id == wkId).ExecuteCommand();
+                    var workstatus = 1;
+                    var valiteTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
+                    //如果点评在23小时之内,则课时有效
+                    if (model.StudyMode != 5&&model.StudyMode != 6) {
+
+                        if (valiteTime.AddHours(24) > DateTime.Now)
+                        {
+                            workstatus = 1;
+                        }
+                        else
+                        {
+                            workstatus = 0;
+                        }
+                    }
+                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = comment, Work_Stutas = workstatus, Comment_Time=DateTime.Now }).Where(it => it.Id == wkId).ExecuteCommand();
                     if (result > 0)
                     {
                         rsg.data = model;

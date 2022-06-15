@@ -96,7 +96,22 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             }
             else {
                 vmodel.CreateUid = userId;
-                var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = vmodel.Comment, Work_Stutas = 1,Comment_Time=DateTime.Now }).Where(it => it.Id == vmodel.Id).ExecuteCommand();
+                var workstatus = 1;
+                var valiteTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
+                //如果点评在23小时之内,则课时有效
+                if (model.StudyMode != 5&&model.StudyMode != 6)
+                {
+
+                    if (valiteTime.AddHours(24) > DateTime.Now)
+                    {
+                        workstatus = 1;
+                    }
+                    else
+                    {
+                        workstatus = 0;
+                    }
+                }
+                var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = vmodel.Comment, Work_Stutas = workstatus, Comment_Time=DateTime.Now }).Where(it => it.Id == vmodel.Id).ExecuteCommand();
                 if (result > 0)
                 {
                     rsg.code = 200;
@@ -475,7 +490,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 reg.totalRow = new totalRow();
                 //统计老师课时，点评已完成才算课时
                 reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
-                    .Where(it => it.TeacherUid == userId&& it.StudyMode != 3 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                    .Where(it => it.TeacherUid == userId&& it.StudyMode != 3 && it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                     .Sum(it => it.CourseTime);
             }
             return Json(reg);
@@ -504,7 +519,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 reg.totalRow = new totalRow();
                 //统计老师课时，点评已完成才算课时
                 reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
-                    .Where(it => it.TeacherUid == userId && it.StudyMode != 3 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                    .Where(it => it.TeacherUid == userId && it.StudyMode != 3 && it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                     .Sum(it => it.CourseTime);
             }
             reg.count = total;

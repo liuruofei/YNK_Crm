@@ -1,0 +1,165 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">关键字：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="txtTitle" class="layui-input" type="text" placeholder="学生名称" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">完成状态：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="finishStatus" id="finishStatus" lay-filter="finishStatus">
+                                <option value="-1">未选择</option>
+                                <option value="0">未完成</option>
+                                <option value="1">已完成</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">日期</label>
+                        <div class="layui-input-inline mr0">
+                            <input name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="开始日期" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">—</label>
+                        <div class="layui-input-inline mr0">
+                            <input name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="截止日期" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    {{# if(d.FinishStatus==0){ }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">点击完成</a>
+    {{#}}}
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm', 'laydate'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var adminList = layui.adminList;
+    var adminForm = layui.adminForm;
+    var form = layui.form;
+    var laydate = layui.laydate;
+    laydate.render({
+        elem: '#StartTime',
+        type: 'date'
+    });
+    laydate.render({
+        elem: '#EndTime',
+        type: 'date'
+    });
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        page: true,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            { field: 'Student_Name', title: '学生名称', sort: true, fixed: 'left' },
+            { field: 'TaskName', title: '作业/任务', sort: true,width: 450 },
+            {
+                field: 'FinishStatus', title: '完成状态', sort: true,templet:function(d) {
+                    return (d.FinishStatus == 1 ?"<span style='color: white;background-color:green;padding:3px;'>已完成</span>":"未完成");
+                }
+            },
+            { field: 'WorkDate', title: '日期', sort: true,width: 120 },
+            { field: 'StartTime', title: '开始时间', sort: true },
+            { field: 'EndTime', title: '截止时间', sort: true },
+            {
+                field: 'isZuoye', title: '类型', sort: true, templet: function (d) {
+                    return d.isZuoye == 1 ?"作业": "任务";
+                }
+            },
+            { align: 'center', toolbar: '#tableBar', title: '操作', width: 200, fixed: 'right'}
+        ]]
+    });
+       form.on('select(finishStatus)', function (data) {
+           var title = $('#txtTitle').val();
+           var finishStatus = data.value;
+           var startDate = $('#StartTime').val();
+           var endDate = $('#EndTime').val();
+            insTb.reload({
+                where:{title: title, finishStatus: finishStatus, startDate: startDate, endDate: endDate}
+                , page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+      });
+
+    // 搜索
+    $('#btnSearch').click(function () {
+        var title = $('#txtTitle').val();
+        var finishStatus = $("select[name='finishStatus']").val();
+        var startDate = $('#StartTime').val();
+        var endDate = $('#EndTime').val();
+        insTb.reload({
+            where: { title: title, finishStatus: finishStatus, startDate: startDate, endDate: endDate }
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+        var data = obj.data;
+        var layEvent = obj.event;
+        if (layEvent === 'edit') { // 修改
+            changeStutas(data);
+        }
+    });
+
+    //更改状态
+     function changeStutas(vmodel) {
+                console.log(vmodel);
+        adminForm.Save({
+            url: '@Url.Action("changeFinishStatus")',
+            data: { Id: vmodel.Id, isZuoye: vmodel.isZuoye },
+            callBack: function () {
+                insTb.reload();
+            }
+        });
+    }
+
+    });
+    </script>
+}

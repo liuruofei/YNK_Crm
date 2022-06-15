@@ -137,6 +137,15 @@ namespace WebManage.Models.Res
         public int Nineteen_TwentyOne_StudyMode { get; set; }
 
 
+        /// <summary>
+        ///21-23点内容
+        /// </summary>
+        public string TwentyOne_TwentyTree_OlockTitle { get; set; }
+        public int TwentyOne_TwentyTree_Id { get; set; }
+        public string TwentyOne_TwentyTree_TeacherName { get; set; }
+        public int TwentyOne_TwentyTree_StudyMode { get; set; }
+
+
         public bool Eight_Ten_Reversion { get; set; } = false;
 
         public bool Ten_Twelve_Reversion { get; set; } = false;
@@ -148,5 +157,7 @@ namespace WebManage.Models.Res
         public bool Seventeen_Nineteen_Reversion { get; set; } = false;
 
         public bool Nineteen_TwentyOne_Reversion { get; set; } = false;
+
+        public bool TwentyOne_TwentyTree_Reversion { get; set; } = false;
     }
 }

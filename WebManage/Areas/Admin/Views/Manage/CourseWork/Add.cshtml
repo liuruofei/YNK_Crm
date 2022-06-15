@@ -7,7 +7,7 @@
     <input name="Contra_ChildNo" type="hidden" />
     <div class="layui-form-item" id="teacherPart">
         <div class="layui-inline">
-            <label class="layui-form-label">上课教师</label>
+            <label class="layui-form-label" id="lineSpanPigai">上课教师</label>
             <div class="layui-input-block">
                 <select name="TeacherUid"></select>
             </div>
@@ -184,6 +184,8 @@
             z-index: 6;
             width: 480px;
             min-height: 200px;
+            height:222px;
+            overflow-y:auto;
             display: none;
         }
     </style>
@@ -389,11 +391,12 @@
                             $("#ClassPart").css("display", "none");
                             $("#OneOfPart").css("display", "none");
                             $("#PresentPart").css("display", "none");
-                            $("#PreSendPartUser").css("display","none");
-                            $("#teacherPart").css("display", "none");
+                            $("#PreSendPartUser").css("display", "none");
+                            $("#teacherPart").show();
                             $("#PartProject").show();
                             $("#ListeningPart").show();
                             $("#ListenSubPart").show();
+                            $("#lineSpanPigai").text("批改老师");
                             $("#spanMockTitle").text("模考标题");
                             $("#lineSpanDate").text("模考日期");
                             $("#lineSpanTimeRange").text("模考时段");
@@ -675,10 +678,11 @@
                 else if (data.value == 5) {
                     $("#ClassPart").css("display", "none");
                     $("#OneOfPart").css("display", "none");
-                    $("#teacherPart").css("display", "none");
+                    $("#teacherPart").show();
                     $("#PartProject").show();
                     $("#ListeningPart").show();
                     $("#ListenSubPart").show();
+                    $("#lineSpanPigai").text("批改老师");
                     $("#spanMockTitle").text("模考标题");
                     $("#lineSpanDate").text("模考日期");
                     $("#lineSpanTimeRange").text("模考时段");

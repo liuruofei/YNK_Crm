@@ -1,0 +1,260 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" content="text/html;charset=UTF-8" http-equiv="Content-Type">
+        <title>点评记录列表</title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no" />
+        <style>
+            * {
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+            }
+
+            html {
+                -ms-touch-action: none;
+            }
+
+            body, ul, li {
+                padding: 0;
+                margin: 0;
+                border: 0;
+            }
+
+            body {
+                font-size: 12px;
+                font-family: ubuntu, helvetica, arial;
+                overflow: hidden; /* this is important to prevent the whole page to bounce */
+            }
+
+            #header {
+                position: absolute;
+                z-index: 2;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 45px;
+                line-height: 45px;
+                background: #CD235C;
+                padding: 0;
+                color: #eee;
+                font-size: 20px;
+                text-align: center;
+                font-weight: bold;
+            }
+
+            #footer {
+                position: absolute;
+                z-index: 2;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 48px;
+                background: #444;
+                padding: 0;
+                border-top: 1px solid #444;
+            }
+
+            #wrapper {
+                position: absolute;
+                z-index: 1;
+                top: 45px;
+                bottom: 48px;
+                left: 0;
+                width: 100%;
+                background: #ccc;
+                overflow: hidden;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                -webkit-text-size-adjust: none;
+                -moz-text-size-adjust: none;
+                -ms-text-size-adjust: none;
+                -o-text-size-adjust: none;
+                text-size-adjust: none;
+            }
+
+            #scroller {
+                position: absolute;
+                z-index: 1;
+                -webkit-tap-highlight-color: rgba(0,0,0,0);
+                width: 100%;
+                -webkit-transform: translateZ(0);
+                -moz-transform: translateZ(0);
+                -ms-transform: translateZ(0);
+                -o-transform: translateZ(0);
+                transform: translateZ(0);
+            }
+
+                #scroller ul {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    width: 100%;
+                    text-align: left;
+                }
+
+                #scroller li {
+                    padding: 0 10px;
+                    height: 86px;
+                    line-height: 23px;
+                    border-bottom: 1px solid #ccc;
+                    border-top: 1px solid #fff;
+                    background-color: #fafafa;
+                    font-size: 14px;
+                }
+            .childhref {
+                color: black;
+                text-decoration: none
+            }
+        </style>
+        <script src="http://crm.younengkao.com/assets/js/jquery-3.2.1.min.js"></script>
+        <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+        <script src="http://crm.younengkao.com/assets/js/iscroll.js"></script>
+    </head>
+    <body>
+        <div id="header">课程点评列表(最新100条)</div>
+        <div id="wrapper">
+            <div id="scroller">
+                <ul id="comentList">
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer"></div>
+        <script type="text/javascript">
+            var myScroll;
+            document.addEventListener('touchmove', function (e) { e.preventDefault(); }, isPassive() ? {
+                capture: false,
+                passive: false
+            } : false);
+            function isPassive() {
+                var supportsPassiveOption = false;
+                try {
+                    addEventListener("test", null, Object.defineProperty({}, 'passive', {
+                        get: function () {
+                            supportsPassiveOption = true;
+                        }
+                    }));
+                } catch (e) { }
+                return supportsPassiveOption;
+            }
+
+            var type = 1, page = 1, limit = "";
+            var generatedCount = 0; //上拉加载更多次数统计
+            var myScroll;
+            var countFlag = true; //上拉计数标识，防止还没渲染页面就再次加一
+            var myScrollFlag = false, oIscrollFlag = false; //标识iscroll有没有实例化成功（实例化过后才能refresh）
+            var openId = '';
+            redirectToAuthPage();
+            //openId = 'oEjwO5xlzz8CofS0SojJEt2qwzGg';
+            //bindOpenIdCourseArr(openId, 1, 100);
+            function redirectToAuthPage() {
+                //第二步获取网页code
+                var code = getUrlParam('code');
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/QueryOpenID",//获取api签名
+                    type: "post",
+                    data: { code: code },
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        var result = JSON.parse(data);
+                        openId = result.openid;
+                        bindOpenIdCourseArr(openId, 1, 100);
+                    },
+                    error: function (error) {
+
+                    }
+                });
+
+            }
+
+
+            //获取点评列表
+            function bindOpenIdCourseArr(openid, page, limit) {
+                $.ajax({
+                    url: "http://crm.younengkao.com/WxComent/GetComentList",
+                    type: "post",
+                    data: { openId: openid, page: page, limit: limit },
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (res) {
+                        if (res.count == 0) { //已经没有更多保单数据
+                            $("#comentList").append("<li style='text-align:center'>无点评记录</li>");
+                        }
+                        else {
+                            var html = '';
+                            if (res.data && res.data.length != 0) {
+                                var list = res.data;
+                                for (var j = 0; j < 3; j++) {
+                                    for (var i = 0; i < res.data.length; i++) {
+                                        html += '<li><a class="childhref" href=http://crm.younengkao.com/WxComent/child?wkId=' + list[i].Id + '>'
+                                        html += '<div class="flexchild">'
+                                        html += '<div class="title">' + list[i].Work_Title + '</div>'
+                                        html += '<div class="time"> 日期 ' + formatDate(list[i].AT_Date) + '  时间 ' + list[i].StartTime + '-' + list[i].EndTime+'</div>'
+                                        html += '</div>'
+                                        html += '</a></li>';
+                                    }
+                                }
+                                $("#comentList").append(html);
+                            }
+                        }
+                        myScroll = new IScroll('#wrapper', { useTransition: false });
+                    }
+                });
+            }
+
+            //获取编码参数
+            function getUrlParam(name) {
+                var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+                let url = window.location.href;
+                let search = url.split('?')[1]
+                if (search) {
+                    var r = search.substr(0).match(reg)
+                    if (r !== null) return unescape(r[2])
+                    return null
+                } else {
+                    return null
+                }
+            }
+            function dateFtt(fmt, val) {
+                var date = new Date(val);
+                var o = {
+                    "M+": date.getMonth() + 1,     //月份
+                    "d+": date.getDate(),     //日
+                    "h+": date.getHours(),     //小时
+                    "m+": date.getMinutes(),     //分
+                    "s+": date.getSeconds(),     //秒
+                    "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                    "S": date.getMilliseconds()    //毫秒
+                };
+                if (/(y+)/.test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+                for (var k in o)
+                    if (new RegExp("(" + k + ")").test(fmt))
+                        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                return fmt;
+            }
+
+            function formatDate(dateStr) {
+                var dataFmt = new Date(dateStr);
+                var y = dataFmt.getFullYear();
+                var m = dataFmt.getMonth() + 1;
+                m = m < 10 ? '0' + m : m;
+                var d = dataFmt.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                return y + '-' + m + '-' + d;
+            };
+        </script>
+    </body>
+    </html>
+
+

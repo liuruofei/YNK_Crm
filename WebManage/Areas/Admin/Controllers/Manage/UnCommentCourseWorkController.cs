@@ -60,7 +60,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .Where((u,ur,r)=>u.User_ID==userId&&r.Role_Name.Contains("教师")).First();
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Campus, sys_user,C_Contrac_User>((c, ca, ta,u) => new Object[] { JoinType.Left, c.CampusId == ca.CampusId, JoinType.Left, c.TeacherUid == ta.User_ID, JoinType.Left,c.StudentUid==u.StudentUid })
-                .Where(c => c.CampusId == Convert.ToInt32(campusId)&& c.Work_Stutas == workStutas&&c.StudyMode!=3)
+                .Where(c => c.CampusId == Convert.ToInt32(campusId)&&c.StudyMode!=3)
+                .WhereIF(workStutas>0,c=>!string.IsNullOrEmpty(c.Comment))
+                .WhereIF(workStutas <1,c =>string.IsNullOrEmpty(c.Comment))
                 .WhereIF(studymode>0, c => c.StudyMode== studymode)
                 .WhereIF(teacher!=null, c => c.TeacherUid == userId)
                 .WhereIF(startTime.HasValue,c=>c.AT_Date>=startTime.Value)
@@ -80,7 +82,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     Comment=c.Comment,
                     Comment_Time=c.Comment_Time,
                     CreateTime = c.CreateTime,
-                    CreateUid = c.CreateUid
+                    CreateUid = c.CreateUid,
+                    Work_Stutas=c.Work_Stutas
                 }).ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;
@@ -139,9 +142,22 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     if (work.IsSendComment==1) {
                         return Json(new { code = 0, msg = "点评内容已被推送，无法修改" });
                     }
+                    var valiteTime =DateTime.Parse(work.AT_Date.ToString("yyyy-MM-dd") + " " + work.EndTime);
                     work.Comment = vmodel.Comment;
                     work.UpdateUid = userId;
                     work.Work_Stutas = 1;
+                    //如果在23小时之内,则课时有效
+                    if (work.StudyMode != 5&& work.StudyMode != 6)
+                    {
+                        if (valiteTime.AddHours(24) > DateTime.Now)
+                        {
+                            work.Work_Stutas = 1;
+                        }
+                        else
+                        {
+                            work.Work_Stutas = 0;
+                        }
+                    }
                     work.Comment_Time = DateTime.Now;//点评时间
                     var result = _currencyService.DbAccess().Updateable<C_Course_Work>(work).ExecuteCommand();
                     if (result > 0)

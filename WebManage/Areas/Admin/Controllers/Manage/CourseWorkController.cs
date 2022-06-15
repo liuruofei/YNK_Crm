@@ -487,7 +487,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     //统计老师课时，点评已完成才算课时
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                         .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(subjectId > 0, it => it.ProjectId == projectId)
-                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.Work_Stutas==1&& it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas==1&& it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                         .Sum(it => it.CourseTime);
                 }
                 if (students != null&& students.Count==1)
@@ -554,7 +554,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     //统计老师课时，点评已完成才算课时
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                         .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(subjectId > 0, it => it.ProjectId == projectId)
-                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3&& it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                         .Sum(it => it.CourseTime);
                 }
                 if (students != null&& students.Count==1)

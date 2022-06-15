@@ -158,6 +158,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
                             var thanStartTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
                             var thanendTime6= DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanStartTime7 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanendTime7 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 23:00");
                             if (((startTimestr >= thanStartTime1 && startTimestr < thanendTime1) && (endTimestr > thanStartTime1 && endTimestr <= thanendTime1)) || ((endTimestr > thanStartTime1 && thanStartTime1 >= startTimestr) && (endTimestr <= thanendTime1 && thanendTime1 > startTimestr)))
                             {
                                 it.Eight_Ten_OlockTitle+="  "+ iv.Work_Title + (iv.StudyMode!=5&&iv.StudyMode!=6?" 教师:" + iv.TeacherName:"") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
@@ -187,6 +189,11 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             {
                                 it.Nineteen_TwentyOne_OlockTitle += "  " + iv.Work_Title + (iv.StudyMode != 5 && iv.StudyMode != 6 ? " 教师:" + iv.TeacherName : "") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                                 it.Nineteen_TwentyOne_StudyMode = iv.StudyMode;
+                            }
+                            else if (((startTimestr >= thanStartTime7 && startTimestr < thanendTime7) && (endTimestr > thanStartTime7&& endTimestr <= thanendTime7)) || ((endTimestr > thanStartTime7 && thanStartTime7>= startTimestr) && (endTimestr <= thanendTime7 && thanendTime7> startTimestr)))
+                            {
+                                it.TwentyOne_TwentyTree_OlockTitle += "  " + iv.Work_Title + (iv.StudyMode != 5 && iv.StudyMode != 6 ? " 教师:" + iv.TeacherName : "") + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                it.TwentyOne_TwentyTree_StudyMode = iv.StudyMode;
                             }
                             if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent&& iv.StudyMode != 5 && iv.StudyMode != 6)
                                 it.CourseComent += "<div style=\"height:20px;border-top:solid 3px\"></div>" +iv.Comment;
@@ -222,6 +229,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
                             var thanStartTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
                             var thanendTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanStartTime7 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanendTime7 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 23:00");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
                                 if (string.IsNullOrEmpty(it.Eight_Ten_OlockTitle))
@@ -290,6 +299,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                     it.Nineteen_TwentyOne_Reversion = true;
                                 }
                                 it.Nineteen_TwentyOne_Id = iv.Id;
+                            }
+                            else if (startTimestr >= thanStartTime7 && endTimestr <= thanendTime7)
+                            {
+                                if (string.IsNullOrEmpty(it.TwentyOne_TwentyTree_OlockTitle))
+                                {
+                                    it.TwentyOne_TwentyTree_OlockTitle += iv.WorkTitle;
+                                }
+                                else
+                                {
+                                    it.TwentyOne_TwentyTree_Reversion = true;
+                                }
+                                it.TwentyOne_TwentyTree_Id = iv.Id;
                             }
                             if (!string.IsNullOrEmpty(iv.SummaryComent) || !string.IsNullOrEmpty(iv.CourseComent) || !string.IsNullOrEmpty(iv.ChouciComent) || !string.IsNullOrEmpty(iv.HomeWorkComent) || !string.IsNullOrEmpty(iv.OtherComent) || !string.IsNullOrEmpty(iv.OutSchoolTime) || !string.IsNullOrEmpty(iv.InSchoolTime))
                             {
@@ -650,6 +671,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
                             var thanStartTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
                             var thanendTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanStartTime7 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanendTime7 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 23:00");
                             if (((startTimestr >= thanStartTime1 && startTimestr < thanendTime1)&&(endTimestr >thanStartTime1 && endTimestr <= thanendTime1)) || ((endTimestr> thanStartTime1 && thanStartTime1>=startTimestr) &&(endTimestr<= thanendTime1 && thanendTime1>startTimestr)))
                             {
                                 it.Eight_Ten_OlockTitle+= iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
@@ -673,6 +696,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             else if (((startTimestr >= thanStartTime6 && startTimestr < thanendTime6) && (endTimestr > thanStartTime6 && endTimestr <= thanendTime6)) || ((endTimestr > thanStartTime6 && thanStartTime6 >= startTimestr) && (endTimestr <= thanendTime6&& thanendTime6> startTimestr)))
                             {
                                 it.Nineteen_TwentyOne_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                            }
+                            else if (((startTimestr >= thanStartTime7 && startTimestr < thanendTime7) && (endTimestr > thanStartTime7 && endTimestr <= thanendTime7)) || ((endTimestr > thanStartTime7 && thanStartTime7 >= startTimestr) && (endTimestr <= thanendTime7 && thanendTime7 > startTimestr)))
+                            {
+                                it.TwentyOne_TwentyTree_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
                             }
                             if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent && iv.StudyMode != 5 && iv.StudyMode != 6)
                             {
@@ -713,6 +740,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
                             var thanStartTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
                             var thanendTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanStartTime7 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanendTime7= DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 23:00");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
                                 if (string.IsNullOrEmpty(it.Eight_Ten_OlockTitle)) {
@@ -758,6 +787,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                     it.Nineteen_TwentyOne_OlockTitle += iv.WorkTitle;
                                 }
                                 it.Nineteen_TwentyOne_Id = iv.Id;
+                            }
+                            else if (startTimestr >= thanStartTime7 && endTimestr <= thanendTime7)
+                            {
+                                if (string.IsNullOrEmpty(it.TwentyOne_TwentyTree_OlockTitle))
+                                {
+                                    it.TwentyOne_TwentyTree_OlockTitle += iv.WorkTitle;
+                                }
+                                it.TwentyOne_TwentyTree_Id = iv.Id;
                             }
                             if (!string.IsNullOrEmpty(iv.SummaryComent) || !string.IsNullOrEmpty(iv.CourseComent) || !string.IsNullOrEmpty(iv.ChouciComent) || !string.IsNullOrEmpty(iv.HomeWorkComent) || !string.IsNullOrEmpty(iv.OtherComent) || !string.IsNullOrEmpty(iv.InSchoolTime) || !string.IsNullOrEmpty(iv.OutSchoolTime))
                             {
@@ -824,7 +861,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var sheet = workbook.CreateSheet(u.Student_Name + "任务计划");
             sheet.DefaultColumnWidth = 25;
             //循环行
-            for (var y = 0; y < 18; y++)
+            for (var y = 0; y < 19; y++)
             {
                 if (y == 0)
                 {
@@ -905,7 +942,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
-                    cell.SetCellValue("15:10-17:10");
+                    cell.SetCellValue("15:00-17:00");
                     cell.CellStyle = headStyle;
                     var x = 1;
                     tdlistTime.ForEach(it =>
@@ -920,7 +957,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
-                    cell.SetCellValue("17:30-19:30");
+                    cell.SetCellValue("17:00-19:00");
                     cell.CellStyle = headStyle;
                     var x = 1;
                     tdlistTime.ForEach(it =>
@@ -935,7 +972,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
-                    cell.SetCellValue("19:30-21:30");
+                    cell.SetCellValue("19:00-21:00");
                     cell.CellStyle = headStyle;
                     var x = 1;
                     tdlistTime.ForEach(it =>
@@ -950,6 +987,21 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
+                    cell.SetCellValue("21:00-23:00");
+                    cell.CellStyle = headStyle;
+                    var x = 1;
+                    tdlistTime.ForEach(it =>
+                    {
+                        cell = row.CreateCell(x);
+                        cell.SetCellValue(it.TwentyOne_TwentyTree_OlockTitle);
+                        cell.CellStyle = headStyle;
+                        x++;
+                    });
+                }
+                if (y == 9)
+                {
+                    var row = sheet.CreateRow(y);
+                    var cell = row.CreateCell(0);
                     cell.SetCellValue("单词");
                     cell.CellStyle = headStyle;
                     var x = 1;
@@ -961,7 +1013,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 9)
+                if (y == 10)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -976,7 +1028,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 10)
+                if (y == 11)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -991,7 +1043,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 11)
+                if (y == 12)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1006,7 +1058,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 12)
+                if (y == 13)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1021,7 +1073,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 13)
+                if (y == 14)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1036,7 +1088,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 14)
+                if (y == 15)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1051,7 +1103,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 15)
+                if (y == 16)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);
@@ -1066,7 +1118,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         x++;
                     });
                 }
-                if (y == 16)
+                if (y == 17)
                 {
                     var row = sheet.CreateRow(y);
                     var cell = row.CreateCell(0);

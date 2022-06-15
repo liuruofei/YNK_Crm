@@ -98,10 +98,10 @@
                                         endTime: '10:00',
                                         StudentUid: result[i].StudentUid
                                     }
-                                    for (var trRow = 0; trRow < 6; trRow++) {
+                                    for (var trRow = 0; trRow < 7; trRow++) {
                                         if (trRow == 0) {
                                             var trStr = "<tr>";
-                                            trStr += "<td style='width:80px;' rowspan='6'>" + result[i].Student_Name + "</td>";
+                                            trStr += "<td style='width:80px;' rowspan='7'>" + result[i].Student_Name + "</td>";
                                             for (var j = 0; j < 8; j++) {
                                                 if (j == 0) {
                                                     trStr += "<td>8:00-10:00</td>";
@@ -126,25 +126,25 @@
                                                     trStr += "<td onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Eight_Ten_Reversion == false ? (planVmodel.Id>0&&result[i].Eight_Ten_OlockTitle != null? result[i].Eight_Ten_OlockTitle:'') : "有课程") + "</div></td>";
                                                 }
                                                 if (j == 4) {
-                                                    trStr += "<td rowspan='6'>" + (result[i].CourseWorkCotent != null ? result[i].CourseWorkCotent : '') + "</td>";
+                                                    trStr += "<td rowspan='7'>" + (result[i].CourseWorkCotent != null ? result[i].CourseWorkCotent : '') + "</td>";
                                                 }
                                                 if (j == 5) {
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].HomeWorkComent;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
-                                                    trStr += "<td rowspan='6' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].HomeWorkComent != null ? result[i].HomeWorkComent : '') + "</td>";
+                                                    trStr += "<td rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].HomeWorkComent != null ? result[i].HomeWorkComent : '') + "</td>";
                                                 }
                                                 if (j == 6) {
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].InSchoolTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
-                                                    trStr += "<td  rowspan='6' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].InSchoolTime != null ? result[i].InSchoolTime:'') + "</td>";
+                                                    trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].InSchoolTime != null ? result[i].InSchoolTime:'') + "</td>";
                                                 }
                                                 if (j == 7) {
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].OutSchoolTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
-                                                    trStr += "<td  rowspan='6' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].OutSchoolTime != null ? result[i].OutSchoolTime:'') + "</td>";
+                                                    trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].OutSchoolTime != null ? result[i].OutSchoolTime:'') + "</td>";
                                                 }
                                             }
                                             trStr += "</tr>";
@@ -275,7 +275,7 @@
                                             $("#plantbody").append(trStr);
                                         }
                                         else if (trRow == 5) {
-                                            var trStr = "<tr style='border-bottom: solid 2px #56a36d'>";
+                                            var trStr = "<tr>";
                                             for (var j = 0; j < 4; j++) {
                                                 if (j == 0) {
                                                     trStr += "<td>19:00-21:00</td>";
@@ -301,6 +301,38 @@
                                                     planVmodel.endTime = "21:00";
                                                     var jsonVmodel = JSON.stringify(planVmodel);
                                                     trStr += "<td  onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].Nineteen_TwentyOne_Reversion == false ? (planVmodel.Id > 0 &&result[i].Nineteen_TwentyOne_OlockTitle != null ? result[i].Nineteen_TwentyOne_OlockTitle:'') : "有课程") + "</div></td>";
+                                                }
+                                            }
+                                            trStr += "</tr>";
+                                            $("#plantbody").append(trStr);
+                                        }
+                                        else if (trRow == 6) {
+                                            var trStr = "<tr style='border-bottom: solid 2px #56a36d'>";
+                                            for (var j = 0; j < 4; j++) {
+                                                if (j == 0) {
+                                                    trStr += "<td>21:00-23:00</td>";
+                                                }
+                                                if (j == 1) {
+                                                    var classStr = "planPart";
+                                                    if (result[i].TwentyOne_TwentyTree_StudyMode == 5) {
+                                                        classStr = "planPartMoack";
+                                                    }
+                                                    if (result[i].TwentyOne_TwentyTree_StudyMode == 6) {
+                                                        classStr = "planPartshik";
+                                                    }
+                                                    trStr += "<td ><div class='" + classStr + "'>" + ((result[i].TwentyOne_TwentyTree_Id < 1 || result[i].TwentyOne_TwentyTree_Reversion == true) ? (result[i].TwentyOne_TwentyTree_OlockTitle != null ? result[i].TwentyOne_TwentyTree_OlockTitle : '') : "") + "</div></td>";
+                                                }
+                                                if (j == 2) {
+
+                                                    trStr += "<td>" + (result[i].TwentyOne_TwentyTree_TeacherName != null ? result[i].TwentyOne_TwentyTree_TeacherName : '') + "</td>";
+                                                }
+                                                if (j == 3) {
+                                                    planVmodel.Id = result[i].TwentyOne_TwentyTree_Id;
+                                                    planVmodel.workTtile = result[i].TwentyOne_TwentyTree_OlockTitle;
+                                                    planVmodel.startTime = "21:00";
+                                                    planVmodel.endTime = "23:00";
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  onclick='planShow(" + jsonVmodel + ")'><div class='planPartBlue'>" + (result[i].TwentyOne_TwentyTree_Reversion == false ? (planVmodel.Id > 0 && result[i].TwentyOne_TwentyTree_OlockTitle != null ? result[i].TwentyOne_TwentyTree_OlockTitle : '') : "有课程") + "</div></td>";
                                                 }
                                             }
                                             trStr += "</tr>";

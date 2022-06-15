@@ -122,6 +122,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
                             var thanStartTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
                             var thanendTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanStartTime7 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanendTime7= DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 23:00");
                             if (((startTimestr >= thanStartTime1 && startTimestr < thanendTime1) && (endTimestr > thanStartTime1 && endTimestr <= thanendTime1)) || ((endTimestr > thanStartTime1 && thanStartTime1 >= startTimestr) && (endTimestr <= thanendTime1 && thanendTime1 > startTimestr)))
                             {
                                 stu.Eight_Ten_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName;
@@ -158,6 +160,12 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                 stu.Nineteen_TwentyOne_TeacherName = iv.TeacherName;
                                 stu.Nineteen_TwentyOne_StudyMode = iv.StudyMode;
                             }
+                            else if (((startTimestr >= thanStartTime7 && startTimestr < thanendTime7) && (endTimestr > thanStartTime7&& endTimestr <= thanendTime7)) || ((endTimestr > thanStartTime7 && thanStartTime7 >= startTimestr) && (endTimestr <= thanendTime7 && thanendTime7 > startTimestr)))
+                            {
+                                stu.TwentyOne_TwentyTree_OlockTitle += "  " + iv.Work_Title + " 教师:" + iv.TeacherName + " 时间:" + iv.StartTime + "-" + iv.EndTime + " 教室:" + iv.RoomName; ;
+                                stu.TwentyOne_TwentyTree_TeacherName = iv.TeacherName;
+                                stu.TwentyOne_TwentyTree_StudyMode = iv.StudyMode;
+                            }
                             if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != stu.CourseComent)
                                 stu.CourseComent += iv.Comment;
                             if (!string.IsNullOrEmpty(iv.CourseWork) && iv.CourseWork != stu.CourseWorkCotent)
@@ -183,6 +191,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var thanendTime5 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
                             var thanStartTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 19:00");
                             var thanendTime6 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanStartTime7 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanendTime7 = DateTime.Parse(iv.WorkDate.ToString("yyyy-MM-dd") + " 23:00");
                             if (startTimestr >= thanStartTime1 && endTimestr <= thanendTime1)
                             {
                                 if (string.IsNullOrEmpty(stu.Eight_Ten_OlockTitle))
@@ -254,6 +264,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                     stu.Nineteen_TwentyOne_Reversion = true;
                                 }
                                 stu.Nineteen_TwentyOne_Id = iv.Id;
+                            }
+                            else if (startTimestr >= thanStartTime7 && endTimestr <= thanendTime7)
+                            {
+                                if (string.IsNullOrEmpty(stu.TwentyOne_TwentyTree_OlockTitle))
+                                {
+                                    stu.TwentyOne_TwentyTree_OlockTitle += iv.WorkTitle;
+                                }
+                                else
+                                {
+                                    stu.TwentyOne_TwentyTree_Reversion = true;
+                                }
+                                stu.TwentyOne_TwentyTree_Id = iv.Id;
                             }
                             if (!string.IsNullOrEmpty(iv.SummaryComent) || !string.IsNullOrEmpty(iv.CourseComent) || !string.IsNullOrEmpty(iv.ChouciComent) || !string.IsNullOrEmpty(iv.HomeWorkComent) || !string.IsNullOrEmpty(iv.OtherComent) || !string.IsNullOrEmpty(iv.OutSchoolTime) || !string.IsNullOrEmpty(iv.InSchoolTime))
                             {

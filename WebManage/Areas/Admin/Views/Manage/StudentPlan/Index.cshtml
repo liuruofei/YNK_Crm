@@ -116,7 +116,7 @@
                         callBack: function (rou) {
                             if (rou != null) {
                                 var result = rou;
-                                for (var i = 0; i < 18; i++) {
+                                for (var i = 0; i < 19; i++) {
                                     if (i == 0) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:80px;'>日期</td>");
@@ -345,6 +345,40 @@
                                     }
                                     else if (i == 8) {
                                         $("#plantbody").append("<tr>");
+                                        $("#plantbody").append("<td style='width:100px;'>21:00-23:00</td>");
+                                        for (var j = 0; j < result.length; j++) {
+                                            var planVmodel = {
+                                                Id: result[j].TwentyOne_TwentyTree_Id,
+                                                workTtile: result[j].TwentyOne_TwentyTree_OlockTitle,
+                                                workDate: result[j].WorkDate,
+                                                startTime: '21:00',
+                                                endTime: '23:00'
+                                            }
+                                            var jsonVmodel = JSON.stringify(planVmodel);
+                                            var isReversion = result[j].TwentyOne_TwentyTree_Reversion;
+                                            var studymodel = result[j].TwentyOne_TwentyTree_StudyMode;
+                                            var classColor = "planPartBlue";
+                                            if (planVmodel.Id > 0 && isReversion == false) {
+                                                classColor = "planPartBlue";
+                                            }
+                                            else {
+                                                classColor = "planPart"
+                                                if (studymodel == 4) {
+                                                    classColor = "planShiting"
+                                                }
+                                                else if (studymodel == 5) {
+                                                    classColor = "planPartMoack"
+                                                }
+                                                else if (studymodel == 6) {
+                                                    classColor = "planPartshik"
+                                                }
+                                            }
+                                            $("#plantbody").append("<td onclick='planShow(" + jsonVmodel + ")'><div class=" + classColor + ">" + (result[j].TwentyOne_TwentyTree_OlockTitle == null ? "" : result[j].TwentyOne_TwentyTree_OlockTitle) + "</div></td>");
+                                        }
+                                        $("#plantbody").append("</tr>");
+                                    }
+                                    else if (i == 9) {
+                                        $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>单词</td>");
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
@@ -357,7 +391,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 9) {
+                                    else if (i == 10) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>课程点评</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -371,7 +405,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 10) {
+                                    else if (i == 11) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>布置作业</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -379,7 +413,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 11) {
+                                    else if (i == 12) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>作业完成情况</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -393,7 +427,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 12) {
+                                    else if (i == 13) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>其它</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -407,7 +441,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 13) {
+                                    else if (i == 14) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>责任助教</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -421,7 +455,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 14) {
+                                    else if (i == 15) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>每日总结</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -435,7 +469,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 15) {
+                                    else if (i == 16) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>到校时间</td>");
                                         for (var j = 0; j < result.length; j++) {
@@ -449,7 +483,7 @@
                                         }
                                         $("#plantbody").append("</tr>");
                                     }
-                                    else if (i == 16) {
+                                    else if (i == 17) {
                                         $("#plantbody").append("<tr>");
                                         $("#plantbody").append("<td style='width:100px;'>离校时间</td>");
                                         for (var j = 0; j < result.length; j++) {
