@@ -469,7 +469,6 @@ namespace ADT.Repository
                             work.Work_Title = "试听课" + input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName;
                         }
                         else if (input.StudyMode == 5 || input.StudyMode == 6) {
-                            work.TeacherUid = "";
                             C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                             C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
                             C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
@@ -507,6 +506,13 @@ namespace ADT.Repository
                             work.RoomId = input.RoomId;
                             work.StudentUid = input.StudentUid;
                             work.Work_Title = input.Work_Title;
+                            if (input.StudyMode == 5)
+                            {
+                                work.TeacherUid = input.TeacherUid;
+                            }
+                            else {
+                                work.TeacherUid = "";
+                            }
                             //添加记录
                             recored.CampusId = vmodel.CampusId;
                             recored.Msg = "更改"+ (input.StudyMode == 5 ? "模考" : "实考")+ work.Work_Title + input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName + "_单元" + unt.UnitName + ",日期:" + input.AT_Date + " 时间段:" + input.StartTime + "-" + input.EndTime;
@@ -852,7 +858,6 @@ namespace ADT.Repository
                             //模考和实考
                             else if (input.StudyMode == 5)
                             {
-                                input.TeacherUid = "";
                                 C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                                 C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
                                 C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
