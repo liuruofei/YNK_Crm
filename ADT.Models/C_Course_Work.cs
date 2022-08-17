@@ -95,7 +95,7 @@ namespace ADT.Models
         /// <summary>
         /// 成绩
         /// </summary>
-        public float Score { get; set; }
+        public string Score { get; set; }
 
         public int Status { get; set; }
         public DateTime CreateTime { get; set; }
