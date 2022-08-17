@@ -1,0 +1,237 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">关键词：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="title" name="title" class="layui-input" type="text" placeholder="关键词" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">授课方式：</label>
+                        <div class="layui-input-inline mr0">
+                            <select id="StudyMode" name="StudyMode" lay-filter="StudyMode">
+                                <option value="5">模考</option>
+                                <option value="6">实考</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">开始日期：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="startTime" class="layui-input" type="text" placeholder="开始时间" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">结束日期：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="endTime" class="layui-input" type="text" placeholder="结束时间" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                        <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left:5px">导出</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    @*<a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">点评</a>*@
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+        layui.use(['form', 'util', 'admin', 'adminList', 'laydate', 'adminForm'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var form = layui.form;
+    var adminList = layui.adminList;
+    var laydate = layui.laydate;
+    var adminForm = layui.adminForm;
+    //日期
+    laydate.render({
+        elem: '#startTime',
+        format: 'yyyy-MM-dd'
+    });
+    //日期
+    laydate.render({
+        elem: '#endTime',
+        format: 'yyyy-MM-dd'
+    });
+
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        where:{studymode: parseInt($('#StudyMode').val())},
+        page: true,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            { field: 'Work_Title', title: '考试名称', sort: true, width: 200 },
+            {
+                field: 'AT_Date', title:'上课日期', sort: true, templet: function (d) {
+                    return dateFtt("yyyy-MM-dd",d.AT_Date);
+                }
+            },
+            { field: 'StartTime', title: '开始时间', sort: true },
+            { field: 'EndTime', title: '结束时间', sort: true },
+            { field: 'TeacherName', title: '教师', sort: true },
+            {
+                field: 'StudyMode', title: '考试模式', sort: true, templet: function (d) {
+                    if (d.StudyMode == 5)
+                        return "模考";
+                    else if (d.StudyMode == 6)
+                        return "实考";
+                }
+            },
+            {
+                field: 'Comment', title: '学员', sort: true, templet: function (d) {
+                    if (d.StudyMode == 5 || d.StudyMode == 6) {
+                        return d.Student_Name;
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            },
+            {
+                field: 'Score', title: '成绩', sort: true, width: 120, templet: function (d) {
+                    if (d.StudyMode == 5 || d.StudyMode == 6) {
+                        return "<input type='text' value='" + d.Score + "' data-id='" + d.Id + "' style='width:80px' onchange='SetScore(this)'/>";
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            },
+            { align: 'center', toolbar: '#tableBar', title: '操作', width: 150}
+        ]],
+        done: function (res, curr, count) {
+            res.data.forEach(function (item, index) {
+                if (item.Work_Stutas < 1 && item.Comment != null && item.Comment != '') {
+                    $(".layui-table").find("tr[data-index='" + index + "']").css("background-color", "rgb(231 195 195)");
+                }
+            });
+        }
+    });
+
+    // 搜索
+     $('#btnSearch').click(function () {
+        var title = $('#title').val();
+        var studymode = parseInt($('#StudyMode').val());
+        var startTime = $('#startTime').val();
+        var endTime = $('#endTime').val();
+        insTb.reload({
+            where: { title: title,studymode: studymode, startTime: startTime,endTime: endTime}
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+   form.on('select(StudyMode)', function (data) {
+        var title = $('#title').val();
+        var studymode = parseInt(data.value);
+        var startTime = $('#startTime').val();
+        var endTime = $('#endTime').val();
+        insTb.reload({
+            where: { title: title,studymode: studymode, startTime: startTime, endTime: endTime}
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+        var data = obj.data;
+        var layEvent = obj.event;
+        if (layEvent === 'edit') { // 点评课程
+            showEditModel(data);
+        }
+
+    });
+
+    //显示表单弹窗
+    function showEditModel(vmodel) {
+        adminList.form({
+            title: '保存点评',
+            type: 2,
+            width: "920px",
+            height: "710px",
+            content: '@Url.Action("Edit", "UnCommentCourseWork")?ID=' + vmodel.Id,
+            end: function (data) {
+                insTb.reload();
+            }
+        });
+    };
+        });
+     function SetScore(obj) {
+            console.log($(obj).attr("data-id"));
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("SetScore")",
+                data: { Id: $(obj).attr("data-id"), Score: $(obj).val() },
+                dataType: 'json',
+                contentType: 'application/x-www-form-urlencoded',
+                success: function (data) {
+                    layer.msg(data.msg);
+                }
+            });
+        }
+     function exportPlan() {
+         var title = $('#title').val();
+         var workStutas = parseInt($('#Work_Stutas').val());
+         var studymode = parseInt($('#StudyMode').val());
+         var startTime = $('#startTime').val();
+         var endTime = $('#endTime').val();
+         window.location.href = '@Url.Action("ExportPlan")?title=' + title+ '&studymode=' + studymode + '&startTime=' + startTime + '&endTime=' + endTime;
+     }
+        function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+    </script>
+}

@@ -1,0 +1,152 @@
+﻿<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="button" value="今日" dayValue="1" class="monthBtn" />
+                            <input type="button" value="明日" dayValue="2" class="monthBtn actvMonth" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">开始时间</label>
+                        <div class="layui-input-inline mr0">
+                            <input name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="登记开始时间" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">—</label>
+                        <div class="layui-input-inline mr0">
+                            <input name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+
+        .monthBtn {
+            height: 30px;
+            width: 68px;
+        }
+
+        .actvMonth {
+            color: white;
+            background-color: #009688;
+            border: 0px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+      var dayStatu =2;
+        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm', 'laydate'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var adminList = layui.adminList;
+    var laydate = layui.laydate;
+     laydate.render({
+         elem: '#StartTime',
+         type: 'date'
+     });
+     laydate.render({
+         elem: '#EndTime',
+         type: 'date'
+     });
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("TotalTomorrowCourse")',
+        where: { dayStatu: dayStatu, startTime: '', endTime: '' },
+        page: false,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            {
+                field: 'StudyMode', title: '授课类型', sort: true, templet: function (d) {
+                    if (d.StudyMode == 1) {
+                        return "1对1";
+                    }
+                    if (d.StudyMode == 2) {
+                        return "班课";
+                    }
+                    if (d.StudyMode == 3) {
+                        return "休息";
+                    }
+                    if (d.StudyMode == 4) {
+                        return "试听";
+                    }
+                    if (d.StudyMode == 5) {
+                        return "模考";
+                    }
+                    if (d.StudyMode == 6) {
+                        return "实考";
+                    }
+                }
+            },
+            { field: 'Total', title: '当前数量', sort: true },
+        ]]
+    });
+
+    // 按天搜索
+      $('.monthBtn').click(function () {
+         $('input[name="StartTime"]').val("");
+         $('input[name="EndTime"]').val("");
+         $('.monthBtn').removeClass("actvMonth");
+         $(this).addClass("actvMonth");
+         dayStatu = $(this).attr("dayValue");
+         insTb.reload({
+             where: { dayStatu: dayStatu, startTime:'', endTime:'' }
+             , page: {
+                 curr: 1 //重新从第 1 页开始
+             }
+         });
+    });
+
+    // 搜索
+     $('#btnSearch').click(function () {
+         var endTime = $('input[name="EndTime"]').val();
+         var startTime = $('input[name="StartTime"]').val();
+        if (startTime == null || startTime == "" || endTime == null || endTime=="") {
+            layer.msg("请输入开始日期和结束日期");
+            return false;
+         }
+         $('.monthBtn').removeClass("actvMonth");
+         dayStatu = 0;
+        insTb.reload({
+            where: { dayStatu: dayStatu, startTime: startTime,endTime:endTime}
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+ });
+    </script>
+}
