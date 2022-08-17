@@ -258,7 +258,7 @@
                 showBottom: false,  // 不显示底部按钮
                 calendar: true,     // 开启公历节日
                 format: 'yyyy-MM-dd',
-                min: minDate(),      // 设置最小可选的日期
+                //min: minDate(),      // 设置最小可选的日期
                 change: function () {
                     dateSelect(courseDates.getValue('value'));
                 },
@@ -370,6 +370,7 @@
                             $("#OneOfPart").css("display", "none");
                             $("#PresentPart").css("display", "none");
                             $("#PreSendPartUser").css("display", "none");
+                            $("#lineSpanPigai").text("休假老师");
                             $("#lineSpanDate").text("休息日期");
                             $("#lineSpanTimeRange").text("休息时段");
                         }
@@ -945,12 +946,20 @@
                         for (var i = 0; i < result.length; i++) {
                             if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0 && defaultProjectId == result[i].ProjectId) {
                                 $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + ' selected>' + result[i].ProjectName + '</option>');
+                                if (studyModel == 5 || studyModel == 6) {
+                                    bindUnit(defaultProjectId, defaultUnitId);
+                                }
                             }
                             else {
                                 $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
-                            }
-                            if (i == 0 && (studyModel == 5 || studyModel== 6)) {
-                                bindUnit(result[i].ProjectId, defaultUnitId);
+                                if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0) {
+                                    bindUnit(defaultProjectId, defaultUnitId);
+                                }
+                                else {
+                                    if (i == 0 && (studyModel == 5 || studyModel == 6)) {
+                                        bindUnit(result[i].ProjectId, defaultUnitId);
+                                    }
+                                }
                             }
                         }
                     }
@@ -967,6 +976,8 @@
                 dataType: 'json',
                 callBack: function (rou) {
                     if (rou.data != null) {
+                        console.log(projectId);
+                        console.log(rou.data);
                         $("#PartUnit").show();
                         $("select[name='UnitId']").html("");
                         var result = rou.data;

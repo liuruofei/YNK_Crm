@@ -91,7 +91,7 @@ layui.use([ 'form', 'util', 'admin','adminList'], function () {
         if (layEvent === 'edit') { // 修改
             showEditModel(data);
         } else if (layEvent === 'del') { // 删除
-            doDel(data.User_ID, data.User_LoginName);
+            doDel(data.User_ID);
         }
     });
     function showEditModel(mUser) {
@@ -106,7 +106,7 @@ layui.use([ 'form', 'util', 'admin','adminList'], function () {
             }
         });
     }
-    function doDel(Id, nickName) {
+    function doDel(Id) {
         var ids = new Array();
         ids.push(Id);
         adminList.delete('@Url.Action("Delete")', { id: JSON.stringify(ids) }, function () {

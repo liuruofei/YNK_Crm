@@ -60,14 +60,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .Where((u,ur,r)=>u.User_ID==userId&&r.Role_Name.Contains("教师")).First();
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Campus, sys_user,C_Contrac_User>((c, ca, ta,u) => new Object[] { JoinType.Left, c.CampusId == ca.CampusId, JoinType.Left, c.TeacherUid == ta.User_ID, JoinType.Left,c.StudentUid==u.StudentUid })
-                .Where(c => c.CampusId == Convert.ToInt32(campusId)&&c.StudyMode!=3)
+                .Where(c => c.CampusId == Convert.ToInt32(campusId)&&c.StudyMode!=3&&c.StudyMode!=5 && c.StudyMode != 6)
                 .WhereIF(workStutas>0,c=>!string.IsNullOrEmpty(c.Comment))
                 .WhereIF(workStutas <1,c =>string.IsNullOrEmpty(c.Comment))
                 .WhereIF(studymode>0, c => c.StudyMode== studymode)
                 .WhereIF(teacher!=null, c => c.TeacherUid == userId)
                 .WhereIF(startTime.HasValue,c=>c.AT_Date>=startTime.Value)
                 .WhereIF(endTime.HasValue, c => c.AT_Date< endTime.Value)
-                .WhereIF(!string.IsNullOrEmpty(title), (c, ca,ta) => c.Work_Title.Contains(title)||ta.User_Name.Contains(title)).OrderByIF(workStutas>0, c => c.AT_Date,OrderByType.Desc).OrderByIF(workStutas <1, c => c.AT_Date, OrderByType.Asc).Select<CourseWorkModel>((c, ca, ta,u) => new CourseWorkModel
+                .WhereIF(!string.IsNullOrEmpty(title), (c, ca,ta,u) => c.Work_Title.Contains(title)||ta.User_Name.Contains(title)||u.Student_Name.Contains(title)).OrderByIF(workStutas>0, c => c.AT_Date,OrderByType.Desc).OrderByIF(workStutas <1, c => c.AT_Date, OrderByType.Asc).Select<CourseWorkModel>((c, ca, ta,u) => new CourseWorkModel
                 {
                     Id = c.Id,
                     Work_Title = c.Work_Title,
@@ -143,21 +143,23 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         return Json(new { code = 0, msg = "点评内容已被推送，无法修改" });
                     }
                     var valiteTime =DateTime.Parse(work.AT_Date.ToString("yyyy-MM-dd") + " " + work.EndTime);
-                    work.Comment = vmodel.Comment;
                     work.UpdateUid = userId;
                     work.Work_Stutas = 1;
                     //如果在23小时之内,则课时有效
                     if (work.StudyMode != 5&& work.StudyMode != 6)
                     {
-                        if (valiteTime.AddHours(24) > DateTime.Now)
-                        {
-                            work.Work_Stutas = 1;
-                        }
-                        else
-                        {
-                            work.Work_Stutas = 0;
+                        if (string.IsNullOrEmpty(work.Comment)) {
+                            if (valiteTime.AddHours(24) > DateTime.Now)
+                            {
+                                work.Work_Stutas = 1;
+                            }
+                            else
+                            {
+                                work.Work_Stutas = 0;
+                            }
                         }
                     }
+                    work.Comment = vmodel.Comment;
                     work.Comment_Time = DateTime.Now;//点评时间
                     var result = _currencyService.DbAccess().Updateable<C_Course_Work>(work).ExecuteCommand();
                     if (result > 0)
@@ -232,20 +234,26 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         var student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(u => u.StudentUid == model.StudentUid).First();
                         if (!string.IsNullOrEmpty(student.OpenId) && !string.IsNullOrEmpty(toaken))
                         {
-                            SendMsgHomeWork(student.OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            //SendMsgHomeWork(student.OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork2(student.OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title,"", model.AT_Date.ToString("yyyy-MM-dd"),vmodel.CourseWork,student.Student_Name,model.Id);
                         }
                         if (!string.IsNullOrEmpty(student.Elder_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
-                            SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            //SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, student.Student_Name, model.Id);
                         }
                         if (!string.IsNullOrEmpty(student.Elder2_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
-                            SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            //SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork,student.Student_Name, model.Id);
                         }
                     }
                     //班课
                     if (model.ClasssId > 0)
                     {
+                        List<C_Contrac_User> ovtStudent = new List<C_Contrac_User>();
+                        List<C_Contrac_User> ovtElder = new List<C_Contrac_User>();
+                        List<C_Contrac_User> ovtElder2 = new List<C_Contrac_User>();
                         List<string> studentOpenIds = new List<string>();
                         List<string> elderOpenIds = new List<string>();
                         List<string> elderOpenIds2 = new List<string>();
@@ -256,14 +264,17 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             if (!string.IsNullOrEmpty(iv.OpenId) && !studentOpenIds.Contains(iv.OpenId))
                             {
                                 studentOpenIds.Add(iv.OpenId);
+                                ovtStudent.Add(new C_Contrac_User{OpenId=iv.OpenId,Student_Name=iv.Student_Name });
                             }
                             if (!string.IsNullOrEmpty(iv.Elder_OpenId) && !elderOpenIds.Contains(iv.Elder_OpenId))
                             {
                                 elderOpenIds.Add(iv.Elder_OpenId);
+                                ovtElder.Add(new C_Contrac_User { Elder_OpenId = iv.Elder_OpenId, Student_Name = iv.Student_Name });
                             }
                             if (!string.IsNullOrEmpty(iv.Elder2_OpenId) && !elderOpenIds2.Contains(iv.Elder2_OpenId))
                             {
                                 elderOpenIds2.Add(iv.Elder2_OpenId);
+                                ovtElder2.Add(new C_Contrac_User { Elder2_OpenId = iv.Elder2_OpenId, Student_Name = iv.Student_Name });
                             }
                         });
                         //推送给学生
@@ -271,7 +282,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                var stuName = ovtStudent.Find(cc=>cc.OpenId==iv).Student_Name;
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork,stuName, model.Id);
                             }
                         });
                         //推送给家长1
@@ -279,7 +292,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                var stuName = ovtElder.Find(cc => cc.Elder_OpenId == iv).Student_Name;
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, stuName, model.Id);
                             }
                         });
                         //推送给家长2
@@ -287,7 +302,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                var stuName = ovtElder2.Find(cc => cc.Elder2_OpenId == iv).Student_Name;
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, stuName, model.Id);
                             }
                         });
                     }
@@ -355,6 +372,39 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
         }
 
+        //发送家庭作业模板2
+        public void SendMsgHomeWork2(string openId, string templateId, string wxaccessToken, string msg, string wkTitle, string wkTeacher, string wkTime, string courseWork, string studentName, int wkId)
+        {
+            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
+            jsonObject.Add("touser", openId);   // openid
+            jsonObject.Add("template_id", templateId);
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            Dictionary<string, string> first = new Dictionary<string, string>();
+            first.Add("value", msg);
+            first.Add("color", "#173177");
+            Dictionary<string, string> keyword1 = new Dictionary<string, string>();
+            keyword1.Add("value", studentName);
+            keyword1.Add("color", "#173177");
+            Dictionary<string, string> keyword2 = new Dictionary<string, string>();
+            keyword2.Add("value", wkTitle);
+            keyword2.Add("color", "#173177");
+            Dictionary<string, string> keyword3 = new Dictionary<string, string>();
+            keyword3.Add("value", "任课老师");
+            keyword3.Add("color", "#173177");
+            Dictionary<string, string> remark = new Dictionary<string, string>();
+            remark.Add("value", "课程作业:" + courseWork);
+            remark.Add("color", "#173177");
+            data.Add("first", first);
+            data.Add("keyword1", keyword1);
+            data.Add("keyword2", keyword2);
+            data.Add("keyword3", keyword3);
+            data.Add("remark", remark);
+            jsonObject.Add("data", data);
+            jsonObject.Add("url", "http://crm.younengkao.com/WxTemplateChild/Zuoye?wkId=" + wkId);//设置链接
+            var jsonStr = JsonConvert.SerializeObject(jsonObject);
+            var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
+            string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
+        }
 
         /// <summary>
         /// 导出
@@ -372,12 +422,12 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .Where((u, ur, r) => u.User_ID == userId && r.Role_Name.Contains("教师")).First();
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Campus, sys_user,C_Contrac_User>((c, ca, ta,u) => new Object[] { JoinType.Left, c.CampusId == ca.CampusId, JoinType.Left, c.TeacherUid == ta.User_ID, JoinType.Left, c.StudentUid == u.StudentUid })
-                .Where(c => c.CampusId == Convert.ToInt32(campusId) && c.Work_Stutas == workStutas && c.StudyMode != 3)
+                .Where(c => c.CampusId == Convert.ToInt32(campusId) && c.Work_Stutas == workStutas && c.StudyMode != 3 && c.StudyMode != 5 && c.StudyMode != 6)
                 .WhereIF(studymode > 0, c => c.StudyMode == studymode)
                 .WhereIF(teacher != null, c => c.TeacherUid == userId)
                 .WhereIF(startTime.HasValue, c => c.AT_Date >= startTime.Value)
                 .WhereIF(endTime.HasValue, c => c.AT_Date < endTime.Value)
-                .WhereIF(!string.IsNullOrEmpty(title), (c, ca, ta) => c.Work_Title.Contains(title) || ta.User_Name.Contains(title)).OrderByIF(workStutas > 0, c => c.AT_Date, OrderByType.Desc).OrderByIF(workStutas < 1, c => c.AT_Date, OrderByType.Asc).Select<CourseWorkModel>((c, ca, ta,u) => new CourseWorkModel
+                .WhereIF(!string.IsNullOrEmpty(title), (c, ca, ta,u) => c.Work_Title.Contains(title) || ta.User_Name.Contains(title)||u.Student_Name.Contains(title)).OrderByIF(workStutas > 0, c => c.AT_Date, OrderByType.Desc).OrderByIF(workStutas < 1, c => c.AT_Date, OrderByType.Asc).Select<CourseWorkModel>((c, ca, ta,u) => new CourseWorkModel
                 {
                     Id = c.Id,
                     Work_Title = c.Work_Title,
@@ -442,9 +492,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     {
                         studyModelName = "实考";
                     }
-                    if (!string.IsNullOrEmpty(list[y].Comment)) {
+                    if (!string.IsNullOrEmpty(list[y].Comment))
+                    {
 
-                        comment = list[y].Comment.Length > 10 ? list[y].Comment.Substring(0, 10) + "...":list[y].Comment;
+                        comment = list[y].Comment;
                     }
                     var row = sheet.CreateRow(y + 1);
                     var cell0 = row.CreateCell(0);

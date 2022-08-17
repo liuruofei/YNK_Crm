@@ -57,7 +57,7 @@ namespace WebManage.Models.Res
         /// <summary>
         /// 成绩
         /// </summary>
-        public float Score { get; set; }
+        public string Score { get; set; }
 
         public string Unit_TimeName { get; set; }
         public string Unit_TimeType { get; set; }

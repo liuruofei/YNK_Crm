@@ -102,13 +102,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 if (model.StudyMode != 5&&model.StudyMode != 6)
                 {
 
-                    if (valiteTime.AddHours(24) > DateTime.Now)
-                    {
-                        workstatus = 1;
-                    }
-                    else
-                    {
-                        workstatus = 0;
+                    if (string.IsNullOrEmpty(model.Comment)) {
+                        if (valiteTime.AddHours(24) > DateTime.Now)
+                        {
+                            workstatus = 1;
+                        }
+                        else
+                        {
+                            workstatus = 0;
+                        }
                     }
                 }
                 var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = vmodel.Comment, Work_Stutas = workstatus, Comment_Time=DateTime.Now }).Where(it => it.Id == vmodel.Id).ExecuteCommand();

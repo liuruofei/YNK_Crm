@@ -285,6 +285,7 @@
                                 }
                                 var html = template("templateItem", { data: r.ListItem });
                                 document.getElementById("child_Contrc_Detail").innerHTML = html;
+                                console.log(r.ListItem);
                                 for (var k = 0; k < timeList.length; k++) {
                                     $("#child_Contrc_Detail").find("tr").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
                                 } 

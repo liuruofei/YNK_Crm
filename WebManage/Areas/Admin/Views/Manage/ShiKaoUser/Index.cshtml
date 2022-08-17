@@ -90,7 +90,7 @@
             { field: 'UnitName', title: '单元', sort: true },
             {
                 field: 'Score', title: '成绩', sort: true, width: 120, templet: function (d) {
-                    return "<input type='number' value='" + d.Score + "' data-id='" + d.Id + "' style='width:80px' onchange='SetScore(this)'/>";
+                    return "<input type='text' value='" + d.Score + "' data-id='" + d.Id + "' style='width:80px' onchange='SetScore(this)'/>";
                 }
             },
         ]]

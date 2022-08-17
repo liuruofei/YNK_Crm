@@ -29,11 +29,13 @@
         <h2>教师评语</h2>
     </div>
     <div class="courseCotent" id="courseCotent">
+        <textarea id="txtcourseCotent" style="height:360px" disabled></textarea>
     </div>
     <div class="wkTitle">
         <h2>学员作业</h2>
     </div>
     <div class="courseCotent" id="homeWork">
+        <textarea id="txthomeWork" style="height:360px" disabled></textarea>
     </div>
     <script type="text/javascript">
         $(function () {
@@ -51,8 +53,10 @@
                     var result = data.data;
                     console.log(result);
                     if (result != null) {
-                        document.getElementById("courseCotent").innerHTML = result.Comment;
-                        document.getElementById("homeWork").innerHTML = result.HomeWorkComent;
+                        $("#txtcourseCotent").val(result.Comment);
+                        $("#txthomeWork").val(result.HomeWorkComent);
+                        //document.getElementById("courseCotent").innerHTML = result.Comment;
+                        //document.getElementById("homeWork").innerHTML = result.HomeWorkComent;
                     }
                 },
                 error: function (error) {

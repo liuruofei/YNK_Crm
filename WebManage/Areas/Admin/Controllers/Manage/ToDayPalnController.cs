@@ -44,7 +44,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="day"></param>
         /// <returns></returns>
         [UsersRoleAuthFilter("V-354", FunctionEnum.Have)]
-        public IActionResult QueryStudentPlan(int status,DateTime? atTime = null)
+        public IActionResult QueryStudentPlan(string studentName,int status,DateTime? atTime = null)
         {
             if (!atTime.HasValue)
             {
@@ -61,7 +61,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             //查询出所有学生
             studentPlan = _currencyService.DbAccess().Queryable<C_Contrac_User>().Select(cu=>new StudentWorkPlanModel { 
              StudentUid=cu.StudentUid,Student_Name=cu.Student_Name,WorkDateName= weekName,WorkDate=atTime.Value
-            }).ToList();
+            }).WhereIF(!string.IsNullOrEmpty(studentName),cu=>cu.Student_Name.Contains(studentName)).ToList();
             List<int> studentUids = studentPlan.Select(cu => cu.StudentUid).ToList();
             //所有学生任务计划
             List<C_Student_Work_Plan> listPlans = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(it => studentUids.Contains(it.StudentUid) && DateTime.Parse(it.WorkDate.ToString("yyyy-MM-dd") + " 00:00") == DateTime.Parse(atTime.Value.ToString("yyyy-MM-dd") + " 00:00")).ToList();
@@ -111,17 +111,17 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             var startTimestr = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " " + iv.StartTime);
                             var endTimestr = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " " + iv.EndTime);
                             var thanStartTime1 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 8:00");
-                            var thanendTime1 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 10:00");
+                            var thanendTime1 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 10:50");
                             var thanStartTime2 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 10:00");
-                            var thanendTime2 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 12:00");
+                            var thanendTime2 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 12:50");
                             var thanStartTime3 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 13:00");
-                            var thanendTime3 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 15:00");
+                            var thanendTime3 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 15:50");
                             var thanStartTime4 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 15:00");
-                            var thanendTime4 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 17:00");
+                            var thanendTime4 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 17:50");
                             var thanStartTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 17:00");
-                            var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
+                            var thanendTime5 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:50");
                             var thanStartTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 19:00");
-                            var thanendTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
+                            var thanendTime6 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:50");
                             var thanStartTime7 = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 21:00");
                             var thanendTime7= DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " 23:00");
                             if (((startTimestr >= thanStartTime1 && startTimestr < thanendTime1) && (endTimestr > thanStartTime1 && endTimestr <= thanendTime1)) || ((endTimestr > thanStartTime1 && thanStartTime1 >= startTimestr) && (endTimestr <= thanendTime1 && thanendTime1 > startTimestr)))

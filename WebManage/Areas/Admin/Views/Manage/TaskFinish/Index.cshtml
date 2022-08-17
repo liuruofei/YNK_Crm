@@ -24,6 +24,15 @@
                         </div>
                     </div>
                     <div class="layui-inline">
+                        <label class="layui-form-label w-auto">类型：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="taskType" id="taskType" lay-filter="taskType">
+                                <option value="0">作业</option>
+                                <option value="1">任务</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
                         <label class="layui-form-label w-auto">日期</label>
                         <div class="layui-input-inline mr0">
                             <input name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="开始日期" />
@@ -91,6 +100,7 @@
         url: '@Url.Action("GetDataSource")',
         page: true,
         cellMinWidth: 100,
+        where: { finishStatus: $('#finishStatus').val(),taskType:$('#taskType').val()},
         cols: [[
             { type: 'numbers' },
             { field: 'Student_Name', title: '学生名称', sort: true, fixed: 'left' },
@@ -114,24 +124,39 @@
        form.on('select(finishStatus)', function (data) {
            var title = $('#txtTitle').val();
            var finishStatus = data.value;
+           var taskType = $('#taskType').val();
            var startDate = $('#StartTime').val();
            var endDate = $('#EndTime').val();
             insTb.reload({
-                where:{title: title, finishStatus: finishStatus, startDate: startDate, endDate: endDate}
+                where: { title: title, finishStatus: finishStatus, taskType: taskType, startDate: startDate, endDate: endDate}
                 , page: {
                     curr: 1 //重新从第 1 页开始
                 }
             });
-      });
+       });
+            form.on('select(taskType)', function (data) {
+                var title = $('#txtTitle').val();
+                var finishStatus = $('#finishStatus').val();
+                var taskType = data.value
+                var startDate = $('#StartTime').val();
+                var endDate = $('#EndTime').val();
+                insTb.reload({
+                    where: { title: title, finishStatus: finishStatus, taskType: taskType, startDate: startDate, endDate: endDate }
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+            });
 
     // 搜索
     $('#btnSearch').click(function () {
         var title = $('#txtTitle').val();
         var finishStatus = $("select[name='finishStatus']").val();
+        var taskType = $("select[name='taskType']").val();
         var startDate = $('#StartTime').val();
         var endDate = $('#EndTime').val();
         insTb.reload({
-            where: { title: title, finishStatus: finishStatus, startDate: startDate, endDate: endDate }
+            where: { title: title, finishStatus: finishStatus, taskType: taskType, startDate: startDate, endDate: endDate }
             , page: {
                 curr: 1 //重新从第 1 页开始
             }
@@ -150,7 +175,6 @@
 
     //更改状态
      function changeStutas(vmodel) {
-                console.log(vmodel);
         adminForm.Save({
             url: '@Url.Action("changeFinishStatus")',
             data: { Id: vmodel.Id, isZuoye: vmodel.isZuoye },

@@ -229,6 +229,17 @@
                             $("#spanStudentName").text("试听学员");
                             $("#spanCatogalogName").text("试听分类");
                         }
+                        else if (r.StudyMode == 5) {
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#PartProject").show();
+                            $("#ListeningPart").show();
+                            $("#ListenSubPart").show();
+                            $("#lineSpanDate").text("模考日期");
+                            $("#lineSpanTimeRange").text("模考时段");
+                            $("#spanStudentName").text("模考学员");
+                            $("#spanCatogalogName").text("模考分类");
+                        }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
                         }

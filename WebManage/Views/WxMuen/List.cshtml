@@ -111,7 +111,7 @@
 
             .wrapper {
                 width: 90%;
-                height:422px;
+                height:588px;
                 border-radius: 5px;
                 background: #fff;
                 font-size: 16px;
@@ -126,7 +126,7 @@
                 }
                     .configmComm button {
                         height: 50px;
-                        width: 80px;
+                        width: 120px;
                     }
 
         </style>
@@ -173,8 +173,12 @@
                 <div style="width:100%; height:220px;padding-left:2px">
                     <textarea name="commendText" id="commendText" style="width: 97%; height:220px; border: solid 2px #ddd;" placeholder="请输入点评内容"></textarea>
                 </div>
+                <div style="width:100%; height:200px;padding-left:2px">
+                    <textarea name="homeWorkText" id="homeWorkText" style="width: 97%; height:200px; border: solid 2px #ddd;" placeholder="请输入课堂作业"></textarea>
+                </div>
                 <div class="configmComm">
-                    <div style="flex:1;text-align: center;"><button onClick="saveComment()">确定</button></div>
+                    <div style="flex:1;text-align: center;"><button onClick="saveComment()">保存点评</button></div>
+                    <div style="flex:1;text-align: center;"><button onClick="saveHomeWork()">推送作业</button></div>
                     <div style="flex:1;text-align: center;"><button onClick="closeDialog()">关闭</button></div>
                 </div>
             </div>
@@ -303,10 +307,11 @@
                 cehckOpenId(openId, date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate());
                 //renderTable(getMonth(date), date,[]);
             }
+            //正式服务器用
             redirectToAuthPage();
-            //openId = 'oEjwO5xlzz8CofS0SojJEt2qwzGg';
-            //bindOpenIdCourseArr(openId, '2022-2');
-            //cehckOpenId(openId, '2022-2-23');
+            //openId = 'oEjwO5-1YFgS-m1myho7F8o6N8K8';
+            //bindOpenIdCourseArr(openId, '2022-7');
+            //cehckOpenId(openId, '2022-7-13');
             function redirectToAuthPage() {
                 var link = location.href;
                 //第二步获取网页code
@@ -402,6 +407,7 @@
                             $("#startTime").text(vmodel.StartTime);
                             $("#endTime").text(vmodel.EndTime);
                             $("#commendText").val(vmodel.Comment);
+                            $("#homeWorkText").val(vmodel.CourseWork);
                         }
                         else {
                             alert("获取失败!");
@@ -417,6 +423,10 @@
                     alert("评论不能为空！");
                     return false;
                 }
+                if (openId == "" ||openId == undefined || openId==null) {
+                    alert("你尚未绑定crm系统！");
+                    return false;
+                }
                 $.ajax({
                     url: "http://crm.younengkao.com/WeiChat/SaveComment",//绑定OpenId
                     type: "post",
@@ -428,11 +438,30 @@
                         if (data.code == 200) {
                             var result = data.data;
                             wkId = 0;
-                            $("#commendText").val("");
-                            document.getElementById("dialog").style.display = "none";
                             var datastr = dateFtt("yyyy-MM-dd", result.AT_Date);
                             cehckOpenId(openId, datastr);
+                            closeDialog();
                         }
+                    }
+                });
+            }
+
+            function saveHomeWork() {
+                var homework = $("#homeWorkText").val();
+                if (homework == "") {
+                    alert("作业不能为空！");
+                    return false;
+                }
+                $.ajax({
+                    url: "http://crm.younengkao.com/WeiChat/SaveWork",//绑定OpenId
+                    type: "post",
+                    data: { openId: openId, wkId: wkId, homework: homework },
+                    contentType: 'application/x-www-form-urlencoded',
+                    dataType: "json",
+                    success: function (data) {
+                        alert(data.msg);
+                        wkId = 0;
+                        closeDialog();
                     }
                 });
             }
@@ -462,6 +491,8 @@
             const closeDialog = () => {
                 wkId = 0;
                 document.getElementById("dialog").style.display = "none";
+                $("#commendText").val("");
+                $("#homeWorkText").val("");
             };
 
             //获取编码参数

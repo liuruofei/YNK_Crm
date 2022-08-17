@@ -16,10 +16,10 @@
 <body>
     <div style="text-align:center;">
         <h2 style="margin-top:10px;">今日课程</h2>
-        <table class="layui-table">
-            <tbody id="coursebody">
-            </tbody>
-        </table>
+        <div id="alarmTableContainer" style="height: calc(100% - 30px); margin: 10px;">
+            <table class="layui-hide" id="coursebody">
+            </table>
+        </div>
     </div>
     <!-- js部分 -->
     <script src="~/assets/libs/jquery/jquery-3.2.1.min.js"></script>
@@ -27,6 +27,7 @@
     <script type="text/javascript" src="~/assets/js/common.js?v=311"></script>
     <script src="~/assets/js/template-web.js"></script>
     <script type="text/javascript">
+        let alarmTableContainer = $('#alarmTableContainer');
         layui.use(['form', 'util', 'admin', 'adminList'], function () {
             var adminList = layui.adminList;
             // 渲染表格
@@ -53,10 +54,83 @@
                     },
                     { field: 'TeacherName', title: '教师', align: "center", sort: true },
                     { field: 'RoomName', title: '教室', align: "center", sort: true },
-                ]]
+                ]],
+                done: function (res, curr, count) {
+                    if (res.data.length > 25) {
+                        let scroller = new TableScroller(alarmTableContainer, 2000);
+                        scroller.start();
+                    }
+                    //设置单元格颜色
+                    res.data.forEach(function (item, index) {
+                        var itemEndTime = new Date(dateFtt("yyyy-MM-dd", item.AT_Date) + ' '+ item.EndTime);
+                        var nowTime = new Date();
+                        if (itemEndTime < nowTime) {
+                            //当前index的行
+                            $(".layui-table-body tr[data-index=" + index + "]").attr({ "style": "background:#f2f2f2;color:#666" });//改变当前tr颜色
+                        }
+                    });
+                }
             });
         });
+        // 表格滚动器
+        function TableScroller(tableContainer, interval) {
+            // 响应鼠标事件
+            // 隐藏表格滚动条
+            let bodyContainer = tableContainer.find('.layui-table-body');
+            bodyContainer.css('overflow-x', 'hidden');
+            bodyContainer.css('overflow-y', 'hidden');
 
+            this.timerID = null;
+            this.interval = interval;
+            this._bodyTable = bodyContainer.find('table');
+            this._tbody = this._bodyTable.find('tbody');
+
+            this.start = function () {
+                let that = this;
+                that.timerID = setInterval(function () {
+                    that._scroll(that._bodyTable, that._tbody, that.interval);
+                }, that.interval);
+            };
+            this.pause = function () {
+                let that = this;
+                if (that.timerID === null) {
+                    return;
+                }
+
+                clearInterval(that.timerID);
+                that.timerID = null;
+            };
+            this.resume = function () {
+                let that = this;
+                if (that.timerID !== null || that.callback === null || that.interval === null) {
+                    return;
+                }
+
+                that.timerID = setInterval(function () {
+                    that._scroll(that._bodyTable, that._tbody, that.interval);
+                }, that.interval);
+            };
+            this.stop = function () {
+                let that = this;
+                if (this.timerID === null) {
+                    return;
+                }
+
+                clearInterval(that.timerID);
+                that.callback = null;
+                that.interval = null;
+                that.timerID = null;
+            };
+            this._scroll = function (bodyTable, tbody, interval) {
+                let firstRow = tbody.find('tr:first');
+                let rowHeight = firstRow.height();
+                bodyTable.animate({ top: '-' + rowHeight + 'px' }, interval * 0.5, function () {
+                    tbody.append(firstRow.prop("outerHTML"));
+                    bodyTable.css('top', '0px');
+                    firstRow.remove();
+                });
+            }
+        };
         function dateFtt(fmt, val) { //author: meizz
             var date = new Date(val);
             var o = {

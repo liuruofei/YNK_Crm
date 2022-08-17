@@ -2,7 +2,8 @@
 <div style="margin-top: 15px; margin-left: 10px; margin-right: 10px">
     <div style="text-align:right;" class="layui-form"  >
         <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left: 5px;display: none">导出</button>
-        <select id="status" name="status" lay-filter="status">
+        <input id="studentName" name="studentName" class="layui-input" placeholder="学生名称"/>
+        <select id="status" name="status" lay-filter="status" style="margin-top:10px;">
             <option value="1">有任务</option>
             <option value="2">无任务</option>
         </select>
@@ -58,8 +59,8 @@
 @section js{
     <!-- js部分 -->
     <script>
-        var wkDate = dateFtt("yyyy-MM-dd", new Date());
-        function planSearch(status) {
+      var wkDate = dateFtt("yyyy-MM-dd", new Date());
+      function planSearch(status) {
             layui.use(['form','admin', 'adminForm'], function () {
                      var admin = layui.admin;
                     var adminForm = layui.adminForm;
@@ -67,29 +68,28 @@
                      $("#plantbody").html("");
                      adminForm.load({
                         url: "@Url.Action("QueryStudentPlan")",
-                         data: { atTime: wkDate,status: status},
+                        data: { studentName: $("#studentName").val(),atTime: wkDate, status: status },
                         dataType: 'json',
                         callBack: function (rou) {
                             if (rou != null) {
                                 var result = rou;
-                                $("#plantbody").append("<tr>");
-                                $("#plantbody").append("<td style='text-align:center;' colspan='9'><h2>" + wkDate + "</h2></td>");
-                                $("#plantbody").append("</tr>");
-                                $("#plantbody").append("<tr>");
-                                $("#plantbody").append("<td style='text-align:center;' colspan='9'><h3>当日任务学员</h3></td>");
-                                $("#plantbody").append("</tr>");
-                                $("#plantbody").append("<tr>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700'>序号</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:90px'>时间段</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700;min-width:100px'>班级/1对1</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700'>教师/责任Ta</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:150px;'>当日任务</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:150px;'>布置作业</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700;min-width:100px'>作业完成情况</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:90px'>到校时间</td>");
-                                $("#plantbody").append("<td style='text-align:center;font-weight:700;width:90px'>离校时间</td>");
-                                $("#plantbody").append("</tr>");
+                                var trAppend = "<tr>";
+                                trAppend += "<td style='text-align:center;' colspan='9'><h2>" + wkDate + "</h2></td>";
+                                trAppend += "</tr>";
+                                trAppend += "<tr><td style='text-align:center;' colspan='9'><h3>当日任务学员</h3></td></tr>";
+                                trAppend += "<tr>";
+                                trAppend += "<td style='text-align:center;font-weight:700'>学生</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>时间段</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;min-width:100px'>班级/1对1</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700'>教师/责任Ta</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:150px;'>当日任务</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:150px;'>布置作业</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;min-width:100px'>作业完成情况</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>到校时间</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>离校时间</td>";
+                                trAppend += "</tr>";
                                 for (var i = 0; i < result.length; i++) {
+                                    $("#plantbody").append(trAppend);
                                     var planVmodel = {
                                         Id:0,
                                         workTtile:'',
@@ -355,6 +355,9 @@
             form.on('select(status)', function (data) {
                 planSearch(data.value);
             });
+        });
+        $("#studentName").keyup(function () {
+            planSearch($("#status").val());
         });
       function planShow(vmodel) {
         if (vmodel.Id==0 &&vmodel.workTtile !=null) {return false;}

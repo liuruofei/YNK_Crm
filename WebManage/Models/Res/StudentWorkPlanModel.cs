@@ -159,5 +159,9 @@ namespace WebManage.Models.Res
         public bool Nineteen_TwentyOne_Reversion { get; set; } = false;
 
         public bool TwentyOne_TwentyTree_Reversion { get; set; } = false;
+
+
+        //可排列表用(是否整天休息)
+        public bool isRest { get; set; } = false;
     }
 }

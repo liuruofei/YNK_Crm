@@ -149,7 +149,7 @@ namespace WebManage.Models.Res
         /// <summary>
         /// 成绩
         /// </summary>
-        public float Score { get; set; }
+        public string Score { get; set; }
 
         /// <summary>
         /// 试听用户

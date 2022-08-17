@@ -102,6 +102,23 @@ namespace WebManage.Controllers
             return Json(wxtokenModel.Access_Token);
         }
 
+        public string GetWXToken()
+        {
+            WXAcceSSToken wxtokenModel = new WXAcceSSToken(); ;
+            if (RedisLock.KeyExists("wxAccessToken", redisConfig.RedisCon))
+            {
+                wxtokenModel = RedisLock.GetStringKey<WXAcceSSToken>("wxAccessToken", redisConfig.RedisCon);
+            }
+            else
+            {
+                string url = string.Format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}", _wxConfig.AppId, _wxConfig.AppSecret);
+                string tokenCotent = HttpHelper.HttpGet(url);
+                wxtokenModel = JsonConvert.DeserializeObject<WXAcceSSToken>(tokenCotent);
+                RedisLock.SetStringKey<WXAcceSSToken>("wxAccessToken", wxtokenModel, wxtokenModel.Expires_in, redisConfig.RedisCon);
+            }
+            return wxtokenModel.Access_Token;
+        }
+
 
         /// <summary>
         /// 创建菜单
@@ -333,6 +350,129 @@ namespace WebManage.Controllers
 
 
 
+
+        /// <summary>
+        /// 保存作业
+        /// </summary>
+        /// <param name="vmodel"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> SaveWork(string openId, int wkId, string homework)
+        {
+            ResResult rsg = new ResResult() { code = 200, msg = "保存作业成功" };
+            try
+            {
+                var model = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(it => it.Id ==wkId).First();
+                if (model.IsSendWork == 1)
+                {
+                    rsg.code = 0;
+                    rsg.msg = "课程作业已被推送！不能再推送";
+                }
+                else if (string.IsNullOrEmpty(homework))
+                {
+                    rsg.code = 0;
+                    rsg.msg = "作业内容为空！不能保存";
+                }
+                else
+                {
+                    var toaken = GetWXToken();
+                    //1对1
+                    if (model.StudentUid > 0)
+                    {
+                        var student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(u => u.StudentUid == model.StudentUid).First();
+                        if (!string.IsNullOrEmpty(student.OpenId) && !string.IsNullOrEmpty(toaken))
+                        {
+                            //SendMsgHomeWork(student.OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork2(student.OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
+                        }
+                        if (!string.IsNullOrEmpty(student.Elder_OpenId) && !string.IsNullOrEmpty(toaken))
+                        {
+                            //SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
+                        }
+                        if (!string.IsNullOrEmpty(student.Elder2_OpenId) && !string.IsNullOrEmpty(toaken))
+                        {
+                            //SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
+                        }
+                    }
+                    //班课
+                    if (model.ClasssId > 0)
+                    {
+                        List<C_Contrac_User> ovtStudent = new List<C_Contrac_User>();
+                        List<C_Contrac_User> ovtElder = new List<C_Contrac_User>();
+                        List<C_Contrac_User> ovtElder2 = new List<C_Contrac_User>();
+                        List<string> studentOpenIds = new List<string>();
+                        List<string> elderOpenIds = new List<string>();
+                        List<string> elderOpenIds2 = new List<string>();
+                        int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                        List<C_Contrac_User> listchild = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Contrac_User>((contrac, u) => new object[] { JoinType.Left, contrac.StudentUid == u.StudentUid }).Where(contrac => contrac.ClassId == model.ClasssId && contrac.Contrac_Child_Status != contracStatus).Select((contrac, u) => u).ToList();
+                        listchild.ForEach(iv =>
+                        {
+                            if (!string.IsNullOrEmpty(iv.OpenId) && !studentOpenIds.Contains(iv.OpenId))
+                            {
+                                studentOpenIds.Add(iv.OpenId);
+                                ovtStudent.Add(new C_Contrac_User { OpenId = iv.OpenId, Student_Name = iv.Student_Name });
+                            }
+                            if (!string.IsNullOrEmpty(iv.Elder_OpenId) && !elderOpenIds.Contains(iv.Elder_OpenId))
+                            {
+                                elderOpenIds.Add(iv.Elder_OpenId);
+                                ovtElder.Add(new C_Contrac_User { Elder_OpenId = iv.Elder_OpenId, Student_Name = iv.Student_Name });
+                            }
+                            if (!string.IsNullOrEmpty(iv.Elder2_OpenId) && !elderOpenIds2.Contains(iv.Elder2_OpenId))
+                            {
+                                elderOpenIds2.Add(iv.Elder2_OpenId);
+                                ovtElder2.Add(new C_Contrac_User { Elder2_OpenId = iv.Elder2_OpenId, Student_Name = iv.Student_Name });
+                            }
+                        });
+                        //推送给学生
+                        studentOpenIds.ForEach(iv =>
+                        {
+                            if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
+                            {
+                                //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                var stuName = ovtStudent.Find(cc => cc.OpenId == iv).Student_Name;
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
+                            }
+                        });
+                        //推送给家长1
+                        elderOpenIds.ForEach(iv =>
+                        {
+                            if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
+                            {
+                                //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                var stuName = ovtElder.Find(cc => cc.Elder_OpenId == iv).Student_Name;
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
+                            }
+                        });
+                        //推送给家长2
+                        elderOpenIds2.ForEach(iv =>
+                        {
+                            if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
+                            {
+                                //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                var stuName = ovtElder2.Find(cc => cc.Elder2_OpenId == iv).Student_Name;
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
+                            }
+                        });
+                    }
+                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { CourseWork =homework, IsSendWork = 1 }).Where(it => it.Id == wkId).ExecuteCommand();
+                    if (result > 0)
+                    {
+                        rsg.code = 200;
+                        rsg.msg = "保存作业成功";
+                    }
+                }
+            }
+            catch (Exception er)
+            {
+                rsg.code = 0;
+                rsg.msg = er.Message;
+                log.Info("课程作业推送失败，原因" + er.Message);
+            }
+            return Json(rsg);
+        }
+
+
         /// <summary>
         /// 保存点评
         /// </summary>
@@ -343,23 +483,31 @@ namespace WebManage.Controllers
         public async Task<IActionResult> SaveComment(string openId,int wkId,string comment) {
             ResResult rsg = new ResResult() { code = 0, msg = "保存点评失败" };
             try {
-                var model = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(it => it.Id == wkId).First();
-                var user= _currencyService.DbAccess().Queryable<sys_user>().Where(it => it.OpenId == openId).First();
-                var courseTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
                 if (wkId<1)
                 {
                     rsg.code = 0;
                     rsg.msg = "缺少参数,无法点评";
+                    return Json(rsg);
                 }
+                if(string.IsNullOrEmpty(openId))
+                {
+                    rsg.code = 0;
+                    rsg.msg = "你当前还未绑定Crm系统，无法点评";
+                    return Json(rsg);
+                }
+                if (string.IsNullOrEmpty(comment))
+                {
+                    rsg.code = 0;
+                    rsg.msg = "点评内容不能为空";
+                    return Json(rsg);
+                }
+                var model = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(it => it.Id == wkId).First();
+                var user = _currencyService.DbAccess().Queryable<sys_user>().Where(it => it.OpenId == openId).First();
+                var courseTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
                 if (user.User_ID!=model.TeacherUid)
                 {
                     rsg.code = 0;
                     rsg.msg = "你不属于当前课程老师,无法点评";
-                }
-                else if (string.IsNullOrEmpty(comment))
-                {
-                    rsg.code = 0;
-                    rsg.msg = "点评内容不能为空";
                 }
                 else if (model.IsSendComment==1)
                 {
@@ -377,14 +525,15 @@ namespace WebManage.Controllers
                     var valiteTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
                     //如果点评在23小时之内,则课时有效
                     if (model.StudyMode != 5&&model.StudyMode != 6) {
-
-                        if (valiteTime.AddHours(24) > DateTime.Now)
-                        {
-                            workstatus = 1;
-                        }
-                        else
-                        {
-                            workstatus = 0;
+                        if (string.IsNullOrEmpty(model.Comment)) {
+                            if (valiteTime.AddHours(24) > DateTime.Now)
+                            {
+                                workstatus = 1;
+                            }
+                            else
+                            {
+                                workstatus = 0;
+                            }
                         }
                     }
                     var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = comment, Work_Stutas = workstatus, Comment_Time=DateTime.Now }).Where(it => it.Id == wkId).ExecuteCommand();
@@ -442,6 +591,41 @@ namespace WebManage.Controllers
             var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token="+wxtokenModel.Access_Token;
             string content =HttpHelper.HttpPost(api, jsonStr, "application/json");
             return Content(content);
+        }
+
+
+        //发送家庭作业模板2
+        public void SendMsgHomeWork2(string openId, string templateId, string wxaccessToken, string msg, string wkTitle, string wkTeacher, string wkTime, string courseWork, string studentName, int wkId)
+        {
+            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
+            jsonObject.Add("touser", openId);   // openid
+            jsonObject.Add("template_id", templateId);
+            Dictionary<string, object> data = new Dictionary<string, object>();
+            Dictionary<string, string> first = new Dictionary<string, string>();
+            first.Add("value", msg);
+            first.Add("color", "#173177");
+            Dictionary<string, string> keyword1 = new Dictionary<string, string>();
+            keyword1.Add("value", studentName);
+            keyword1.Add("color", "#173177");
+            Dictionary<string, string> keyword2 = new Dictionary<string, string>();
+            keyword2.Add("value", wkTitle);
+            keyword2.Add("color", "#173177");
+            Dictionary<string, string> keyword3 = new Dictionary<string, string>();
+            keyword3.Add("value", "任课老师");
+            keyword3.Add("color", "#173177");
+            Dictionary<string, string> remark = new Dictionary<string, string>();
+            remark.Add("value", "课程作业:" + courseWork);
+            remark.Add("color", "#173177");
+            data.Add("first", first);
+            data.Add("keyword1", keyword1);
+            data.Add("keyword2", keyword2);
+            data.Add("keyword3", keyword3);
+            data.Add("remark", remark);
+            jsonObject.Add("data", data);
+            jsonObject.Add("url", "http://crm.younengkao.com/WxTemplateChild/Zuoye?wkId=" + wkId);//设置链接
+            var jsonStr = JsonConvert.SerializeObject(jsonObject);
+            var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
+            string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
         }
 
         /// <summary>

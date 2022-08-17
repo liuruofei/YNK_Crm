@@ -178,11 +178,11 @@ namespace WebManage.Areas.Admin.Controllers.Sys
                 if (model == null)
                     return Json(new { code = 100, msg = "该用户不存在" });
                 if (model.User_IsDelete == 2)
-                    return Json(new { code = 100, msg = "该用户不能删除" });
+                    return Json(new { code = 100, msg = "请把该用户改成锁定状态后，再删除" });
                 _UserService.Delete(p => p.User_ID == model.User_ID);
                 _sys_UserRoleService.Delete(p => p.UserRole_UserID == model.User_ID);
             }
-            return Json(new { status = 1 });
+            return Json(new { status =1,msg="删除成功！",code=200 });
         }
 
         /// <summary>

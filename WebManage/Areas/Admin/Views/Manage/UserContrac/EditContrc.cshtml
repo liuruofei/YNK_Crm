@@ -211,7 +211,7 @@
                         { field: 'Added_Amount', title: '额外优惠', sort: true, width: 120 },
                         {
                             field: 'Saler_Amount', title: '实收金额', sort: true, width: 120, templet: function (d) {
-                                return (d.Saler_Amount - d.Added_Amount);
+                                return accSub(d.Saler_Amount,d.Added_Amount);
                             }
                         },
                         {
@@ -320,7 +320,7 @@
          }
 
         // 工具条点击事件
-            adminList.table.on('tool(tablechild)', function (obj) {
+        adminList.table.on('tool(tablechild)', function (obj) {
             var data = obj.data;
             var layEvent = obj.event;
             if (layEvent === 'edit') { // 审核
@@ -337,6 +337,23 @@
             return false;
         });
         });
+        //计算小数点(减法)
+        function accSub(arg1, arg2) {
+            var r1, r2, m, n;
+            try {
+                r1 = arg1.toString().split(".")[1].length;
+            } catch (e) {
+                r1 = 0;
+            }
+            try {
+                r2 = arg2.toString().split(".")[1].length;
+            } catch (e) {
+                r2 = 0;
+            }
+            m = Math.pow(10, Math.max(r1, r2)); //last modify by deeka //动态控制精度长度
+            n = (r1 >= r2) ? r1 : r2;
+            return ((arg1 * m - arg2 * m) / m).toFixed(n);
+        }
     </script>
     <script type="text/javascript">
         $(function () {

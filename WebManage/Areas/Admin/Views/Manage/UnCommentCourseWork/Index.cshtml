@@ -30,8 +30,6 @@
                                 <option value="1">一对一</option>
                                 <option value="2">小班</option>
                                 <option value="4">试听</option>
-                                <option value="5">模考</option>
-                                <option value="6">实考</option>
                             </select>
                         </div>
                     </div>
@@ -124,10 +122,6 @@
                         return "小班";
                     else if (d.StudyMode == 4)
                         return "试听";
-                    else if (d.StudyMode == 5)
-                        return "模考";
-                    else if (d.StudyMode == 6)
-                        return "实考";
                 }
             },
             {
@@ -143,21 +137,11 @@
                     }
                 }
             },
-            {
-                field: 'Score', title: '成绩', sort: true, width: 120, templet: function (d) {
-                    if (d.StudyMode == 5 || d.StudyMode == 6) {
-                        return "<input type='number' value='" + d.Score + "' data-id='" + d.Id + "' style='width:80px' onchange='SetScore(this)'/>";
-                    }
-                    else {
-                        return "";
-                    }
-                }
-            },
             { field: 'Comment', title: '点评内容', sort: true },
             {
                 field: 'Comment_Time', title: '点评时间', sort: true
             },
-            {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
+            { align: 'center', toolbar: '#tableBar', title: '操作', width: 150}
         ]],
         done: function (res, curr, count) {
             res.data.forEach(function (item, index) {
@@ -235,19 +219,6 @@
         });
     };
         });
-     function SetScore(obj) {
-            console.log($(obj).attr("data-id"));
-            $.ajax({
-                type: "post",
-                url: "@Url.Action("SetScore")",
-                data: { Id: $(obj).attr("data-id"), Score: $(obj).val() },
-                dataType: 'json',
-                contentType: 'application/x-www-form-urlencoded',
-                success: function (data) {
-                    layer.msg(data.msg);
-                }
-            });
-        }
      function exportPlan() {
          var title = $('#title').val();
          var workStutas = parseInt($('#Work_Stutas').val());
