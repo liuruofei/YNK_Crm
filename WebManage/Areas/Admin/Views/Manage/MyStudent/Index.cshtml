@@ -1,0 +1,115 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">学生名称：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="txtTitle" class="layui-input" type="text" placeholder="输入标题" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    @*<a class="layui-btn layui-btn-primary layui-btn-xs"  lay-event="edit">课程进度</a>*@
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+layui.use(['form', 'util', 'admin', 'adminList','element'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var adminList = layui.adminList;
+    var element = layui.element;
+
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        page: true,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            { field: 'Student_Name', title: '学生名称', sort: true, width: 150 },
+            { field: 'Course_UseTime', title: '已上课时', sort: true,width: 100},
+            { field: 'Course_Time', title: '已排课时', sort: true, width: 100 },
+            { field: 'SubjectName', title: '类别', sort: true, width: 200 },
+            { field: 'ProjectName', title: '科目', sort: true, width: 200 },
+            {
+                field: 'Node', title: '进度', sort: true, templet: function (d) {
+                    var rate = parseInt((d.Course_UseTime / d.Course_Time).toFixed(2) * 100)
+                    var html = '<div class="layui-progress layui-progress-big" lay-showPercent="true" lay-filter="rate">';
+                    html += '<div class="layui-progress-bar" lay-percent="'+ rate+'%"></div>'
+                    html += '</div>'
+                   return html;
+             }
+            },
+        ]],
+        done: function () {
+            element.render();
+        }
+    });
+
+
+    // 搜索
+    $('#btnSearch').click(function () {
+        var title = $('#txtTitle').val();
+        insTb.reload({
+            where: { title: title }
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+        var data = obj.data;
+        var layEvent = obj.event;
+        if (layEvent === 'edit') { // 查看
+            showCourseDetail(data);
+        }
+    });
+
+    //课程进度
+    function showCourseDetail(userName,studentUid) {
+        window.parent.layui.element.tabAdd('admin-pagetabs', {
+            title:userName+'课程进度',
+            content: '<iframe lay-id="item' + studentUid + '" src="@Url.Action("CourseDetail")?studentUid=' + studentUid + '" frameborder="0" class="admin-iframe" style="width: 100%;height: 100%"></iframe>' //支持传入html
+            , studentUid: studentUid
+        });
+    }
+
+});
+    </script>
+}
