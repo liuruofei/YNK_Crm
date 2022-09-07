@@ -240,7 +240,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(reg);
         }
         /// <summary>
-        /// 删除合同
+        /// 删除主合同
         /// </summary>
         /// <param name="Id"></param>
         /// <returns></returns>
@@ -257,6 +257,36 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 reg.code = 300;
             }
             return Json(reg);
+
+        }
+
+
+        //删除子合同(已付款，和未付款的情况下)
+        public IActionResult DeleteChildContrac(string childContrcNo) {
+            ResResult reg = new ResResult();
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            var model = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(ite => ite.Contra_ChildNo.Equals(childContrcNo)).First();
+            if (!string.IsNullOrEmpty(childContrcNo)&& model!=null)
+            {
+                if (model.Pay_Stutas == (int)ConstraChild_Pay_Stutas.NoPay)
+                {
+                    var contrac = _currencyService.DbAccess().Queryable<C_Contrac>().Where(it => it.ContraNo.Equals(model.ContraNo)).First();
+                    contrac.Total_Amount = contrac.Total_Amount - model.Saler_Amount;
+                    //更新合同总金额
+                    _currencyService.DbAccess().Updateable<C_Contrac>(contrac).ExecuteCommand();
+                    _currencyService.DbAccess().Deleteable<C_Contrac_Child>().Where(it => it.Id == model.Id).ExecuteCommand();
+                }
+                else {
+                    reg = _contrac.ContracCancel(childContrcNo, userId);
+                }
+            }
+            else
+            {
+                reg.msg = "缺少参数";
+                reg.code = 300;
+            }
+            return Json(reg);
+
 
         }
     }

@@ -31,6 +31,21 @@
                         </div>
                     </div>
                     <div class="layui-inline">
+                        <label class="layui-form-label w-auto">上课模式：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="StudyMode" class="layui-select" id="StudyMode">
+                                <option value="0">-不选择-</option>
+                                <option value="1">一对一</option>
+                                <option value="2">小班</option>
+                                <option value="3">休息</option>
+                                <option value="4">试听</option>
+                                <option value="5">模考</option>
+                                <option value="6">实考</option>
+                                <option value="7">会议</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
                         <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
                     </div>
                     <div class="layui-inline">
@@ -236,13 +251,14 @@
             var endStr = dateFtt("yyyy-MM-dd", arg.endStr);
             defaultStartTime = startStr;
             var subjectId = $("select[name='SubjectId']").val();
-            var projectId=$("select[name='ProjectId']").val()
+            var projectId = $("select[name='ProjectId']").val();
+            var studyMode = $("select[name='StudyMode']").val();
             defaultEndTime = endStr;
             $.ajax({
                 url: '@Url.Action("QueryWorkSource")',
                 dataType: 'json',
                 type: 'post',
-                data: { startStr: startStr, endStr: endStr, userName: title, subjectId: subjectId, projectId: projectId },
+                data: { startStr: startStr, endStr: endStr, userName: title, subjectId: subjectId, projectId: projectId,studyMode: studyMode},
                 success: function (data) {
                     var result = data.data;
                     if (result.length > 0) {
@@ -255,7 +271,7 @@
                             if (result[i].StudyMode == 3) {
                                 backColor = '#b1b0a9';
                             }
-                           else if (result[i].StudyMode == 4) {
+                            else if (result[i].StudyMode == 4) {
                                 backColor = '#60605a';
                             }
                             else if (result[i].StudyMode == 5) {
@@ -263,8 +279,11 @@
                                 isMokTeacherName = ' 模考学员:' + result[i].ListeningName;
                             }
                             else if (result[i].StudyMode == 6) {
-                                backColor='#a24d65';
+                                backColor = '#a24d65';
                                 isMokTeacherName = ' 实考学员:' + result[i].ListeningName;
+                            }
+                            else if (result[i].StudyMode == 7) {
+                                backColor = '#9513ab';
                             }
                             events.push({
                                 id: result[i].Id,
@@ -427,7 +446,7 @@
                 initable.reload({
                     where: {
                         startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val(), userName: $("#txtTitle").val(),
-                        subjectId:$("select[name='SubjectId']").val(),projectId:$("select[name='ProjectId']").val()}
+                        subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val(),studyMode: $("select[name='StudyMode']").val()}
                 });
             })
             var initable=adminList.tableLayUI({
@@ -436,12 +455,22 @@
                         page: true,
                         where: {
                             startStr: defaultStartTime, endStr: defaultEndTime, userName: $("#txtTitle").val(),
-                            subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val()
+                            subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val(),
+                            studyMode: $("select[name='StudyMode']").val()
                         },
                         cellMinWidth: 100,
                         cols: [[
                             { type: 'checkbox' },
-                            { field: 'Work_Title', title: '上课科目', sort: true },
+                            {
+                                field: 'Work_Title', title: '上课科目', sort: true, templet: function (d) {
+                                    if (d.StudyMode == 5) {
+                                        return d.Work_Title + '_' + d.Student_Name;
+                                    }
+                                    else {
+                                        return d.Work_Title;
+                                    }
+                                }
+                            },
                             {
                                 field: 'AT_Date', title: '上课日期', sort: true, width: 120, templet: function (d) {
                                     return dateFtt("yyyy-MM-dd", d.AT_Date);
@@ -457,10 +486,15 @@
                             { field: 'TaUserName', title: '督学', sort: true, width: 120 },
                             {
                                 field: 'Work_Stutas', title: '状态', sort: true, width: 120, templet: function (d) {
-                                    if (d.StudyMode != 3)
-                                        return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已点评</span>" : "未点评";
-                                    else
+                                    if (d.StudyMode == 3) {
                                         return "休息中";
+                                    }
+                                    else if (d.StudyMode == 7) {
+                                        return "教师会议";
+                                    }
+                                    else {
+                                        return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已点评</span>" : "未点评";
+                                    }
                                 }
                             },
                             { align: 'center', toolbar: '#tableBar', title: '操作', width: 200 }
@@ -508,7 +542,7 @@
                     initable.reload({
                         where: {
                             startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val(), userName: $("#txtTitle").val(),
-                            subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val()}
+                            subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val(),studyMode: $("select[name='StudyMode']").val()}
                     });
                 }
             });

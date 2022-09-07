@@ -58,6 +58,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 StudentName = c.StudentName,
                 Amount = c.Amount,
                 AddedAmount=c.AddedAmount,
+                DeductAmount=c.DeductAmount,
                 StudentUid = c.StudentUid,
                 PayStatus = c.PayStatus,
                 RelationShip_Contras = c.RelationShip_Contras,
@@ -73,6 +74,31 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             pageModel.count = total;
             pageModel.data = list;
             return Json(pageModel);
+        }
+
+        /// <summary>
+        /// 收款汇总
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="endTime"></param>
+        /// <param name="startTime"></param>
+        /// <returns></returns>
+        public IActionResult TotalAmount(string title, DateTime? endTime=null,DateTime? startTime=null) {
+            ResResult rsg = new ResResult() { code = 0, msg = "获取失败" };
+            DateTime now = DateTime.Now;
+            if (!startTime.HasValue) {
+                startTime= new DateTime(now.Year, now.Month, 1);
+            }
+            if (!endTime.HasValue)
+            {
+                endTime = startTime.Value.AddMonths(1).AddDays(-1);
+            }
+            var result = _currencyService.DbAccess().Queryable<C_Collection>().WhereIF(!string.IsNullOrEmpty(title), a => a.StudentName.Contains(title))
+                .Where(a => a.Collection_Time >= startTime.Value && a.Collection_Time <= endTime.Value&&a.Amount>0).Sum(a => a.Amount);
+            rsg.code = 200;
+            rsg.msg = "获取成功";
+            rsg.data = result;
+            return Json(rsg);
         }
 
 
@@ -99,7 +125,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     Id = f.Id,
                     StudentUid = f.StudentUid,
                     StudentName = f.StudentName,
-                    Amount = f.Amount,
+                    Amount = f.Amount<0?0:f.Amount,
                     DeductAmount = f.DeductAmount,
                     AddedAmount=f.AddedAmount,
                     RelationShip_Contras = f.RelationShip_Contras,
@@ -164,8 +190,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
                 vmodel.CreateUid = userId;
                 vmodel.CampusId =Convert.ToInt32(campusId);
-                if (string.IsNullOrEmpty(vmodel.RelationShip_Contras))
-                    return Json(new { code = 0, msg = "关联合同不能为空" });
+                //if (string.IsNullOrEmpty(vmodel.RelationShip_Contras))
+                //    return Json(new { code = 0, msg = "关联合同不能为空" });
                 if (vmodel.StudentUid < 1)
                     return Json(new { code = 0, msg = "学员不能为空" });
                 rsg = _contrac.SaveCollection(vmodel);

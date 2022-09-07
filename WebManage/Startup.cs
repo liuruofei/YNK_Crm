@@ -17,6 +17,7 @@ using Microsoft.Extensions.WebEncoders;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Rotativa.AspNetCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -176,6 +177,8 @@ namespace WebManage
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            //Æô¶¯pdf³ÌÐò
+            RotativaConfiguration.Setup(env.WebRootPath);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

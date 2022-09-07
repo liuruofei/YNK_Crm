@@ -60,7 +60,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .Where((u,ur,r)=>u.User_ID==userId&&r.Role_Name.Contains("教师")).First();
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Campus, sys_user,C_Contrac_User>((c, ca, ta,u) => new Object[] { JoinType.Left, c.CampusId == ca.CampusId, JoinType.Left, c.TeacherUid == ta.User_ID, JoinType.Left,c.StudentUid==u.StudentUid })
-                .Where(c => c.CampusId == Convert.ToInt32(campusId)&&c.StudyMode!=3&&c.StudyMode!=5 && c.StudyMode != 6)
+                .Where(c => c.CampusId == Convert.ToInt32(campusId)&&c.StudyMode!=3&&c.StudyMode!=7&& c.StudyMode!=5 && c.StudyMode != 6)
                 .WhereIF(workStutas>0,c=>!string.IsNullOrEmpty(c.Comment))
                 .WhereIF(workStutas <1,c =>string.IsNullOrEmpty(c.Comment))
                 .WhereIF(studymode>0, c => c.StudyMode== studymode)
@@ -422,7 +422,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 .Where((u, ur, r) => u.User_ID == userId && r.Role_Name.Contains("教师")).First();
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Campus, sys_user,C_Contrac_User>((c, ca, ta,u) => new Object[] { JoinType.Left, c.CampusId == ca.CampusId, JoinType.Left, c.TeacherUid == ta.User_ID, JoinType.Left, c.StudentUid == u.StudentUid })
-                .Where(c => c.CampusId == Convert.ToInt32(campusId) && c.Work_Stutas == workStutas && c.StudyMode != 3 && c.StudyMode != 5 && c.StudyMode != 6)
+                .Where(c => c.CampusId == Convert.ToInt32(campusId) && c.Work_Stutas == workStutas && c.StudyMode != 3 && c.StudyMode != 7 && c.StudyMode != 5 && c.StudyMode != 6)
                 .WhereIF(studymode > 0, c => c.StudyMode == studymode)
                 .WhereIF(teacher != null, c => c.TeacherUid == userId)
                 .WhereIF(startTime.HasValue, c => c.AT_Date >= startTime.Value)

@@ -402,7 +402,11 @@
                         if (data.code == 200) {
                             var vmodel = data.data;
                             document.getElementById("dialog").style.display = "flex";
-                            $("#courseTitle").text(vmodel.Work_Title);
+                            var cTtile = vmodel.Work_Title;
+                            if (vmodel.StudyMode == 5) {
+                                cTtile = vmodel.Student_Name+"-"+vmodel.Work_Title;
+                            }
+                            $("#courseTitle").text(cTtile);
                             $("#wkDate").text(vmodel.AT_Date);
                             $("#startTime").text(vmodel.StartTime);
                             $("#endTime").text(vmodel.EndTime);

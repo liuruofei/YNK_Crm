@@ -21,6 +21,10 @@
                         <select name="SubjectId" class="layui-select" lay-filter="SubjectId" id="SubjectId"></select>
                         <label class="layui-form-label w-auto">科目：</label>
                         <select name="ProjectId" class="layui-select" id="ProjectId"></select>
+                        <select name="mockOut" id="mockOut">
+                            <option value="0">包含模考</option>
+                            <option value="1">排除模考</option>
+                        </select>
                         <button id="btnSearch" class="layui-btn icon-btn" style="margin-left:6px"><i class="layui-icon">&#xe615;</i>搜索</button>
                     </div>
                     <div style="flex: 1;line-height:39px;text-align:center;font-weight:600">
@@ -136,7 +140,7 @@
                 url: '@Url.Action("QueryWorkDetailSource")',
                 page: true,
                 where: {
-                    studentUid:$("input[name='studentUid']").val(),startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val()
+                    studentUid: $("input[name='studentUid']").val(), startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val(), mockOut: $("#mockOut").val()
                 },
                 cellMinWidth: 100,
                 cols: [[
@@ -195,7 +199,7 @@
                 initable.reload({
                     where: {
                         studentUid:$("input[name='studentUid']").val(), startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val(),
-                        subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val()
+                        subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val(), mockOut: $("#mockOut").val()
                     }
                 });
             }
@@ -204,7 +208,7 @@
             initable.reload({
                 where: {
                     studentUid: $("input[name='studentUid']").val(), startStr: $("input[name='StartTime']").val(), endStr: $("input[name='EndTime']").val(),
-                    subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val()
+                    subjectId: $("select[name='SubjectId']").val(), projectId: $("select[name='ProjectId']").val(), mockOut: $("#mockOut").val()
                 }
             });
 

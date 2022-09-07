@@ -70,7 +70,7 @@
             background-color: #a13527;
         }
         .color7 {
-            background-color: #337899;
+            background-color: #816258;
         }
         .color8 {
             background-color: #673ab7;
@@ -118,24 +118,6 @@
                 , type: 'date',
                 format: 'yyyy-MM-dd'
             });
-            $("input[name='teacherName']").click(function () {
-                adminForm.load({
-                        url: "@Url.Action("QueryNameAll")",
-                        data: {title: $(this).val() },
-                        dataType: 'json',
-                        callBack: function (rou) {
-                            if (rou.data != null && rou.data.length > 0) {
-                                var result = rou.data;
-                                document.getElementById("searchName").style.display = "block";
-                                var html = template("searchNameTemp", { data: result });
-                                document.getElementById("searcNamebody").innerHTML = html;
-                            }
-                            else {
-                                document.getElementById("searchName").style.display = "none";
-                            }
-                        }
-                    });
-            })
             $("input[name='teacherName']").keyup(function () {
                 adminForm.load({
                     url: "@Url.Action("QueryNameAll")",
@@ -217,12 +199,15 @@
                     };
                     var teacherColors = [];
                     var teacherNamesToor = $("#selecTedTeacher").val().split(",");
-                    if (teacherNamesToor.length > 0) {
-                        for (var i = 0; i < teacherNamesToor.length; i++) {
-                            teacherColors.push({ color: colorArry[i], name: teacherNamesToor[i] });
-                           
-                        }
-                  }
+                if (teacherNamesToor.length> 0) {
+                    for (var i = 0; i < teacherNamesToor.length; i++) {
+                        teacherColors.push({ color: colorArry[i], name: teacherNamesToor[i] });
+                    }
+                }
+                if (teacherNamesToor.length>10) {
+                    layer.msg("已超过老师同时搜索数量");
+                    return false;
+                }
                 adminForm.load({
                         url: "@Url.Action("QueryTeacherTime")",
                         data:{teacherNames:$("#selecTedTeacher").val(),starttime: $("#StartTime").val(), endtime: $("#EndTime").val()},

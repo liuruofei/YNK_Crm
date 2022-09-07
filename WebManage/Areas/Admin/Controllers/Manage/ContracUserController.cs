@@ -167,7 +167,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="subjectId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public IActionResult QueryWorkDetailSource(int studentUid,string startStr, string endStr, int subjectId, int projectId, int page = 1, int limit = 10)
+        public IActionResult QueryWorkDetailSource(int studentUid,string startStr, string endStr, int subjectId, int projectId,int? mockOut=0, int page = 1, int limit = 10)
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult reg = new ResResult();
@@ -198,6 +198,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             if (projectId > 0)
             {
                 sql += " and wk.ProjectId=" + projectId;
+            }
+            if (mockOut.HasValue&& mockOut.Value>0) {
+                sql += " and wk.StudyMode<>5 and wk.StudyMode<>6";
             }
             sql += " and wk.CampusId="+campusId;
             sql += ")";

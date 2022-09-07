@@ -13,6 +13,18 @@
             </div>
         </div>
     </div>
+    <div class="layui-form-item" id="meetingPart" style="display:none">
+        <label class="layui-form-label">参加会议教师</label>
+        <div class="layui-input-block" style="position:relative">
+            <input name="meetingUserName" class="layui-input" type="text" autocomplete="off" />
+            <div  class="searcMeeting" id="searcMeeting" style="display:none">
+                <table style="width:100%;margin-top: 0px;" class="layui-table">
+                    <tbody id="meetingUserBody"></tbody>
+                </table>
+            </div>
+            <textarea id="meetingMore" name="meetingMore" style="width:100%;border:1px solid #ddd;height:57px;"></textarea>
+        </div>
+    </div>
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">上课模式</label>
@@ -24,6 +36,7 @@
                     <option value="4">试听</option>
                     <option value="5">模考</option>
                     <option value="6">实考</option>
+                    <option value="7">会议</option>
                 </select>
             </div>
         </div>
@@ -177,15 +190,15 @@
             height: 266px !important;
         }
 
-        .searcClass, .searcUser, .searcListen {
+        .searcClass, .searcUser, .searcListen,.searcMeeting {
             position: absolute;
             box-shadow: 0 10px 60px 0 rgb(29 29 31 / 9%);
             background-color: white;
             z-index: 6;
             width: 480px;
             min-height: 200px;
-            height:222px;
-            overflow-y:auto;
+            height: 222px;
+            overflow-y: auto;
             display: none;
         }
     </style>
@@ -223,6 +236,13 @@
         {{each data item index}}
         <tr onclick="SetListenTr('{{item}}')">
             <td><span data-StudentUid="{{item.StudentUid}}">{{item.Student_Name}}</span></td>
+        </tr>
+        {{/each}}
+    </script>
+    <script type="text/template" id="meetingUserTemp">
+        {{each data item index}}
+        <tr onclick="SetMeetingTr('{{item}}')">
+            <td><span data-teacherName="{{item.Name}}">{{item.Name}}</span></td>
         </tr>
         {{/each}}
     </script>
@@ -339,6 +359,7 @@
                             $("#courseDates").show();
                             $("#AT_Date").css("display", "none");
                         }
+                        $("#meetingPart").css("display", "none");
                         if (r.StudyMode == 1) {
                             if (r.IsUsePresent == 1) {
                                 $("input[name='PreSendUserName']").val(r.ListeningName);
@@ -361,7 +382,7 @@
                             $("#ClassPart").css("display", "block");
                             $("#PresentPart").css("display", "none");
                             $("#PreSendPartUser").css("display", "none");
-                            bindProject(r.SubjectId, r.ProjectId,null);
+                            bindProject(r.SubjectId, r.ProjectId, null);
                         }
                         else if (r.StudyMode == 3) {
                             $("#PartTa").css("display", "none");
@@ -410,7 +431,7 @@
                             $("#ClassPart").css("display", "none");
                             $("#OneOfPart").css("display", "none");
                             $("#PresentPart").css("display", "none");
-                            $("#PreSendPartUser").css("display","none");
+                            $("#PreSendPartUser").css("display", "none");
                             $("#teacherPart").css("display", "none");
                             $("#PartProject").show();
                             $("#ListeningPart").show();
@@ -421,6 +442,20 @@
                             $("#spanStudentName").text("实考学员");
                             $("#spanCatogalogName").text("实考分类");
                             $("#mockPart").show();
+                        }
+                        else if (r.StudyMode == 7) {
+                            $("#PartTa").css("display", "none");
+                            $("#PartProject").css("display", "none");
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#PresentPart").css("display", "none");
+                            $("#PreSendPartUser").css("display", "none");
+                            $("#lineSpanPigai").text("会议老师");
+                            $("#lineSpanDate").text("会议日期");
+                            $("#lineSpanTimeRange").text("会议时段");
+                            $("#spanMockTitle").text("会议标题");
+                            $("#mockPart").css("display", "block");
+                            $("input[name='mockTitle']").val(r.Work_Title);
                         }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
@@ -489,23 +524,12 @@
                         }
                         });
                         //绑定教室
-                        adminForm.load({
-                        url: "@Url.Action("QueryRoom")",
-                        dataType: 'json',
-                        callBack: function (rou) {
-                            if (rou.data != null) {
-                                var result = rou.data;
-                                for (var i = 0; i < result.length; i++) {
-                                    if (r != undefined && r.RoomId != null && r.RoomId == result[i].Id) {
-                                        $("select[name='RoomId']").append('<option value = ' + result[i].Id + ' selected>' + result[i].RoomName +'</option>');
-
-                                    } else {
-                                        $("select[name='RoomId']").append('<option value = ' + result[i].Id + '>' + result[i].RoomName + '</option>');
-                                    }
-                                }
-                            }
+                        if (r.AT_Date != null && r.StartTime != null && r.EndTime != null) {
+                            bindRoom(dateFtt("yyyy-MM-dd", r.AT_Date), r.StartTime, r.EndTime, r.RoomId);
                         }
-                        });
+                        else {
+                            bindRoom(null,null,null, r.RoomId);
+                        }
                         //绑定试听分类
                         adminForm.load({
                         url: "@Url.Action("QuerySubject","ContracUser")",
@@ -544,7 +568,7 @@
                         data.field.ListeningName = $("input[name='PreSendUserName']").val();
                     }
                 }
-                else if (data.field.StudyMode ==2) {
+                else if (data.field.StudyMode == 2) {
                     data.field.Work_Title = $("input[name='WorkClassName']").val();
                 }
                 else if (data.field.StudyMode == 4) {
@@ -564,15 +588,15 @@
                         });
                     }
                     data.field.Work_Title = $("input[name='mockTitle']").val();
-                    if (data.field.Work_Title== "") {
+                    if (data.field.Work_Title == "") {
                         layer.msg("模考标题不能为空");
                         return false;
                     }
                     if (data.field.ListeningName == "") {
                         layer.msg("模考学员不能为空");
                         return false;
-                        }
-                    if (data.field.ProjectId == null || data.field.ProjectId=="") {
+                    }
+                    if (data.field.ProjectId == null || data.field.ProjectId == "") {
                         layer.msg("模考科目不能为空");
                         return false;
                     }
@@ -583,7 +607,7 @@
                     if (shikaouserArry.length > 0) {
                         shikaouserArry.forEach(item => {
                             if ($.inArray(item.Student_Name, shikaouserNames) > -1) {
-                                data.field.arrShikaoUser.push({ StudentUid: item.StudentUid,Student_Name:item.Student_Name});
+                                data.field.arrShikaoUser.push({ StudentUid: item.StudentUid, Student_Name: item.Student_Name });
                             }
                         });
                     }
@@ -601,6 +625,18 @@
                         return false;
                     }
                 }
+                else if (data.field.StudyMode == 7) {
+                    data.field.meetingTeacher = [];
+                    data.field.Work_Title = $("input[name='mockTitle']").val();
+                    var meetingTeacherArry = $("#meetingMore").val().split(",");
+                    if (meetingTeacherArry.length > 0) {
+                        meetingTeacherArry.forEach(item => {
+                            if ($.inArray(item, data.field.meetingTeacher) < 0) {
+                                data.field.meetingTeacher.push(item);
+                            }
+                        });
+                    }
+                }
                 adminForm.Save({
                     url: KeyId ? '@Url.Action("SaveCourseWork")' : '@Url.Action("SaveCourseWork")',
                     data: data.field,
@@ -612,11 +648,21 @@
         }
             App.Load();
             form.on('select(RangTimeId)', function (data) {
-                console.log(data.value);
                 if (data.value==0)
                     $("#customizedRange").css("display", "block");
                 else {
                     $("#customizedRange").css("display", "none");
+                    var selectArr = courseDates.getValue('value'); 
+                    var timeRangStr = $("select[name='RangTimeId']").find("option:selected").text();
+                    var timeRangGroup = timeRangStr.trim().split("-");
+                    var randstTime = timeRangGroup[0].trim();
+                    var randedTime = timeRangGroup[1].trim();
+                    if (selectArr.length == 1) {
+                        bindRoom(selectArr[0], randstTime, randedTime, 0);
+                    }
+                    else {
+                        bindRoom(null,null,null,0);
+                    }
                 }
             });
             form.on('select(StudyMode)', function (data) {
@@ -632,6 +678,7 @@
                     $("#mockPart").css("display", "none");
                     $("#PartUnit").css("display", "none");
                     $("#PresentPart").css("display", "block");
+                    $("#meetingPart").css("display", "none");
                 }
                 else if (data.value == 2) {
                     $("#PartProject").css("display", "block");
@@ -644,7 +691,8 @@
                     $("#mockPart").css("display", "none");
                     $("#PartUnit").css("display", "none");
                     $("#PresentPart").css("display", "none");
-                    $("#PreSendPartUser").css("display","none");
+                    $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "none");
                 }
                 else if (data.value == 3) {
                     $("#PartTa").css("display", "none");
@@ -659,6 +707,7 @@
                     $("#PartUnit").css("display", "none");
                     $("#PresentPart").css("display", "none");
                     $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "none");
                 }
                 else if (data.value == 4) {
                     $("#ClassPart").css("display", "none");
@@ -675,6 +724,7 @@
                     $("#moreShikaoUser").css("display", "none");
                     $("#PresentPart").css("display", "none");
                     $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "none");
                 }
                 else if (data.value == 5) {
                     $("#ClassPart").css("display", "none");
@@ -694,6 +744,7 @@
                     $("#moreShikaoUser").css("display", "block");
                     $("#PresentPart").css("display", "none");
                     $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "none");
                 }
                 else if (data.value == 6) {
                     $("#ClassPart").css("display", "none");
@@ -712,6 +763,24 @@
                     $("#moreShikaoUser").css("display", "block");
                     $("#PresentPart").css("display", "none");
                     $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "none");
+                }
+                else if (data.value == 7) {
+                    $("#teacherPart").css("display", "none");
+                    $("#PartTa").css("display", "none");
+                    $("#PartProject").css("display", "none");
+                    $("#ClassPart").css("display", "none");
+                    $("#OneOfPart").css("display", "none");
+                    $("#ListeningPart").css("display", "none");
+                    $("#ListenSubPart").css("display", "none");
+                    $("#lineSpanDate").text("会议日期");
+                    $("#lineSpanTimeRange").text("会议时段");
+                    $("#PartUnit").css("display", "none");
+                    $("#PresentPart").css("display", "none");
+                    $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "block");
+                    $("#mockPart").css("display", "block");
+                    $("#spanMockTitle").text("会议标题");
                 }
             });
             form.on('select(ListenSubject)', function (data) {
@@ -882,6 +951,25 @@
                     }
                 });
             });
+            $("input[name='meetingUserName']").keyup(function () {
+                adminForm.load({
+                    url: "@Url.Action("QueryNameAll", "TeacherHaveTime")",
+                    data: {title: $(this).val() },
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null && rou.data.length>0) {
+                            var result = rou.data;
+                            document.getElementById("searcMeeting").style.display = "block";
+                            var html = template("meetingUserTemp", { data: result });
+                            document.getElementById("meetingUserBody").innerHTML = html;
+                        }
+                        else {
+                            document.getElementById("searcMeeting").style.display = "none";
+                        }
+                    }
+                });
+            });
+
     });
         function SetTr(vmodel) {
             vmodel = JSON.parse(vmodel);
@@ -914,7 +1002,6 @@
             $("input[name='ListeningName']").val(vmodel.Student_Name);
             $("#searcListen").css("display", "none");
             var stdyModel = $("select[name='StudyMode']").val();
-            console.log(stdyModel);
             if (stdyModel == 5||stdyModel == 6) {
                 $("#moreShikaoUser").css("display", "block");
                 if ($("#shikaoUsers").text() == "") {
@@ -930,6 +1017,20 @@
                 shikaouserArry = [];
             }
 
+        }
+        function SetMeetingTr(vmodel) {
+            vmodel = JSON.parse(vmodel);
+            $("input[name='meetingUserName']").val(vmodel.Name);
+            $("#searcMeeting").css("display", "none");
+            if ($("#meetingMore").val() == "" || $("#meetingMore").val() == null) {
+                $("#meetingMore").append(vmodel.Name);
+            } else {
+                var teacherApend = $("#meetingMore").val().split(",");
+                if ($.inArray(vmodel.Name, teacherApend) < 0) {
+                    teacherApend.push(vmodel.Name);
+                    $("#meetingMore").val(teacherApend.join(","));
+                }
+            }
         }
         function bindProject(subjectId, defaultProjectId, defaultUnitId) {
             layui.use(['adminForm'], function () {
@@ -992,6 +1093,31 @@
                     }
                 }
               });
+            });
+        }
+        function bindRoom(atDate, stTime, edTime, defaultRoomId) {
+            layui.use(['adminForm'], function () {
+                    var adminForm = layui.adminForm;
+                    //绑定教室
+                    adminForm.load({
+                        url: "@Url.Action("QueryRoom")",
+                        data: { atDate: atDate, stTime: stTime, edTime: edTime, defaultRoomId:defaultRoomId},
+                        dataType: 'json',
+                        callBack: function (rou) {
+                            $("select[name='RoomId']").html("");
+                            if (rou.data != null) {
+                                var result = rou.data;
+                                for (var i = 0; i < result.length; i++) {
+                                    if (defaultRoomId != undefined && defaultRoomId != null && defaultRoomId== result[i].Id) {
+                                        $("select[name='RoomId']").append('<option value = ' + result[i].Id + ' selected>' + result[i].RoomName +'</option>');
+
+                                    } else {
+                                        $("select[name='RoomId']").append('<option value = ' + result[i].Id + '>' + result[i].RoomName + '</option>');
+                                    }
+                                }
+                            }
+                        }
+                        });
             });
         }
         function dateFtt(fmt, val) { //author: meizz

@@ -85,6 +85,7 @@
                                 trAppend += "<td style='text-align:center;font-weight:700;width:150px;'>当日任务</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:150px;'>布置作业</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;min-width:100px'>作业完成情况</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>每日总结</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>到校时间</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>离校时间</td>";
                                 trAppend += "</tr>";
@@ -102,7 +103,7 @@
                                         if (trRow == 0) {
                                             var trStr = "<tr>";
                                             trStr += "<td style='width:80px;' rowspan='7'>" + result[i].Student_Name + "</td>";
-                                            for (var j = 0; j < 8; j++) {
+                                            for (var j = 0; j < 9; j++) {
                                                 if (j == 0) {
                                                     trStr += "<td>8:00-10:00</td>";
                                                 }
@@ -136,11 +137,17 @@
                                                 }
                                                 if (j == 6) {
                                                     planVmodel.Id = result[i].Id;
+                                                    planVmodel.workTtile = result[i].HomeWorkComent;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].SummaryComent != null ? result[i].SummaryComent : '') + "</td>";
+                                                }
+                                                if (j == 7) {
+                                                    planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].InSchoolTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
                                                     trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].InSchoolTime != null ? result[i].InSchoolTime:'') + "</td>";
                                                 }
-                                                if (j == 7) {
+                                                if (j == 8) {
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].OutSchoolTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);

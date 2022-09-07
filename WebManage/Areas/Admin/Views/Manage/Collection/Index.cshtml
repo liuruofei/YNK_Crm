@@ -31,6 +31,9 @@
                     <div class="layui-inline">
                         <button id="btnAdd" class="layui-btn icon-btn" data-power="Add"><i class="layui-icon">&#xe654;</i>添加</button>
                     </div>
+                    <div class="layui-inline">
+                       <span id="txtAmountTotal" style="font-weight:700"></span>
+                    </div>
                 </div>
             </div>
 
@@ -82,21 +85,26 @@
         cols: [[
             { type: 'numbers' },
             { field: 'StudentName', title: '学员', fixed: 'left', sort: true },
-            { field: 'Amount', title: '收款金额', sort: true },
-            { field: 'AddedAmount', title: '使用优惠金额', sort: true },
             {
-                field: 'PayMothed', title: '收款方式', sort: true, templet: function (d) {
-                    if (d.PayMothed == 1)
-                        return "现金";
-                    else if (d.PayMothed == 2)
-                        return "刷卡";
-                    else if (d.PayMothed == 3)
-                        return "汇款";
+                field: 'Amount', title: '收款金额', sort: true, templet: function (d) {
+                    return d.Amount < 0 ? 0 : d.Amount;
                 }
             },
-            { field: 'CampusName', title: '校区', sort: true },
-            { field: 'RelationShip_Contras', title: '关联合同', width: 180, sort: true },
-            { field: 'Collection_Time', title: '收款日期', sort: true },
+            { field: 'AddedAmount', title: '额外优惠', sort: true },
+            { field: 'DeductAmount', title: '使用余额', sort: true },
+            {
+                field: 'PayMothed', title: '支付模式', sort: true, templet: function (d) {
+                    console.log(d.Amount, d.AddedAmount, d.DeductAmount);
+                    if (d.Amount>0)
+                        return "普通收款";
+                    if (d.AddedAmount > 0 && d.Amount<1)
+                        return "使用额外优惠";
+                    if (d.DeductAmount > 0 && d.AddedAmount < 1 && d.Amount < 1)
+                        return "使用余额";
+                }
+            },
+            { field: 'RelationShip_Contras', title: '关联合同', width: 120, sort: true },
+            { field: 'Collection_Time', title: '收款日期', width: 120, sort: true },
             { field: 'User_Name', title: '创建人', sort: true },
             {
                 field: 'PayStatus', title: '状态', sort: true, width: 120, templet: function (d) {
@@ -111,10 +119,11 @@
                     }
                 }
             },
+            { field: 'CampusName', title: '校区', sort: true },
             { align: 'center', toolbar: '#tableBar', fixed: 'right', title: '操作', width: 300}
         ]]
     });
-
+    AmountTotal();
     // 添加
     $('#btnAdd').click(function () {
         showEditModel();
@@ -131,6 +140,7 @@
                 curr: 1 //重新从第 1 页开始
             }
         });
+        AmountTotal();
     });
 
     // 工具条点击事件
@@ -176,6 +186,25 @@
         adminList.delete('@Url.Action("Delete")', { Id: Id}, function () {
             insTb.reload();
         });
+            }
+    //汇总
+    function AmountTotal() {
+            var title = $('#txtTitle').val();
+            var startTime = $('input[name="StartTime"]').val();
+            var endTime = $('input[name="EndTime"]').val();
+            adminForm.load({
+                        url:"@Url.Action("TotalAmount")",
+                        data: { title: title, startTime: startTime, endTime: endTime },
+                        dataType: 'json',
+                        callBack: function (result) {
+                            if (result.data!= null && result.data!= undefined) {
+                                $("#txtAmountTotal").text("本月收款金额："+result.data+"元");
+                            }
+                            else {
+                                $("#txtAmountTotal").text("");
+                            }
+                        }
+                    });
     }
 
 });

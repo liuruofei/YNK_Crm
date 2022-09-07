@@ -260,13 +260,30 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return Json(rsg);
         }
 
-        public IActionResult QueryRoom()
+        public IActionResult QueryRoom(string atDate,string stTime,string edTime,int? defaultRoomId=0)
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            List<C_Room> list = _currencyService.DbAccess().Queryable<C_Room>().Where(r=>r.CampusId==Convert.ToInt32(campusId)).ToList();
+            List<int> notInRoomId = new List<int>();
+            if (!string.IsNullOrEmpty(atDate) && !string.IsNullOrEmpty(stTime) && !string.IsNullOrEmpty(edTime)) {
+                var ListWork = _currencyService.DbAccess().Queryable<C_Course_Work>("c").AddJoinInfo("C_Room","r", "c.RoomId=r.Id",JoinType.Left)
+                                         .Where("c.RoomId!=@roomId and charindex('线上',r.RoomName)<1 and charindex('考场',r.RoomName)<1  and" +
+                                         " ((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                                         " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                         " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                         " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                         ")")
+                                         .AddParameters(new { roomId = defaultRoomId.Value, AtDate = atDate, StartTime = stTime, EndTime = edTime }).GroupBy("c.RoomId").Select("c.RoomId").ToList();
+                if (ListWork != null && ListWork.Count > 0) {
+                    ListWork.ForEach(item => {
+                        notInRoomId.Add(item.RoomId);
+                    });
+                }
+            }
+            List<C_Room> list = _currencyService.DbAccess().Queryable<C_Room>().Where(r=>r.CampusId==Convert.ToInt32(campusId))
+                .WhereIF(notInRoomId.Count>0,r=>!notInRoomId.Contains(r.Id)).ToList();
             list.Add(new C_Room() { Id = 0, RoomName = "--选择教室--" });
-            list = list.OrderByDescending(it => it.Id).ToList();
+            list = list.OrderBy(it => it.Id).ToList();
             rsg.data = list;
             return Json(rsg);
         }
@@ -324,7 +341,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var ccOrSale = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
              .Where((u, ur, r) => u.User_ID == userId &&(r.Role_Name == "销售主管"||r.Role_Name=="顾问" || r.Role_Name == "销售")).First();
             ResResult rsg = new ResResult() { code = 200, msg = "保存排课课程成功" };
-            if (ccOrSale != null &&(vmodel.StudyMode != 4|| vmodel.StudyMode != 5)) {
+            if (ccOrSale != null &&vmodel.StudyMode != 4&&vmodel.StudyMode != 5) {
                 rsg.code = 0;
                 rsg.msg = "你已超过当前权限,只能添加试听课或者模考";
                 return Json(rsg);
@@ -441,7 +458,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="subjectId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public IActionResult QueryWorkSource(string startStr, string endStr, string userName, int subjectId, int projectId)
+        public IActionResult QueryWorkSource(string startStr, string endStr, string userName, int subjectId, int projectId,int studyMode)
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult reg = new ResResult();
@@ -474,6 +491,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 sql += " and wk.ProjectId=" + projectId;
             }
+            if (studyMode > 0)
+            {
+                sql += " and wk.StudyMode=" + studyMode;
+            }
             sql += " and wk.CampusId="+campusId;
             sql += ")";
             dynamic list = _currencyService.DbAccess().Queryable(sql, "orginSql")
@@ -487,14 +508,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     //统计老师课时，点评已完成才算课时
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                         .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(subjectId > 0, it => it.ProjectId == projectId)
-                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas==1&& it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.StudyMode != 7 && it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas==1&& it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                         .Sum(it => it.CourseTime);
                 }
                 if (students != null&& students.Count==1)
                 {
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                     .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(projectId > 0, it => it.ProjectId == projectId)
-                    .Where(it => (it.StudentUid == students[0].StudentUid||classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                    .Where(it => (it.StudentUid == students[0].StudentUid||classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 7 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                     .Sum(it => it.CourseTime);
                 }
             }
@@ -505,7 +526,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         }
 
 
-        public IActionResult QueryWorkSource2(string startStr, string endStr, string userName, int subjectId, int projectId, int page = 1, int limit = 10)
+        public IActionResult QueryWorkSource2(string startStr, string endStr, string userName, int subjectId, int projectId,int studyMode, int page = 1, int limit = 10)
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult reg = new ResResult();
@@ -539,6 +560,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 sql += " and wk.ProjectId=" + projectId;
             }
+            if (studyMode > 0)
+            {
+                sql += " and wk.StudyMode=" + studyMode;
+            }
             sql += " and wk.CampusId=" + campusId;
             sql += ")";
             int total = 0;
@@ -554,14 +579,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     //统计老师课时，点评已完成才算课时
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                         .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(subjectId > 0, it => it.ProjectId == projectId)
-                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3&& it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.StudyMode != 7&& it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                         .Sum(it => it.CourseTime);
                 }
                 if (students != null&& students.Count==1)
                 {
                     reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
                     .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(projectId > 0, it => it.ProjectId == projectId)
-                    .Where(it => (it.StudentUid == students[0].StudentUid || classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                    .Where(it => (it.StudentUid == students[0].StudentUid || classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 7 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
                     .Sum(it => it.CourseTime);
                 }
             }

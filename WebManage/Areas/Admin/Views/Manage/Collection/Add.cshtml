@@ -62,8 +62,10 @@
         </div>
     </div>
     <div class="layui-form-item">
-        <div style="padding-left:39px;color:orangered">提示*:项目详情支持实际到账金额
-         <p>如果子合同中使用了优惠金额，请在最后一次结清时必须使用</p>
+        <div style="padding-left:39px;color:orangered">
+            提示*:项目详情支持实际到账金额
+            <p>如果子合同中使用了优惠金额，请在最后一次结清时必须使用</p>
+            <p>如果是充值用户余额，则关联合同不用选</p>
         </div>
     </div>
     <div class="layui-form-item text-right positionbottom">
@@ -233,17 +235,19 @@
                                 if (result.length == 1) {
                                     var contrc = result[0].Contra_ChildNo;
                                     $("select[name='RelationShip_Contras']").html("<option value='" + contrc + "'>" + contrc + "</option>");
+                                    $("select[name='RelationShip_Contras']").append("<option value=''>-不选择-</option>");
                                     bindProjectItem(result[0].Contra_ChildNo, listItem);
-                                   // querychildVmodel(result[0].Contra_ChildNo);
+                                    querychildVmodel(result[0].Contra_ChildNo, defaultValue);
                                 } else {
                                     $("select[name='RelationShip_Contras']").html("");
                                     for (var i = 0; i < result.length; i++) {
                                         $("select[name='RelationShip_Contras']").append("<option value='" + result[i].Contra_ChildNo + "'>" + result[i].Contra_ChildNo + "</option>");
                                         if (i == 0) {
                                             bindProjectItem(result[i].Contra_ChildNo, listItem);
-                                            //querychildVmodel(result[i].Contra_ChildNo);
+                                            querychildVmodel(result[i].Contra_ChildNo, defaultValue);
                                         }
                                     }
+                                    $("select[name='RelationShip_Contras']").append("<option value=''>-不选择-</option>");
                                 }
 
                             }
@@ -284,13 +288,13 @@
                     });
             }
             //带出项目信息
-            function querychildVmodel(contracNo) {
+            function querychildVmodel(contracNo,defaultContrac) {
                       adminForm.load({
                         url:"@Url.Action("QueryContracVmodel")",
                         data:{childcontracNo:contracNo},
                         dataType: 'json',
-                        callBack: function (result) {
-                            if (result != null && result != undefined) {
+                          callBack: function (result) {
+                              if (result != null && result != undefined && (defaultContrac == null || defaultContrac == undefined)) {
                                 var childModel = result.data;
                                 $("input[name='AddedAmount']").val(childModel.Added_Amount);
                             }

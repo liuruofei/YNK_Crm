@@ -81,7 +81,9 @@
 @section js{
     <!-- 表格操作列 -->
     <script type="text/html" id="tableBar">
+        {{# if(d.StudyMode!=3&&d.StudyMode!=7){ }}
         <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">点评</a>
+        {{#}}}
     </script>
     <script src="/assets/libs/fullCalendar/main.js"></script>
     <!-- js部分 -->
@@ -181,6 +183,9 @@
                             else if (result[i].StudyMode == 5) {
                                 backColor = '#c6b62e';
                             }
+                            else if (result[i].StudyMode == 7) {
+                                backColor = '#9513ab';
+                            }
                             else {
                                 if (result[i].Work_Stutas == 1) {
                                     backColor = '#8b9825';
@@ -198,7 +203,7 @@
                             });
                         }
                     }
-                    callback(events);  //回调  doc中就是一个个上面所说数据库Urlrlrlmodel的json串
+                    callback(events);  //回调  doc中就是一个json串
                 }
             });
         },
@@ -295,10 +300,15 @@
                     { field: 'TaUserName', title: '督学', sort: true, width: 120 },
                     {
                         field: 'Work_Stutas', title: '状态', sort: true, width: 120, templet: function (d) {
-                            if (d.StudyMode != 3)
-                                return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已完成</span>" : "未完成";
-                            else
+                            if (d.StudyMode == 3) {
                                 return "休息中";
+                            }
+                            else if (d.StudyMode == 7) {
+                                return "教师会议";
+                            }
+                            else {
+                                return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已完成</span>" : "未完成";
+                            }
                         }
                     },
                     { align: 'center', toolbar: '#tableBar', title: '操作', width: 200 }

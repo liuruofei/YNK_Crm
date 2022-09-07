@@ -339,7 +339,34 @@ namespace WebManage.Controllers
         [HttpPost]
         public async Task<IActionResult> GetWorkModel(int wkId) {
             ResResult rsg = new ResResult() { code = 0, msg = "获取失败" };
-            var model = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(it => it.Id == wkId).First();
+            var model = _currencyService.DbAccess().Queryable<C_Course_Work,C_Contrac_User>((it,u)=>new object[]{JoinType.Left,it.StudentUid==u.StudentUid }).Where((it,u)=> it.Id == wkId).Select<CourseWorkModel>((it,u)=>new CourseWorkModel { 
+             Id=it.Id,
+             Work_Title=it.Work_Title,
+             AT_Date=it.AT_Date,
+             StartTime=it.StartTime,
+             EndTime=it.EndTime,
+             Contra_ChildNo=it.Contra_ChildNo,
+             Comment=it.Comment,
+             CourseWork=it.CourseWork,
+             StudyMode=it.StudyMode,
+             StudentUid=it.StudentUid,
+             TeacherUid=it.TeacherUid,
+             Work_Stutas=it.Work_Stutas,
+             RangTimeId=it.RangTimeId,
+             SubjectId=it.SubjectId,
+             ProjectId=it.ProjectId,
+             IsSendComment=it.IsSendComment,
+             IsSendWork=it.IsSendWork,
+             ListeningName=it.ListeningName,
+             ClasssId=it.ClasssId,
+             Score=it.Score,
+             Comment_Time=it.Comment_Time,
+             Student_Name=u.Student_Name,
+             IsUsePresent=it.IsUsePresent,
+             CourseTime=it.CourseTime,
+             CreateTime=it.CreateTime,
+             CreateUid=it.CreateUid
+            }).First();
             if (model != null) {
                 rsg.data = model;
                 rsg.code = 200;

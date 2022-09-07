@@ -314,9 +314,10 @@
         }
 
         //删除合同详情明细
-        function doDel(obj) {
-            var contracChildNo = vmodel.Contra_ChildNo;
-            $(obj).parents("tr").remove();
+        function doDel(vmodel) {
+            adminList.delete('@Url.Action("DeleteChildContrac")', { childContrcNo: vmodel.Contra_ChildNo}, function () {
+                initTable.reload();
+             });
          }
 
         // 工具条点击事件
@@ -326,7 +327,7 @@
             if (layEvent === 'edit') { // 审核
                 showEditModel(data);
             } else if (layEvent === 'del') { // 删除
-                doDel(data.CourseId);
+                doDel(data);
             }
         });
 

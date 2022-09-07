@@ -24,6 +24,7 @@
                     <option value="4">试听</option>
                     <option value="5">模考</option>
                     <option value="6">实考</option>
+                    <option value="7">会议</option>
                 </select>
             </div>
         </div>
@@ -118,13 +119,13 @@
             <select name="RoomId" disabled="disabled"></select>
         </div>
     </div>
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="dianpPart">
         <label class="layui-form-label">点评</label>
         <div class="layui-input-block">
             <textarea name="Comment" class="layui-textarea" style="height:150px;"></textarea>
         </div>
     </div>
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="zuoyePart">
         <label class="layui-form-label">作业</label>
         <div class="layui-input-block">
             <textarea name="CourseWork" id="CourseWork" class="layui-textarea" style="height:150px;"></textarea>
@@ -239,6 +240,17 @@
                             $("#lineSpanTimeRange").text("模考时段");
                             $("#spanStudentName").text("模考学员");
                             $("#spanCatogalogName").text("模考分类");
+                        }
+                        else if (r.StudyMode == 7) {
+                            $("#PartTa").css("display", "none");
+                            $("#PartProject").css("display", "none");
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#lineSpanDate").text("会议日期");
+                            $("#lineSpanTimeRange").text("会议时段");
+                            $("#dianpPart").css("display", "none");
+                            $("#zuoyePart").css("display", "none");
+                            
                         }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));

@@ -107,6 +107,10 @@ namespace WebManage.Models.Res
         /// </summary>
         public int IsSendComment { get; set; }
 
+        public int IsSendWork { get; set; }
+
+        public int IsUsePresent { get; set; }
+
 
         public DateTime? Comment_Time { get; set; }
 

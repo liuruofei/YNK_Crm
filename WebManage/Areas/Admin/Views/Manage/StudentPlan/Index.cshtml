@@ -7,12 +7,13 @@
         </div>
         <div style="text-align:center;flex:1"><span style=" line-height: 38px;font-weight:700">当前学员:@ViewBag.studentName</span></div>
         <div style="flex:1;text-align:right;">
-            <div style="display: flex; flex-wrap: wrap">
+            <div style="display: flex;">
                 <label class="layui-form-label">导出时间段</label>
                 <input name="StartTime" id="StartTime" placeholder="开始时间" class="layui-input" style="width:100px" />&nbsp;<span style="width: 2px;
                 padding-top: 5px;margin-right: 5px;color: yellowgreen">_</span> &nbsp;
                 <input name="EndTime" id="EndTime" placeholder="截止时间" class="layui-input" style="width:100px" />
-                <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left:5px">导出</button>
+                <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left:5px">导出(Excel)</button>
+                <button class="layui-btn" type="button" onclick="pdfPlan()">导出(PDF)</button>
             </div>
         </div>
     </div>
@@ -188,7 +189,7 @@
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             var isReversion = result[j].Ten_Twelve_Reversion;
                                             var studymodel = result[j].Ten_Twelve_StudyMode;
-                                            var classColor = "planPartBlue"; 
+                                            var classColor = "planPartBlue";
                                             if (planVmodel.Id > 0 && isReversion == false) {
                                                 classColor = "planPartBlue";
                                             }
@@ -497,7 +498,7 @@
                                             trAppend += "<td onclick='planShow2(" + jsonVmodel + ")'>" + (result[j].OutSchoolTime == null ? "" : result[j].OutSchoolTime) + "</td>";
                                         }
                                         trAppend += "</tr>";
-   
+
                                     }
                                 }
                                 $("#plantbody").append(trAppend);
@@ -517,7 +518,11 @@
         function exportPlan() {
             var studentUid = $("input[name='StudentUid']").val();
             window.location.href = '@Url.Action("ExportPlan")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&starttime=' + $("#StartTime").val() + '&endtime=' +$("#EndTime").val();
-       }
+        }
+        function pdfPlan() {
+            var studentUid = $("input[name='StudentUid']").val();
+            window.open('@Url.Action("ExportPdf")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&starttime=' + $("#StartTime").val() + '&endtime=' + $("#EndTime").val());
+        }
       function planShow(vmodel) {
         var studentUid = $("input[name='StudentUid']").val();
         if (vmodel.Id==0 &&vmodel.workTtile !=null) {return false;}
