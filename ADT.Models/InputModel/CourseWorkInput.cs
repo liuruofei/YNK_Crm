@@ -129,6 +129,11 @@ namespace ADT.Models.InputModel
         /// 实考学员
         /// </summary>
         public List<ShikaoUser> arrShikaoUser { get; set; }
+
+        /// <summary>
+        /// 会议教师
+        /// </summary>
+        public List<string> meetingTeacher { get; set; }
     }
 
     public class ShikaoUser {
