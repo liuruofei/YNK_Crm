@@ -137,7 +137,7 @@
             { type: 'numbers' },
             {
                 field: 'Student_Name', title: '学生名称', fixed: 'left', sort: true, templet: function (d) {
-                    return "<div id='boxCounrseDetail" + d.StudentUid + "' onmouseover=\"showCourseDetailDiv(" + d.StudentUid + ");\" onmouseleave='closeTips();' >" + d.Student_Name + "</div>";
+                    return "<div id='boxCounrseDetail" + d.StudentUid + "' onmouseover=\"showCourseDetailDiv(" + d.StudentUid + ");\" onmouseleave='closeTips();' style='width:60px'>" + d.Student_Name + "</div>";
                 }
             },
             { field: 'Sex', title: '性别', sort: true,width:50 },

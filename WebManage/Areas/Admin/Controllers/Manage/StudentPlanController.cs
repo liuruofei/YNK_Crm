@@ -1558,16 +1558,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             }
                             if (!string.IsNullOrEmpty(iv.Comment) && iv.Comment != it.CourseComent && iv.StudyMode != 5 && iv.StudyMode != 6)
                             {
-                                it.CourseComent += iv.Comment;
-                            }
-                            if (!string.IsNullOrEmpty(iv.CourseWork) && iv.CourseWork != it.CourseWorkCotent)
-                            {
-                                it.CourseWorkCotent += iv.CourseWork;
+                                it.CourseComent += "<div style=\"height:20px;border-top:solid 3px\"></div>" + iv.Comment;
                             }
                             if ((iv.StudyMode == 5 || iv.StudyMode == 6) && !string.IsNullOrEmpty(iv.Comment))
                             {
-                                it.OtherComent += iv.Comment;
+                                it.OtherComent += "<div style=\"height:20px;border-top:solid 3px\"></div>" + iv.Comment;
                             }
+                            if (!string.IsNullOrEmpty(iv.CourseWork) && iv.CourseWork != it.CourseWorkCotent)
+                                it.CourseWorkCotent += iv.CourseWork + "<div style=\"height:20px;border-top:solid 3px\"></div>";
 
                         });
                     }

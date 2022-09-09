@@ -1,0 +1,420 @@
+﻿
+<div style="margin-top: 15px; margin-left: 10px; margin-right: 10px">
+    <div style="display: flex;">
+        <div style="text-align:center;flex:1;padding-right:20px;position:relative">
+            <input name="teacherName" id="teacherName" placeholder="学生名称" class="layui-input" autocomplete="off"/>
+            <div class="searchName" id="searchName">
+                <table style="width:100%;margin-top: 0px;" class="layui-table">
+                    <tbody id="searcNamebody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div style="flex:1;text-align:right;">
+            <div style="display: flex; flex-wrap: wrap">
+
+                <input name="StartTime" id="StartTime" placeholder="开始时间" class="layui-input" style="width:100px" />&nbsp;<span style="width: 2px;
+                padding-top: 5px;margin-right: 5px;color: yellowgreen">_</span> &nbsp;
+                <input name="EndTime" id="EndTime" placeholder="截止时间" class="layui-input" style="width:100px" />
+
+                <button class="layui-btn" type="button" style="margin-left:5px" onclick="planSearch()">搜索</button>
+            </div>
+        </div>
+    </div>
+    <div>
+        <textarea name="selecTedTeacher" id="selecTedTeacher" style="width:100%;min-height:60px"></textarea>
+    </div>
+    <table class="layui-table">
+        <tbody id="teacherTimebody" style="word-break:break-all">
+        </tbody>
+    </table>
+</div>
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+
+        .color1,.color2,.color3,.color4,.color5,.color6,.color7,.color8,.color9,.color10 {
+            border-color: rgb(224, 224, 224);
+            box-shadow: 0px 0px 0px 1px #fff;
+            font-size: 12px;
+            color:white;
+            width:53px;
+        }
+        .color1 {
+            background-color: yellowgreen;
+        }
+        .color2 {
+            background-color: #3287af;
+        }
+        .color3 {
+            background-color: #c88c34;
+        }
+        .color4 {
+            background-color: #9513ab;
+        }
+        .color5 {
+            background-color: #79726f;
+        }
+        .color6 {
+            background-color: #a13527;
+        }
+        .color7 {
+            background-color: #816258;
+        }
+        .color8 {
+            background-color: #673ab7;
+        }
+        .color9 {
+            background-color: #529955;
+        }
+        .color10 {
+            background-color: #082cf2;
+        }
+        .searchName {
+            position: absolute;
+            box-shadow: 0 10px 60px 0 rgb(29 29 31 / 9%);
+            background-color: white;
+            z-index: 6;
+            width: 97%;
+            min-height: 200px;
+            display: none;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script type="text/template" id="searchNameTemp">
+        {{each data item index}}
+        <tr onclick="SetListenTr('{{item}}')">
+            <td><span>{{item.Name}}</span></td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+            var form = layui.form;
+            var admin = layui.admin;
+            var adminForm = layui.adminForm;
+            var laydate = layui.laydate;
+            //日期
+            laydate.render({
+                elem: '#StartTime'
+                , type: 'date',
+                format: 'yyyy-MM-dd'
+            });
+            laydate.render({
+                elem: '#EndTime'
+                , type: 'date',
+                format: 'yyyy-MM-dd'
+            });
+            $("input[name='teacherName']").keyup(function () {
+                adminForm.load({
+                    url: "@Url.Action("QueryNameAll")",
+                    data: {title: $(this).val() },
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null && rou.data.length>0) {
+                            var result = rou.data;
+                            document.getElementById("searchName").style.display = "block";
+                            var html = template("searchNameTemp", { data: result });
+                            document.getElementById("searcNamebody").innerHTML = html;
+                        }
+                        else {
+                            document.getElementById("searchName").style.display = "none";
+                        }
+                    }
+                });
+            });
+        });
+        function SetListenTr(vmodel) {
+            vmodel = JSON.parse(vmodel);
+            $("input[name='teacherName']").val(vmodel.Name);
+            $("#searchName").css("display", "none");
+            if ($("#selecTedTeacher").val() == "" || $("#selecTedTeacher").val() ==null) {
+                $("#selecTedTeacher").append(vmodel.Name);
+            } else {
+                var teacherApend = $("#selecTedTeacher").val().split(",");
+                if (teacherApend.length < 10) {
+                    if ($.inArray(vmodel.Name, teacherApend) < 0) {
+                        teacherApend.push(vmodel.Name);
+                        $("#selecTedTeacher").val(teacherApend.join(","));
+                    }
+                }
+                else {
+                    layer.msg("最多只能同时搜索10个学生!");
+                }
+            }
+        }
+        var plan = {
+            pageIndex: 0,
+            starttime:null,
+            endtime: null,
+            dataList: [],
+            pageSize:7,
+            pageTotal:0
+        }
+        $("#preWeek").click(function () {
+            if (plan.pageIndex > 1) {
+                plan.pageIndex = plan.pageIndex - 1;
+                var startSlice = (plan.pageIndex - 1) * plan.pageSize;
+                var result = plan.dataList.slice(startSlice, startSlice + plan.pageSize);
+                AppendStr(result);
+            }
+        })
+        $("#nextWeek").click(function () {
+            if (plan.pageIndex < plan.pageTotal && plan.pageTotal > 1) {
+                plan.pageIndex = plan.pageIndex + 1;
+                var startSlice = (plan.pageIndex - 1) * plan.pageSize;
+                if (plan.pageIndex != plan.pageTotal) {
+                    var slresult = plan.dataList.slice(startSlice,startSlice+plan.pageSize);
+                    AppendStr(slresult);
+                }
+                else {
+                    var slresult = plan.dataList.slice(startSlice);
+                    AppendStr(slresult);
+                }
+            }
+        })
+        function planSearch() {
+            var colorArry = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8', 'color9','color10'];
+            $("#teacherTimebody").html("");
+            layui.use(['form', 'admin', 'adminForm'], function () {
+                     var admin = layui.admin;
+                    var adminForm = layui.adminForm;
+                    var teacherName = $("#selecTedTeacher").val();
+                    if (teacherName == "" || teacherName == null) {
+                        layer.msg("请按学生名称搜索");
+                        return false;
+                    };
+                    var teacherColors = [];
+                    var teacherNamesToor = $("#selecTedTeacher").val().split(",");
+                if (teacherNamesToor.length> 0) {
+                    for (var i = 0; i < teacherNamesToor.length; i++) {
+                        teacherColors.push({ color: colorArry[i], name: teacherNamesToor[i] });
+                    }
+                }
+                if (teacherNamesToor.length>10) {
+                    layer.msg("已超过学生同时搜索数量");
+                    return false;
+                }
+                adminForm.load({
+                        url: "@Url.Action("QueryStudentTime")",
+                        data:{teacherNames:$("#selecTedTeacher").val(),starttime: $("#StartTime").val(), endtime: $("#EndTime").val()},
+                        dataType: 'json',
+                         callBack: function (rou) {
+                            if (rou != null) {
+                                plan.dataList = rou;
+                                var result = rou.slice(0, plan.pageSize);
+                                plan.pageIndex = 1;
+                                var yushu = rou.length % plan.pageSize;
+                                plan.pageTotal = ((rou.length - yushu) / plan.pageSize) + (yushu > 0 ? 1 : 0);
+                                for (var j = 0; j < result.length; j++) {
+                                    if (j == 0) {
+                                        plan.starttime = dateFtt("yyyy-MM-dd", result[j].WorkDate);
+                                    }
+                                    if (j == result.length - 1) {
+                                        plan.endtime = dateFtt("yyyy-MM-dd", result[j].WorkDate);
+                                    }
+                                }
+                                for (var y = 1; y <= plan.pageTotal; y++) {
+                                    var startSlice = (y - 1) * plan.pageSize;
+                                    if (y != plan.pageTotal) {
+                                        var slresult = plan.dataList.slice(startSlice, startSlice + plan.pageSize);
+                                         AppendStr(slresult, teacherColors);
+                                    }
+                                    else {
+                                        var slresult = plan.dataList.slice(startSlice);
+                                        AppendStr(slresult, teacherColors);
+                                    }
+                                }
+                            }
+                            if (plan.starttime != undefined && plan.starttime != null && $("#StartTime").val() == "") {
+                                $("#StartTime").val(plan.starttime);
+                            }
+                            if (plan.endtime != undefined && plan.endtime != null && $("#EndTime").val()=="") {
+                                $("#EndTime").val(plan.endtime);
+                            }
+                        }
+                    });
+            });
+
+        }
+
+        function AppendStr(result, teacherColor) {
+            console.log(result, teacherColor);
+            var trAppend = "";
+            for (var i = 0; i < 7; i++) {
+                if (i == 0) {
+                    trAppend += "<tr>";
+                    trAppend += "<td style='width:120px;min-width:76px'>日期</td>";
+                    for (var j = 0; j < result.length; j++) {
+                        trAppend += "<td style='text-align:center;min-width:160px;'> " + dateFtt("yyyy-MM-dd", result[j].WorkDate) + " </td>";
+                    }
+                    trAppend += "</tr>";
+                }
+                else if (i == 1) {
+                    trAppend += "<tr>";
+                    trAppend += "<td style='width:120px'>星期</td>";
+                    for (var j = 0; j < result.length; j++) {
+                        trAppend += "<td style='text-align:center;'>" + result[j].WorkDateName + "</td>";
+                    }
+                    trAppend += "</tr>";
+                }
+                //else if (i == 2) {
+                //    trAppend += "<tr>";
+                //    trAppend += "<td style='width:120px;'>8:00-10:00</td>";
+                //    for (var j = 0; j < result.length; j++) {
+                //        var planVmodel = {
+                //            Id: result[j].Eight_Ten_Id,
+                //            workTtile: result[j].Eight_Ten_OlockTitle,
+                //            workDate: result[j].WorkDate,
+                //            startTime: '8:00',
+                //            endTime: '10:00'
+                //        }
+                //        var studymodel = result[j].Eight_Ten_StudyMode;
+                //        var classColor = "planPart";
+                //        trAppend += "<td><div class='" + classColor + "'>" + (result[j].Eight_Ten_OlockTitle != null ? "<span></span>" : "可排") + "</div></td>";
+                //    }
+                //    trAppend += "</tr>";
+                //}
+                else if (i == 2) {
+                    trAppend += "<tr>";
+                    trAppend += "<td style='width:120px'>10:00-12:00</td>";
+                    for (var j = 0; j < result.length; j++) {
+                        var teacherTimes = result[j].ListTeacherTime;
+                        trAppend += "<td><div style='display:flex;flex-wrap:wrap'>";
+                        for (var k = 0; k < teacherColor.length; k++) {
+                            var teacherData = teacherTimes[teacherColor[k].name];
+                            if (teacherData != undefined && teacherData != null) {
+                                var tenHasTimeValite = teacherData.filter(item => item.isRest==true||item.Ten_Twelve_OlockTitle!= null||item.Ten_Twelve_Reversion==true);
+                                if (tenHasTimeValite != undefined && tenHasTimeValite.length<1) {
+                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                }
+                            }
+                        }
+                        trAppend +="</div></td>";
+                    }
+                    trAppend += "</tr>";
+                }
+                else if (i == 3) {
+                    trAppend += "<tr>";
+                    trAppend += "<td style='width:120px;'>13:00-15:00</td>";
+                    for (var j = 0; j < result.length; j++) {
+                        var teacherTimes = result[j].ListTeacherTime;
+                        trAppend += "<td><div style='display:flex;flex-wrap:wrap'>";
+                        for (var k = 0; k < teacherColor.length; k++) {
+                            var teacherData = teacherTimes[teacherColor[k].name];
+                            if (teacherData != undefined && teacherData != null) {
+                                var tenHasTimeValite = teacherData.filter(item => item.isRest == true || item.Thirteen_Fifteen_OlockTitle != null || item.Thirteen_Fifteen_Reversion == true);
+                                if (tenHasTimeValite != undefined && tenHasTimeValite.length < 1) {
+                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                }
+                            }
+                        }
+                        trAppend += "</div></td>";
+                    }
+                    trAppend += "</tr>";
+                }
+                else if (i == 4) {
+                    trAppend += "<tr>";
+                    trAppend += "<td style='width:120px;'>15:00-17:00</td>";
+                    for (var j = 0; j < result.length; j++) {
+                        var teacherTimes = result[j].ListTeacherTime;
+                        trAppend += "<td><div style='display:flex;flex-wrap:wrap'>";
+                        for (var k = 0; k < teacherColor.length; k++) {
+                            var teacherData = teacherTimes[teacherColor[k].name];
+                            if (teacherData != undefined && teacherData != null) {
+                                var tenHasTimeValite = teacherData.filter(item => item.isRest == true || item.Fifteen_Seventeen_OlockTitle != null || item.Fifteen_Seventeen_Reversion == true);
+                                if (tenHasTimeValite != undefined && tenHasTimeValite.length < 1) {
+                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                }
+                            }
+                        }
+                        trAppend += "</div></td>";
+                    }
+                    trAppend += "</tr>";
+                }
+                else if (i == 5) {
+                    trAppend += "<tr>";
+                    trAppend += "<td style='width:120px;'>17:00-19:00</td>";
+                    for (var j = 0; j < result.length; j++) {
+                        var teacherTimes = result[j].ListTeacherTime;
+                        trAppend += "<td><div style='display:flex;flex-wrap:wrap'>";
+                        for (var k = 0; k < teacherColor.length; k++) {
+                            var teacherData = teacherTimes[teacherColor[k].name];
+                            if (teacherData != undefined && teacherData != null) {
+                                var tenHasTimeValite = teacherData.filter(item => item.isRest == true || item.Seventeen_Nineteen_OlockTitle != null || item.Seventeen_Nineteen_Reversion == true);
+                                if (tenHasTimeValite != undefined && tenHasTimeValite.length < 1) {
+                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                }
+                            }
+                        }
+                        trAppend += "</div></td>";
+                    }
+                    trAppend += "</tr>";
+                }
+                //else if (i == 7) {
+                //    trAppend += "<tr>";
+                //    trAppend += "<td style='width:120px;'>19:00-21:00</td>";
+                //    for (var j = 0; j < result.length; j++) {
+                //        var planVmodel = {
+                //            Id: result[j].Nineteen_TwentyOne_Id,
+                //            workTtile: result[j].Nineteen_TwentyOne_OlockTitle,
+                //            workDate: result[j].WorkDate,
+                //            startTime: '19:00',
+                //            endTime: '21:00'
+                //        }
+                //        var studymodel = result[j].Nineteen_TwentyOne_StudyMode;
+                //        var classColor = "planPart";
+                //        trAppend += "<td><div class=" + classColor + ">" + (result[j].Nineteen_TwentyOne_OlockTitle != null ? "" : (result[j].isRest == true ? "" : "可排")) + "</div></td>";
+                //    }
+                //    trAppend += "</tr>";
+                //}
+                //else if (i == 8) {
+                //    trAppend += "<tr>";
+                //    trAppend += "<td style='width:120px;'>21:00-23:00</td>";
+                //    for (var j = 0; j < result.length; j++) {
+                //        var planVmodel = {
+                //            Id: result[j].TwentyOne_TwentyTree_Id,
+                //            workTtile: result[j].TwentyOne_TwentyTree_OlockTitle,
+                //            workDate: result[j].WorkDate,
+                //            startTime: '21:00',
+                //            endTime: '23:00'
+                //        }
+                //        var studymodel = result[j].TwentyOne_TwentyTree_StudyMode;
+                //        var classColor = "planPart";
+                //        trAppend += "<td><div class=" + classColor + ">" + (result[j].TwentyOne_TwentyTree_OlockTitle != null ? "" : (result[j].isRest == true ? "" : "可排")) + "</div></td>";
+                //    }
+                //    trAppend += "</tr>";
+                //}
+            }
+            $("#teacherTimebody").append(trAppend);
+        }
+
+        function dateFtt(fmt, val) { //author: meizz
+        var date = new Date(val);
+        var o = {
+            "M+": date.getMonth() + 1,     //月份
+            "d+": date.getDate(),     //日
+            "h+": date.getHours(),     //小时
+            "m+": date.getMinutes(),     //分
+            "s+": date.getSeconds(),     //秒
+            "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+            "S": date.getMilliseconds()    //毫秒
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    </script>
+}

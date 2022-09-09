@@ -558,6 +558,10 @@
                 data.field.WorkDateGroup = selectArr;
                 data.field.ProjectId=$("select[name='ProjectId']").val();
                 if (data.field.StudyMode == 1) {
+                    if ($("select[name='TeacherUid']").val() =="") {
+                        layer.msg("请选择教师");
+                        return false;
+                    }
                     var ispresend = $("select[name='IsUsePresent']").val();
                     if (ispresend == 0) {
                         data.field.ProjectId = $("input[name='UserProjectId']").val();
@@ -569,6 +573,10 @@
                     }
                 }
                 else if (data.field.StudyMode == 2) {
+                    if ($("select[name='TeacherUid']").val() == "") {
+                        layer.msg("请选择教师");
+                        return false;
+                    }
                     data.field.Work_Title = $("input[name='WorkClassName']").val();
                 }
                 else if (data.field.StudyMode == 4) {

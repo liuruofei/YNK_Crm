@@ -109,8 +109,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            rsg.data = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Inner, u.User_ID == ur.UserRole_UserID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID })
-                .Where((u, ur, r) =>u.CampusId==Convert.ToInt32(campusId)&& (r.Role_Name == "教师"|| r.Role_Name == "教学校长")).ToList();
+            List<sys_user> list= _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Inner, u.User_ID == ur.UserRole_UserID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID })
+                .Where((u, ur, r) => u.CampusId == Convert.ToInt32(campusId) && (r.Role_Name == "教师" || r.Role_Name == "教学校长")).ToList();
+            list.Add(new sys_user { User_ID = "", User_Name = "-请选择教师-",User_CreateTime=DateTime.Now});
+            rsg.data = list.OrderByDescending(n=>n.User_CreateTime).ToList();
             return Json(rsg);
         }
         /// <summary>
