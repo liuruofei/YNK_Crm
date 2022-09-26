@@ -340,6 +340,13 @@ namespace ADT.Repository
                             if (contansStudentUids != null && contansStudentUids.Count > 0)
                             {
                                 where += " or c.StudentUid in(" + string.Join(",", contansStudentUids) + ")";
+                                //判断该班课学员的其它班课是否也起冲突
+                                int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                                var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => contansStudentUids.Contains(con.StudentUid) && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                                if (contansClassIds != null && contansClassIds.Count > 0)
+                                {
+                                    where += " or c.ClasssId in(" + string.Join(",", contansClassIds) + ")";
+                                }
                             }
                             string msg = "";
                             C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
@@ -609,6 +616,11 @@ namespace ADT.Repository
                             var projectModel = db.Queryable<C_Project>().Where(fv => fv.ProjectId == input.ProjectId).First();
                             input.Work_Title = input.Work_Title + "_" + projectModel.ProjectName;
                         }
+                        List<int> shitUserClassIds = null;
+                        if (input.StudyMode == 4 && input.StudentUid > 0) {
+                            int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                            shitUserClassIds = db.Queryable<C_Contrac_Child>().Where(con => con.StudentUid == input.StudentUid && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                        }
                         foreach (var wkTime in vmodel.WorkDateGroup) {
                             //1对1
                             if (input.StudyMode == 1)
@@ -712,10 +724,16 @@ namespace ADT.Repository
                                 string where = "";
                                 int childContracStatu = (int)ConstraChild_Status.RetrunClassOk;//排除退班的学生
                                 var contansStudentUids = db.Queryable<C_Contrac_Child>().Where(con => con.ClassId == input.ClasssId && con.StudyMode == 2&&con.Contrac_Child_Status!= childContracStatu).Select(con => con.StudentUid).ToList();
-                                //判断该班课其中的学员是否也起冲突
+                                //判断该班课其中的学员是否也起冲突(不包含班课)
                                 if (contansStudentUids != null && contansStudentUids.Count > 0)
                                 {
                                     where += " or c.StudentUid in(" + string.Join(",", contansStudentUids) + ")";
+                                    //判断该班课学员的其它班课是否也起冲突
+                                    int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                                    var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => contansStudentUids.Contains(con.StudentUid)&& con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                                    if (contansClassIds!=null&&contansClassIds.Count > 0) {
+                                        where += " or c.ClasssId in(" + string.Join(",", contansClassIds) + ")";
+                                    }
                                 }
                                 C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
                                 .Where("(c.ClasssId=@ClasssId or c.TeacherUid=@TeacherUid" + where + ") and c.StudyMode!=5 and " +
@@ -866,7 +884,10 @@ namespace ADT.Repository
                                 string where = "";
                                 if (input.StudentUid > 0)
                                 {
-                                    where = "c.StudentUid=@StudentUid or ";
+                                    where+= "c.StudentUid=@StudentUid or ";
+                                    if (shitUserClassIds != null && shitUserClassIds.Count > 0) {
+                                        where += " c.ClasssId in(" + string.Join(",", shitUserClassIds) + ") or ";
+                                    }
                                 }
                                 C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
                                     .Where("c.Id!=@workId and (" + where + "c.TeacherUid=@TeacherUid or c.ListeningName=@ListeningName) and c.StudyMode<>5 and " +
@@ -878,7 +899,7 @@ namespace ADT.Repository
                                     .AddParameters(new { workId = input.Id, StudentUid = input.StudentUid, TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = input.ListeningName }).First();
                                 if (anyValue != null)
                                 {
-                                    rsg.msg = "此时间段，当天该课程老师或者该小班已有其它课程,无法排课";
+                                    rsg.msg =wkTime+"此时间段，当天该课程老师或者该小班已有其它课程,无法排课";
                                     rsg.code = 0;
                                     return rsg;
                                 }
@@ -899,17 +920,24 @@ namespace ADT.Repository
                                 recored.CreateUid = input.CreateUid;
                                 db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                             }
-                            //模考和实考
-                            else if (input.StudyMode == 5)
+                        }
+                        if (input.StudyMode == 5) {
+                            var errorMsg = "";
+                            List<C_Course_Work> mockWork = new List<C_Course_Work>();
+                            List<C_Course_Work_Recored> mockRecord = new List<C_Course_Work_Recored>();
+                            C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
+                            C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                            C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
+                            List<C_Contrac_User> listMockUser= db.Queryable<C_Contrac_User>().Where(it => vmodel.arrMockUser.Contains(it.Student_Name)).ToList();
+                            foreach (var wkTime in vmodel.WorkDateGroup)
                             {
-                                C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
-                                C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
-                                C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
                                 //判断学员课程是否冲突
-                                for (var q = 0; q < vmodel.arrShikaoUser.Count; q++)
+                                for (var q = 0; q < listMockUser.Count; q++)
                                 {
+                                    C_Course_Work mockModel = new C_Course_Work();
+                                    C_Course_Work_Recored mockRecordModel = new C_Course_Work_Recored();
                                     string where = "";
-                                    if (vmodel.arrShikaoUser[q].StudentUid > 0)
+                                    if (listMockUser[q].StudentUid > 0)
                                     {
                                         where = "c.StudentUid=@StudentUid or ";
                                     }
@@ -920,44 +948,74 @@ namespace ADT.Repository
                                       " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                       " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                         ")")
-                                        .AddParameters(new { workId = input.Id, StudentUid = vmodel.arrShikaoUser[q].StudentUid, AtDate = wkTime, StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = vmodel.arrShikaoUser[q].Student_Name }).First();
+                                        .AddParameters(new { workId = input.Id, StudentUid = listMockUser[q].StudentUid, AtDate = wkTime, StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = listMockUser[q].Student_Name }).First();
                                     if (anyValue != null)
                                     {
-                                        rsg.msg = "此时间段，当天学员" + vmodel.arrShikaoUser[q].Student_Name + "已有其它课程,无法排课";
-                                        rsg.code = 0;
-                                        return rsg;
+                                        errorMsg += wkTime + "此时间段，当天学员" + listMockUser[q].Student_Name + "已有其它课程,无法排课";
                                     }
-                                    input.ListeningName = vmodel.arrShikaoUser[q].Student_Name;
-                                    input.StudentUid = vmodel.arrShikaoUser[q].StudentUid;
-                                    input.Work_Title = vmodel.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName + ")";
-                                    input.CampusId = vmodel.CampusId;
+                                    mockModel.StartTime = input.StartTime;
+                                    mockModel.EndTime = input.EndTime;
+                                    mockModel.SubjectId = input.SubjectId;
+                                    mockModel.ProjectId = input.ProjectId;
+                                    mockModel.UnitId = input.UnitId;
+                                    mockModel.StudyMode = input.StudyMode;
+                                    mockModel.RangTimeId = input.RangTimeId;
+                                    mockModel.RoomId = input.RoomId;
+                                    mockModel.TeacherUid = input.TeacherUid;
+                                    mockModel.ListeningName = listMockUser[q].Student_Name;
+                                    mockModel.StudentUid = listMockUser[q].StudentUid;
+                                    mockModel.Work_Title = vmodel.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName + ")";
+                                    mockModel.CampusId = vmodel.CampusId;
+                                    mockModel.IsUsePresent = input.IsUsePresent;
+                                    mockModel.Work_Stutas = input.Work_Stutas;
                                     TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
-                                    input.CourseTime = span.Hours;
+                                    mockModel.CourseTime = span.Hours;
+                                    mockModel.AT_Date = DateTime.Parse(wkTime);
+                                    mockModel.CreateTime = DateTime.Now;
+                                    mockModel.CreateUid = input.CreateUid;
+                                    mockModel.UpdateUid = input.UpdateUid;
+                                    mockModel.TA_Uid = input.TA_Uid;
+                                    mockWork.Add(mockModel);
                                     //添加记录
-                                    recored.CampusId = vmodel.CampusId;
-                                    recored.Msg = "新增" + (input.StudyMode == 5 ? "模考," : "实考.") + input.Work_Title + ",学员" + vmodel.arrShikaoUser[q].Student_Name + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
+                                    mockRecordModel.CampusId = vmodel.CampusId;
+                                    mockRecordModel.Msg = "新增" + (input.StudyMode == 5 ? "模考," : "实考.") + input.Work_Title + ",学员" + listMockUser[q].Student_Name + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
+                                    mockRecordModel.CreateTime = DateTime.Now;
+                                    mockRecordModel.CreateUid = input.CreateUid;
+                                    mockRecord.Add(mockRecordModel);
 
-                                    //公共模块
-                                    input.AT_Date = DateTime.Parse(wkTime);
-                                    input.CreateTime = DateTime.Now;
-                                    db.Insertable<C_Course_Work>(input).ExecuteCommand();
-                                    recored.CreateTime = DateTime.Now;
-                                    recored.CreateUid = input.CreateUid;
-                                    db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                                 }
-
                             }
-                            else if (input.StudyMode == 6)
+                            if (!string.IsNullOrEmpty(errorMsg))
                             {
-                                input.TeacherUid = "";
-                                C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
-                                C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
-                                C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
-                                //判断学员课程是否冲突
-                                for (var q = 0; q < vmodel.arrShikaoUser.Count; q++)
+                                rsg.code = 0;
+                                rsg.msg = errorMsg;
+                                return rsg;
+                            }
+                            else {
+                                if (mockWork.Count > 0)
                                 {
+                                    db.Insertable<C_Course_Work>(mockWork).ExecuteCommand();
+                                }
+                                if (mockWork.Count>0&& mockRecord.Count > 0 && string.IsNullOrEmpty(errorMsg))
+                                {
+                                    db.Insertable<C_Course_Work_Recored>(mockRecord).ExecuteCommand();
+                                }
+                            }
+                        }
+                        if (input.StudyMode == 6) {
+                            var errorMsg = "";
+                            List<C_Course_Work> shikWork = new List<C_Course_Work>();
+                            List<C_Course_Work_Recored> shikRecord = new List<C_Course_Work_Recored>();
+                            C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
+                            C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                            C_Project_Unit unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
+                            List<C_Contrac_User> listMockUser = db.Queryable<C_Contrac_User>().Where(it => vmodel.arrMockUser.Contains(it.Student_Name)).ToList();
+                            foreach (var wkTime in vmodel.WorkDateGroup) {
+                                for (var q = 0; q < listMockUser.Count; q++) {
+                                    C_Course_Work shikModel = new C_Course_Work();
+                                    C_Course_Work_Recored shikRecordModel = new C_Course_Work_Recored();
                                     string where = "";
-                                    if (vmodel.arrShikaoUser[q].StudentUid > 0)
+                                    if (listMockUser[q].StudentUid > 0)
                                     {
                                         where = "and c.StudentUid=@StudentUid ";
                                     }
@@ -968,30 +1026,54 @@ namespace ADT.Repository
                                       " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                       " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                                         ")")
-                                        .AddParameters(new { workId = input.Id, StudentUid = vmodel.arrShikaoUser[q].StudentUid, AtDate = wkTime, StartTime = input.StartTime, EndTime = input.EndTime }).First();
+                                        .AddParameters(new { workId = input.Id, StudentUid = listMockUser[q].StudentUid, AtDate = wkTime, StartTime = input.StartTime, EndTime = input.EndTime }).First();
                                     if (anyValue != null)
                                     {
-                                        rsg.msg = "此时间段，学员" + vmodel.arrShikaoUser[q].Student_Name + "已有其它课程,无法排课";
-                                        rsg.code = 0;
-                                        return rsg;
+                                        errorMsg+=wkTime+"此时间段，学员" + listMockUser[q].Student_Name + "已有其它课程,无法排课";
                                     }
-                                    input.ListeningName = vmodel.arrShikaoUser[q].Student_Name;
-                                    input.StudentUid = vmodel.arrShikaoUser[q].StudentUid;
-                                    input.Work_Title = vmodel.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName + ")";
-                                    input.CampusId = vmodel.CampusId;
+                                    shikModel.AT_Date = DateTime.Parse(wkTime);
+                                    shikModel.StartTime = input.StartTime;
+                                    shikModel.EndTime = input.EndTime;
+                                    shikModel.SubjectId = input.SubjectId;
+                                    shikModel.ProjectId = input.ProjectId;
+                                    shikModel.UnitId = input.UnitId;
+                                    shikModel.StudyMode = input.StudyMode;
+                                    shikModel.RangTimeId = input.RangTimeId;
+                                    shikModel.ListeningName = listMockUser[q].Student_Name;
+                                    shikModel.StudentUid = listMockUser[q].StudentUid;
+                                    shikModel.Work_Title = vmodel.Work_Title + "(" + sub.SubjectName + "_" + pro.ProjectName + "_" + unt.UnitName + ")";
+                                    shikModel.CampusId = vmodel.CampusId;
                                     TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
-                                    input.CourseTime = span.Hours;
+                                    shikModel.CourseTime = span.Hours;
+                                    shikModel.CreateTime = DateTime.Now;
+                                    shikModel.CreateUid = input.CreateUid;
+                                    shikModel.UpdateUid = input.UpdateUid;
+                                    shikModel.TA_Uid = input.TA_Uid;
+                                    shikModel.RoomId = input.RoomId;
+                                    shikWork.Add(shikModel);
                                     //添加记录
-                                    recored.CampusId = vmodel.CampusId;
-                                    recored.Msg = "新增" + (input.StudyMode == 5 ? "模考," : "实考.") + input.Work_Title + ",学员" + vmodel.arrShikaoUser[q].Student_Name + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
-
-                                    //公共模块
-                                    input.AT_Date = DateTime.Parse(wkTime);
-                                    input.CreateTime = DateTime.Now;
-                                    db.Insertable<C_Course_Work>(input).ExecuteCommand();
-                                    recored.CreateTime = DateTime.Now;
-                                    recored.CreateUid = input.CreateUid;
-                                    db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                                    shikRecordModel.CampusId = vmodel.CampusId;
+                                    shikRecordModel.Msg = "新增" + (input.StudyMode == 5 ? "模考," : "实考.") + input.Work_Title + ",学员" + listMockUser[q].Student_Name + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime;
+                                    shikRecordModel.CreateTime = DateTime.Now;
+                                    shikRecordModel.CreateUid = input.CreateUid;
+                                    shikRecord.Add(shikRecordModel);
+                                }
+                            }
+                            if (!string.IsNullOrEmpty(errorMsg))
+                            {
+                                rsg.code = 0;
+                                rsg.msg = errorMsg;
+                                return rsg;
+                            }
+                            else
+                            {
+                                if (shikWork.Count > 0)
+                                {
+                                    db.Insertable<C_Course_Work>(shikWork).ExecuteCommand();
+                                }
+                                if (shikWork.Count>0&&shikRecord.Count > 0 && string.IsNullOrEmpty(errorMsg))
+                                {
+                                    db.Insertable<C_Course_Work_Recored>(shikRecord).ExecuteCommand();
                                 }
                             }
                         }

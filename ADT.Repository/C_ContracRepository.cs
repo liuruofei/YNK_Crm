@@ -1198,6 +1198,9 @@ namespace ADT.Repository
                             {
                                 UnUsePrice = UnUsePrice - model.Added_Amount; //退款金额-额外优惠金额
                                 user.Amount = user.Amount + UnUsePrice;//用户总金额=(用户账户余额+子合同未用课时金额之和)
+                                if (user.Amount < 0) {
+                                    user.Amount = 0;
+                                }
                             }
                             //按输入金额退款
                             if (inputApply.BackCost > 0 && inputApply.IsOrg == false)
