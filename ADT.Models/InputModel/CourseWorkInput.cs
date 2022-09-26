@@ -130,6 +130,8 @@ namespace ADT.Models.InputModel
         /// </summary>
         public List<ShikaoUser> arrShikaoUser { get; set; }
 
+        public List<string> arrMockUser { get; set; }
+
         /// <summary>
         /// 会议教师
         /// </summary>
@@ -140,4 +142,5 @@ namespace ADT.Models.InputModel
         public int StudentUid { get; set; }
         public string Student_Name { get; set; }
     }
+
 }
