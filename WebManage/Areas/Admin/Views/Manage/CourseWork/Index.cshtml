@@ -268,7 +268,10 @@
                             var atEnd = atDate + " " + result[i].EndTime;
                             var isMokTeacherName = '  教师:' + result[i].TeacherName;
                             var backColor = 'yellowgreen';
-                            if (result[i].StudyMode == 3) {
+                            if (result[i].StudyMode == 2) {
+                                backColor = '#009688';
+                            }
+                            else if (result[i].StudyMode == 3) {
                                 backColor = '#b1b0a9';
                             }
                             else if (result[i].StudyMode == 4) {
@@ -284,6 +287,9 @@
                             }
                             else if (result[i].StudyMode == 7) {
                                 backColor = '#9513ab';
+                            }
+                            if (result[i].chongtu == 1) {
+                                backColor = '#3f51b5';
                             }
                             events.push({
                                 id: result[i].Id,

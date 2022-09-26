@@ -237,7 +237,8 @@
             title: '修改合同',
             type: 2,
             width: "1060px",
-            height: "760px",
+            height: "920px",
+            offset:"20px",
             content: '@Url.Action("ContrcItem", "UserContrac")?childcontraNo=' + contracChildNo + '&contraNo=' + vmodel.ContraNo,
             end: function (data) {
                 insTb.reload();

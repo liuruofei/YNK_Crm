@@ -586,12 +586,13 @@
                     }
                 }
                 else if (data.field.StudyMode == 5) {
-                    data.field.arrShikaoUser = [];
-                    var shikaouserNames = $("#shikaoUsers").val().split(",");
-                    if (shikaouserArry.length > 0) {
-                        shikaouserArry.forEach(item => {
-                            if ($.inArray(item.Student_Name, shikaouserNames) > -1) {
-                                data.field.arrShikaoUser.push({ StudentUid: item.StudentUid, Student_Name: item.Student_Name });
+                    data.field.arrMockUser = [];
+                    var fmtVal = $("#shikaoUsers").val().replaceAll("，", ",");
+                    var shikaouserNames =fmtVal.split(",");
+                    if (shikaouserNames.length > 0) {
+                        shikaouserNames.forEach(item => {
+                            if ($.inArray(item, data.field.arrMockUser)==-1) {
+                                data.field.arrMockUser.push(item);
                             }
                         });
                     }
@@ -600,9 +601,17 @@
                         layer.msg("模考标题不能为空");
                         return false;
                     }
-                    if (data.field.ListeningName == "") {
-                        layer.msg("模考学员不能为空");
-                        return false;
+                    if ($("input[name='Id']").val() < 1) {
+                        if ($("#shikaoUsers").val() == "") {
+                            layer.msg("模考学员不能为空");
+                            return false;
+                        }
+                    }
+                    else {
+                        if (data.field.ListeningName == "") {
+                            layer.msg("模考学员不能为空");
+                            return false;
+                        }
                     }
                     if (data.field.ProjectId == null || data.field.ProjectId == "") {
                         layer.msg("模考科目不能为空");
@@ -610,12 +619,13 @@
                     }
                 }
                 else if (data.field.StudyMode == 6) {
-                    data.field.arrShikaoUser = [];
-                    var shikaouserNames = $("#shikaoUsers").val().split(",");
-                    if (shikaouserArry.length > 0) {
-                        shikaouserArry.forEach(item => {
-                            if ($.inArray(item.Student_Name, shikaouserNames) > -1) {
-                                data.field.arrShikaoUser.push({ StudentUid: item.StudentUid, Student_Name: item.Student_Name });
+                    data.field.arrMockUser = [];
+                    var fmtVal = $("#shikaoUsers").val().replaceAll("，", ",");
+                    var shikaouserNames =fmtVal.split(",");
+                    if (shikaouserNames.length > 0) {
+                        shikaouserNames.forEach(item => {
+                            if ($.inArray(item.Student_Name, data.field.arrMockUser)==-1) {
+                                data.field.arrMockUser.push(item);
                             }
                         });
                     }
@@ -624,9 +634,17 @@
                         layer.msg("实考标题不能为空");
                         return false;
                     }
-                    if (data.field.ListeningName == "") {
-                        layer.msg("实考学员不能为空");
-                        return false;
+                    if ($("input[name='Id']").val() < 1) {
+                        if ($("#shikaoUsers").val() == "") {
+                            layer.msg("实考学员不能为空");
+                            return false;
+                        }
+                    }
+                    else {
+                        if (data.field.ListeningName == "") {
+                            layer.msg("实考学员不能为空");
+                            return false;
+                        }
                     }
                     if (data.field.ProjectId == null || data.field.ProjectId == "") {
                         layer.msg("实考科目不能为空");

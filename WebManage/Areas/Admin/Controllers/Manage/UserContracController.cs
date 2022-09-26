@@ -178,7 +178,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             PageList<UserContracModel> pageModel = new PageList<UserContracModel>();
             string where = "";
             if (!string.IsNullOrEmpty(title)) {
-                where += " AND  (charindex(@title,u.Student_Name)>0 or charindex(@title,cl.Class_Name)>0)";
+                where += " AND  (charindex(@title,u.Student_Name)>0 or charindex(@title,cl.Class_Name)>0 or charindex(@title,child.ContraNo)>0)";
             }
             var list = _currencyService.DbAccess().Queryable("(select c.*,stuff((select ','+convert(varchar(25), child.StudyMode) FROM C_Contrac_Child child left join C_Class cl on child.ClassId=cl.ClassId left join C_Contrac_User u on child.StudentUid=u.StudentUid  WHERE child.ContraNo=c.ContraNo AND child.StudentUid =c.StudentUid " + where+
                 "FOR XML PATH('')), 1, 1, '') as StudyModes,camp.CampusName,contracU.Student_Name,contracU.Student_Phone,cc.User_Name as CCUserName,contracU.Amount from C_Contrac c left join C_Contrac_User contracU on contracU.StudentUid=c.StudentUid" +

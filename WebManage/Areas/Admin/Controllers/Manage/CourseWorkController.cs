@@ -499,26 +499,147 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             }
             sql += " and wk.CampusId="+campusId;
             sql += ")";
-            dynamic list = _currencyService.DbAccess().Queryable(sql, "orginSql")
+            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(sql, "orginSql")
             .AddParameters(new { startStr = startStr, endStr = endStr, userName = userName })
-            .Select("*").OrderBy("orginSql.CreateTime desc").ToList();
-            if (list != null && list.Count > 0 && !string.IsNullOrEmpty(userName))
+            .Select<CourseWorkModel>().OrderBy("orginSql.CreateTime desc").ToList();
+            if (list != null && list.Count > 0)
             {
-                reg.totalRow = new totalRow();
-                if (teacher != null)
+
+                //显示冲突课程
+                var wkdataGroup = list.Select(y => y.AT_Date).ToList();
+                var classsIdList = list.Select(y => y.ClasssId).ToList();
+                int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                var classUser = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(y => classsIdList.Contains(y.ClassId) && y.Contrac_Child_Status != contracStatus).ToList();
+                foreach (var crt in wkdataGroup)
                 {
-                    //统计老师课时，点评已完成才算课时
-                    reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
-                        .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(subjectId > 0, it => it.ProjectId == projectId)
-                        .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.StudyMode != 7 && it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas==1&& it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
-                        .Sum(it => it.CourseTime);
+                    var fmtcrt = crt.ToString("yyyy-MM-dd");
+                    var partDayData = list.Where(y => y.AT_Date == crt).ToList();
+                    var tenData = partDayData.Where(y => DateTime.Parse(fmtcrt + " 10:00") <= DateTime.Parse(fmtcrt + " " + y.StartTime) && DateTime.Parse(fmtcrt + " 12:50") >= DateTime.Parse(fmtcrt + " " + y.EndTime)).ToList();
+                    var tenClassId = tenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
+                    if (tenClassId != null)
+                    {
+                        var tenClass = classUser.Where(y => tenClassId.Contains(y.ClassId)).ToList();
+                        var tenClassUser = tenClass.Select(y => y.StudentUid).ToList();
+                        //冲突的10-12点(1对1,试听课，模考，实考)
+                        var chongtu1 = tenData.Where(y => tenClassUser.Contains(y.StudentUid) && y.StudentUid > 0).ToList();
+                        if (chongtu1 != null)
+                        {
+                            chongtu1.ForEach(item =>
+                            {
+                                item.chongtu = 1;
+                            });
+                            //冲突的10-12点班课
+                            var chongtu1User = chongtu1.Select(y => y.StudentUid).ToList();
+                            var ctClass = tenClass.Where(y => chongtu1User.Contains(y.StudentUid)).Select(y => y.ClassId).ToList();
+                            var chongtu2 = tenData.Where(y => ctClass.Contains(y.ClasssId)).ToList();
+                            if (chongtu2 != null && chongtu2.Count > 0)
+                            {
+                                chongtu2.ForEach(item =>
+                                {
+                                    item.chongtu = 1;
+                                });
+                            }
+                        }
+                    }
+                    var elevenData = partDayData.Where(y => DateTime.Parse(fmtcrt + " 13:00") <= DateTime.Parse(fmtcrt + " " + y.StartTime) && DateTime.Parse(fmtcrt + " 15:50") >= DateTime.Parse(fmtcrt + " " + y.EndTime)).ToList();
+                    var elevenClassId = elevenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
+                    if (elevenClassId != null)
+                    {
+                        var elevenClass = classUser.Where(y => elevenClassId.Contains(y.ClassId)).ToList();
+                        var elevenClassUser = elevenClass.Select(y => y.StudentUid).ToList();
+                        //冲突的10-12点(1对1,试听课，模考，实考)
+                        var chongtu1 = elevenData.Where(y => elevenClassUser.Contains(y.StudentUid) && y.StudentUid > 0).ToList();
+                        if (chongtu1 != null)
+                        {
+                            chongtu1.ForEach(item =>
+                            {
+                                item.chongtu = 1;
+                            });
+                            //冲突的10-12点班课
+                            var chongtu1User = chongtu1.Select(y => y.StudentUid).ToList();
+                            var ctClass = elevenClass.Where(y => chongtu1User.Contains(y.StudentUid)).Select(y => y.ClassId).ToList();
+                            var chongtu2 = elevenData.Where(y => ctClass.Contains(y.ClasssId)).ToList();
+                            if (chongtu2 != null && chongtu2.Count > 0)
+                            {
+                                chongtu2.ForEach(item =>
+                                {
+                                    item.chongtu = 1;
+                                });
+                            }
+                        }
+                    }
+                    var thirteenData = partDayData.Where(y => DateTime.Parse(fmtcrt + " 15:00") <= DateTime.Parse(fmtcrt + " " + y.StartTime) && DateTime.Parse(fmtcrt + " 17:50") >= DateTime.Parse(fmtcrt + " " + y.EndTime)).ToList();
+                    var thirteenClassId = thirteenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
+                    if (thirteenClassId != null)
+                    {
+                        var thirteenClass = classUser.Where(y => thirteenClassId.Contains(y.ClassId)).ToList();
+                        var thirteenClassUser = thirteenClass.Select(y => y.StudentUid).ToList();
+                        //冲突的10-12点(1对1,试听课，模考，实考)
+                        var chongtu1 = thirteenData.Where(y => thirteenClassUser.Contains(y.StudentUid) && y.StudentUid > 0).ToList();
+                        if (chongtu1 != null)
+                        {
+                            chongtu1.ForEach(item =>
+                            {
+                                item.chongtu = 1;
+                            });
+                            //冲突的10-12点班课
+                            var chongtu1User = chongtu1.Select(y => y.StudentUid).ToList();
+                            var ctClass = thirteenClass.Where(y => chongtu1User.Contains(y.StudentUid)).Select(y => y.ClassId).ToList();
+                            var chongtu2 = thirteenData.Where(y => ctClass.Contains(y.ClasssId)).ToList();
+                            if (chongtu2 != null && chongtu2.Count > 0)
+                            {
+                                chongtu2.ForEach(item =>
+                                {
+                                    item.chongtu = 1;
+                                });
+                            }
+                        }
+                    }
+                    var fifteenData = partDayData.Where(y => DateTime.Parse(fmtcrt + " 17:00") <= DateTime.Parse(fmtcrt + " " + y.StartTime) && DateTime.Parse(fmtcrt + " 19:50") >= DateTime.Parse(fmtcrt + " " + y.EndTime)).ToList();
+                    var fifteenClassId = fifteenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
+                    if (fifteenClassId != null)
+                    {
+                        var fifteenClass = classUser.Where(y => fifteenClassId.Contains(y.ClassId)).ToList();
+                        var fifteenClassUser = fifteenClass.Select(y => y.StudentUid).ToList();
+                        //冲突的10-12点(1对1,试听课，模考，实考)
+                        var chongtu1 = fifteenData.Where(y => fifteenClassUser.Contains(y.StudentUid) && y.StudentUid > 0).ToList();
+                        if (chongtu1 != null)
+                        {
+                            chongtu1.ForEach(item =>
+                            {
+                                item.chongtu = 1;
+                            });
+                            //冲突的10-12点班课
+                            var chongtu1User = chongtu1.Select(y => y.StudentUid).ToList();
+                            var ctClass = fifteenClass.Where(y => chongtu1User.Contains(y.StudentUid)).Select(y => y.ClassId).ToList();
+                            var chongtu2 = fifteenData.Where(y => ctClass.Contains(y.ClasssId)).ToList();
+                            if (chongtu2 != null && chongtu2.Count > 0)
+                            {
+                                chongtu2.ForEach(item =>
+                                {
+                                    item.chongtu = 1;
+                                });
+                            }
+                        }
+                    }
                 }
-                if (students != null&& students.Count==1)
-                {
-                    reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
-                    .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(projectId > 0, it => it.ProjectId == projectId)
-                    .Where(it => (it.StudentUid == students[0].StudentUid||classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 7 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
-                    .Sum(it => it.CourseTime);
+                if (!string.IsNullOrEmpty(userName)) {
+                    reg.totalRow = new totalRow();
+                    if (teacher != null)
+                    {
+                        //统计老师课时，点评已完成才算课时
+                        reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
+                            .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(subjectId > 0, it => it.ProjectId == projectId)
+                            .Where(it => it.TeacherUid == teacher.User_ID && it.StudyMode != 3 && it.StudyMode != 7 && it.StudyMode != 5 && it.StudyMode != 6 && it.Work_Stutas == 1 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                            .Sum(it => it.CourseTime);
+                    }
+                    if (students != null && students.Count == 1)
+                    {
+                        reg.totalRow.totalCourseTime = _currencyService.DbAccess().Queryable<C_Course_Work>()
+                        .WhereIF(subjectId > 0, it => it.SubjectId == subjectId).WhereIF(projectId > 0, it => it.ProjectId == projectId)
+                        .Where(it => (it.StudentUid == students[0].StudentUid || classIds.Contains(it.ClasssId)) && it.StudyMode != 3 && it.StudyMode != 7 && it.StudyMode != 4 && it.AT_Date >= DateTime.Parse(startStr) && it.AT_Date < DateTime.Parse(endStr))
+                        .Sum(it => it.CourseTime);
+                    }
                 }
             }
             reg.data = list;

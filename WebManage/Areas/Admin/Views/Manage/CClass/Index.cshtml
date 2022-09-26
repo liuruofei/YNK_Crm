@@ -26,6 +26,14 @@
                     <div class="layui-inline">
                         <button id="btnAdd" class="layui-btn icon-btn" data-power="Add"><i class="layui-icon">&#xe654;</i>添加</button>
                     </div>
+                    <div class="layui-inline">
+                        <a href="/ExcelMoban/班级模板.xlsx" class="layui-btn icon-btn"><i class="layui-icon">&#xe601;</i>下载模板</a>
+                    </div>
+                    <div class="layui-inline">
+                        <input type="file" title="导入班级数据"  id="FillIn" name="FillIn" style="display:none">
+                        <a class="layui-btn icon-btn" onclick="UplondExcel(this)"><i class="layui-icon">&#xe681;</i>导入班级</a>
+                        <span id="fileTitle"></span>
+                    </div>
                 </div>
             </div>
 
@@ -155,7 +163,7 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
     }
 
 });
-        function orderBy(obj) {
+    function orderBy(obj) {
             console.log($(obj).attr("data-id"));
             $.ajax({
                 type: "post",
@@ -168,5 +176,33 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
                 }
             });
         }
+        function UplondExcel(obj) {
+            document.getElementById("FillIn").click();
+        }
+        $("body").on("change", "input[name='FillIn']", function () {
+            $("#fileTitle").text($("#FillIn").val());
+            var f = $(this).get(0).files[0];
+            if (f != undefined && f != null) {
+                var fd = new FormData();
+                fd.append('file', f);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', "/Admin/UploadFile/UploadExcel", true);
+                xhr.onload = function (oevent) {
+                }
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        var resultImg = JSON.parse(xhr.responseText);
+                        if (resultImg.status == 200) {
+                            layer.msg(resultImg.msg);
+                            insTb.reload();
+                        }
+                        else {
+                            layer.msg(resultImg.msg);
+                        }
+                    }
+                };
+                xhr.send(fd);
+            }
+        });
     </script>
 }

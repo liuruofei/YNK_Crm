@@ -160,5 +160,10 @@ namespace WebManage.Models.Res
         /// </summary>
         public string ListeningName { get; set; }
 
+        /// <summary>
+        /// 是否冲突
+        /// </summary>
+        public int chongtu { get; set; }
+
     }
 }
