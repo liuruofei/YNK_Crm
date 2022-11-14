@@ -155,7 +155,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <returns></returns>
         public IActionResult QueryRelationShipChildContrac(int studentUid) {
             var list = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(f => f.StudentUid==studentUid&&(f.Pay_Stutas==(int)ConstraChild_Pay_Stutas.NoPay|| f.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PartPay)
-            && (f.Contrac_Child_Status == (int)ConstraChild_Status.Confirmationed || f.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk ||f.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk)).ToList();
+            && (f.Contrac_Child_Status == (int)ConstraChild_Status.Confirmationed || f.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk ||f.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk)).OrderBy(f=>f.CreateTime,OrderByType.Desc).ToList();
             return Json(list);
         }
 

@@ -2,11 +2,14 @@
     <input type="hidden" name="studentUid" value="@ViewBag.StudentUid" />
     <ul class="layui-tab-title">
         <li class="layui-this">课程统计</li>
+        <li>归纳统计</li>
         <li>课程明细</li>
     </ul>
     <div class="layui-tab-content" style="padding:0px;">
         <div class="layui-tab-item layui-show" style="padding-top:10px" id="UseTotal">
 
+        </div>
+        <div class="layui-tab-item" style="padding-top:10px" id="SubTotal">
 
         </div>
         <div class="layui-tab-item" style="padding-top:10px">
@@ -26,6 +29,7 @@
                             <option value="1">排除模考</option>
                         </select>
                         <button id="btnSearch" class="layui-btn icon-btn" style="margin-left:6px"><i class="layui-icon">&#xe615;</i>搜索</button>
+                        <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left:5px">导出(Excel)</button>
                     </div>
                     <div style="flex: 1;line-height:39px;text-align:center;font-weight:600">
                         <label id="totalCourseTime"></label>
@@ -45,7 +49,7 @@
         display: flex;
     }
         .leftTotalItem .item {
-          width:120px;
+          width:211px;
         }
 </style>
 @section js{
@@ -58,7 +62,7 @@
             </div>
             <div class="item" style="margin-left:30px">分类:{{item.SubjectName}}</div>
             <div class="item">已充课时:{{item.Class_Course_Time}}</div>
-            <div class="item">使用课时:{{item.Class_Course_UseTime}}</div>
+            <div class="item">使用课时:{{item.Class_Course_UseTime}}(已排:{{item.Class_Course_UseTime-item.ShjiClassUseTime}},已上:{{item.ShjiClassUseTime}})</div>
             <div class="item">还剩课时:{{item.Class_Course_Time-item.Class_Course_UseTime}}</div>
         </div>
         {{else}}
@@ -72,7 +76,7 @@
             <div class="item">已试听课时:{{item.Course_Time}}</div>
             {{else}}
             <div class="item">已充课时:{{item.Course_Time}}</div>
-            <div class="item">使用课时:{{item.Course_UseTime}}</div>
+            <div class="item">使用课时:{{item.Course_UseTime}}(已排:{{item.Course_UseTime-item.ShjiUseTime}},已上:{{item.ShjiUseTime}})</div>
             <div class="item">可排课时:{{item.Course_Time-item.Course_UseTime}}</div>
             {{/if}}
         </div>
@@ -87,6 +91,19 @@
         </div>
         {{/if}}
         {{/if}}
+        {{/each}}
+    </script>
+    <script id="guinaTemplate" type="text/html">
+        {{each data item index}}
+        <div class="leftTotalItem">
+            <div>
+                <span style="font-weight:700">{{item.SubjectName}}</span>
+            </div>
+            <div class="item" style="margin-left:30px">科目:{{item.ProjectName}}</div>
+            <div class="item">总计课时:{{item.Course_Time}}</div>
+            <div class="item">总计已排课时:{{item.Course_UseTime}}</div>
+            <div class="item">可排课时:{{item.Course_Time-item.Course_UseTime}}</div>
+        </div>
         {{/each}}
     </script>
     <script type="text/javascript">
@@ -190,6 +207,18 @@
                     }
                 }
             });
+            adminForm.load({
+            url: "@Url.Action("QuerySudentProjectTotal", "ContracUser")",
+            data:{studentUid: $("input[name='studentUid']").val()},
+            dataType: 'json',
+            callBack: function (rou) {
+                if (rou.data != null) {
+                        var result = rou.data;
+                        var html = template("guinaTemplate", { data: result});
+                        document.getElementById("SubTotal").innerHTML = html;
+                    }
+                }
+            });
         }
         initTotal();
         element.on('tab(tabCourseDetail)', function (data) {
@@ -215,6 +244,14 @@
         });
     });
 
+
+        function exportPlan() {
+            var studentUid = $("input[name='studentUid']").val();
+            var startStr = $("input[name='StartTime']").val();
+            var endStr = $("input[name='EndTime']").val();
+            var mockOut = $("#mockOut").val();
+            window.location.href = '@Url.Action("ExportWorkDetailSource","ContracUser")?studentUid=' + studentUid + '&startStr=' + startStr + '&endStr=' + endStr + '&mockOut=' + mockOut;
+        }
     function dateFtt(fmt, val) { //author: meizz
         var date = new Date(val);
         var o = {

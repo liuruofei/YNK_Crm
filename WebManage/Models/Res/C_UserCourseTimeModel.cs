@@ -30,6 +30,12 @@ namespace WebManage.Models.Res
         public float Class_Course_Time { get; set; }
         public float Class_Course_UseTime { get; set; }
 
+        //实际使用1对1课时
+        public float ShjiUseTime { get; set; }
+
+        //实际使用班课时
+        public float ShjiClassUseTime { get; set; }
+
         /// <summary>
         /// 班级名称
         /// </summary>

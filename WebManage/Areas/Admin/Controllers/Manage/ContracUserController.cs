@@ -6,10 +6,14 @@ using ADT.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using WebManage.Areas.Admin.Filter;
 using WebManage.Areas.Admin.Models;
@@ -19,12 +23,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
     [Authorize]
     public class ContracUserController : BaseController
     {
-        private RedisConfig redisConfig;
         private ICurrencyService _currencyService;
         private IC_ContracService _contrac;
-        public ContracUserController(ICurrencyService currencyService, IC_ContracService contrac, IOptions<RedisConfig> _redisConfig)
+        public ContracUserController(ICurrencyService currencyService, IC_ContracService contrac)
         {
-            redisConfig = _redisConfig.Value;
             _currencyService = currencyService;
             _contrac = contrac;
         }
@@ -51,7 +53,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 sequence.SequenceNo = 10000;
             }
-            sequence.type= 2;
+            sequence.type = 2;
             sequence.Remarks = "学生编号";
             _currencyService.DbAccess().Insertable<C_SequenceCode>(sequence).ExecuteCommand();
             ViewBag.StudentNo = "CC" + sequence.SequenceNo;
@@ -61,6 +63,13 @@ namespace WebManage.Areas.Admin.Controllers.Manage
 
         [UsersRoleAuthFilter("H-150", FunctionEnum.Audit)]
         public IActionResult SettingAccount(int ID) {
+            ViewBag.ID = ID;
+            return View();
+        }
+
+        [UsersRoleAuthFilter("H-150", FunctionEnum.Audit)]
+        public IActionResult SettingExam(int ID)
+        {
             ViewBag.ID = ID;
             return View();
         }
@@ -102,28 +111,36 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         {
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
             //1对1和班课(不包含赠送课)
-            List<C_UserCourseTimeModel> list = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Project, C_Subject, C_Class>((time, pro, sub, cla) => new object[] {
-             JoinType.Left,time.ProjectId==pro.ProjectId,JoinType.Left,time.SubjectId==sub.SubjectId,JoinType.Left,time.ClassId==cla.ClassId
-            }).Where((time, pro, sub, cla) => time.StudentUid == studentUid).Select<C_UserCourseTimeModel>((time, pro, sub, cla) =>
-                new C_UserCourseTimeModel
-                {
-                    Id = time.Id,
-                    StudentUid = time.StudentUid,
-                    ClassId = time.ClassId,
-                    SubjectName = sub.SubjectName,
-                    ProjectName = pro.ProjectName,
-                    Class_Name = cla.Class_Name,
-                    Contra_ChildNo = time.Contra_ChildNo,
-                    Course_Time = time.Course_Time,
-                    Course_UseTime = time.Course_UseTime,
-                    IsLinsting=0,
-                    IsPresent= 0,
-                    Class_Course_Time = time.Class_Course_Time,
-                    Class_Course_UseTime = time.Class_Course_UseTime
-                }).ToList();
+            //List<C_UserCourseTimeModel> list = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Project, C_Subject, C_Class>((time, pro, sub, cla) => new object[] {
+            // JoinType.Left,time.ProjectId==pro.ProjectId,JoinType.Left,time.SubjectId==sub.SubjectId,JoinType.Left,time.ClassId==cla.ClassId
+            //}).Where((time, pro, sub, cla) => time.StudentUid == studentUid).Select<C_UserCourseTimeModel>((time, pro, sub, cla) =>
+            //    new C_UserCourseTimeModel
+            //    {
+            //        Id = time.Id,
+            //        StudentUid = time.StudentUid,
+            //        ClassId = time.ClassId,
+            //        SubjectName = sub.SubjectName,
+            //        ProjectName = pro.ProjectName,
+            //        Class_Name = cla.Class_Name,
+            //        Contra_ChildNo = time.Contra_ChildNo,
+            //        Course_Time = time.Course_Time,
+            //        Course_UseTime = time.Course_UseTime,
+            //        IsLinsting=0,
+            //        IsPresent= 0,
+            //        Class_Course_Time = time.Class_Course_Time,
+            //        Class_Course_UseTime = time.Class_Course_UseTime
+            //    }).ToList();
+
+            StringBuilder sql = new StringBuilder("(select  tm.Id,tm.StudentUid,tm.ClassId,sub.SubjectName,pro.ProjectName,cla.Class_Name,tm.Contra_ChildNo,tm.Course_Time,");
+            sql.Append("tm.Course_UseTime,tm.Class_Course_Time,tm.Class_Course_UseTime,IsLinsting=0,IsPresent=0,");
+            sql.Append("ShjiUseTime=(select isnull(sum(wk.CourseTime),0) from C_Course_Work wk where wk.Contra_ChildNo=tm.Contra_ChildNo and wk.StudentUid=tm.StudentUid and wk.SubjectId=tm.SubjectId and wk.ProjectId=tm.ProjectId and (wk.Comment is not null and wk.Comment!='')),");
+            sql.Append("ShjiClassUseTime=(select isnull(sum(wk.CourseTime),0) from C_Course_Work wk where wk.ClasssId=tm.ClassId and (wk.Comment is not null and wk.Comment!='') and tm.ClassId<>0)");
+            sql.Append("from C_User_CourseTime  tm left join C_Project pro on tm.ProjectId=pro.ProjectId  left join C_Subject sub on tm.SubjectId=sub.SubjectId left join C_Class cla on tm.ClassId=cla.ClassId ");
+            sql.Append("  where tm.StudentUid=@StudentUid)");
+            List<C_UserCourseTimeModel> list = _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql").AddParameters(new { StudentUid = studentUid }).Select<C_UserCourseTimeModel>().ToList();
             //已试听课
-            List<C_UserCourseTimeModel> list2= _currencyService.DbAccess().Queryable("(select sum(wk.CourseTime)as Course_Time,sub.SubjectName,pro.ProjectName,u.StudentUid,IsLinsting=1 from C_Course_Work wk left join C_Subject sub on wk.SubjectId=sub.SubjectId" +
-                " left join C_Project pro on wk.ProjectId=pro.ProjectId left join C_Contrac_User u on wk.ListeningName=u.Student_Name where wk.StudyMode=4 and wk.StudentUid="+ studentUid + " group by sub.SubjectName,pro.ProjectName,u.StudentUid)",
+            List<C_UserCourseTimeModel> list2 = _currencyService.DbAccess().Queryable("(select sum(wk.CourseTime)as Course_Time,sub.SubjectName,pro.ProjectName,u.StudentUid,IsLinsting=1 from C_Course_Work wk left join C_Subject sub on wk.SubjectId=sub.SubjectId" +
+                " left join C_Project pro on wk.ProjectId=pro.ProjectId left join C_Contrac_User u on wk.ListeningName=u.Student_Name where wk.StudyMode=4 and wk.StudentUid=" + studentUid + " group by sub.SubjectName,pro.ProjectName,u.StudentUid)",
                 "orginSql").Select<C_UserCourseTimeModel>().ToList();
             if (list2 != null && list2.Count > 0) {
                 list2.ForEach(item =>
@@ -132,6 +149,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     list.Add(item);
                 });
             }
+            //赠送课程
             List<C_UserCourseTimeModel> list3 = _currencyService.DbAccess().Queryable<C_User_PresentTime>().Where(time => time.StudentUid == studentUid).Select<C_UserCourseTimeModel>(time =>
                 new C_UserCourseTimeModel
                 {
@@ -142,7 +160,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     Course_UseTime = time.Present_UseTime,
                     IsLinsting = 0,
                     IsPresent = 1,
-                    Class_Course_Time =0,
+                    Class_Course_Time = 0,
                     Class_Course_UseTime = 0
                 }).ToList();
             if (list3 != null && list3.Count > 0)
@@ -152,6 +170,22 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     list.Add(item);
                 });
             }
+            rsg.code = 200;
+            rsg.msg = "获取成功";
+            rsg.data = list;
+            return Json(rsg);
+        }
+        /// <summary>
+        /// 统计学生科目总课时和已排课时
+        /// </summary>
+        /// <param name="studentUid"></param>
+        /// <returns></returns>
+        public IActionResult QuerySudentProjectTotal(int studentUid) {
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            StringBuilder sql = new StringBuilder("(select sum(Course_Time) as Course_Time,sum(Course_UseTime) as Course_UseTime,sub.SubjectName,pro.ProjectName");
+            sql.Append(" from C_User_CourseTime  tm left join C_Project pro on tm.ProjectId=pro.ProjectId  left join C_Subject sub on tm.SubjectId=sub.SubjectId");
+            sql.Append(" where tm.StudentUid=@StudentUid Group by sub.SubjectName,pro.ProjectName)");
+            List<C_UserCourseTimeModel> list = _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql").AddParameters(new { StudentUid = studentUid }).Select<C_UserCourseTimeModel>().ToList();
             rsg.code = 200;
             rsg.msg = "获取成功";
             rsg.data = list;
@@ -218,7 +252,133 @@ namespace WebManage.Areas.Admin.Controllers.Manage
 
 
         /// <summary>
-        /// 获取课程列表
+        /// 导出明细
+        /// </summary>
+        /// <param name="studentUid"></param>
+        /// <param name="startStr"></param>
+        /// <param name="endStr"></param>
+        /// <param name="subjectId"></param>
+        /// <param name="projectId"></param>
+        /// <param name="mockOut"></param>
+        /// <returns></returns>
+        public IActionResult ExportWorkDetailSource(int studentUid, string startStr, string endStr, int subjectId, int projectId, int? mockOut = 0) {
+            var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+            ResResult reg = new ResResult();
+            var u = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v=>v.StudentUid==studentUid).First();
+            List<int> classIds = new List<int>();
+            classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((c, cl) => new object[] { JoinType.Left, c.ClassId == cl.ClassId }).Where(c => c.StudentUid == studentUid && c.ClassId > 0).WhereIF(subjectId > 0, (c, cl) => cl.SubjectId == subjectId).Select(c => c.ClassId).ToList();
+            string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TAUserName,tc.User_Name as TeacherName,rm.RoomName,sub.SubjectName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
+                left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
+                left join C_Room rm on wk.RoomId=rm.Id left join C_Subject sub on wk.SubjectId=sub.SubjectId where 1=1";
+
+            if (classIds != null && classIds.Count > 0)
+            {
+                sql += " and (wk.ClasssId in(" + string.Join(",", classIds) + ") or wk.StudentUid=" + studentUid + ")";
+            }
+            else
+            {
+                sql += " and wk.StudentUid=" + studentUid;
+            }
+            if (!string.IsNullOrEmpty(startStr))
+            {
+                sql += " and wk.AT_Date>=CAST(@startStr AS date)";
+            }
+            if (!string.IsNullOrEmpty(endStr))
+            {
+                sql += " AND wk.AT_Date<CAST(@endStr AS date)";
+            }
+            if (subjectId > 0)
+            {
+                sql += " and wk.SubjectId=" + subjectId;
+            }
+            if (projectId > 0)
+            {
+                sql += " and wk.ProjectId=" + projectId;
+            }
+            if (mockOut.HasValue && mockOut.Value > 0)
+            {
+                sql += " and wk.StudyMode<>5 and wk.StudyMode<>6";
+            }
+            sql += " and wk.CampusId=" + campusId;
+            sql += ")";
+            PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
+            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(sql, "orginSql")
+            .AddParameters(new { startStr = startStr, endStr = endStr })
+            .Select<CourseWorkModel>().OrderBy("orginSql.CreateTime desc").ToList();
+            //导出代码
+            var workbook = new HSSFWorkbook();
+            //标题列样式
+            var headFont = workbook.CreateFont();
+            headFont.IsBold = true;
+            var headStyle = workbook.CreateCellStyle();
+            headStyle.Alignment = HorizontalAlignment.Center;
+            headStyle.VerticalAlignment = VerticalAlignment.Top;
+            headStyle.BorderBottom = BorderStyle.Thin;
+            headStyle.BorderLeft = BorderStyle.Thin;
+            headStyle.BorderRight = BorderStyle.Thin;
+            headStyle.BorderTop = BorderStyle.Thin;
+            headStyle.WrapText = true;//自动换行
+            headStyle.SetFont(headFont);
+            var sheet = workbook.CreateSheet(u.Student_Name + "课程明细");
+            sheet.DefaultColumnWidth = 45;
+            var row0= sheet.CreateRow(0);
+            string[] cellNames = {"上课科目","上课日期","时间段","课时","教师","教室"};
+            for (var i = 0; i < cellNames.Length; i++) {
+                var cell = row0.CreateCell(i);
+                cell.SetCellValue(cellNames[i]);
+                cell.CellStyle = headStyle;
+            }
+            for (var j = 0; j < list.Count; j++) {
+                var row = sheet.CreateRow(j+1);
+                for (var y = 0; y < 6; y++) {
+                    var cell = row.CreateCell(y);
+                    if (y == 0) {
+                        var title = list[j].ClasssId > 0 ? (list[j].Work_Title + " - " + list[j].SubjectName) : list[j].Work_Title;
+                        cell.SetCellValue(title);
+                        cell.CellStyle = headStyle;
+                    }
+                    if (y ==1)
+                    {
+                        cell.SetCellValue(list[j].AT_Date.ToString("yyyy-MM-dd"));
+                        cell.CellStyle = headStyle;
+                    }
+                    if (y == 2)
+                    {
+                        cell.SetCellValue(list[j].StartTime+" - "+ list[j].EndTime);
+                        cell.CellStyle = headStyle;
+                    }
+                    if (y == 3)
+                    {
+                        cell.SetCellValue(list[j].CourseTime);
+                        cell.CellStyle = headStyle;
+                    }
+                    if (y ==4)
+                    {
+                        cell.SetCellValue(list[j].TeacherName);
+                        cell.CellStyle = headStyle;
+                    }
+                    if (y == 5)
+                    {
+                        cell.SetCellValue(list[j].RoomName);
+                        cell.CellStyle = headStyle;
+                    }
+                }
+
+            }
+
+            //保存
+            byte[] streamArr = null;
+            //保存
+            using (MemoryStream ms = new MemoryStream())
+            {
+                workbook.Write(ms);
+                streamArr = ms.ToArray();
+            }
+            return File(streamArr, "application/vnd.ms-excel", u.Student_Name + "课程明细" + DateTime.Now.ToString("yyyyMMddHHmmssss") + ".xls");
+        }
+
+        /// <summary>
+        /// 获取Cr
         /// </summary>
         /// <returns></returns>
         public IActionResult QueryCR()
@@ -472,7 +632,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
 
 
         /// <summary>
-        /// 添加签约学员账号
+        /// 添加学员抽词账号
         /// </summary>
         /// <returns></returns>
         public IActionResult SaveSettingAccount(C_Contrac_User vmodel) {
@@ -499,6 +659,39 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 return Json(reg);
             }
             reg = _contrac.SettingAccount(vmodel);
+            return Json(reg);
+        }
+
+
+        /// <summary>
+        /// 添加学员考试账号
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult SaveSettingExam(C_Contrac_User vmodel)
+        {
+            ResResult reg = new ResResult();
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            if (string.IsNullOrEmpty(vmodel.ExamAccount))
+            {
+                reg.code = 0;
+                reg.msg = "考试账号不能为空";
+                return Json(reg);
+            }
+            if (string.IsNullOrEmpty(vmodel.ExamPassword))
+            {
+                reg.code = 0;
+                reg.msg = "请输入考试密码";
+                return Json(reg);
+            }
+            var vuser = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(n => n.StudentUid == vmodel.StudentUid).First();
+            if (vuser != null)
+            {
+                vuser.ExamAccount = vmodel.ExamAccount;
+                vuser.ExamPassword = vmodel.ExamPassword;
+                _currencyService.DbAccess().Updateable<C_Contrac_User>(vuser).ExecuteCommand();
+                reg.code = 200;
+                reg.msg = "保存考试账号成功";
+            }
             return Json(reg);
         }
 

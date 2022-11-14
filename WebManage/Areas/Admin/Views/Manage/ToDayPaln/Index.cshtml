@@ -74,9 +74,9 @@
                             if (rou != null) {
                                 var result = rou;
                                 var trAppend = "<tr>";
-                                trAppend += "<td style='text-align:center;' colspan='9'><h2>" + wkDate + "</h2></td>";
+                                trAppend += "<td style='text-align:center;' colspan='11'><h2>" + wkDate + "</h2></td>";
                                 trAppend += "</tr>";
-                                trAppend += "<tr><td style='text-align:center;' colspan='9'><h3>当日任务学员</h3></td></tr>";
+                                trAppend += "<tr><td style='text-align:center;' colspan='11'><h3>当日任务学员</h3></td></tr>";
                                 trAppend += "<tr>";
                                 trAppend += "<td style='text-align:center;font-weight:700'>学生</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>时间段</td>";
@@ -88,6 +88,7 @@
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>每日总结</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>到校时间</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>离校时间</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>在校时长</td>";
                                 trAppend += "</tr>";
                                 for (var i = 0; i < result.length; i++) {
                                     $("#plantbody").append(trAppend);
@@ -103,7 +104,7 @@
                                         if (trRow == 0) {
                                             var trStr = "<tr>";
                                             trStr += "<td style='width:80px;' rowspan='7'>" + result[i].Student_Name + "</td>";
-                                            for (var j = 0; j < 9; j++) {
+                                            for (var j = 0; j < 10; j++) {
                                                 if (j == 0) {
                                                     trStr += "<td>8:00-10:00</td>";
                                                 }
@@ -152,6 +153,12 @@
                                                     planVmodel.workTtile = result[i].OutSchoolTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
                                                     trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].OutSchoolTime != null ? result[i].OutSchoolTime:'') + "</td>";
+                                                }
+                                                if (j == 9) {
+                                                    planVmodel.Id = result[i].Id;
+                                                    planVmodel.workTtile = result[i].TotalTime;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].TotalTime != null ? result[i].TotalTime : '') + "</td>";
                                                 }
                                             }
                                             trStr += "</tr>";

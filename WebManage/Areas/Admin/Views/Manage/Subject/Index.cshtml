@@ -63,7 +63,7 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'SubjectName', title: '科目名称', sort: true },
+            { field: 'SubjectName', title: '类别名称', sort: true },
             {
                 field: 'UnitCourse_Time', title: '等级1单价', sort: true, templet: function (d) {
                     return "¥" + d.Lvel1Price + "/" + d.UnitCourse_Time+"小时";

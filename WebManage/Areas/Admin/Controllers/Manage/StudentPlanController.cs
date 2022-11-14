@@ -823,6 +823,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                 it.InSchoolTime += iv.InSchoolTime;
                             if (!string.IsNullOrEmpty(iv.OutSchoolTime))
                                 it.OutSchoolTime += iv.OutSchoolTime;
+                            if (!string.IsNullOrEmpty(iv.TotalTime))
+                                it.TotalTime= iv.TotalTime;
                             if (!string.IsNullOrEmpty(iv.TaUid))
                             {
                                 var hasTa = listTa.Find(cn => cn.User_ID == iv.TaUid);
@@ -881,8 +883,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             }
             for (var j = 0; j < groupRow; j++) {
                 var list = tdlistTime.Skip(j*7).Take(7).ToList();
-                for (var y = 0; y < 20; y++) {
-                    var yRow = (j* 20)+y;
+                for (var y = 0; y < 21; y++) {
+                    var yRow = (j* 21)+y;
                     var row = sheet.CreateRow(yRow);
                     if (y == 0) {
                         var cell = row.CreateCell(0);
@@ -1101,6 +1103,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     if (y == 18)
                     {
                         var cell = row.CreateCell(0);
+                        cell.SetCellValue("在校时长");
+                        cell.CellStyle = headStyle;
+                        for (var x = 0; x < list.Count; x++)
+                        {
+                            cell = row.CreateCell(x + 1);
+                            cell.SetCellValue(list[x].TotalTime);
+                            cell.CellStyle = headStyle;
+                        }
+                    }
+                    if (y == 19)
+                    {
+                        var cell = row.CreateCell(0);
                         cell.SetCellValue("");
                         cell.CellStyle = headStyle;
                         for (var x = 0; x < list.Count; x++)
@@ -1113,282 +1127,6 @@ namespace WebManage.Areas.Admin.Controllers.Manage
 
                 }
             }
-            #region 不换行日期代码已注释
-            //循环行
-            //for (var y = 0; y < 19; y++)
-            //{
-            //    if (y == 0)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("日期");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.WorkDate.ToString("yyyy-MM-dd"));
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 1)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("星期");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.WorkDateName);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 2)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("8:00-10:00");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.Eight_Ten_OlockTitle);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 3)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("10:00-12:00");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.Ten_Twelve_OlockTitle);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 4)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("13:00-15:00");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.Thirteen_Fifteen_OlockTitle);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 5)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("15:00-17:00");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.Fifteen_Seventeen_OlockTitle);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 6)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("17:00-19:00");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.Seventeen_Nineteen_OlockTitle);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 7)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("19:00-21:00");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.Nineteen_TwentyOne_OlockTitle);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 8)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("21:00-23:00");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.TwentyOne_TwentyTree_OlockTitle);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 9)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("单词");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.ChouciComent);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 10)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("课程点评");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.CourseComent);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 11)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("布置作业");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.CourseWorkCotent);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 12)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("作业完成情况");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.HomeWorkComent);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 13)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("其它");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.OtherComent);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 14)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("责任助教");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.TaUseName);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 15)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("每日总结");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.SummaryComent);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 16)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("到校时间");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.InSchoolTime);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //    if (y == 17)
-            //    {
-            //        var row = sheet.CreateRow(y);
-            //        var cell = row.CreateCell(0);
-            //        cell.SetCellValue("离校时间");
-            //        cell.CellStyle = headStyle;
-            //        var x = 1;
-            //        tdlistTime.ForEach(it =>
-            //        {
-            //            cell = row.CreateCell(x);
-            //            cell.SetCellValue(it.OutSchoolTime);
-            //            cell.CellStyle = headStyle;
-            //            x++;
-            //        });
-            //    }
-            //}
-            #endregion
 
             //保存
             byte[] streamArr = null;
@@ -1696,6 +1434,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                 it.InSchoolTime += iv.InSchoolTime;
                             if (!string.IsNullOrEmpty(iv.OutSchoolTime))
                                 it.OutSchoolTime += iv.OutSchoolTime;
+                            if (!string.IsNullOrEmpty(iv.TotalTime))
+                                it.TotalTime= iv.TotalTime;
                             if (!string.IsNullOrEmpty(iv.TaUid))
                             {
                                 var hasTa = listTa.Find(cn => cn.User_ID == iv.TaUid);

@@ -60,6 +60,11 @@ namespace WebManage.Models.Res
         public string InSchoolTime { get; set; }
 
         /// <summary>
+        /// 在校时长
+        /// </summary>
+        public string TotalTime { get; set; }
+
+        /// <summary>
         /// 助教
         /// </summary>
         public string TaUid { get; set; }

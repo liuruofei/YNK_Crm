@@ -137,67 +137,99 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            if (studyModel == 1)
+            try
             {
-                
-                var list = _currencyService.DbAccess().Queryable<C_Contrac_Child_Detail, C_Contrac_User, C_Subject, C_Project,C_Contrac_Child>((ch, cu, su, pr,c) => new object[] { JoinType.Left, ch.StudentUid == cu.StudentUid, JoinType.Left, ch.SubjectId == su.SubjectId, JoinType.Left, ch.ProjectId == pr.ProjectId, JoinType.Left, ch.Contra_ChildNo ==c.Contra_ChildNo })
-                    .Where((ch, cu, su, pr, c)=>(c.Pay_Stutas==(int)ConstraChild_Pay_Stutas.PartPay|| c.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk)
-                    && (c.Contrac_Child_Status == (int)ConstraChild_Status.Confirmationed || c.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk || c.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk)&&c.CampusId==Convert.ToInt32(campusId))
-                    .WhereIF(!string.IsNullOrEmpty(title), (ch, cu) => cu.Student_Name.Contains(title)).Select<StudyWorkModel>((ch, cu, su, pr) => new StudyWorkModel
+
+                if (studyModel == 1)
                 {
-                    Contra_ChildNo = ch.Contra_ChildNo,
-                    StudentUid = ch.StudentUid,
-                    Student_Name = cu.Student_Name,
-                    StudyMode = 1,
-                    SubjectId = ch.SubjectId,
-                    ProjectId = ch.ProjectId,
-                    SubjectName = su.SubjectName,
-                    ProjectName = pr.ProjectName
-                }).ToPageList(1, 30);
-                if (list != null && list.Count > 0) {
-                  var arrChildNo = list.Select(n => n.Contra_ChildNo).ToList(); 
-                  var arrCourseTime = _currencyService.DbAccess().Queryable<C_User_CourseTime>().Where(cour => arrChildNo.Contains(cour.Contra_ChildNo)).ToList();
-                  if (arrCourseTime != null && arrCourseTime.Count > 0) {
-                  list.ForEach(it =>{
-                      if (it.StudyMode == 1) {
-                          var currtTime = arrCourseTime.Where(v => v.Contra_ChildNo == it.Contra_ChildNo && v.SubjectId == it.SubjectId && v.ProjectId == it.ProjectId&&v.StudentUid==it.StudentUid).First();
-                          if (currtTime != null) {
-                              it.Course_Time = currtTime.Course_Time;
-                              it.Course_UseTime = currtTime.Course_UseTime;
-                          }
-                      }
-                  });
-                 }
+                    //原搜索1对1代码
+                    #region
+                //                var list = _currencyService.DbAccess().Queryable<C_Contrac_Child_Detail, C_Contrac_User, C_Subject, C_Project, C_Contrac_Child>((ch, cu, su, pr, c) => new object[] { JoinType.Left, ch.StudentUid == cu.StudentUid, JoinType.Left, ch.SubjectId == su.SubjectId, JoinType.Left, ch.ProjectId == pr.ProjectId, JoinType.Left, ch.Contra_ChildNo == c.Contra_ChildNo })
+                //.Where((ch, cu, su, pr, c) => (c.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PartPay || c.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk)
+                //&& (c.Contrac_Child_Status == (int)ConstraChild_Status.Confirmationed || c.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk || c.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk) && c.CampusId == Convert.ToInt32(campusId))
+                //.WhereIF(!string.IsNullOrEmpty(title), (ch, cu) => cu.Student_Name.Contains(title)).Select<StudyWorkModel>((ch, cu, su, pr) => new StudyWorkModel
+                //{
+                //    Contra_ChildNo = ch.Contra_ChildNo,
+                //    StudentUid = ch.StudentUid,
+                //    Student_Name = cu.Student_Name,
+                //    StudyMode = 1,
+                //    SubjectId = ch.SubjectId,
+                //    ProjectId = ch.ProjectId,
+                //    SubjectName = su.SubjectName,
+                //    ProjectName = pr.ProjectName
+                //}).ToPageList(1, 30);
+                //                if (list != null && list.Count > 0)
+                //                {
+                //                    var arrChildNo = list.Select(n => n.Contra_ChildNo).ToList();
+                //                    var arrCourseTime = _currencyService.DbAccess().Queryable<C_User_CourseTime>().Where(cour => arrChildNo.Contains(cour.Contra_ChildNo)).ToList();
+                //                    if (arrCourseTime != null && arrCourseTime.Count > 0)
+                //                    {
+                //                        list.ForEach(it => {
+                //                            if (it.StudyMode == 1)
+                //                            {
+                //                                var currtTime = arrCourseTime.Where(v => v.Contra_ChildNo == it.Contra_ChildNo && v.SubjectId == it.SubjectId && v.ProjectId == it.ProjectId && v.StudentUid == it.StudentUid).First();
+                //                                if (currtTime != null)
+                //                                {
+                //                                    it.Course_Time = currtTime.Course_Time;
+                //                                    it.Course_UseTime = currtTime.Course_UseTime;
+                //                                }
+                //                            }
+                //                        });
+                //                    }
+                //                }
+                //                list = list.Where(n => n.Course_UseTime != n.Course_Time).ToList();
+                    #endregion
+                    var list= _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Contrac_User, C_Subject, C_Project, C_Contrac_Child >((ch,cu,su,pr,c)=> new object[] { JoinType.Left, ch.StudentUid == cu.StudentUid, JoinType.Left, ch.SubjectId == su.SubjectId, JoinType.Left, ch.ProjectId == pr.ProjectId, JoinType.Left, ch.Contra_ChildNo == c.Contra_ChildNo })
+                             .Where((ch, cu, su, pr, c) => (c.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PartPay || c.Pay_Stutas == (int)ConstraChild_Pay_Stutas.PayOk)
+                        && (c.Contrac_Child_Status == (int)ConstraChild_Status.Confirmationed || c.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk || c.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk) && c.CampusId == Convert.ToInt32(campusId)&&ch.ClassId<1&&ch.Course_Time!=ch.Course_UseTime)
+                                            .WhereIF(!string.IsNullOrEmpty(title), (ch, cu) => cu.Student_Name.Contains(title)).Select<StudyWorkModel>((ch, cu, su, pr) => new StudyWorkModel
+                                            {
+                                                Contra_ChildNo = ch.Contra_ChildNo,
+                                                StudentUid = ch.StudentUid,
+                                                Student_Name = cu.Student_Name,
+                                                StudyMode = 1,
+                                                SubjectId = ch.SubjectId,
+                                                ProjectId = ch.ProjectId,
+                                                SubjectName = su.SubjectName,
+                                                ProjectName = pr.ProjectName,
+                                                Course_Time=ch.Course_Time,
+                                                Course_UseTime=ch.Course_UseTime
+                                            }).ToPageList(1, 30);
+                    rsg.data = list;
                 }
-                list = list.Where(n => n.Course_UseTime != n.Course_Time).ToList();
-                rsg.data = list;
-            }
-            else
-            {
-                var list = _currencyService.DbAccess().Queryable<C_Class>().Where(it => SqlFunc.Subqueryable<C_Contrac_Child>().Where(s => s.ClassId == it.ClassId&&(s.Contrac_Child_Status==(int)ConstraChild_Status.Confirmationed|| s.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk|| s.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk)&&s.CampusId==Convert.ToInt32(campusId)).Any())
-                    .WhereIF(!string.IsNullOrEmpty(title), cla => cla.Class_Name.Contains(title)).OrderBy(cla => cla.CreateTime, OrderByType.Desc).Select<StudyWorkModel>(cla =>
-                   new StudyWorkModel { ClasssId = cla.ClassId, ClassName = cla.Class_Name, SubjectId = cla.SubjectId, StudyMode = 2 }).ToPageList(1, 30);
-                if (list != null && list.Count > 0)
+                else
                 {
-                    var arrClassids = list.Select(n => n.ClasssId).ToList(); ;
-                    var arrCourseTime = _currencyService.DbAccess().Queryable<C_User_CourseTime>().Where(cour => arrClassids.Contains(cour.ClassId)).ToList();
-                    if (arrCourseTime != null && arrCourseTime.Count > 0)
+                    var list = _currencyService.DbAccess().Queryable<C_Class>().Where(it => SqlFunc.Subqueryable<C_Contrac_Child>().Where(s => s.ClassId == it.ClassId&&(s.Contrac_Child_Status==(int)ConstraChild_Status.Confirmationed|| s.Contrac_Child_Status == (int)ConstraChild_Status.ChangeClassOk|| s.Contrac_Child_Status == (int)ConstraChild_Status.ChangeOk)&&s.CampusId==Convert.ToInt32(campusId)).Any())
+                        .WhereIF(!string.IsNullOrEmpty(title), cla => cla.Class_Name.Contains(title)).OrderBy(cla => cla.CreateTime, OrderByType.Desc).Select<StudyWorkModel>(cla =>
+                       new StudyWorkModel { ClasssId = cla.ClassId, ClassName = cla.Class_Name, SubjectId = cla.SubjectId, StudyMode = 2 }).ToPageList(1, 30);
+                    if (list != null && list.Count > 0)
                     {
-                        list.ForEach(it => {
-                            if (it.StudyMode ==2)
-                            {
-                                var currtTime = arrCourseTime.Where(v =>v.ClassId==it.ClasssId).First();
-                                if (currtTime != null)
+                        var arrClassids = list.Select(n => n.ClasssId).ToList(); ;
+                        var arrCourseTime = _currencyService.DbAccess().Queryable<C_User_CourseTime>().Where(cour => arrClassids.Contains(cour.ClassId)).ToList();
+                        if (arrCourseTime != null && arrCourseTime.Count > 0)
+                        {
+                            list.ForEach(it => {
+                                if (it.StudyMode ==2)
                                 {
-                                    it.Class_Course_Time = currtTime.Class_Course_Time;
-                                    it.Class_Course_UseTime = currtTime.Class_Course_UseTime;
+                                    var currtTime = arrCourseTime.Where(v =>v.ClassId==it.ClasssId).First();
+                                    if (currtTime != null)
+                                    {
+                                        it.Class_Course_Time = currtTime.Class_Course_Time;
+                                        it.Class_Course_UseTime = currtTime.Class_Course_UseTime;
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
+                    list = list.Where(n => n.Class_Course_Time != n.Class_Course_UseTime).ToList();
+                    rsg.data = list;
                 }
-                list = list.Where(n => n.Class_Course_Time != n.Class_Course_UseTime).ToList();
-                rsg.data = list;
+            }
+            catch (Exception er)
+            {
+                rsg.code = 300;
+                rsg.msg = er.Message;
+                return Json(rsg);
             }
             return Json(rsg);
         }

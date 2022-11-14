@@ -388,10 +388,23 @@ namespace WebManage.Areas.Admin.Controllers
                         List<C_ClassType> listClassType = _currencyService.DbAccess().Queryable<C_ClassType>().Where(typ => classTypeNames.Contains(typ.TypeName)).ToList();
                         List<C_Class> listClass = new List<C_Class>();
                         foreach (DataRow row in list.Rows) {
-                           
+
+                            var objClassType = listClassType.Where(tp => tp.TypeName.Equals(row["班级类型"].ToString()));
+                            var objSub = listsub.Where(p => p.SubjectName.Equals(row["学习类别"].ToString()));
+                            if (objClassType == null || (objClassType != null && objClassType.ToList().Count()<1)) {
+                                result.msg = row["班级类型"] + "班级类型在系统不存在";
+                                result.status = 300;
+                                return Json(result);
+                            }
+                            if (objSub == null || (objSub != null && objSub.ToList().Count() <1))
+                            {
+                                result.msg = row["学习类别"] + "学习类别在系统不存在";
+                                result.status = 300;
+                                return Json(result);
+                            }
                             C_Class item = new C_Class();
-                            item.TypeId = listClassType.Where(tp => tp.TypeName== row["班级类型"].ToString()).First().Id;
-                            item.SubjectId= listsub.Where(tp => tp.SubjectName == row["学习类别"].ToString()).First().SubjectId;
+                            item.TypeId = objClassType.First().Id;
+                            item.SubjectId=objSub.First().SubjectId;
                             item.Class_Name = row["班级名称"].ToString();
                             item.Class_No= row["班级编号"].ToString();
                             item.Course_Time =float.Parse(row["课时"].ToString());

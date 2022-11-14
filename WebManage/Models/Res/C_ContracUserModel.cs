@@ -134,6 +134,24 @@ namespace WebManage.Models.Res
         /// </summary>
         public string CampusName { get; set; }
 
+        /// <summary>
+        /// 家长姓名
+        /// </summary>
+        public string Elder_Name { get; set; }
 
+        /// <summary>
+        /// 家长2姓名
+        /// </summary>
+        public string Elder2_Name { get; set; }
+
+        /// <summary>
+        /// 考试账号
+        /// </summary>
+        public string ExamAccount { get; set; }
+
+        /// <summary>
+        /// 考试密码
+        /// </summary>
+        public string ExamPassword { get; set; }
     }
 }

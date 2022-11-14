@@ -26,7 +26,10 @@
                         <button id="btnAssignCR" class="layui-btn icon-btn" data-power="Audit"><i class="layui-icon">&#xe66f;</i>分配CR</button>
                     </div>
                     <div class="layui-inline">
-                        <button id="btnAddAccount" class="layui-btn icon-btn" data-power="Audit"><i class="layui-icon">&#xe66f;</i>创建账号</button>
+                        <button id="btnAddAccount" class="layui-btn icon-btn" data-power="Audit"><i class="layui-icon">&#xe66f;</i>创建抽词账号</button>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnAddExam" class="layui-btn icon-btn" data-power="Audit"><i class="layui-icon">&#xe66f;</i>创建考试账号</button>
                     </div>
                     <div class="layui-inline">
                         <button id="btnAddContract" class="layui-btn icon-btn" data-power="AddContract"><i class="layui-icon">&#xe654;</i>创建合同</button>
@@ -137,7 +140,8 @@
             { type: 'numbers' },
             {
                 field: 'Student_Name', title: '学生名称', fixed: 'left', sort: true, templet: function (d) {
-                    return "<div id='boxCounrseDetail" + d.StudentUid + "' onmouseover=\"showCourseDetailDiv(" + d.StudentUid + ");\" onmouseleave='closeTips();' style='width:60px'>" + d.Student_Name + "</div>";
+                    return d.Student_Name;
+                    //return "<div id='boxCounrseDetail" + d.StudentUid + "' onmouseover=\"showCourseDetailDiv(" + d.StudentUid + ");\" onmouseleave='closeTips();' style='width:60px'>" + d.Student_Name + "</div>";
                 }
             },
             { field: 'Sex', title: '性别', sort: true,width:50 },
@@ -163,8 +167,18 @@
             { field: 'CR_UserName', title: 'CR', sort: true },
             { field: 'CampusName', title: '校区', sort: true },
             {
-                field: 'Student_Account', title: '账号', sort: true, width: 100,templet: function (d) {
+                field: 'Student_Account', title: '抽词账号', sort: true, width: 100,templet: function (d) {
                     return (d.Student_Account != "" && d.Student_Account != null) ?"<span style='color:green'>"+d.Student_Account+" <i class='layui-icon layui-icon-ok'></i></span>":"";
+                }
+            },
+            {
+                field: 'ExamAccount', title: '考试账号', sort: true, width: 100, templet: function (d) {
+                    return (d.ExamAccount != "" && d.ExamAccount != null) ? "<span style='color:green'>" + d.ExamAccount + " <i class='layui-icon layui-icon-ok'></i></span>" : "";
+                }
+            },
+            {
+                field: 'ExamPassword', title: '考试密码', sort: true, width: 100, templet: function (d) {
+                    return (d.ExamPassword != "" && d.ExamPassword != null) ? "<span style='color:green'>" + d.ExamPassword + " <i class='layui-icon layui-icon-ok'></i></span>" : "";
                 }
             },
             { field: 'Elder_Name', title: '联系人', sort: true },
@@ -195,6 +209,30 @@
                 width: "560px",
                 height: "460px",
                     content: '@Url.Action("SettingAccount", "ContracUser")?ID=' + checkStatus.data[0].StudentUid,
+                    end: function (data) {
+                        insTb.reload();
+                     }
+                });
+            }
+        }
+        else {
+            layer.msg('请勾选一位学员!');
+        }
+   });
+    //添加账号
+     $("#btnAddExam").click(function () {
+        var checkStatus = table.checkStatus('userTable');
+        if (checkStatus.data.length > 0) {
+            if (checkStatus.data.length > 1) {
+                layer.msg('只能选择一个学员!');
+            }
+            else {
+                adminList.form({
+                title: '添加考试账号',
+                type: 2,
+                width: "560px",
+                height: "460px",
+                    content: '@Url.Action("SettingExam", "ContracUser")?ID=' + checkStatus.data[0].StudentUid,
                     end: function (data) {
                         insTb.reload();
                      }

@@ -159,6 +159,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             }
                         }
                     }
+                    if (vmodel.UnitId > 0&& work.UnitId != vmodel.UnitId) {
+                        work.UnitId = vmodel.UnitId;
+                        var unitM = _currencyService.DbAccess().Queryable<C_Project_Unit>().Where(y => y.UnitId == vmodel.UnitId).First();
+                        if (work.Work_Title.Split("_").Length == 4)
+                        {
+                            work.Work_Title = work.Work_Title.Substring(0, work.Work_Title.LastIndexOf("_"));
+                        }
+                        work.Work_Title = work.Work_Title + "_" + unitM.UnitName;
+                    }
                     work.Comment = vmodel.Comment;
                     work.Comment_Time = DateTime.Now;//点评时间
                     var result = _currencyService.DbAccess().Updateable<C_Course_Work>(work).ExecuteCommand();

@@ -17,13 +17,21 @@
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">时间</label>
-        <div class="inline-block">
-            <input name="StartTime" type="text" class="layui-input" disabled style="width:60px" />
+        <div class="layui-inline">
+            <label class="layui-form-label">时间</label>
+            <div class="inline-block">
+                <input name="StartTime" type="text" class="layui-input" disabled style="width:60px" />
+            </div>
+            -
+            <div class="inline-block">
+                <input name="EndTime" type="text" class="layui-input" disabled style="width:60px" />
+            </div>
         </div>
-        -
-        <div class="inline-block">
-            <input name="EndTime" type="text" class="layui-input" disabled style="width:60px" />
+        <div class="layui-inline">
+            <label class="layui-form-label">科目单元</label>
+            <div class="layui-input-block">
+                <select name="UnitId"></select>
+            </div>
         </div>
     </div>
     <div class="layui-form-item">
@@ -81,6 +89,9 @@
                         if (r.WorkDate != null && r.WorkDate != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
                         }
+                        if (r.SubjectId != null && r.ProjectId != null) {
+                            bindUnit(r.ProjectId,r.UnitId);
+                        }
                         console.log(r);
                     }
                 });
@@ -120,6 +131,30 @@
             $(".laydate-time-list li ol").eq(2).parent("li").remove();
         }
         });
+        function bindUnit(projectId, defaulUnitId) {
+            layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryUnit","CourseWork")",
+                data: { projectId: projectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='UnitId']").html("");
+                        var result = rou.data;
+                        for (var i = 0; i < result.length; i++) {
+                            if (defaulUnitId != undefined && defaulUnitId != null && defaulUnitId > 0 && defaulUnitId == result[i].UnitId) {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + ' selected>' + result[i].UnitName + '</option>');
+                            }
+                            else {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + '>' + result[i].UnitName + '</option>');
+                            }
+                        }
+                    }
+                }
+              });
+            });
+        }
         function dateFtt(fmt, val) { //author: meizz
             var date = new Date(val);
             var o = {

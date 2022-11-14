@@ -125,7 +125,7 @@
                             if (rou != null) {
                                 var result = rou;
                                 var trAppend = "";
-                                for (var i = 0; i < 19; i++) {
+                                for (var i = 0; i < 20; i++) {
                                     if (i == 0) {
                                         trAppend += "<tr>";
                                         trAppend += "<td style='width:120px;min-width:76px'>日期</td>";
@@ -524,6 +524,21 @@
                                             }
                                             var jsonVmodel = JSON.stringify(planVmodel);
                                             trAppend += "<td onclick='planShow2(" + jsonVmodel + ")'>" + (result[j].OutSchoolTime == null ? "" : result[j].OutSchoolTime) + "</td>";
+                                        }
+                                        trAppend += "</tr>";
+
+                                    }
+                                    else if (i == 18) {
+                                        trAppend += "<tr>";
+                                        trAppend += "<td style='width:120px;'>在校时长(测试中)</td>";
+                                        for (var j = 0; j < result.length; j++) {
+                                            var planVmodel = {
+                                                Id: result[j].Id,
+                                                workTtile: result[j].TotalTime,
+                                                workDate: result[j].WorkDate
+                                            }
+                                            var jsonVmodel = JSON.stringify(planVmodel);
+                                            trAppend += "<td onclick='planShow2(" + jsonVmodel + ")'>" + (result[j].TotalTime == null ? "" : result[j].TotalTime) + "</td>";
                                         }
                                         trAppend += "</tr>";
 

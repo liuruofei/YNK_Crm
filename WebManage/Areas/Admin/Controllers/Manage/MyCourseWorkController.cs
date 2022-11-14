@@ -113,7 +113,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         }
                     }
                 }
-                var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = vmodel.Comment, Work_Stutas = workstatus, Comment_Time=DateTime.Now }).Where(it => it.Id == vmodel.Id).ExecuteCommand();
+                if (vmodel.UnitId > 0&&model.UnitId!=vmodel.UnitId) {
+                    model.UnitId = vmodel.UnitId;
+                    var unitM = _currencyService.DbAccess().Queryable<C_Project_Unit>().Where(y => y.UnitId == vmodel.UnitId).First();
+                    if (model.Work_Title.Split("_").Length == 4) {
+                        model.Work_Title = model.Work_Title.Substring(0, model.Work_Title.LastIndexOf("_"));
+                    }
+                    model.Work_Title = model.Work_Title + "_" + unitM.UnitName;
+                }
+                model.Comment = vmodel.Comment;
+                model.Work_Stutas = workstatus;
+                model.Comment_Time = DateTime.Now;
+                var result = _currencyService.DbAccess().Updateable<C_Course_Work>(model).Where(it => it.Id == vmodel.Id).ExecuteCommand();
                 if (result > 0)
                 {
                     rsg.code = 200;

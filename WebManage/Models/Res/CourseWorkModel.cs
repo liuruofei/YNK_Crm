@@ -52,6 +52,12 @@ namespace WebManage.Models.Res
         /// 科目id
         /// </summary>
         public int ProjectId { get; set; }
+
+        /// <summary>
+        /// 单元Id
+        /// </summary>
+        public int UnitId { get; set; }
+
         /// <summary>
         /// 小班Id
         /// </summary>

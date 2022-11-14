@@ -72,365 +72,375 @@
                 groupRow = groupRow + 1;
             }
             <table class="layui-table">
-                <tbody id="plantbody" style="word-break:break-all">
-                    @for (var j = 0; j < groupRow; j++)
-                    {
-                        var list = tdlistTime.Skip(j * 7).Take(7).ToList();
-                        for (var y = 0; y < 20; y++)
-                        {
-                            //第一行
-                            if (y == 0)
+                        <tbody id="plantbody" style="word-break:break-all">
+                            @for (var j = 0; j < groupRow; j++)
                             {
-                                <tr>
-                                    <td style="width:100px;min-width:90px">日期</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                var list = tdlistTime.Skip(j * 7).Take(7).ToList();
+                                for (var y = 0; y < 21; y++)
+                                {
+                                    //第一行
+                                    if (y == 0)
                                     {
-                                        <td style="text-align:center;min-width:160px;">@list[x].WorkDate.ToString("yyyy-MM-dd")</td>
+                                        <tr>
+                                            <td style="width:100px;min-width:90px">日期</td>
+                                            @for (var x = 0; x < list.Count; x++)
+                                            {
+                                                <td style="text-align:center;min-width:160px;">@list[x].WorkDate.ToString("yyyy-MM-dd")</td>
+                                            }
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            //第二行
-                            if (y == 1)
-                            {
-                                <tr>
-                                    <td style="width:130px;min-width:76px">星期</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    //第二行
+                                    if (y == 1)
                                     {
-                                        <td style="text-align:center;">@list[x].WorkDateName</td>
+                                        <tr>
+                                            <td style="width:130px;min-width:76px">星期</td>
+                                            @for (var x = 0; x < list.Count; x++)
+                                            {
+                                                <td style="text-align:center;">@list[x].WorkDateName</td>
+                                            }
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 2)
-                            {
-                                <tr>
-                                    <td style='width:130px;'>8:00-10:00</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 2)
                                     {
-                                        var wkId = list[x].Eight_Ten_Id;
-                                        var isReversion = list[x].Eight_Ten_Reversion;
-                                        var studymodel = list[x].Eight_Ten_StudyMode;
-                                        var classColor = "planPartBlue";
-                                        if (wkId > 0 && isReversion == false)
-                                        {
-                                            classColor = "planPartBlue";
-                                        }
-                                        else
-                                        {
-                                            classColor = "planPart";
-                                            if (studymodel == 4)
+                                        <tr>
+                                            <td style='width:130px;'>8:00-10:00</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planShiting";
+                                                var wkId = list[x].Eight_Ten_Id;
+                                                var isReversion = list[x].Eight_Ten_Reversion;
+                                                var studymodel = list[x].Eight_Ten_StudyMode;
+                                                var classColor = "planPartBlue";
+                                                if (wkId > 0 && isReversion == false)
+                                                {
+                                                    classColor = "planPartBlue";
+                                                }
+                                                else
+                                                {
+                                                    classColor = "planPart";
+                                                    if (studymodel == 4)
+                                                    {
+                                                        classColor = "planShiting";
+                                                    }
+                                                    else if (studymodel == 5)
+                                                    {
+                                                        classColor = "planPartMoack";
+                                                    }
+                                                    else if (studymodel == 6)
+                                                    {
+                                                        classColor = "planPartshik";
+                                                    }
+                                                }
+                                                <td><div class="@classColor">@(list[x].Eight_Ten_OlockTitle != null ? list[x].Eight_Ten_OlockTitle : "")</div></td>
                                             }
-                                            else if (studymodel == 5)
-                                            {
-                                                classColor = "planPartMoack";
-                                            }
-                                            else if (studymodel == 6)
-                                            {
-                                                classColor = "planPartshik";
-                                            }
-                                        }
-                                        <td><div class="@classColor">@(list[x].Eight_Ten_OlockTitle != null ? list[x].Eight_Ten_OlockTitle : "")</div></td>
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 3)
-                            {
-                                <tr>
-                                    <td style='width:130px;'>10:00-12:00</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 3)
                                     {
-                                        var wkId = list[x].Ten_Twelve_Id;
-                                        var isReversion = list[x].Ten_Twelve_Reversion;
-                                        var studymodel = list[x].Ten_Twelve_StudyMode;
-                                        var classColor = "planPartBlue";
-                                        if (wkId > 0 && isReversion == false)
-                                        {
-                                            classColor = "planPartBlue";
-                                        }
-                                        else
-                                        {
-                                            classColor = "planPart";
-                                            if (studymodel == 4)
+                                        <tr>
+                                            <td style='width:130px;'>10:00-12:00</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planShiting";
+                                                var wkId = list[x].Ten_Twelve_Id;
+                                                var isReversion = list[x].Ten_Twelve_Reversion;
+                                                var studymodel = list[x].Ten_Twelve_StudyMode;
+                                                var classColor = "planPartBlue";
+                                                if (wkId > 0 && isReversion == false)
+                                                {
+                                                    classColor = "planPartBlue";
+                                                }
+                                                else
+                                                {
+                                                    classColor = "planPart";
+                                                    if (studymodel == 4)
+                                                    {
+                                                        classColor = "planShiting";
+                                                    }
+                                                    else if (studymodel == 5)
+                                                    {
+                                                        classColor = "planPartMoack";
+                                                    }
+                                                    else if (studymodel == 6)
+                                                    {
+                                                        classColor = "planPartshik";
+                                                    }
+                                                }
+                                                <td><div class="@classColor">@(list[x].Ten_Twelve_OlockTitle != null ? list[x].Ten_Twelve_OlockTitle : "")</div></td>
                                             }
-                                            else if (studymodel == 5)
-                                            {
-                                                classColor = "planPartMoack";
-                                            }
-                                            else if (studymodel == 6)
-                                            {
-                                                classColor = "planPartshik";
-                                            }
-                                        }
-                                        <td><div class="@classColor">@(list[x].Ten_Twelve_OlockTitle != null ? list[x].Ten_Twelve_OlockTitle : "")</div></td>
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 4)
-                            {
-                                <tr>
-                                    <td style='width:130px;'>13:00-15:00</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 4)
                                     {
-                                        var wkId = list[x].Thirteen_Fifteen_Id;
-                                        var isReversion = list[x].Thirteen_Fifteen_Reversion;
-                                        var studymodel = list[x].Thirteen_Fifteen_StudyMode;
-                                        var classColor = "planPartBlue";
-                                        if (wkId > 0 && isReversion == false)
-                                        {
-                                            classColor = "planPartBlue";
-                                        }
-                                        else
-                                        {
-                                            classColor = "planPart";
-                                            if (studymodel == 4)
+                                        <tr>
+                                            <td style='width:130px;'>13:00-15:00</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planShiting";
+                                                var wkId = list[x].Thirteen_Fifteen_Id;
+                                                var isReversion = list[x].Thirteen_Fifteen_Reversion;
+                                                var studymodel = list[x].Thirteen_Fifteen_StudyMode;
+                                                var classColor = "planPartBlue";
+                                                if (wkId > 0 && isReversion == false)
+                                                {
+                                                    classColor = "planPartBlue";
+                                                }
+                                                else
+                                                {
+                                                    classColor = "planPart";
+                                                    if (studymodel == 4)
+                                                    {
+                                                        classColor = "planShiting";
+                                                    }
+                                                    else if (studymodel == 5)
+                                                    {
+                                                        classColor = "planPartMoack";
+                                                    }
+                                                    else if (studymodel == 6)
+                                                    {
+                                                        classColor = "planPartshik";
+                                                    }
+                                                }
+                                                <td><div class="@classColor">@(list[x].Thirteen_Fifteen_OlockTitle != null ? list[x].Thirteen_Fifteen_OlockTitle : "")</div></td>
                                             }
-                                            else if (studymodel == 5)
-                                            {
-                                                classColor = "planPartMoack";
-                                            }
-                                            else if (studymodel == 6)
-                                            {
-                                                classColor = "planPartshik";
-                                            }
-                                        }
-                                        <td><div class="@classColor">@(list[x].Thirteen_Fifteen_OlockTitle != null ? list[x].Thirteen_Fifteen_OlockTitle : "")</div></td>
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 5)
-                            {
-                                <tr>
-                                    <td style='width:130px;'>15:00-17:00</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 5)
                                     {
-                                        var wkId = list[x].Fifteen_Seventeen_Id;
-                                        var isReversion = list[x].Fifteen_Seventeen_Reversion;
-                                        var studymodel = list[x].Fifteen_Seventeen_StudyMode;
-                                        var classColor = "planPartBlue";
-                                        if (wkId > 0 && isReversion == false)
-                                        {
-                                            classColor = "planPartBlue";
-                                        }
-                                        else
-                                        {
-                                            classColor = "planPart";
-                                            if (studymodel == 4)
+                                        <tr>
+                                            <td style='width:130px;'>15:00-17:00</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planShiting";
+                                                var wkId = list[x].Fifteen_Seventeen_Id;
+                                                var isReversion = list[x].Fifteen_Seventeen_Reversion;
+                                                var studymodel = list[x].Fifteen_Seventeen_StudyMode;
+                                                var classColor = "planPartBlue";
+                                                if (wkId > 0 && isReversion == false)
+                                                {
+                                                    classColor = "planPartBlue";
+                                                }
+                                                else
+                                                {
+                                                    classColor = "planPart";
+                                                    if (studymodel == 4)
+                                                    {
+                                                        classColor = "planShiting";
+                                                    }
+                                                    else if (studymodel == 5)
+                                                    {
+                                                        classColor = "planPartMoack";
+                                                    }
+                                                    else if (studymodel == 6)
+                                                    {
+                                                        classColor = "planPartshik";
+                                                    }
+                                                }
+                                                <td><div class="@classColor">@(list[x].Fifteen_Seventeen_OlockTitle != null ? list[x].Fifteen_Seventeen_OlockTitle : "")</div></td>
                                             }
-                                            else if (studymodel == 5)
+                                        </tr>
+                                    }
+                                    if (y == 6)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;'>17:00-19:00</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartMoack";
+                                                var wkId = list[x].Seventeen_Nineteen_Id;
+                                                var isReversion = list[x].Seventeen_Nineteen_Reversion;
+                                                var studymodel = list[x].Seventeen_Nineteen_StudyMode;
+                                                var classColor = "planPartBlue";
+                                                if (wkId > 0 && isReversion == false)
+                                                {
+                                                    classColor = "planPartBlue";
+                                                }
+                                                else
+                                                {
+                                                    classColor = "planPart";
+                                                    if (studymodel == 4)
+                                                    {
+                                                        classColor = "planShiting";
+                                                    }
+                                                    else if (studymodel == 5)
+                                                    {
+                                                        classColor = "planPartMoack";
+                                                    }
+                                                    else if (studymodel == 6)
+                                                    {
+                                                        classColor = "planPartshik";
+                                                    }
+                                                }
+                                                <td><div class="@classColor">@(list[x].Seventeen_Nineteen_OlockTitle != null ? list[x].Seventeen_Nineteen_OlockTitle : "")</div></td>
                                             }
-                                            else if (studymodel == 6)
+                                        </tr>
+                                    }
+                                    if (y == 7)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;'>19:00-21:00</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartshik";
+                                                var wkId = list[x].Nineteen_TwentyOne_Id;
+                                                var isReversion = list[x].Nineteen_TwentyOne_Reversion;
+                                                var studymodel = list[x].Nineteen_TwentyOne_StudyMode;
+                                                var classColor = "planPartBlue";
+                                                if (wkId > 0 && isReversion == false)
+                                                {
+                                                    classColor = "planPartBlue";
+                                                }
+                                                else
+                                                {
+                                                    classColor = "planPart";
+                                                    if (studymodel == 4)
+                                                    {
+                                                        classColor = "planShiting";
+                                                    }
+                                                    else if (studymodel == 5)
+                                                    {
+                                                        classColor = "planPartMoack";
+                                                    }
+                                                    else if (studymodel == 6)
+                                                    {
+                                                        classColor = "planPartshik";
+                                                    }
+                                                }
+                                                <td><div class="@classColor">@(list[x].Nineteen_TwentyOne_OlockTitle != null ? list[x].Nineteen_TwentyOne_OlockTitle : "")</div></td>
                                             }
-                                        }
-                                        <td><div class="@classColor">@(list[x].Fifteen_Seventeen_OlockTitle != null ? list[x].Fifteen_Seventeen_OlockTitle : "")</div></td>
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 6)
-                            {
-                                <tr>
-                                    <td style='width:130px;'>17:00-19:00</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 8)
                                     {
-                                        var wkId = list[x].Seventeen_Nineteen_Id;
-                                        var isReversion = list[x].Seventeen_Nineteen_Reversion;
-                                        var studymodel = list[x].Seventeen_Nineteen_StudyMode;
-                                        var classColor = "planPartBlue";
-                                        if (wkId > 0 && isReversion == false)
-                                        {
-                                            classColor = "planPartBlue";
-                                        }
-                                        else
-                                        {
-                                            classColor = "planPart";
-                                            if (studymodel == 4)
+                                        <tr>
+                                            <td style='width:130px;'>21:00-23:00</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planShiting";
+                                                var wkId = list[x].TwentyOne_TwentyTree_Id;
+                                                var isReversion = list[x].TwentyOne_TwentyTree_Reversion;
+                                                var studymodel = list[x].TwentyOne_TwentyTree_StudyMode;
+                                                var classColor = "planPartBlue";
+                                                if (wkId > 0 && isReversion == false)
+                                                {
+                                                    classColor = "planPartBlue";
+                                                }
+                                                else
+                                                {
+                                                    classColor = "planPart";
+                                                    if (studymodel == 4)
+                                                    {
+                                                        classColor = "planShiting";
+                                                    }
+                                                    else if (studymodel == 5)
+                                                    {
+                                                        classColor = "planPartMoack";
+                                                    }
+                                                    else if (studymodel == 6)
+                                                    {
+                                                        classColor = "planPartshik";
+                                                    }
+                                                }
+                                                <td><div class="@classColor">@(list[x].TwentyOne_TwentyTree_OlockTitle != null ? list[x].TwentyOne_TwentyTree_OlockTitle : "")</div></td>
                                             }
-                                            else if (studymodel == 5)
+                                        </tr>
+                                    }
+                                    if (y == 9)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>单词</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartMoack";
+                                                <td style="vertical-align:top">@(list[x].ChouciComent == null ? "" : list[x].ChouciComent)</td>
                                             }
-                                            else if (studymodel == 6)
+                                        </tr>
+                                    }
+                                    if (y == 10)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>课程点评</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartshik";
+                                                <td style="vertical-align:top">@Html.Raw(list[x].CourseComent == null ? "" : list[x].CourseComent)</td>
                                             }
-                                        }
-                                        <td><div class="@classColor">@(list[x].Seventeen_Nineteen_OlockTitle != null ? list[x].Seventeen_Nineteen_OlockTitle : "")</div></td>
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 7)
-                            {
-                                <tr>
-                                    <td style='width:130px;'>19:00-21:00</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 11)
                                     {
-                                        var wkId = list[x].Nineteen_TwentyOne_Id;
-                                        var isReversion = list[x].Nineteen_TwentyOne_Reversion;
-                                        var studymodel = list[x].Nineteen_TwentyOne_StudyMode;
-                                        var classColor = "planPartBlue";
-                                        if (wkId > 0 && isReversion == false)
-                                        {
-                                            classColor = "planPartBlue";
-                                        }
-                                        else
-                                        {
-                                            classColor = "planPart";
-                                            if (studymodel == 4)
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>布置作业</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planShiting";
+                                                <td style="vertical-align:top">@Html.Raw(list[x].CourseWorkCotent == null ? "" : list[x].CourseWorkCotent)</td>
                                             }
-                                            else if (studymodel == 5)
+                                        </tr>
+                                    }
+                                    if (y == 12)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>作业完成情况</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartMoack";
+                                                <td style="vertical-align:top">@Html.Raw(list[x].HomeWorkComent == null ? "" : list[x].HomeWorkComent)</td>
                                             }
-                                            else if (studymodel == 6)
+                                        </tr>
+                                    }
+                                    if (y == 13)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>其它</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartshik";
+                                                <td style="vertical-align:top">@(list[x].OtherComent == null ? "" : list[x].OtherComent)</td>
                                             }
-                                        }
-                                        <td><div class="@classColor">@(list[x].Nineteen_TwentyOne_OlockTitle != null ? list[x].Nineteen_TwentyOne_OlockTitle : "")</div></td>
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 8)
-                            {
-                                <tr>
-                                    <td style='width:130px;'>21:00-23:00</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 14)
                                     {
-                                        var wkId = list[x].TwentyOne_TwentyTree_Id;
-                                        var isReversion = list[x].TwentyOne_TwentyTree_Reversion;
-                                        var studymodel = list[x].TwentyOne_TwentyTree_StudyMode;
-                                        var classColor = "planPartBlue";
-                                        if (wkId > 0 && isReversion == false)
-                                        {
-                                            classColor = "planPartBlue";
-                                        }
-                                        else
-                                        {
-                                            classColor = "planPart";
-                                            if (studymodel == 4)
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>责任助教</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planShiting";
+                                                <td style="vertical-align:top">@(list[x].TaUseName == null ? "" : list[x].TaUseName)</td>
                                             }
-                                            else if (studymodel == 5)
+                                        </tr>
+                                    }
+                                    if (y == 15)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>每日总结</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartMoack";
+                                                <td style="vertical-align:top">@(list[x].SummaryComent == null ? "" : list[x].SummaryComent)</td>
                                             }
-                                            else if (studymodel == 6)
+                                        </tr>
+                                    }
+                                    if (y == 16)
+                                    {
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>到校时间</td>
+                                            @for (var x = 0; x < list.Count; x++)
                                             {
-                                                classColor = "planPartshik";
+                                                <td style="vertical-align:top">@(list[x].InSchoolTime == null ? "" : list[x].InSchoolTime)</td>
                                             }
-                                        }
-                                        <td><div class="@classColor">@(list[x].TwentyOne_TwentyTree_OlockTitle != null ? list[x].TwentyOne_TwentyTree_OlockTitle : "")</div></td>
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 9)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>单词</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 17)
                                     {
-                                        <td style="vertical-align:top">@(list[x].ChouciComent == null ? "" : list[x].ChouciComent)</td>
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>离校时间</td>
+                                            @for (var x = 0; x < list.Count; x++)
+                                            {
+                                                <td style="vertical-align:top">@(list[x].OutSchoolTime == null ? "" : list[x].OutSchoolTime)</td>
+                                            }
+                                        </tr>
                                     }
-                                </tr>
-                            }
-                            if (y == 10)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>课程点评</td>
-                                    @for (var x = 0; x < list.Count; x++)
+                                    if (y == 18)
                                     {
-                                        <td style="vertical-align:top">@Html.Raw(list[x].CourseComent == null ? "" : list[x].CourseComent)</td>
+                                        <tr>
+                                            <td style='width:130px;vertical-align:top'>在校时长(测试中)</td>
+                                            @for (var x = 0; x < list.Count; x++)
+                                            {
+                                                <td style="vertical-align:top">@(list[x].TotalTime == null ? "" : list[x].TotalTime)</td>
+                                            }
+                                        </tr>
                                     }
-                                </tr>
+                                }
                             }
-                            if (y == 11)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>布置作业</td>
-                                    @for (var x = 0; x < list.Count; x++)
-                                    {
-                                        <td style="vertical-align:top">@Html.Raw(list[x].CourseWorkCotent == null ? "" : list[x].CourseWorkCotent)</td>
-                                    }
-                                </tr>
-                            }
-                            if (y == 12)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>作业完成情况</td>
-                                    @for (var x = 0; x < list.Count; x++)
-                                    {
-                                        <td style="vertical-align:top">@Html.Raw(list[x].HomeWorkComent == null ? "" : list[x].HomeWorkComent)</td>
-                                    }
-                                </tr>
-                            }
-                            if (y == 13)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>其它</td>
-                                    @for (var x = 0; x < list.Count; x++)
-                                    {
-                                        <td style="vertical-align:top">@(list[x].OtherComent == null ? "" : list[x].OtherComent)</td>
-                                    }
-                                </tr>
-                            }
-                            if (y == 14)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>责任助教</td>
-                                    @for (var x = 0; x < list.Count; x++)
-                                    {
-                                        <td style="vertical-align:top">@(list[x].TaUseName == null ? "" : list[x].TaUseName)</td>
-                                    }
-                                </tr>
-                            }
-                            if (y == 15)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>每日总结</td>
-                                    @for (var x = 0; x < list.Count; x++)
-                                    {
-                                        <td style="vertical-align:top">@(list[x].SummaryComent == null ? "" : list[x].SummaryComent)</td>
-                                    }
-                                </tr>
-                            }
-                            if (y == 16)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>到校时间</td>
-                                    @for (var x = 0; x < list.Count; x++)
-                                    {
-                                        <td style="vertical-align:top">@(list[x].InSchoolTime == null ? "" : list[x].InSchoolTime)</td>
-                                    }
-                                </tr>
-                            }
-                            if (y == 17)
-                            {
-                                <tr>
-                                    <td style='width:130px;vertical-align:top'>离校时间</td>
-                                    @for (var x = 0; x < list.Count; x++)
-                                    {
-                                        <td style="vertical-align:top">@(list[x].OutSchoolTime == null ? "" : list[x].OutSchoolTime)</td>
-                                    }
-                                </tr>
-                            }
-                        }
-                    }
-                </tbody>
+                        </tbody>
             </table>
         }
     </div>

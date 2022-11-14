@@ -355,6 +355,7 @@ namespace WebManage.Controllers
              RangTimeId=it.RangTimeId,
              SubjectId=it.SubjectId,
              ProjectId=it.ProjectId,
+             UnitId=it.UnitId,
              IsSendComment=it.IsSendComment,
              IsSendWork=it.IsSendWork,
              ListeningName=it.ListeningName,
@@ -376,6 +377,13 @@ namespace WebManage.Controllers
         }
 
 
+        public async Task<IActionResult> QueryUnit(int projectId)
+        {
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            List<C_Project_Unit> list = _currencyService.DbAccess().Queryable<C_Project_Unit>().Where(it => it.ProjectId == projectId).ToList();
+            rsg.data = list;
+            return Json(rsg);
+        }
 
 
         /// <summary>
@@ -507,7 +515,7 @@ namespace WebManage.Controllers
         /// <param name="wkId"></param>
         /// <param name="comment"></param>
         /// <returns></returns>
-        public async Task<IActionResult> SaveComment(string openId,int wkId,string comment) {
+        public async Task<IActionResult> SaveComment(string openId,int wkId,string comment,int unitId) {
             ResResult rsg = new ResResult() { code = 0, msg = "保存点评失败" };
             try {
                 if (wkId<1)
@@ -563,7 +571,20 @@ namespace WebManage.Controllers
                             }
                         }
                     }
-                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(it => new C_Course_Work { Comment = comment, Work_Stutas = workstatus, Comment_Time=DateTime.Now }).Where(it => it.Id == wkId).ExecuteCommand();
+                    if (unitId> 0 && model.UnitId != unitId)
+                    {
+                        model.UnitId = unitId;
+                        var unitM = _currencyService.DbAccess().Queryable<C_Project_Unit>().Where(y => y.UnitId == unitId).First();
+                        if (model.Work_Title.Split("_").Length == 4)
+                        {
+                            model.Work_Title = model.Work_Title.Substring(0, model.Work_Title.LastIndexOf("_"));
+                        }
+                        model.Work_Title = model.Work_Title + "_" + unitM.UnitName;
+                    }
+                    model.Comment = comment;
+                    model.Work_Stutas = workstatus;
+                    model.Comment_Time = DateTime.Now;
+                    var result = _currencyService.DbAccess().Updateable<C_Course_Work>(model).Where(it => it.Id == wkId).ExecuteCommand();
                     if (result > 0)
                     {
                         rsg.data = model;

@@ -295,6 +295,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                 stu.InSchoolTime = iv.InSchoolTime;
                             if (!string.IsNullOrEmpty(iv.OutSchoolTime))
                                 stu.OutSchoolTime = iv.OutSchoolTime;
+                            if (!string.IsNullOrEmpty(iv.OutSchoolTime))
+                                stu.TotalTime = iv.TotalTime;
                             if (!string.IsNullOrEmpty(iv.TaUid))
                             {
                                 stu.TaUseName = listTa.Find(cn => cn.User_ID == iv.TaUid).User_Name;

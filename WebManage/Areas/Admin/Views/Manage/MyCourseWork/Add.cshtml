@@ -119,6 +119,12 @@
             <select name="RoomId" disabled="disabled"></select>
         </div>
     </div>
+    <div class="layui-form-item" id="PartUnit">
+        <label class="layui-form-label">科目单元</label>
+        <div class="layui-input-block">
+            <select name="UnitId"></select>
+        </div>
+    </div>
     <div class="layui-form-item" id="dianpPart">
         <label class="layui-form-label">点评</label>
         <div class="layui-input-block">
@@ -211,7 +217,8 @@
                             $("#ClassPart").css("display", "block");
                             $("#OneOfPart").css("display", "none");
                         }
-                        else if(r.StudyMode == 3){
+                        else if (r.StudyMode == 3) {
+                            $("#PartUnit").css("display", "none");
                             $("#PartTa").css("display", "none");
                             $("#PartProject").css("display", "none");
                             $("#ClassPart").css("display", "none");
@@ -250,7 +257,8 @@
                             $("#lineSpanTimeRange").text("会议时段");
                             $("#dianpPart").css("display", "none");
                             $("#zuoyePart").css("display", "none");
-                            
+                            $("#PartUnit").css("display", "none");
+
                         }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
@@ -367,6 +375,7 @@
                                     for (var i = 0; i < result.length; i++) {
                                         if (result[i].ProjectId == r.ProjectId) {
                                             $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + ' selected>' + result[i].ProjectName + '</option>');
+                                            bindUnit(r.ProjectId, r.UnitId);
                                         }
                                         else {
                                             $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
@@ -422,7 +431,31 @@
         function formatMinutin() {
             $(".laydate-time-list li ol").eq(2).parent("li").remove();
         }
-    });
+        });
+        function bindUnit(projectId, defaulUnitId) {
+            layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryUnit","CourseWork")",
+                data: { projectId: projectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='UnitId']").html("");
+                        var result = rou.data;
+                        for (var i = 0; i < result.length; i++) {
+                            if (defaulUnitId != undefined && defaulUnitId != null && defaulUnitId > 0 && defaulUnitId == result[i].UnitId) {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + ' selected>' + result[i].UnitName + '</option>');
+                            }
+                            else {
+                                $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + '>' + result[i].UnitName + '</option>');
+                            }
+                        }
+                    }
+                }
+              });
+            });
+        }
         function dateFtt(fmt, val) { //author: meizz
             var date = new Date(val);
             var o = {
