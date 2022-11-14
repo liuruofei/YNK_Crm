@@ -40,6 +40,11 @@ namespace ADT.Models
         public string InSchoolTime { get; set; }
 
         /// <summary>
+        /// 总计在校时间
+        /// </summary>
+        public string TotalTime { get; set; }
+
+        /// <summary>
         /// 助教
         /// </summary>
         public string TaUid { get; set; }

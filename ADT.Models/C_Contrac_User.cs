@@ -197,5 +197,16 @@ namespace ADT.Models
         public string CreateUid { get; set; }
         public DateTime UpdateTime { get; set; }
         public string UpdateUid { get; set; }
+
+        public string personId { get; set; }
+
+        /// <summary>
+        /// 考试账号
+        /// </summary>
+        public string ExamAccount { get; set; }
+        /// <summary>
+        /// 考试密码
+        /// </summary>
+        public string ExamPassword { get; set; }
     }
 }
