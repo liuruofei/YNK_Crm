@@ -124,6 +124,10 @@ namespace ADT.Repository
                             work.Work_Title = input.Work_Title;
                             work.SubjectId = input.SubjectId;
                             work.ProjectId = input.ProjectId;
+                            if (input.UnitId > 0)
+                            {
+                                work.UnitId = input.UnitId;
+                            }
                             work.AT_Date = input.AT_Date;
                             work.StartTime = input.StartTime;
                             work.EndTime = input.EndTime;
@@ -483,6 +487,10 @@ namespace ADT.Repository
                             work.RoomId = input.RoomId;
                             work.CampusId = teach.CampusId;
                             work.StudentUid = input.StudentUid;
+                            if (input.UnitId > 0)
+                            {
+                                work.UnitId = input.UnitId;
+                            }
                             work.Work_Title = "试听课" + input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName;
                         }
                         else if (input.StudyMode == 5 || input.StudyMode == 6) {
