@@ -1,0 +1,1332 @@
+﻿@{
+    Layout = null;
+}
+<link rel="apple-touch-icon" href="~/apple-touch-icon.png">
+<link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon">
+<link href="~/assets/css/neat.min.css" rel="stylesheet" />
+<link href="~/assets/css/validate.css" rel="stylesheet" />
+<script src="~/assets/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="~/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="~/assets/js/common.js?v=311"></script>
+<script src="~/assets/js/vendor/bootstrap.bundle.js"></script>
+<script src="~/assets/js/vendor/dragula.js"></script>
+<script src="~/assets/js/sidebar.js"></script>
+<script src="~/assets/js/neat.js"></script>
+<script src="~/assets/js/jquery-mvalidate.js"></script>
+<script src="~/assets/js/template-web.js"></script>
+<script src="~/assets/js/AjaxHttp.js"></script>
+<style>
+    .divAdd {
+        text-align: center;
+        height: 130px;
+        padding-top: 4%;
+    }
+
+        .divAdd img {
+            width: 100px;
+            min-width: 50px;
+            height: 100px;
+            border-radius: 100%;
+            overflow: hidden;
+        }
+
+    .dataitem .div1 {
+        display: flex
+    }
+
+        .dataitem .div1 img {
+            width: 50px;
+            min-width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            overflow: hidden;
+        }
+
+        .dataitem .div1 .user {
+            flex: 1;
+            padding-left: 14px;
+            padding-top: 2px;
+            font-size: 12px
+        }
+
+
+            .dataitem .div1 .user .sno {
+                float: left;
+            }
+
+            .dataitem .div1 .user .ename {
+                float: right;
+            }
+
+            .dataitem .div1 .user .name {
+                padding-top: 6px;
+            }
+
+
+    .dataitem .div3 {
+        margin-top: 18px;
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .dataitem .div3 .span {
+            font-size: 12px;
+        }
+
+
+    .dataitem .div5 {
+        display: flex;
+        padding-top: 20px;
+    }
+
+        .dataitem .div5 .span1 {
+            padding: 3px 0px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+    .pageTool {
+        display: flex;
+        box-shadow: 1px 2px 6px 2px rgba(96,96, 192,0.09);
+    }
+
+        .pageTool .page {
+            flex: 1;
+            text-align: center;
+            border: 1px solid #666262;
+            line-height: 36px;
+            color: #626262;
+            cursor: pointer;
+        }
+
+        .pageTool .active {
+            background-color: #3097a5;
+            color: white;
+            border: 1px solid #3097a5
+        }
+
+        .pageTool .unactive {
+            background-color: #f4f6f9;
+            color: rgba(0, 0, 0, 0.12);
+            border: 1px solid #f4f6f9;
+            cursor: default;
+        }
+    .classGroup {
+        position: absolute;
+        top:65px;
+        display: block;
+        width: 100%;
+        background-color: #f8f8f8;
+        padding-top: 1px;
+        z-index: 2;
+        padding-bottom: 20px;
+        display: none;
+    }
+
+        .classGroup .classItem {
+            border-bottom: solid #ddd 1px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            padding-left: 8px;
+            margin-top: 3px;
+            cursor: pointer;
+            width: 96%;
+            z-index: 3;
+        }
+</style>
+<div class="container" style="height:100%">
+    <div class="row">
+        <div style="width: 100%; display: flex; flex-wrap: wrap; box-sizing: border-box;">
+            <div style="padding:0px 15px 15px 15px;flex-grow:0" class="col-sm-6">
+
+            </div>
+            <div style="flex-grow: 0;padding:0px 15px 15px 15px" class="col-sm-6">
+                <div style="position:relative">
+                    <a id="btnSearchSt"><i class="feather icon-search" style="position:absolute;font-size:22px;line-height:36px;right:0px;width:25px;"></i></a>
+                    <input style="width:100%" class="c-input" name="seachKey" placeholder="输入学员名称" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="teacherContent" style="width:100%;display:flex;flex-wrap:wrap">
+            <div class="col-sm-4 col-xl-3" style="display:none">
+                <div class="c-card is-animated u-text-center" style="cursor:pointer;">
+                    <div class="col-sm-12  divAdd" data-toggle="modal" data-target="#modal2">
+                        <img src="~/assets/images/plus.svg">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12" style="display:none">
+            <div class="pageTool">
+                <div class="page">上一页</div>
+                <div class="page">下一页</div>
+            </div>
+        </div>
+    </div>
+    <script type="text/html" id="templateAdd">
+        <div class="col-sm-4 col-xl-3">
+            <div class="c-card is-animated u-text-center" style="cursor:pointer;">
+                <div class="col-sm-12  divAdd" onclick="addStudent(this)">
+                    <img src="~/assets/images/plus.svg">
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/html" id="templateTeacher">
+        {{each list item index}}
+        <div class="col-sm-4 col-xl-3">
+            <div class="c-card is-animated u-text-center dataitem">
+                <div class="div1">
+                    <div><img src="~/assets/images/stripe.svg"></div>
+                    <div class="user">
+                        <span class="cname">{{item.Student_Name}}</span>
+                        <div class="name">
+                            <div class="sno">{{item.Sex}}</div>
+                            <div class="ename">{{item.Grade}}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="div3">
+                    <span><i class="feather icon-users"></i></span><span class="span">余额:{{item.Amount}}</span>
+                </div>
+                <div class="div5">
+                    <a class="col-sm-4 span1" style="text-align:left" onclick="findCourseDetail({{item.StudentUid}})">课时详情</a>
+                    <a class="col-sm-4 span1" style="text-align:center" dataModel="{{item}}" onclick="edit(this)">修改</a>
+                    <a class="col-sm-4 span1" style="text-align:right" dataModel="{{item}}" onclick="addCotrac(this)">创建合同</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    @*********************弹出框*********************@
+    <div class="c-modal modal fade" id="modal2" tabindex="-1" role="dialog" aria-labelledby="modal2">
+        <div class="c-modal__dialog modal-dialog" role="document">
+            <div class="c-modal__content">
+                <form id="fromTeacher">
+                    <input type="hidden" name="StudentUid" />
+                    <input type="hidden" name="Student_No" />
+                    <input type="hidden" name="Student_Account" />
+                    <div class="c-modal__body" style="padding:28px 10px;">
+                        <span class="c-modal__close" data-dismiss="modal" aria-label="Close">
+                            <i class="feather icon-x"></i>
+                        </span>
+                        <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-sm-3" style="text-align:left">
+                                <label>学生姓名</label>
+                            </div>
+                            <div class="col-sm-9">
+                                <input class="c-input" name="Student_Name" data-required="true" data-descriptions="Student_Name" />
+                            </div>
+                        </div>
+                        <div style="display:flex;margin-top:12px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-sm-3" style="text-align:left">
+                                <label>性别</label>
+                            </div>
+                            <div class="col-sm-9" style="text-align:left">
+                                <div style="display: inline;">
+                                    <input id="radioBoy" name="Sex" type="radio" value="男">
+                                    <label>男</label>
+                                </div>
+                                <div style="display:inline;margin-left:18px">
+                                    <input id="radioGirl" name="Sex" type="radio" value="女">
+                                    <label>女</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-sm-3" style="text-align:left">
+                                <label>手机号</label>
+                            </div>
+                            <div class="col-sm-9">
+                                <input class="c-input" name="Student_Phone" />
+                            </div>
+                        </div>
+                        <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-sm-3" style="text-align:left">
+                                <label>父亲名称</label>
+                            </div>
+                            <div class="col-sm-9">
+                                <input class="c-input" name="Elder_Name" />
+                            </div>
+                        </div>
+                        <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-sm-3" style="text-align:left">
+                                <label>母亲名称</label>
+                            </div>
+                            <div class="col-sm-9">
+                                <input class="c-input" name="Elder2_Name" />
+                            </div>
+                        </div>
+                        <div class="o-line" style="padding:20px 15px 0px 15px;">
+                            <a onclick="canCelTeacher()" class="c-btn c-btn--info c-btn--outline">取消</a>
+                            <button class="c-btn c-btn--info" type="submit">保存</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="modal3" class="c-modal modal fade" tabindex="-1" role="dialog" aria-labelledby="modal3">
+        <div class="c-modal__dialog modal-dialog" role="document">
+            <div class="c-modal__content">
+                <form id="fromTeacher">
+                    <input type="hidden" name="StudentUid" />
+                    <input type="hidden" name="Student_No" />
+                    <input type="hidden" name="Student_Account" />
+                    <div class="c-modal__body" style="padding:28px 10px;">
+                        <span class="c-modal__close" data-dismiss="modal" aria-label="Close">
+                            <i class="feather icon-x"></i>
+                        </span>
+                        <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-6" style="text-align:left">
+                                <label class="c-field__label" style="display: inline;">姓名</label>
+                                <label id="lbStudentName" class="c-field__label" style="display: inline;"></label>
+                            </div>
+                            <div class="col-6" style="text-align:left">
+                                <label class="c-field__label" style="display: inline;">合同号</label>
+                                <label id="lbContraNo" class="c-field__label" style="display: inline;"></label>
+                                <input name="ContraNo" type="hidden" />
+                            </div>
+                        </div>
+                        <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-6" style="text-align:left">
+                                <label class="c-field__label">签约子合同</label>
+                            </div>
+                            <div class="col-6" style="text-align:right">
+                                <input type="button" value="添加子合同" class="c-btn c-btn--small" id="btnAddChild" />
+                            </div>
+                            <div class="col-12">
+                                <div class="c-table-responsive@wide">
+                                    <table class="c-table">
+                                        <thead class="c-table__head">
+                                            <tr>
+                                                <th class="c-table__cell c-table__cell--head">合同类型</th>
+                                                <th class="c-table__cell c-table__cell--head">折后金额</th>
+                                                <th class="c-table__cell c-table__cell--head">额外优惠</th>
+                                                <th class="c-table__cell c-table__cell--head">实收金额</th>
+                                                <th class="c-table__cell c-table__cell--head">课时/小班</th>
+                                                <th class="c-table__cell c-table__cell--head"><label style="padding-left:10px;padding-right:10px">操作</label> </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="child_Contrc">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="o-line" style="padding:20px 15px 0px 15px;">
+                            <a onclick="canCelContrac()" class="c-btn c-btn--info c-btn--outline">取消</a>
+                            <button class="c-btn c-btn--info" type="button" onclick="SaveContrcIn()">保存</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="modal5" class="c-modal modal fade" tabindex="-1" role="dialog" aria-labelledby="modal5">
+        <div class="c-modal__dialog modal-dialog" role="document">
+            <div class="c-modal__content">
+                <div class="c-modal__body" style="padding:28px 10px;">
+                    <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                        <input type="hidden" name="Contra_ChildNo" />
+                        <div class="col-12">
+                            <label class="c-field__label">合同属性</label>
+                            <input type="radio" name="Contra_Property" value="0" title="新签" checked="checked" />新签
+                            <input type="radio" name="Contra_Property" value="1" title="续约" />续约
+                        </div>
+                        <div class="col-12">
+                            <label class="c-field__label">授课方式</label>
+                            <div class="c-select">
+                                <select class="c-select__input" name="StudyMode" style="text-align:center">
+                                    <option value="1">一对一</option>
+                                    <option value="2">小班</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12" id="partClass" style="display:none">
+                            <label class="c-field__label">小班</label>
+                            <input type="hidden" name="ClassId" />
+                            <div class="classGroup" id="classGroup"></div>
+                            <input type="text" class="c-input" name="ClassName" />
+                        </div>
+                        <div class="col-12" id="partClassHourse" style="display:none">
+                            <label class="c-field__label">课时</label>
+                            <input class="c-input" name="Class_Course_Time" type="text" disabled />
+                        </div>
+                        <div class="col-12" id="partPresentTime">
+                            <label class="c-field__label">赠送课时</label>
+                            <input class="c-input" name="PresentTime" type="number" value="0" />
+                        </div>
+                        <div class="col-12">
+                            <label class="c-field__label">合同原价</label>
+                            <input name="Original_Amount" type="text" disabled class="c-input" />
+                        </div>
+                        <div class="col-12">
+                            <label class="c-field__label">折扣</label>
+                            <div class="c-select">
+                                <select class="c-select__input" name="ContraRateSelect">
+                                    <option value="10">10</option>
+                                    <option value="9">9</option>
+                                    <option value="9.5">9.5</option>
+                                    <option value="0">其它折扣</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12" style="display:none">
+                            <input class="c-input" name="ContraRate" type="text" />
+                        </div>
+                        <div class="col-12">
+                            <label class="c-field__label">已优惠</label>
+                            <input name="Discount_Amount" type="text" class="c-input" disabled />
+                        </div>
+                        <div class="col-12">
+                            <label class="c-field__label">额外优惠</label>
+                            <input name="Added_Amount" type="text" class="c-input" />
+                        </div>
+                        <div class="col-12">
+                            <label class="c-field__label">折扣后金额</label>
+                            <input name="Saler_Amount" type="text" class="c-input" disabled />
+                        </div>
+                        <div class="col-12">
+                            <label class="c-field__label">合同备注</label>
+                            <textarea name="Remarks" style="width:100%;height:86px"></textarea>
+                        </div>
+                        <div class="col-12" id="OneOfOne">
+                            <label class="c-field__label">合同明细</label>
+                            <div class="c-table-responsive@wide">
+                                <table class="c-table">
+                                    <thead class="c-table__head">
+                                        <tr>
+                                            <th class="c-table__cell c-table__cell--head">类别</th>
+                                            <th class="c-table__cell c-table__cell--head">科目</th>
+                                            <th class="c-table__cell c-table__cell--head">课时</th>
+                                            <th class="c-table__cell c-table__cell--head">级别</th>
+                                            <th class="c-table__cell c-table__cell--head">价格</th>
+                                            <th class="c-table__cell c-table__cell--head">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="child_Contrc_Detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" id="addDetail">新增明细</button>
+                            <button type="button" id="saveChild">保存</button>
+                            <button type="button" id="CancelDetail">关闭</button>
+                            <button type="button" id="sumTotal">合计总价</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal6" class="c-modal modal fade" tabindex="-1" role="dialog" aria-labelledby="modal6">
+        <div class="c-modal__dialog modal-dialog" role="document">
+            <div class="c-modal__content">
+                <div class="c-modal__body" style="padding:28px 10px;">
+                    <span class="c-modal__close" data-dismiss="modal" aria-label="Close">
+                        <i class="feather icon-x"></i>
+                    </span>
+                    <div class="col-12">
+                        <div class="c-table-responsive@wide">
+                            <table class="c-table">
+                                <thead class="c-table__head">
+                                    <tr>
+                                        <th class="c-table__cell c-table__cell--head"></th>
+                                        <th class="c-table__cell c-table__cell--head"></th>
+                                        <th class="c-table__cell c-table__cell--head"></th>
+                                        <th class="c-table__cell c-table__cell--head"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="UserCourseDetail">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/html" id="templateChild">
+        {{each data item index}}
+        <tr style="text-align:center">
+            <td>
+                {{if item.StudyMode==1}}
+                <span>一对一</span>
+                {{else if item.StudyMode==2}}
+                <span>小班</span>
+                {{/if}}
+            </td>
+            <td>{{item.Saler_Amount}}</td>
+            <td>{{item.Added_Amount}}</td>
+            <td>{{item.Saler_Amount-item.Added_Amount}}</td>
+            <td>
+                {{if item.StudyMode==2}}
+                <span>{{item.Class_Course_Time}} / {{item.ClassName}}</span>
+                {{else}}
+                <span>{{item.CourseTimeTotal}}</span>
+                {{/if}}
+            </td>
+            <td>
+                <button type="button" data-childNo="{{item.Contra_ChildNo}}" onclick="editChild(this)">修改</button>
+                <button type="button" data-childNo="{{item.Contra_ChildNo}}" onclick="removeContraDetail(this)">删除</button>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script type="text/html" id="templateItemAdd">
+        <tr>
+            <td>
+                <select name="SubjectId" onchange="SubjectIdChange(this)"></select>
+            </td>
+            <td>
+                <select name="ProjectId"></select>
+            </td>
+            <td style="width:80px">
+                <select name="Course_Time" onchange="Course_TimeChange(this)" />
+            </td>
+            <td>
+                <select name="Level" style="width:60px;" onchange="LevelChange(this)">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </td>
+            <td><input type="text" name="Price" style="width:120px" class="layui-input" /></td>
+            <td>
+                <button type="button" onclick="DelItem(this)">删除</button>
+            </td>
+        </tr>
+    </script>
+    <script type="text/html" id="templateItem">
+        {{each data item index}}
+        <tr>
+            <td>
+                <select name="SubjectId" onchange="SubjectIdChange(this)"></select>
+            </td>
+            <td style="width:80px"><select name="ProjectId"></select></td>
+            <td>
+                <select name="Course_Time" onchange="Course_TimeChange(this)" />
+            </td>
+            <td>
+                <select name="Level" style="width:60px;" onchange="LevelChange(this)">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </td>
+            <td><input type="text" name="Price" style="width:120px" class="layui-input" value="{{item.Price}}" disabled /></td>
+            <td><button type="button" onclick="DelItem(this)">删除</button></td>
+        </tr>
+        {{/each}}
+    </script>
+    <script type="text/template" id="classGroupTemp">
+        {{each data item index}}
+        <div class="classItem">
+            <span data-Id="{{item.ClassId}}" data-price="{{item.Price}}" data-classTime="{{item.Course_Time}}">{{item.Class_Name}}</span>
+        </div>
+        {{/each}}
+    </script>
+    <script type="text/html" id="templateCourseDetail">
+        {{each data item index}}
+        {{if item.ClassId>0}}
+        <tr class="c-table__row">
+            <td class="c-table__cell">
+                <span style="font-weight: 700">小班:{{item.Class_Name}} 分类:{{item.SubjectName}}</span>
+            </td>
+            <td class="c-table__cell">已充课时:{{item.Class_Course_Time}}</td>
+            <td class="c-table__cell">使用课时:{{item.Class_Course_UseTime}}(已排:{{item.Class_Course_UseTime-item.ShjiClassUseTime}},已上:{{item.ShjiClassUseTime}})</td>
+            <td class="c-table__cell">还剩课时:{{item.Class_Course_Time-item.Class_Course_UseTime}}</td>
+        </tr>
+        {{else}}
+        {{if item.IsPresent==0}}
+        <tr class="c-table__row">
+            <td class="c-table__cell">
+                <span style="font-weight:700">{{item.IsLinsting==1?'试听课：':'1对1：'}}{{item.SubjectName}}  科目:{{item.ProjectName}}</span>
+            </td>
+            {{if item.IsLinsting==1}}
+            <td class="c-table__cell">已试听课时:{{item.Course_Time}}</td>
+            <td class="c-table__cell"></td>
+            <td class="c-table__cell"></td>
+            {{else}}
+            <td class="c-table__cell">已充课时:{{item.Course_Time}}</td>
+            <td class="c-table__cell">使用课时:{{item.Course_UseTime}}(已排:{{item.Course_UseTime-item.ShjiUseTime}},已上:{{item.ShjiUseTime}})</td>
+            <td class="c-table__cell">可排课时:{{item.Course_Time-item.Course_UseTime}}</td>
+            {{/if}}
+        </tr>
+        {{else}}
+        <tr class="c-table__row">
+            <td class="c-table__cell">
+                <span style="font-weight:700">赠送课({{item.Contra_ChildNo}})</span>
+            </td>
+            <td class="c-table__cell">赠送课时:{{item.Course_Time}}</td>
+            <td class="c-table__cell">使用课时:{{item.Course_UseTime}}</td>
+            <td class="c-table__cell">可排课时:{{item.Course_Time-item.Course_UseTime}}</td>
+        </tr>
+        {{/if}}
+        {{/if}}
+        {{/each}}
+    </script>
+    <script type="text/javascript">
+        var searchInfo = {
+            title: '',
+            page: 1,
+            limit: 8,
+            total: 0
+        };
+        var timeList = [];
+        var subjectList = [];
+        var campusList = [];
+        var classList = [];
+        var childList = [];
+        var childInfo = {
+            Sort: 0,
+            CourseTimeTotal: 0,
+            Class_Course_Time: 0,
+            Contra_ChildNo: '',
+            StartTime: '',
+            StudyStatus: '',
+            Cycle: '',
+            StudyMode: 0,
+            ClassId: 0,
+            IsPreferential: 0,
+            Original_Amount: 0,
+            ContraRate: 0,
+            Discount_Amount: 0,
+            Contra_Property: 0,
+            Saler_Amount: 0,
+            Added_Amount: 0,
+            PresentTime: 0,
+            Remarks: '',
+            Child_Detail: []
+        };
+        var childInputInfo = {
+            Contra_ChildNo: '',
+            Class_Course_Time: 0,
+            StartTime: '',
+            StudyStatus: '',
+            Cycle: '',
+            StudyMode: 0,
+            ClassId: 0,
+            IsPreferential: 0,
+            Original_Amount: 0,
+            ContraRate: 0,
+            Discount_Amount: 0,
+            Contra_Property: 0,
+            Saler_Amount: 0,
+            Added_Amount: 0,
+            PresentTime: 0,
+            Remarks: ''
+        }
+        $(function () {
+            $(".divAdd").parent().parent().show();
+            bindSource();
+            $("#btnSearchSt").click(function () {
+                searchInfo.page = 1;
+                bindSource();
+            })
+            $(".pageTool .page").click(function () {
+                var currentIndex = $(this).index();
+                if (currentIndex == 0) {
+                    if (searchInfo.page > 1) {
+                        searchInfo.page--;
+                        $(this).addClass("active").removeClass("unactive");
+                        $(this).next().removeClass("active");
+                        if (searchInfo.page == 1) {
+                            $(this).removeClass("active").addClass("unactive");
+                            $(this).next().addClass("active").removeClass("unactive");
+                        }
+                        else {
+                            $(this).next().removeClass("unactive");
+                        }
+                    }
+                    else {
+                        $(this).removeClass("active").addClass("unactive");
+                        $(this).next().addClass("active").removeClass("unactive");
+                    }
+                }
+                else {
+                    var pageTotal = searchInfo.total / searchInfo.limit;
+                    if (pageTotal > searchInfo.page) {
+                        searchInfo.page++;
+                        $(this).addClass("active");
+                        $(this).prev().removeClass("active");
+                        if (pageTotal < searchInfo.page) {
+                            $(this).removeClass("active").addClass("unactive");
+                            $(this).prev().addClass("active").removeClass("unactive");
+                        }
+                        else {
+                            $(this).prev().removeClass("unactive");
+                        }
+                    }
+                    else {
+                        $(this).removeClass("active").addClass("unactive");
+                        $(this).prev().addClass("active").removeClass("unactive");
+                    }
+                }
+                bindSource();
+            });
+            $("#fromTeacher").mvalidate({
+                type: 1,
+                onKeyup: true,
+                sendForm: false,
+                firstInvalidFocus: false,
+                valid: function (event, options) {
+                    //点击提交按钮时,表单通过验证触发函数
+                    event.preventDefault();
+                    var objInfo = {};
+                    var fieIds = $("#fromTeacher").serializeArray();
+                    $.each(fieIds, function (index, fieid) {
+                        objInfo[fieid.name] = fieid.value;
+                    })
+                    ajaxQuest("Post", "SaveContracUser", 'application/x-www-form-urlencoded', objInfo, function (data) {
+                        $.mvalidateTip("保存成功");
+                        bindSource();
+                        $("#modal2").modal('hide');
+                    })
+                },
+                descriptions: {
+                    Student_Name: {
+                        required: '请输入姓名'
+                    }
+                }
+            });
+            //初始化160个小时
+            for (var f = 1; f < 161; f++) {
+                timeList.push(f);
+            };
+            bindSubject();
+        })
+        function bindSource() {
+            searchInfo.title = $("input[name='seachKey']").val();
+            ajaxQuest("Post", "GetDataSource", 'application/x-www-form-urlencoded', searchInfo, function (data) {
+                var html = template('templateTeacher', { list: data.data });
+                document.getElementById('teacherContent').innerHTML = html;
+                document.getElementById('teacherContent').innerHTML = document.getElementById('templateAdd').innerHTML + html;
+                searchInfo.total = data.count;
+                if (searchInfo.total > searchInfo.limit) {
+                    $(".pageTool").parent().show();
+                    if (searchInfo.page == 1) {
+                        $(".pageTool .page").eq(0).addClass("unactive").removeClass("active");
+                        $(".pageTool .page").eq(1).addClass("active").removeClass("unactive");
+                    }
+                }
+                else {
+                    $(".pageTool").parent().hide();
+                }
+            })
+        }
+
+        function edit(obj) {
+            var objmodel = JSON.parse($(obj).attr("datamodel"));
+            var dataId = $("#fromTeacher").serializeArray();
+            $("input[name='Sex'][value='" + objmodel['Sex'] + "']").removeProp("checked");
+            $("input[name='Sex'][value='" + objmodel['Sex'] + "']").prop("checked", "checked");
+            dataId.forEach(item => {
+                if (item.name != 'Sex') {
+                    $("input[name='" + item.name + "']").val(objmodel[item.name]);
+                }
+            });
+            $("#modal2").modal('show');
+        }
+        function addStudent() {
+            $("#modal2").modal('show');
+            var dataId = $("#fromTeacher").serializeArray();
+            dataId.forEach(item => {
+                if (item.name != 'Sex') {
+                    $("input[name='" + item.name + "']").val("");
+                }
+            });
+        }
+        function addCotrac(obj) {
+            $("#modal3").modal('show');
+            var objmodel = JSON.parse($(obj).attr("datamodel"));
+            $("#lbStudentName").text(objmodel.Student_Name);
+            $("input[name='StudentUid']").val(objmodel.StudentUid);
+            ajaxQuest("Post", "SetContrc", 'application/x-www-form-urlencoded', {}, function (data) {
+                if (data.data != null) {
+                    $("#lbContraNo").text(data.data);
+                    $("input[name='ContraNo']").val(data.data);
+                }
+            })
+        }
+        function canCelTeacher() {
+            $("#modal2").modal('hide');
+        }
+        function canCelContrac() {
+            $("#modal3").modal('hide');
+            childList = [];
+            childInfo = {
+                Sort: 0,
+                CourseTimeTotal: 0,
+                Class_Course_Time: 0,
+                Contra_ChildNo: '',
+                StartTime: '',
+                StudyStatus: '',
+                Cycle: '',
+                StudyMode: 0,
+                ClassId: 0,
+                IsPreferential: 0,
+                Original_Amount: 0,
+                ContraRate: 0,
+                Discount_Amount: 0,
+                Contra_Property: 0,
+                Saler_Amount: 0,
+                Added_Amount: 0,
+                PresentTime: 0,
+                Remarks: '',
+                Child_Detail: []
+            };
+
+        }
+        //保存合同
+        function SaveContrcIn() {
+            var contrcModel = { ContraNo: '', StudentUid: 0, childList: [], ContraCenterId: 1,CampusId:1};
+            contrcModel.ContraNo = $("input[name='ContraNo']").val();
+            contrcModel.StudentUid = $("input[name='StudentUid']").val();
+            contrcModel.childList = childList;
+            ajaxQuest("Post", "/Admin/ContracUser/SaveContrc", 'application/x-www-form-urlencoded',contrcModel, function (data) {
+                if (data.code==200) {
+                    canCelContrac();
+                    $.mvalidateTip("保存成功");
+                }
+            })
+        }
+        function bindSubject() {
+            ajaxQuest("Post","/Admin/ContracUser/QuerySubject", 'application/x-www-form-urlencoded',{}, function (rou) {
+                if (rou.data != null) {
+                    var result = rou.data;
+                    subjectList = result;
+                }
+            })
+        }
+        function LoadClass(className) {
+            ajaxQuest("Post","/Admin/ContracUser/QueryClass", 'application/x-www-form-urlencoded', { typeId: 0, className: className}, function (rou) {
+                if (rou.data != null) {
+                    var result = rou.data;
+                    if (result != null && result != undefined && result != [] && result != "[]" && classList != null && classList != []) {
+                        for (var i = 0; i < result.length; i++) {
+                            var classModel = classList.find(an => an.ClassId == result[i].ClassId);
+                            if (classModel == null || classModel == undefined) {
+                                classList.push(result[i]);
+                            }
+                        }
+                    }
+                    else {
+                        classList = result;
+                    }
+                    document.getElementById("classGroup").style.display = "block";
+                    var html = template("classGroupTemp", { data: result });
+                    document.getElementById("classGroup").innerHTML = html;
+                    $("div[class='classItem']").click(function () {
+                        var studymode = $("select[name='StudyMode']").val()
+                        var classid = $(this).find("span").attr("data-Id");
+                        var className = $(this).find("span").text();
+                        var price = $(this).find("span").attr("data-price");
+                        var classCourseTime = $(this).find("span").attr("data-classTime");
+                        document.getElementById("classGroup").style.display = "none";
+                        $("input[name='ClassId']").val(classid);
+                        $("input[name='ClassName']").val(className);
+                        $("input[name='Class_Course_Time']").val(classCourseTime);
+                        var rate = 0;
+                        if ($("input[name='ContraRate']").parent().css("display") == "block") {
+                            rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+                        }
+                        else {
+                            rate = $("select[name='ContraRateSelect']").val() > 0 ? $("select[name='ContraRateSelect']").val() : 10;
+                            $("input[name='ContraRate']").val(rate);
+                        }
+                        if (parseInt(studymode) == 2) {
+                            $("#child_Contrc_Detail").find("tr").remove();
+                            var orgprice = parseFloat(price).toFixed(2);
+                            $("input[name='Original_Amount']").val(orgprice);
+                            if (rate > 0) {
+                                var afterAmount = (parseFloat(rate) / 10) * orgprice;
+                                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                                $("input[name='Discount_Amount']").val((orgprice - afterAmount.toFixed(2)).toFixed(2));
+                            }
+                        }
+                    });
+                }
+            })
+        }
+        function LastLoadProject(sujectId) {
+            ajaxQuest("Post","/Admin/ContracUser/QueryProject", 'application/x-www-form-urlencoded', { subjectId: sujectId}, function (rou) {
+                if (rou.data != null) {
+                    var result = rou.data;
+                    for (var i = 0; i < result.length; i++) {
+                        $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                    }
+                }
+            });
+        }
+        function LastInitSubject() {
+            for (var i = 0; i < subjectList.length; i++) {
+                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='SubjectId']").append('<option value ="' + subjectList[i].SubjectId +
+                    '"  lvel1Price="' + subjectList[i].Lvel1Price + '"  Lvel2Price="' + subjectList[i].Lvel2Price + '" Lvel3Price="' + subjectList[i].Lvel3Price + '"  Lvel4Price="' + subjectList[i].Lvel4Price + '">' + subjectList[i].SubjectName + '</option>');
+                if (i == 0) {
+                    LastLoadProject(subjectList[i].SubjectId);
+                    $("#child_Contrc_Detail").find("tr:last").find("td").find("input[name='Price']").val(subjectList[i].Lvel1Price);
+                }
+            }
+        }
+        $("#addDetail").click(function () {
+            $("#child_Contrc_Detail").append($("#templateItemAdd").html());
+            LastInitSubject();
+            for (var k = 0; k < timeList.length; k++) {
+                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+            }
+        });
+        $("#btnAddChild").click(function () {
+            $("#modal5").modal('show');
+            $("#child_Contrc_Detail").html("");
+            $("#child_Contrc_Detail").append($("#templateItemAdd").html());
+            LastInitSubject();
+            for (var k = 0; k < timeList.length; k++) {
+                $("#child_Contrc_Detail").find("tr:last").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+            }
+            var contraNo = $("input[name='ContraNo']").val();
+            childList.sort((a, b) => {
+                if (a.Sort > b.Sort) return -1;
+                if (a.Sort < b.Sort) return 1;
+                return 0;
+            })
+            childInfo = {
+                Sort: 0,
+                CourseTimeTotal: 0,
+                Class_Course_Time: 0,
+                Contra_ChildNo: '',
+                StartTime: '',
+                StudyStatus: '',
+                Cycle: '',
+                StudyMode: 0,
+                ClassId: 0,
+                IsPreferential: 0,
+                Original_Amount: 0,
+                ContraRate: 0,
+                Discount_Amount: 0,
+                Contra_Property: 0,
+                Saler_Amount: 0,
+                Added_Amount: 0,
+                PresentTime: 0,
+                Remarks: '',
+                Child_Detail: []
+            };
+            $("input[name='PresentTime']").val(0);
+            $("input[name='Original_Amount']").val(0);
+            $("input[name='ContraRate']").val(10);
+            $("select[name='ContraRateSelect']").val(10);
+            $("input[name='Discount_Amount']").val(0);
+            $("input[name='Added_Amount']").val(0);
+            $("input[name='Saler_Amount']").val(0);
+            if (childList.length > 0) {
+                childInfo.Sort = childList[0].Sort + 1;
+                $("input[name='Contra_ChildNo']").val(contraNo + '_' + childInfo.Sort);
+            }
+            else {
+                childInfo.Sort = 1;
+                $("input[name='Contra_ChildNo']").val(contraNo + '_' + childInfo.Sort);
+            }
+            childInfo.Contra_ChildNo = contraNo + '_' + childInfo.Sort;
+        });
+
+        $("#saveChild").click(function () {
+            var newObject = jQuery.extend({}, childInfo);
+            for (var key in childInputInfo) {
+                if (key == 'StudyMode') {
+                    newObject[key] = $("select[name='" + key + "']").val();
+                }
+                else if (key == 'ClassId') {
+                    newObject[key] = $("input[name='" + key + "']").val();
+                }
+                else if (key == 'Remarks') {
+                    newObject[key] = $("textarea[name='" + key + "']").val();
+                }
+                else if (key == 'IsPreferential') {
+                    if ($("input[name='" + key + "']").prop("checked") != true) {
+                        newObject[key] = 0;
+                    }
+                    else {
+                        newObject[key] = 1;
+                    }
+                }
+                else if (key == 'Contra_Property') {
+                    newObject[key] = $("input[name='" + key + "']:checked").val();
+                }
+                else {
+                    newObject[key] = $("input[name='" + key + "']").val();
+                }
+            }
+            if (newObject.Original_Amount < 1 && newObject.StudyMode == 1) {
+                $.mvalidateTip("请点击合计总价");
+                return false;
+            }
+            newObject.CourseTimeTotal = 0;
+            newObject.Child_Detail = [];
+            if (newObject.StudyMode == 1) {
+                $("#child_Contrc_Detail>tr").each(function (i, ite) {
+                    var td = $(ite).find("td");
+                    var sbujectId = td.find("select[name='SubjectId']").val();
+                    var projectId = td.find("select[name='ProjectId']").val();
+                    var level = td.find("select[name='Level']").val();
+                    var courseTime = td.find("select[name='Course_Time']").val();
+                    var price = td.find("input[name='Price']").val();
+                    newObject.CourseTimeTotal += parseFloat(courseTime);
+                    newObject.Child_Detail.push({ Course_Time: courseTime, ProjectId: projectId, SubjectId: sbujectId, Level: level, Price: price });
+                })
+            }
+            if (newObject.ClassId > 0) {
+                newObject.ClassName = classList.filter(ite => ite.ClassId == newObject.ClassId)[0].Class_Name;
+            }
+            else {
+                newObject.ClassName = "";
+            }
+            var hasInfo = childList.find(it => it.Contra_ChildNo == childInfo.Contra_ChildNo);
+            if (hasInfo != undefined && hasInfo != null) {
+                var crrtIndx = childList.findIndex(it => it.Contra_ChildNo == childInfo.Contra_ChildNo);
+                childList[crrtIndx] = newObject;
+            }
+            else {
+                childList.push(newObject);
+            }
+            childList.sort((a, b) => {
+                if (a.Sort > b.Sort) return 1;
+                if (a.Sort < b.Sort) return -1;
+                return 0;
+            })
+            var html = template("templateChild", { data: childList });
+            document.getElementById("child_Contrc").innerHTML = html;
+            $("#modal5").modal('hide');
+        });
+
+        $("#sumTotal").click(function () {
+            var orgAmount = 0;
+            $("#child_Contrc_Detail").find("tr").each(function (index, item) {
+                var td = $(item).find("td");
+                var level = td.find("select[name='Level']").val();
+                var courseTime = td.find("select[name='Course_Time']").val();
+                var price = td.find("input[name='Price']");
+                var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+                var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+                var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+                var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+                if (level == 1) {
+                    price.val((courseTime * leve1Price).toFixed(2));
+                }
+                if (level == 2) {
+                    price.val((courseTime * leve2Price).toFixed(2));
+                }
+                if (level == 3) {
+                    price.val((courseTime * leve3Price).toFixed(2));
+                }
+                if (level == 4) {
+                    price.val((courseTime * leve4Price).toFixed(2));
+                }
+                orgAmount = orgAmount + parseFloat(price.val());
+            });
+            var rate = 0;
+            if ($("input[name='ContraRate']").parent().css("display") == "block") {
+                rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+            }
+            else {
+                rate = $("select[name='ContraRateSelect']").val() > 0 ? $("select[name='ContraRateSelect']").val() : 10;
+                $("input[name='ContraRate']").val(rate);
+            }
+            if (rate > 0) {
+                $("input[name='Original_Amount']").val(orgAmount);
+                var afterAmount = orgAmount * (parseFloat(rate) / 10);
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+            }
+        });
+
+        $("input[name='ClassName']").keyup(function () {
+            var className = $(this).val();
+            LoadClass(className);
+        })
+        function SubjectIdChange(obj) {
+            var sujectId = $(obj).val();
+            var td = $(obj).parents("tr").find("td");
+            var level = td.find("select[name='Level']").val();
+            var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+            var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+            var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+            var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+            var courseTime = td.find("select[name='Course_Time']").val();
+            var price = td.find("input[name='Price']");
+            ajaxQuest("Post", "/Admin/ContracUser/QueryProject",'application/x-www-form-urlencoded',{ subjectId: sujectId }, function (rou) {
+                if (rou.data != null) {
+                    var result = rou.data;
+                    td.find("select[name='ProjectId']").html("");
+                    for (var i = 0; i < result.length; i++) {
+                        td.find("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                    }
+                }
+            });
+            if (level == 1) {
+                price.val((courseTime * leve1Price).toFixed(2));
+            }
+            if (level == 2) {
+                price.val((courseTime * leve2Price).toFixed(2));
+            }
+            if (level == 3) {
+                price.val((courseTime * leve3Price).toFixed(2));
+            }
+            if (level == 4) {
+                price.val((courseTime * leve4Price).toFixed(2));
+            }
+        }
+        function LevelChange(obj) {
+            var level = $(obj).val();
+            var td = $(obj).parents("tr").find("td");
+            var price = td.find("input[name='Price']");
+            var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+            var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+            var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+            var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+            var courseTime = td.find("select[name='Course_Time']").val();
+            if (level == 1) {
+                price.val((courseTime * leve1Price).toFixed(2));
+            }
+            if (level == 2) {
+                price.val((courseTime * leve2Price).toFixed(2));
+            }
+            if (level == 3) {
+                price.val((courseTime * leve3Price).toFixed(2));
+            }
+            if (level == 4) {
+                price.val((courseTime * leve4Price).toFixed(2));
+            }
+        }
+        function Course_TimeChange(obj) {
+            var td = $(obj).parents("tr").find("td");
+            var price = td.find("input[name='Price']");
+            var level = td.find("select[name='Level']").val();
+            var leve1Price = td.find("select[name='SubjectId']>option:selected").attr("lvel1Price");
+            var leve2Price = td.find("select[name='SubjectId']>option:selected").attr("lvel2Price");
+            var leve3Price = td.find("select[name='SubjectId']>option:selected").attr("lvel3Price");
+            var leve4Price = td.find("select[name='SubjectId']>option:selected").attr("lvel4Price");
+            var courseTime = $(obj).val();
+            if (level == 1) {
+                price.val((courseTime * leve1Price).toFixed(2));
+            }
+            if (level == 2) {
+                price.val((courseTime * leve2Price).toFixed(2));
+            }
+            if (level == 3) {
+                price.val((courseTime * leve3Price).toFixed(2));
+            }
+            if (level == 4) {
+                price.val((courseTime * leve4Price).toFixed(2));
+            }
+        }
+        $("select[name='StudyMode']").change(function () {
+            var studymode = $(this).val();
+            if (parseInt(studymode) == 2) {
+                $("input[name='PresentTime']").val(0);
+                $("#OneOfOne").css("display", "none");
+                $("#child_Contrc_Detail").find("tr").remove();
+                $("#partClassHourse").show();
+                $("#partClass").show();
+                $("#sumTotal").css("display", "none");
+                $("#addDetail").css("display", "none");
+                $("#partPresentTime").css("display", "none");
+            }
+            else {
+                $("#OneOfOne").show();
+                $("#partClassHourse").css("display", "none");
+                $("#partClass").css("display", "none");
+                $("#sumTotal").show();
+                $("#addDetail").show();
+                $("#partPresentTime").show();
+            }
+        });
+        $("select[name='ContraRateSelect']").change(function () {
+            var seletVal = $(this).val();
+            if (seletVal== 0) {
+                $("input[name='ContraRate']").parent().css("display", "block");
+            }
+            else {
+                $("input[name='ContraRate']").val(seletVal);
+                var rate = seletVal > 0 ? seletVal : 10;
+                var original = $("input[name='Original_Amount']").val();
+                if (original > 0) {
+                    var afterAmount = (parseFloat(rate) / 10) * original;
+                    $("#Saler_Amount").text(afterAmount.toFixed(2));
+                    $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                    $("#Discount_Amount").text((original - afterAmount.toFixed(2)).toFixed(2));
+                    $("input[name='Discount_Amount']").val((original - afterAmount.toFixed(2)).toFixed(2));
+                }
+            }
+        })
+        //修改详情
+        function editChild(obj) {
+            var subjectIds = [];
+            $("input[name='Contra_Property']").removeAttr("checked");
+            var contracChildNo = $(obj).attr("data-childNo");
+            childInfo = childList.find(item => item.Contra_ChildNo == contracChildNo);
+            var html = template("templateItem", { data: childInfo.Child_Detail });
+            document.getElementById("child_Contrc_Detail").innerHTML = html;
+            for (var i = 0; i < subjectList.length; i++) {
+                $("#child_Contrc_Detail").find("tr").find("td").find("select[name='SubjectId']").append('<option value ="' + subjectList[i].SubjectId +
+                    '" lvel1Price="' + subjectList[i].Lvel1Price + '"  Lvel2Price="' + subjectList[i].Lvel2Price + '"  Lvel3Price="' + subjectList[i].Lvel3Price+'"  Lvel4Price="' + subjectList[i].Lvel4Price+'">' + subjectList[i].SubjectName + '</option>');
+            }
+            for (var k = 0; k < timeList.length; k++) {
+                $("#child_Contrc_Detail").find("tr").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
+            }
+            var i = 0;
+            childInfo.Child_Detail.forEach(item => {
+                $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='SubjectId']").val(item.SubjectId);
+                $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Level']").val(item.Level);
+                $("#child_Contrc_Detail").find("tr:eq(" + i + ")").find("td").find("select[name='Course_Time']").val(item.Course_Time);
+                i++;
+            });
+            childInfo.Child_Detail.forEach(item => {
+                subjectIds.push(item.SubjectId);
+            });
+            if (subjectIds != null && subjectIds != undefined && subjectIds.length > 0) {
+                    $.ajax({
+                        type: "post",
+                        url:"@Url.Action("QueryProjects", "ContracUser")",
+                        data: {subjectIds: subjectIds},
+                        dataType: 'json',
+                        contentType: 'application/x-www-form-urlencoded',
+                        success: function (rou) {
+                            var result = rou.data;
+                            var k = 0;
+                            childInfo.Child_Detail.forEach(item => {
+                                var curProjects = result.filter(m => m.SubjectId == parseInt(item.SubjectId));
+                                var defaultProjectValue = 0;
+                                for (var j = 0; j < curProjects.length; j++) {
+                                    if (parseInt(item.ProjectId) == curProjects[j].ProjectId) {
+                                        defaultProjectValue = curProjects[j].ProjectId;
+                                        $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + curProjects[j].ProjectId + ' selected>' + curProjects[j].ProjectName + '</option>');
+                                    }
+                                    else {
+                                        $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").append('<option value = ' + curProjects[j].ProjectId + '>' + curProjects[j].ProjectName + '</option>');
+                                    }
+                                }
+                                $("#child_Contrc_Detail").find("tr:eq(" + k + ")").find("td").find("select[name='ProjectId']").val(defaultProjectValue);
+                                k++;
+                            });
+                        }
+                    });
+            }
+            for (var key in childInputInfo) {
+                if (key == 'StudyMode') {
+                    $("select[name='" + key + "']").val(childInfo[key]);
+                }
+                else if (key == 'ClassId') {
+                    $("input[name='ClassId']").val(childInfo[key]);
+                    var classModel = classList.find(em => em.ClassId == parseInt(childInfo[key]));
+                    if (classModel != undefined) {
+                        $("input[name='ClassName']").val(classModel.Class_Name);
+                    }
+                }
+                else if (key == 'Remarks') {
+                    $("textarea[name='" + key + "']").val(childInfo[key]);
+                }
+                else if (key == 'IsPreferential') {
+                    if (parseInt(childInfo[key]) == 1) {
+                        $("input[name='IsPreferential']").prop('checked', 'checked');
+                    }
+                    else {
+                        $("input[name='IsPreferential']").prop('checked', false);
+                        $("input[name='IsPreferential']").removeAttr("checked");
+                    }
+                }
+                else if (key == 'Contra_Property') {
+                    $("input[name='Contra_Property'][value='" + childInfo[key] + "']").prop('checked', 'checked');
+                }
+                else {
+                    $("input[name='" + key + "']").val(childInfo[key]);
+                    if (key == 'ContraRate') {
+                        var anyRate = $("select[name='ContraRateSelect']").find("option[value='" +childInfo[key] + "']").val();
+                        if (anyRate != undefined && anyRate > 0) {
+                            $("select[name='ContraRateSelect']").val(childInfo[key]);
+                        }
+                        else {
+                            $("select[name='ContraRateSelect']").parent().css("display","none");
+                            $("input[name='ContraRate']").parent().show();
+                        }
+                    }
+                }
+            }
+            if (childInfo.StudyMode == 2) {
+                $("#OneOfOne").css("display", "none");
+                $("#partClassHourse").show();
+                $("#partClass").show();
+                $("#sumTotal").css("display", "none");
+                $("#partPresentTime").css("display", "none");
+            }
+            else {
+                $("#OneOfOne").show();
+                $("#partClassHourse").css("display","none");
+                $("#partClass").css("display", "none");
+                $("#sumTotal").show();
+                $("#partPresentTime").show();
+            }
+            $("#modal5").modal('show');
+        }
+        //删除合同详情明细
+        function DelItem(obj) {
+            $(obj).parents("tr").remove();
+        }
+        //删除合同详情
+        function removeContraDetail(obj) {
+            var contracChildNo = $(obj).attr("data-childNo");
+            var delIndex = childList.findIndex(it => it.Contra_ChildNo == contracChildNo);
+            childList.splice(delIndex, 1);
+            var html = template("templateChild", { data: childList });
+            document.getElementById("child_Contrc").innerHTML = html;
+            $.mvalidateTip("删除成功");
+        }
+        function findCourseDetail(studentUid) {
+            $("#modal6").modal('show');
+            ajaxQuest("Post", "/Admin/ContracUser/QueryStudentTotal", 'application/x-www-form-urlencoded', { studentUid: studentUid }, function (rou) {
+                if (rou.data != null) {
+                    var result = rou.data;
+                    var html = template("templateCourseDetail", { data: result });
+                    document.getElementById("UserCourseDetail").innerHTML = html;
+                }
+            });
+        }
+
+        $("#CancelDetail").click(function () {
+            $("#modal5").modal('hide');
+        });
+        $("input[name='Original_Amount']").keyup(function () {
+            var rate = 0;
+            if ($("input[name='ContraRate']").parent().css("display") == "block") {
+                rate = $("input[name='ContraRate']").val() > 0 ? $("input[name='ContraRate']").val() : 10;
+            }
+            else {
+                rate = $("select[name='ContraRateSelect']").val() > 0 ? $("select[name='ContraRateSelect']").val() : 10;
+                $("input[name='ContraRate']").val(rate);
+            }
+            if (rate > 0) {
+                var orgAmount = $(this).val();
+                var afterAmount = $(this).val() * (parseFloat(rate) / 10);
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("input[name='Discount_Amount']").val((orgAmount - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+        $("input[name='ContraRate']").keyup(function () {
+            var rate = $(this).val() > 0 ? $(this).val() : 10;
+            var original = $("input[name='Original_Amount']").val();
+            if (original > 0) {
+                var afterAmount = (parseFloat(rate) / 10) * original;
+                $("input[name='Saler_Amount']").val(afterAmount.toFixed(2));
+                $("input[name='Discount_Amount']").val((original - afterAmount.toFixed(2)).toFixed(2));
+            }
+        })
+    </script>
+</div>

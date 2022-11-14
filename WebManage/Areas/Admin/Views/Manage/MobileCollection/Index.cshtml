@@ -1,0 +1,574 @@
+﻿@{
+    Layout = null;
+}
+<link rel="apple-touch-icon" href="~/apple-touch-icon.png">
+<link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon">
+<link href="~/assets/css/neat.min.css" rel="stylesheet" />
+<link href="~/assets/css/validate.css" rel="stylesheet" />
+<script src="~/assets/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="~/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="~/assets/js/common.js?v=311"></script>
+<script src="~/assets/js/vendor/bootstrap.bundle.js"></script>
+<script src="~/assets/js/vendor/dragula.js"></script>
+<script src="~/assets/js/sidebar.js"></script>
+<script src="~/assets/js/neat.js"></script>
+<script src="~/assets/js/jquery-mvalidate.js"></script>
+<script src="~/assets/js/template-web.js"></script>
+<script src="~/assets/js/AjaxHttp.js"></script>
+
+<style>
+    .pageTool {
+        display: flex;
+        box-shadow: 1px 2px 6px 2px rgba(96,96, 192,0.09);
+    }
+
+        .pageTool .page {
+            flex: 1;
+            text-align: center;
+            border: 1px solid #666262;
+            line-height: 36px;
+            color: #626262;
+            cursor: pointer;
+        }
+
+        .pageTool .active {
+            background-color: #3097a5;
+            color: white;
+            border: 1px solid #3097a5
+        }
+
+        .pageTool .unactive {
+            background-color: #f4f6f9;
+            color: rgba(0, 0, 0, 0.12);
+            border: 1px solid #f4f6f9;
+            cursor: default;
+        }
+
+    .members {
+        position: absolute;
+        top: 40px;
+        width: 91%;
+        background-color: #f8f8f8;
+        padding-top: 1px;
+        z-index: 2;
+        padding-bottom: 20px;
+        display: none;
+    }
+
+    .item {
+        border-bottom: solid #ddd 1px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        padding-left: 8px;
+        margin-top: 3px;
+        cursor: pointer;
+        width: 100%;
+        z-index: 3;
+    }
+
+    .SaleItem {
+        min-width: 163px;
+        margin-right: 10px;
+    }
+</style>
+<div class="container" style="height:100%">
+    <div class="row">
+        <div style="width: 100%; display: flex; flex-wrap: wrap; box-sizing: border-box;">
+            <div style="padding:15px 15px 15px 15px;flex-grow:0;display:flex;flex-wrap:wrap" class="col-sm-6">
+                <label class="c-field__label" style="max-width: 69px;margin-top:10px;">时间</label>
+                <div style="display:flex;flex-wrap:wrap;">
+                    <input name="startTime" class="c-input" placeholder="开始时间" style="flex:1" />-
+                    <input name="endTime" class="c-input" placeholder="截止时间" style="flex:1" />
+                </div>
+            </div>
+            <div style="flex-grow: 0; padding:15px 15px 15px 15px;display: flex;flex-wrap: wrap" class="col-sm-6">
+                <label class="c-field__label" style="max-width:58px;margin-top:10px;">关键字</label>
+                <div style="flex:1 auto;position:relative;padding-right:5px">
+                    <a id="btnSearchSt"><i class="feather icon-search" style="position:absolute;font-size:22px;line-height:36px;right:6px;width:25px;"></i></a>
+                    <input style="width:100%" class="c-input" name="seachKey" placeholder="输入学员名称" />
+                </div>
+                <button class="c-btn c-btn--small" style="width:50px;text-align:center;padding-left:0.7rem" onclick="ModalAdd()">添加</button>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="c-table-responsive@wide">
+                <table class="c-table">
+                    <thead class="c-table__head">
+                        <tr class="c-table__row">
+                            <th class="c-table__cell c-table__cell--head">学员</th>
+                            <th class="c-table__cell c-table__cell--head">收款金额</th>
+                            <th class="c-table__cell c-table__cell--head">额外优惠</th>
+                            <th class="c-table__cell c-table__cell--head">使用余额</th>
+                            <th class="c-table__cell c-table__cell--head">支付模式</th>
+                            <th class="c-table__cell c-table__cell--head">关联合同</th>
+                            <th class="c-table__cell c-table__cell--head">收款日期</th>
+                            <th class="c-table__cell c-table__cell--head">创建人</th>
+                            <th class="c-table__cell c-table__cell--head">状态</th>
+                            <th class="c-table__cell c-table__cell--head">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cotracContent">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="display:none">
+            <div class="pageTool">
+                <div class="page">上一页</div>
+                <div class="page">下一页</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="c-modal modal fade" id="modal2" tabindex="-1" role="dialog" aria-labelledby="modal2">
+    <div class="c-modal__dialog modal-dialog" role="document">
+        <div class="c-modal__content">
+            <form id="fromTeacher">
+                <input type="hidden" name="Id" value="0"/>
+                <input type="hidden" name="StudentUid"  value="0"/>
+                <div class="c-modal__body" style="padding:20px 10px;">
+                    <span class="c-modal__close" data-dismiss="modal" aria-label="Close">
+                        <i class="feather icon-x"></i>
+                    </span>
+                    <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                        <div class="col-sm-3" style="text-align:left">
+                            <label>学生姓名</label>
+                        </div>
+                        <div class="col-sm-9" style="position:relative">
+                            <input class="c-input" name="StudentName" data-required="true" data-descriptions="StudentName" />
+                            <div class="members" id="members">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;margin-top:12px;flex-wrap: wrap;width: 100%;">
+                        <div class="col-sm-3" style="text-align:left">
+                            <label>关联合同</label>
+                        </div>
+                        <div class="col-sm-9" style="text-align:left">
+                            <div class="c-select">
+                                <select name="RelationShip_Contras" class="c-select__input">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                        <div class="col-sm-3" style="text-align:left">
+                            <label>收款金额</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input type="text" class="c-input" name="Amount" />
+                        </div>
+                    </div>
+                    <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                        <div class="col-sm-3" style="text-align:left">
+                            <label>使用余额</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input type="text" class="c-input" name="DeductAmount" />
+                        </div>
+                    </div>
+                    <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                        <div class="col-sm-3" style="text-align:left">
+                            <label>使用额外优惠</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input type="text" class="c-input" name="AddedAmount" value="0" />
+                        </div>
+                    </div>
+                    <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                        <div class="col-sm-3" style="text-align:left">
+                            <label>收款方式</label>
+                        </div>
+                        <div class="col-sm-9" style="text-align:left">
+                            <input name="PayMothed" type="radio" title="现金" value="1" />现金
+                            <input name="PayMothed" type="radio" title="刷卡" value="2" />刷卡
+                            <input name="PayMothed" type="radio" title="汇款" value="3" checked />汇款
+                        </div>
+                    </div>
+                    <div id="oneOfone" style="display:none">
+                        <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                            <div class="col-sm-3" style="text-align:left">
+                                <label>项目详情</label>
+                            </div>
+                            <div class="col-sm-9">
+                                <div style="display:flex;flex-wrap:wrap;text-align:left" id="projectItem"></div>
+                                <div id="classItem"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;margin-top:15px;flex-wrap: wrap;width: 100%;">
+                        <div class="col-sm-3" style="text-align:left">
+                            <label>收款日期</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input class="c-input" name="Collection_Time" id="Collection_Time" type="text" />
+                        </div>
+                    </div>
+                    <div class="o-line" style="padding:20px 15px 0px 15px;">
+                        <a onclick="CanCelMadal()" class="c-btn c-btn--info c-btn--outline">取消</a>
+                        <button class="c-btn c-btn--info" type="submit">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="tempTable">
+    {{each list item index}}
+    <tr class="c-table__row">
+        <td class="c-table__cell">
+            {{item.StudentName}}
+        </td>
+        <td style="width:80px" class="c-table__cell">{{item.Amount>0?item.Amount:0}}</td>
+        <td class="c-table__cell">
+            {{item.AddedAmount}}
+        </td>
+        <td class="c-table__cell">
+            {{item.DeductAmount}}
+        </td>
+        <td class="c-table__cell">
+            {{if item.Amount>0}}
+            普通收款
+            {{/if}}
+            {{if item.AddedAmount>0&&item.Amount<1}}
+            使用额外优惠
+            {{/if}}
+            {{if item.DeductAmount>0&&item.AddedAmount<1&&item.Amount<1}}
+            使用余额
+            {{/if}}
+        </td>
+        <td class="c-table__cell">
+            {{item.RelationShip_Contras}}
+        </td>
+        <td class="c-table__cell">
+            {{item.Collection_Time}}
+        </td>
+        <td class="c-table__cell">
+            {{item.User_Name}}
+        </td>
+        <td class="c-table__cell">
+            {{if item.PayStatus==0}}
+            待确认
+            {{else if item.PayStatus ==1}}
+            已确认
+            {{else if item.PayStatus ==2}}
+            已驳回
+            {{/if}}
+        </td>
+        <td class="c-table__cell">
+            {{if item.PayStatus==0}}
+            <button type="button" onclick="Audit({{item.Id}},true)">确认收款</button>
+            <button type="button" onclick="Audit({{item.Id}},false)">驳回收款</button>
+            {{/if}}
+            <button type="button" onclick="FindInfo({{item.Id}})">修改</button>
+        </td>
+    </tr>
+    {{/each}}
+</script>
+<script type="text/template" id="membersTemp">
+    {{each data item index}}
+    <div class="item">
+        <span data-value="{{item.StudentUid}}" data-amount="{{item.Amount}}">{{item.Student_Name}}</span>
+    </div>
+    {{/each}}
+</script>
+<script type="text/template" id="saleItemTemp">
+    {{each data item index}}
+    <div class="SaleItem">
+        <span>{{item.SubjectName}}({{item.ProjectName}})</span>
+        <br /><input name="ItemAmount" data-detailId="{{item.Id}}" class="layui-input" type="number" value="{{item.TotalSelaPrice}}" />
+    </div>
+    {{/each}}
+</script>
+<script type="text/javascript">
+    var searchInfo = {
+        title: '',
+        startTime: '',
+        endTime: '',
+        page: 1,
+        limit: 4,
+        total: 0
+    };
+    $(".pageTool .page").click(function () {
+        var currentIndex = $(this).index();
+        if (currentIndex == 0) {
+            if (searchInfo.page > 1) {
+                searchInfo.page--;
+                $(this).addClass("active").removeClass("unactive");
+                $(this).next().removeClass("active");
+                if (searchInfo.page == 1) {
+                    $(this).removeClass("active").addClass("unactive");
+                    $(this).next().addClass("active").removeClass("unactive");
+                }
+                else {
+                    $(this).next().removeClass("unactive");
+                }
+            }
+            else {
+                $(this).removeClass("active").addClass("unactive");
+                $(this).next().addClass("active").removeClass("unactive");
+            }
+        }
+        else {
+            var pageTotal = searchInfo.total / searchInfo.limit;
+            if (pageTotal > searchInfo.page) {
+                searchInfo.page++;
+                $(this).addClass("active");
+                $(this).prev().removeClass("active");
+                if (pageTotal < searchInfo.page) {
+                    $(this).removeClass("active").addClass("unactive");
+                    $(this).prev().addClass("active").removeClass("unactive");
+                }
+                else {
+                    $(this).prev().removeClass("unactive");
+                }
+            }
+            else {
+                $(this).removeClass("active").addClass("unactive");
+                $(this).prev().addClass("active").removeClass("unactive");
+            }
+        }
+        bindSource();
+    });
+    $("#fromTeacher").mvalidate({
+        type: 1,
+        onKeyup: true,
+        sendForm: false,
+        firstInvalidFocus: false,
+        valid: function (event, options) {
+            //点击提交按钮时,表单通过验证触发函数
+            event.preventDefault();
+            var objInfo = {};
+            var fieIds = $("#fromTeacher").serializeArray();
+            $.each(fieIds, function (index, fieid) {
+                objInfo[fieid.name] = fieid.value;
+            })
+            objInfo.CollectionDetail = [];
+            $("input[name='ItemAmount']").each(function (i, item) {
+                var ChildDetailId = $(item).attr("data-detailId");
+                var collectionId = $("input[name='Id']").val() == "" ? 0 : parseInt($("input[name='Id']").val());
+                objInfo.CollectionDetail.push({ ChildDetailId: ChildDetailId, CollectionId: collectionId, Amount: $(item).val() });
+            });
+            objInfo.RelationShip_Contras = $("select[name='RelationShip_Contras']").val();
+            console.log(objInfo);
+            ajaxQuest("Post", "/Admin/Collection/SaveInfo", 'application/x-www-form-urlencoded', objInfo, function (data) {
+                $.mvalidateTip("保存成功");
+                bindSource();
+                $("#modal2").modal('hide');
+            })
+        },
+        descriptions: {
+            StudentName: {
+                required: '请输入姓名'
+            }
+        }
+    });
+    $(function () {
+        bindSource();
+    })
+    function CanCelMadal() {
+        $("#modal2").modal('hide');
+        var dataId = $("#fromTeacher").serializeArray();
+        dataId.forEach(item => {
+            if (item.name != 'PayMothed') {
+                $("input[name='" + item.name + "']").val("");
+            }
+            if (item.name == 'RelationShip_Contras') {
+                $("select[name='RelationShip_Contras']").html("<option value=''>-无-</option>")
+            }
+        });
+    }
+    function ModalAdd() {
+        $("#modal2").modal('show');
+        document.getElementById("oneOfone").style.display = "none";
+        document.getElementById("projectItem").innerHTML = ""; 
+        var dataId = $("#fromTeacher").serializeArray();
+        dataId.forEach(item => {
+            if (item.name != 'PayMothed') {
+                $("input[name='" + item.name + "']").val("");
+            }
+            if (item.name == "Collection_Time") {
+                var timenow = new Date();
+                $("#Collection_Time").val(dateFtt("yyyy-MM-dd hh:mm", timenow));
+            }
+            if (item.name == 'RelationShip_Contras') {
+                $("select[name='RelationShip_Contras']").html("<option value=''>-无-</option>")
+            }
+        });
+    }
+    function FindInfo(Id) {
+        $("#modal2").modal('show');
+        ajaxQuest("Post", "/Admin/Collection/Find", 'application/x-www-form-urlencoded', { ID:Id}, function (r) {
+            if (r.StudentUid != null) {
+                bindContrac(r.StudentUid, r.RelationShip_Contras, r.ListCollectionDetail);
+            }
+            if (r.Collection_Time != undefined && r.Collection_Time != null) {
+                $("#Collection_Time").val(dateFtt("yyyy-MM-dd hh:mm", r.Collection_Time));
+            }
+            $("input[name='Id']").val(r.Id);
+            $("input[name='StudentUid']").val(r.StudentUid);
+            $("input[name='StudentName']").val(r.StudentName);
+            $("input[name='Amount']").val(r.Amount);
+            $("input[name='DeductAmount']").val(r.DeductAmount);
+            $("input[name='AddedAmount']").val(r.AddedAmount);
+            $("input[name='PayMothed']").val(r.PayMothed);
+            if (r.ListCollectionDetail != null&&r.ListCollectionDetail.length > 0) {
+                document.getElementById("oneOfone").style.display = "block";
+            }
+            else {
+                document.getElementById("oneOfone").style.display = "none";
+            }
+        });
+    }
+    $("input[name='StudentName']").keyup(function () {
+        if ($(this).val() != undefined && $(this).val() != null) {
+            ajaxQuest("Post", "/Admin/Collection/QueryUserByName", 'application/x-www-form-urlencoded', { username: $(this).val() }, function (result) {
+                if (result != null && result != undefined && result.length > 0) {
+                    document.getElementById("members").style.display = "block";
+                    var html = template("membersTemp", { data: result });
+                    document.getElementById("members").innerHTML = html;
+                    $("div[class='item']").click(function () {
+                        var studentuid = $(this).find("span").attr("data-value");
+                        var studentName = $(this).find("span").text();
+                        var amount = $(this).find("span").attr("data-amount");
+                        document.getElementById("members").style.display = "none";
+                        $("input[name='StudentUid']").val(studentuid);
+                        $("input[name='StudentName']").val(studentName);
+                        $("input[name='DeductAmount']").val(amount);
+                        bindContrac(studentuid);
+                    });
+                }
+                else {
+                    $("#members").css("display", "none");
+                    $("#oneOfone").css("display", "none");
+                }
+            });
+        }
+    });
+    $("select[name='RelationShip_Contras']").change(function () {
+        var contrcValue = $(this).val();
+        if (contrcValue == "") {
+            document.getElementById("projectItem").innerHTML = "";
+            document.getElementById("oneOfone").style.display = "none";
+        } else {
+            bindProjectItem(contrcValue);
+        }
+    });
+    function bindContrac(uid, defaultValue, listItem) {
+                if (defaultValue != null && defaultValue != '' && defaultValue != undefined) {
+                    $("select[name='RelationShip_Contras']").html("<option value='" + defaultValue + "'>" + defaultValue+"</option>");
+                    bindProjectItem(defaultValue, listItem);
+                } else {
+                    ajaxQuest("Post", "/Admin/Collection/QueryRelationShipChildContrac", 'application/x-www-form-urlencoded', { studentUid: uid }, function (rou) {
+                        if (rou != null) {
+                            var result = rou;
+                            if (result.length == 1) {
+                                var contrc = result[0].Contra_ChildNo;
+                                $("select[name='RelationShip_Contras']").html("<option value='" + contrc + "'>" + contrc + "</option>");
+                                $("select[name='RelationShip_Contras']").append("<option value=''>-无-</option>");
+                                bindProjectItem(result[0].Contra_ChildNo, listItem);
+                                querychildVmodel(result[0].Contra_ChildNo, defaultValue);
+                            } else {
+                                $("select[name='RelationShip_Contras']").html("");
+                                for (var i = 0; i < result.length; i++) {
+                                    $("select[name='RelationShip_Contras']").append("<option value='" + result[i].Contra_ChildNo + "'>" + result[i].Contra_ChildNo + "</option>");
+                                    if (i == 0) {
+                                        bindProjectItem(result[i].Contra_ChildNo, listItem);
+                                        querychildVmodel(result[i].Contra_ChildNo, defaultValue);
+                                    }
+                                }
+                                $("select[name='RelationShip_Contras']").append("<option value=''>-无-</option>");
+                            }
+                        }
+                    });
+                }
+    };
+    function bindProjectItem(contracNo, listItem) {
+        ajaxQuest("Post", "/Admin/Collection/QuerySubjectByContrac", 'application/x-www-form-urlencoded', { childcontracNo: contracNo }, function (result) {
+            if (result != null && result != undefined) {
+                document.getElementById("oneOfone").style.display = "block";
+                var html = template("saleItemTemp", { data: result });
+                document.getElementById("projectItem").innerHTML = html;
+                if (listItem != undefined && listItem != null) {
+                    listItem.forEach(iv => {
+                        $("input[name='ItemAmount'][data-detailId='" + iv.ChildDetailId + "']").val(iv.Amount);
+                    });
+                }
+            }
+            else {
+                document.getElementById("oneOfone").style.display = "none";
+            }
+        });
+     }
+    //带出项目信息
+    function querychildVmodel(contracNo, defaultContrac) {
+        ajaxQuest("Post", "/Admin/Collection/QueryContracVmodel", 'application/x-www-form-urlencoded', { childcontracNo: contracNo }, function (result) {
+            if (result != null && result != undefined && (defaultContrac == null || defaultContrac == undefined)) {
+                var childModel = result.data;
+                $("input[name='AddedAmount']").val(childModel.Added_Amount);
+            }
+        })
+     }
+    $("#btnSearchSt").click(function () {
+        searchInfo.page = 1;
+        bindSource();
+    })
+    function bindSource() {
+        searchInfo.title = $("input[name='seachKey']").val();
+        searchInfo.startTime = $("input[name='startTime']").val();
+        searchInfo.endTime = $("input[name='endTime']").val();
+        ajaxQuest("Post", "GetDataSource", 'application/x-www-form-urlencoded', searchInfo, function (data) {
+            var html = template('tempTable', { list: data.data });
+            document.getElementById('cotracContent').innerHTML = html;
+            searchInfo.total = data.count;
+            if (searchInfo.total > searchInfo.limit) {
+                $(".pageTool").parent().show();
+                if (searchInfo.page == 1) {
+                    $(".pageTool .page").eq(0).addClass("unactive").removeClass("active");
+                    $(".pageTool .page").eq(1).addClass("active").removeClass("unactive");
+                }
+            }
+            else {
+                $(".pageTool").parent().hide();
+            }
+        })
+    }
+
+    function Audit(Id, through) {
+        var msg = "确认收款该合同吗";
+        if (through == false) {
+            msg = "确认驳回收款该合同吗";
+        }
+        if (confirm(msg) == true) {
+            var autModel = { Id: Id, through: through };
+            ajaxQuest("Post", "/Admin/Collection/ConfigCollection", 'application/x-www-form-urlencoded', autModel, function (result) {
+                $.mvalidateTip(result.msg);
+                bindSource();
+            });
+        }
+        else {
+            return false;
+        }
+    }
+    function dateFtt(fmt, val) { //author: meizz
+        var date = new Date(val);
+        var o = {
+            "M+": date.getMonth() + 1,     //月份
+            "d+": date.getDate(),     //日
+            "h+": date.getHours(),     //小时
+            "m+": date.getMinutes(),     //分
+            "s+": date.getSeconds(),     //秒
+            "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+            "S": date.getMilliseconds()    //毫秒
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+</script>

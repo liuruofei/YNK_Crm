@@ -1,0 +1,238 @@
+﻿@{
+    Layout = null;
+}
+<link rel="apple-touch-icon" href="~/apple-touch-icon.png">
+<link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon">
+<link href="~/assets/css/neat.min.css" rel="stylesheet" />
+<link href="~/assets/css/validate.css" rel="stylesheet" />
+<script src="~/assets/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="~/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="~/assets/js/common.js?v=311"></script>
+<script src="~/assets/js/vendor/bootstrap.bundle.js"></script>
+<script src="~/assets/js/vendor/dragula.js"></script>
+<script src="~/assets/js/sidebar.js"></script>
+<script src="~/assets/js/neat.js"></script>
+<script src="~/assets/js/jquery-mvalidate.js"></script>
+<script src="~/assets/js/template-web.js"></script>
+<script src="~/assets/js/AjaxHttp.js"></script>
+<style>
+    .pageTool {
+        display: flex;
+        box-shadow: 1px 2px 6px 2px rgba(96,96, 192,0.09);
+    }
+
+        .pageTool .page {
+            flex: 1;
+            text-align: center;
+            border: 1px solid #666262;
+            line-height: 36px;
+            color: #626262;
+            cursor: pointer;
+        }
+
+        .pageTool .active {
+            background-color: #3097a5;
+            color: white;
+            border: 1px solid #3097a5
+        }
+
+        .pageTool .unactive {
+            background-color: #f4f6f9;
+            color: rgba(0, 0, 0, 0.12);
+            border: 1px solid #f4f6f9;
+            cursor: default;
+        }
+</style>
+<div class="container" style="height:100%">
+    <div class="row">
+        <div style="width: 100%; display: flex; flex-wrap: wrap; box-sizing: border-box;">
+            <div style="padding:15px 15px 15px 15px;flex-grow:0;display:flex;flex-wrap:wrap" class="col-sm-6">
+                <label class="c-field__label" style="max-width: 69px;margin-top:10px;">合同类型</label>
+                <div class="c-select" style="flex:1 auto">
+                    <select class="c-select__input" name="studymode">
+                        <option value="1">一对一</option>
+                        <option value="2">小班</option>
+                    </select>
+                </div>
+            </div>
+            <div style="flex-grow: 0; padding: 15px 15px 15px 15px;display: flex;flex-wrap: wrap" class="col-sm-6">
+                <label class="c-field__label" style="max-width: 69px;margin-top:10px;">关键字</label>
+                <div style="flex:1 auto;position:relative">
+                    <a id="btnSearchSt"><i class="feather icon-search" style="position:absolute;font-size:22px;line-height:36px;right:0px;width:25px;"></i></a>
+                    <input style="width:100%" class="c-input" name="seachKey" placeholder="学员名称,班级名称,子合同合" />
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="c-table-responsive@wide">
+                <table class="c-table">
+                    <thead class="c-table__head">
+                        <tr class="c-table__row">
+                            <th class="c-table__cell c-table__cell--head">合同编号</th>
+                            <th class="c-table__cell c-table__cell--head">学生姓名</th>
+                            <th class="c-table__cell c-table__cell--head">初始合同金额</th>
+                            <th class="c-table__cell c-table__cell--head">折扣后合同金额</th>
+                            <th class="c-table__cell c-table__cell--head">额外优惠</th>
+                            <th class="c-table__cell c-table__cell--head">应实收金额</th>
+                            <th class="c-table__cell c-table__cell--head">已充金额</th>
+                            <th class="c-table__cell c-table__cell--head">付款状态</th>
+                            <th class="c-table__cell c-table__cell--head">合同状态</th>
+                            <th class="c-table__cell c-table__cell--head">授课方式</th>
+                            <th class="c-table__cell c-table__cell--head">合同属性</th>
+                            <th class="c-table__cell c-table__cell--head">签约日期</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cotracContent">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="display:none">
+            <div class="pageTool">
+                <div class="page">上一页</div>
+                <div class="page">下一页</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="tempTable">
+    {{each list item index}}
+    <tr class="c-table__row">
+        <td class="c-table__cell">
+            {{item.Contra_ChildNo}}
+        </td>
+        <td style="width:80px" class="c-table__cell">{{item.Student_Name}}</td>
+        <td class="c-table__cell">
+            {{item.Original_Amount}}
+        </td>
+        <td class="c-table__cell">
+            {{item.Saler_Amount}}
+        </td>
+        <td class="c-table__cell">
+            {{item.Added_Amount}}
+        </td>
+        <td class="c-table__cell">
+            {{$imports.accSub(item.Saler_Amount,item.Added_Amount)}}
+        </td>
+        <td class="c-table__cell">
+            {{item.Pay_Amount}}
+        </td>
+        <td class="c-table__cell">
+            {{if item.Pay_Stutas==0}}
+            未付款
+            {{else if item.Pay_Stutas==1}}
+            部分付款
+            {{else if item.Pay_Stutas==2}}
+            已付款完成
+            {{/if}}
+        </td>
+        <td class="c-table__cell">
+            {{item.Contrac_Child_Status_Name}}
+        </td>
+        <td class="c-table__cell">
+            {{item.StudyModeName}}
+        </td>
+        <td class="c-table__cell">
+            {{item.Contra_Property==0?"新签":"续约"}}
+        </td>
+        <td class="c-table__cell">
+            {{item.SignIn_Data}}
+        </td>
+    </tr>
+    {{/each}}
+</script>
+<script type="text/javascript">
+    var searchInfo = {
+        title: '',
+        contraProperty:-1,
+        studymode:0,
+        page: 1,
+        limit:5,
+        total: 0
+    };
+    $(".pageTool .page").click(function () {
+        var currentIndex = $(this).index();
+        if (currentIndex == 0) {
+            if (searchInfo.page > 1) {
+                searchInfo.page--;
+                $(this).addClass("active").removeClass("unactive");
+                $(this).next().removeClass("active");
+                if (searchInfo.page == 1) {
+                    $(this).removeClass("active").addClass("unactive");
+                    $(this).next().addClass("active").removeClass("unactive");
+                }
+                else {
+                    $(this).next().removeClass("unactive");
+                }
+            }
+            else {
+                $(this).removeClass("active").addClass("unactive");
+                $(this).next().addClass("active").removeClass("unactive");
+            }
+        }
+        else {
+            var pageTotal = searchInfo.total / searchInfo.limit;
+            if (pageTotal > searchInfo.page) {
+                searchInfo.page++;
+                $(this).addClass("active");
+                $(this).prev().removeClass("active");
+                if (pageTotal < searchInfo.page) {
+                    $(this).removeClass("active").addClass("unactive");
+                    $(this).prev().addClass("active").removeClass("unactive");
+                }
+                else {
+                    $(this).prev().removeClass("unactive");
+                }
+            }
+            else {
+                $(this).removeClass("active").addClass("unactive");
+                $(this).prev().addClass("active").removeClass("unactive");
+            }
+        }
+        bindSource();
+    });
+    $(function () {
+        bindSource();
+    })
+    $("#btnSearchSt").click(function () {
+        searchInfo.page = 1;
+        bindSource();
+    })
+    function bindSource() {
+        searchInfo.title = $("input[name='seachKey']").val();
+        searchInfo.studymode = $("select[name='studymode']").val();
+        ajaxQuest("Post", "GetDataSource", 'application/x-www-form-urlencoded', searchInfo, function (data) {
+            var html = template('tempTable', { list: data.data });
+            document.getElementById('cotracContent').innerHTML = html;
+            searchInfo.total = data.count;
+            if (searchInfo.total > searchInfo.limit) {
+                $(".pageTool").parent().show();
+                if (searchInfo.page == 1) {
+                    $(".pageTool .page").eq(0).addClass("unactive").removeClass("active");
+                    $(".pageTool .page").eq(1).addClass("active").removeClass("unactive");
+                }
+            }
+            else {
+                $(".pageTool").parent().hide();
+            }
+        })
+    }
+    template.defaults.imports.accSub = function (arg1, arg2) {
+        var r1, r2, m, n;
+        try {
+            r1 = arg1.toString().split(".")[1].length;
+        } catch (e) {
+            r1 = 0;
+        }
+        try {
+            r2 = arg2.toString().split(".")[1].length;
+        } catch (e) {
+            r2 = 0;
+        }
+        m = Math.pow(10, Math.max(r1, r2)); //last modify by deeka //动态控制精度长度
+        n = (r1 >= r2) ? r1 : r2;
+        return ((arg1 * m - arg2 * m) / m).toFixed(n);
+    }
+</script>

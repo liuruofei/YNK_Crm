@@ -36,6 +36,27 @@ function ajaxRequst(method, url, contentType, dataModel, callBack) {
         }, 1000);
     }
 }
+
+function ajaxQuest(method, url, contentType, dataModel,callBack) {
+    var requestData = JSON.stringify(dataModel);//默认application/json
+    if (contentType == 'application/x-www-form-urlencoded') {
+        requestData = dataModel;
+    }
+    $.ajax({
+        type: method,
+        url:url,
+        data: requestData,
+        dataType: 'json',
+        beforeSend: function (request) {
+
+        },
+        success: callBack,
+        error: function (data) {
+            $.mvalidateTip(data.msg);
+        }
+    });
+}
+
 //获取传值
 function getUrlParam(name) {
     console.log();

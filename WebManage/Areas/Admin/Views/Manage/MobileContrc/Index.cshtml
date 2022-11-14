@@ -1,0 +1,241 @@
+﻿@{
+    Layout = null;
+}
+<link rel="apple-touch-icon" href="~/apple-touch-icon.png">
+<link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon">
+<link href="~/assets/css/neat.min.css" rel="stylesheet" />
+<link href="~/assets/css/validate.css" rel="stylesheet" />
+<script src="~/assets/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="~/assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="~/assets/js/common.js?v=311"></script>
+<script src="~/assets/js/vendor/bootstrap.bundle.js"></script>
+<script src="~/assets/js/vendor/dragula.js"></script>
+<script src="~/assets/js/sidebar.js"></script>
+<script src="~/assets/js/neat.js"></script>
+<script src="~/assets/js/jquery-mvalidate.js"></script>
+<script src="~/assets/js/template-web.js"></script>
+<script src="~/assets/js/AjaxHttp.js"></script>
+<style>
+    .pageTool {
+        display: flex;
+        box-shadow: 1px 2px 6px 2px rgba(96,96, 192,0.09);
+    }
+
+        .pageTool .page {
+            flex: 1;
+            text-align: center;
+            border: 1px solid #666262;
+            line-height: 36px;
+            color: #626262;
+            cursor: pointer;
+        }
+
+        .pageTool .active {
+            background-color: #3097a5;
+            color: white;
+            border: 1px solid #3097a5
+        }
+
+        .pageTool .unactive {
+            background-color: #f4f6f9;
+            color: rgba(0, 0, 0, 0.12);
+            border: 1px solid #f4f6f9;
+            cursor: default;
+        }
+</style>
+<div class="container" style="height:100%">
+    <div class="row">
+        <div style="width: 100%; display: flex; flex-wrap: wrap; box-sizing: border-box;">
+            <div style="padding:15px 15px 15px 15px;flex-grow:0;display:flex;flex-wrap:wrap" class="col-sm-6">
+                <label class="c-field__label" style="max-width: 69px;margin-top:10px;">合同类型</label>
+                <div class="c-select" style="flex:1 auto">
+                    <select class="c-select__input" name="studymode">
+                        <option value="1">一对一</option>
+                        <option value="2">小班</option>
+                    </select>
+                </div>
+            </div>
+            <div style="flex-grow: 0; padding: 15px 15px 15px 15px;display: flex;flex-wrap: wrap" class="col-sm-6">
+                <label class="c-field__label" style="max-width: 69px;margin-top:10px;">关键字</label>
+                <div style="flex:1 auto;position:relative">
+                    <a id="btnSearchSt"><i class="feather icon-search" style="position:absolute;font-size:22px;line-height:36px;right:0px;width:25px;"></i></a>
+                    <input style="width:100%" class="c-input" name="seachKey" placeholder="输入学员名称" />
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="c-table-responsive@wide">
+                <table class="c-table">
+                    <thead class="c-table__head">
+                        <tr class="c-table__row">
+                            <th class="c-table__cell c-table__cell--head">合同编号</th>
+                            <th class="c-table__cell c-table__cell--head">学生姓名</th>
+                            <th class="c-table__cell c-table__cell--head">合同状态</th>
+                            <th class="c-table__cell c-table__cell--head">含子合同</th>
+                            <th class="c-table__cell c-table__cell--head">创建日期</th>
+                            <th class="c-table__cell c-table__cell--head">合同总金额</th>
+                            <th class="c-table__cell c-table__cell--head">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cotracContent">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12" style="display:none">
+            <div class="pageTool">
+                <div class="page">上一页</div>
+                <div class="page">下一页</div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="tempTable">
+    {{each list item index}}
+    <tr class="c-table__row">
+        <td class="c-table__cell">
+            {{item.ContraNo}}
+        </td>
+        <td style="width:80px" class="c-table__cell">{{item.Student_Name}}</td>
+        <td class="c-table__cell">
+            {{item.Constra_Status_Name}}
+        </td>
+        <td class="c-table__cell">
+            {{item.StudyModesName}}
+        </td>
+        <td class="c-table__cell">
+            {{item.CreateTime}}
+        </td>
+        <td class="c-table__cell">
+            {{item.Total_Amount}}
+        </td>
+        <td class="c-table__cell">
+            {{if item.Constra_Status==1}}
+            <button type="button" onclick="Audit({{item}})">校长确认</button>
+            <button type="button" onclick="AuditRreject({{item}})">校长驳回</button>
+            {{/if}}
+            <button type="button" onclick="ContrcDelete({{item}})">删除</button>
+        </td>
+    </tr>
+    {{/each}}
+</script>
+<script type="text/javascript">
+    var searchInfo = {
+        title: '',
+        studymode:0,
+        page: 1,
+        limit:5,
+        total: 0
+    };
+    $(".pageTool .page").click(function () {
+        var currentIndex = $(this).index();
+        if (currentIndex == 0) {
+            if (searchInfo.page > 1) {
+                searchInfo.page--;
+                $(this).addClass("active").removeClass("unactive");
+                $(this).next().removeClass("active");
+                if (searchInfo.page == 1) {
+                    $(this).removeClass("active").addClass("unactive");
+                    $(this).next().addClass("active").removeClass("unactive");
+                }
+                else {
+                    $(this).next().removeClass("unactive");
+                }
+            }
+            else {
+                $(this).removeClass("active").addClass("unactive");
+                $(this).next().addClass("active").removeClass("unactive");
+            }
+        }
+        else {
+            var pageTotal = searchInfo.total / searchInfo.limit;
+            if (pageTotal > searchInfo.page) {
+                searchInfo.page++;
+                $(this).addClass("active");
+                $(this).prev().removeClass("active");
+                if (pageTotal < searchInfo.page) {
+                    $(this).removeClass("active").addClass("unactive");
+                    $(this).prev().addClass("active").removeClass("unactive");
+                }
+                else {
+                    $(this).prev().removeClass("unactive");
+                }
+            }
+            else {
+                $(this).removeClass("active").addClass("unactive");
+                $(this).prev().addClass("active").removeClass("unactive");
+            }
+        }
+        bindSource();
+    });
+    $(function () {
+        bindSource();
+    })
+    $("#btnSearchSt").click(function () {
+        searchInfo.page = 1;
+        bindSource();
+    })
+    function bindSource() {
+        searchInfo.title = $("input[name='seachKey']").val();
+        searchInfo.studymode = $("select[name='studymode']").val();
+        ajaxQuest("Post", "GetDataSource", 'application/x-www-form-urlencoded', searchInfo, function (data) {
+            var html = template('tempTable', { list: data.data });
+            document.getElementById('cotracContent').innerHTML = html;
+            searchInfo.total = data.count;
+            if (searchInfo.total > searchInfo.limit) {
+                $(".pageTool").parent().show();
+                if (searchInfo.page == 1) {
+                    $(".pageTool .page").eq(0).addClass("unactive").removeClass("active");
+                    $(".pageTool .page").eq(1).addClass("active").removeClass("unactive");
+                }
+            }
+            else {
+                $(".pageTool").parent().hide();
+            }
+        })
+    }
+
+    function Audit(obj) {
+        var msg = "确认" + obj.Student_Name + "(" + obj.ContraNo + ")合同吗";
+        if (confirm(msg) == true) {
+            var autModel = { Id:obj.ContracId, thought: true };
+            ajaxQuest("Post", "/Admin/UserContrac/Audit", 'application/x-www-form-urlencoded', autModel, function(result) {
+                $.mvalidateTip(result.msg);
+                bindSource();
+            });
+        }
+        else {
+            return false;
+        }
+    }
+
+    function AuditRreject(obj) {
+        var msg = "驳回" + obj.Student_Name + "(" + obj.ContraNo + ")合同吗";
+        if (confirm(msg) == true) {
+            var autModel = { Id: obj.ContracId, thought: false };
+            ajaxQuest("Post", "/Admin/UserContrac/Audit", 'application/x-www-form-urlencoded', autModel, function (result) {
+                $.mvalidateTip(result.msg);
+                bindSource();
+            });
+        }
+        else {
+            return false;
+        }
+    }
+
+    //删除
+    function ContrcDelete(obj) {
+        var msg = "确认删除" + obj.Student_Name + "(" + obj.ContraNo + ")合同吗";
+        if (confirm(msg) == true) {
+            ajaxQuest("Post", "/Admin/UserContrac/Delete", 'application/x-www-form-urlencoded', { contrcNo:obj.ContraNo }, function (result) {
+                $.mvalidateTip(result.msg);
+                bindSource();
+            });
+        }
+        else {
+            return false;
+        }
+     }
+</script>
