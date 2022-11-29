@@ -49,6 +49,9 @@
     <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="config">确认收款</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="reject">驳回收款</a>
     {{#}}}
+    {{# if(d.PayStatus==1&&d.ArrearageStatus==1){ }}
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="payment">点击还款</a>
+    {{#}}}
     <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
 </script>
 
@@ -86,25 +89,35 @@
             { type: 'numbers' },
             { field: 'StudentName', title: '学员', fixed: 'left', sort: true },
             {
-                field: 'Amount', title: '收款金额', sort: true, templet: function (d) {
-                    return d.Amount < 0 ? 0 : d.Amount;
+                field: 'FilAmount', title: '收款金额', sort: true, templet: function (d) {
+                    return (d.FilAmount < 0 ? 0 : d.FilAmount);
                 }
             },
             { field: 'AddedAmount', title: '额外优惠', sort: true },
-            { field: 'DeductAmount', title: '使用余额', sort: true },
+            { field: 'koudeductAmount', title: '扣除余额', sort: true },
             {
                 field: 'PayMothed', title: '支付模式', sort: true, templet: function (d) {
                     console.log(d.Amount, d.AddedAmount, d.DeductAmount);
-                    if (d.Amount>0)
+                    if (d.FilAmount>0)
                         return "普通收款";
-                    if (d.AddedAmount > 0 && d.Amount<1)
+                    if (d.AddedAmount > 0 && d.FilAmount<1)
                         return "使用额外优惠";
-                    if (d.DeductAmount > 0 && d.AddedAmount < 1 && d.Amount < 1)
+                    if (d.DeductAmount > 0 && d.AddedAmount < 1 && d.FilAmount < 1)
                         return "使用余额";
                 }
             },
             { field: 'RelationShip_Contras', title: '关联合同', width: 120, sort: true },
             { field: 'Collection_Time', title: '收款日期', width: 120, sort: true },
+            {
+                field: 'ArrearageStatus', title: '垫付状态', width: 111, templet: function (d) {
+                    return (d.ArrearageStatus > 0 ? "是" : (d.RepaymentTotal > 0 && d.Amount == d.RepaymentTotal?"不是(已还款)":"不是"))
+                }
+            },
+            {
+                field: 'RepaymentTotal', title: '垫付金额', sort: true, width: 150,templet: function (d) {
+                    return (d.ArrearageStatus > 0 ? d.Amount + "(已还款" + d.RepaymentTotal + ")" : d.RepaymentTotal);
+                }
+            },
             { field: 'User_Name', title: '创建人', sort: true },
             {
                 field: 'PayStatus', title: '状态', sort: true, width: 120, templet: function (d) {
@@ -121,7 +134,14 @@
             },
             { field: 'CampusName', title: '校区', sort: true },
             { align: 'center', toolbar: '#tableBar', fixed: 'right', title: '操作', width: 300}
-        ]]
+        ]],
+        done: function (res, curr, count) {
+            res.data.forEach(function (item, index) {
+                if (item.ArrearageStatus==1) {
+                    $(".layui-table").find("tr[data-index='" + index + "']").css("background-color", "rgb(231 195 195)");
+                }
+            });
+        }
     });
     AmountTotal();
     // 添加
@@ -155,6 +175,8 @@
             config(data, true);
         } else if (layEvent === 'reject') { // 驳回收款
             config(data, false);
+        } else if (layEvent === 'payment') { // 点击还款
+            Addpayment(data);
         }
     });
 
@@ -178,9 +200,24 @@
              data: { Id: vmodel.Id,through: through},
              callBack: function () {
                  insTb.reload();
+                 AmountTotal();
             }
         })
+      }
+   function Addpayment(vmodel) {
+        adminList.form({
+            title:'添加还款',
+            type: 2,
+            width: "680px",
+            height: "530px",
+            content: '@Url.Action("AddPayment")?collgeId=' + vmodel.Id,
+            end: function () {
+                insTb.reload();
+                AmountTotal();
+            }
+        });
     }
+
     //删除
     function doDel(Id) {
         adminList.delete('@Url.Action("Delete")', { Id: Id}, function () {

@@ -556,19 +556,30 @@ namespace WebManage.Controllers
                 }
                 else
                 {
-                    var workstatus = 1;
                     var valiteTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
                     //如果点评在23小时之内,则课时有效
-                    if (model.StudyMode != 5&&model.StudyMode != 6) {
-                        if (string.IsNullOrEmpty(model.Comment)) {
+                    if (model.StudyMode != 5 && model.StudyMode != 6)
+                    {
+                        if (model.Work_Stutas != 1)
+                        {
                             if (valiteTime.AddHours(24) > DateTime.Now)
                             {
-                                workstatus = 1;
+                                model.Work_Stutas = 1;
                             }
                             else
                             {
-                                workstatus = 0;
+                                model.Work_Stutas = 0;
                             }
+                        }
+                        else {
+                            if (string.IsNullOrEmpty(comment)) {
+                                model.Work_Stutas = 0;
+                            }
+                        }
+                    }
+                    else {
+                        if (!string.IsNullOrEmpty(comment) && model.Work_Stutas!=1) {
+                            model.Work_Stutas = 1;
                         }
                     }
                     if (unitId> 0 && model.UnitId != unitId)
@@ -582,7 +593,6 @@ namespace WebManage.Controllers
                         model.Work_Title = model.Work_Title + "_" + unitM.UnitName;
                     }
                     model.Comment = comment;
-                    model.Work_Stutas = workstatus;
                     model.Comment_Time = DateTime.Now;
                     var result = _currencyService.DbAccess().Updateable<C_Course_Work>(model).Where(it => it.Id == wkId).ExecuteCommand();
                     if (result > 0)

@@ -52,6 +52,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     CampusId = c.CampusId,
                     CampusName = ca.CampusName,
                     StudentName = c.StudentName,
+                    FilAmount=c.FilAmount,
+                    koudeductAmount=c.koudeductAmount,
                     Amount = c.Amount,
                     AddedAmount = c.AddedAmount,
                     DeductAmount = c.DeductAmount,

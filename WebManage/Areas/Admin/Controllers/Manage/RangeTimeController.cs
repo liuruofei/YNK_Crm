@@ -178,11 +178,18 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         [UsersRoleAuthFilter("C-157", FunctionEnum.Delete)]
         public IActionResult Delete(int Id)
         {
-            var result = _currencyService.DbAccess().Deleteable<C_Range_Time>().Where(p => p.Id == Id).ExecuteCommand();
-            if (result > 0)
-                return Json(new { code = 200, msg = "删除成功" });
-            else
-                return Json(new { code = 0, msg = "删除失败" });
+            var hasRang = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(ay => ay.RangTimeId == Id).First();
+            if (hasRang != null)
+            {
+                return Json(new { code = 0, msg = "删除失败,该区间有课程已使用" });
+            }
+            else {
+                var result = _currencyService.DbAccess().Deleteable<C_Range_Time>().Where(p => p.Id == Id).ExecuteCommand();
+                if (result > 0)
+                    return Json(new { code = 200, msg = "删除成功" });
+                else
+                    return Json(new { code = 0, msg = "删除失败" });
+            }
         }
     }
 }

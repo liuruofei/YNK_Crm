@@ -20,22 +20,34 @@
             <select name="RelationShip_Contras" lay-filter="RelationShip_Contras"></select>
         </div>
     </div>
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="shiko">
         <label class="layui-form-label">收款金额</label>
         <div class="layui-input-block">
             <input type="text" class="layui-input" name="Amount" />
         </div>
     </div>
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="shishou">
+        <label class="layui-form-label">收款金额</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="FilAmount" />
+        </div>
+    </div>
+    <div class="layui-form-item" id="shiyongyue">
         <label class="layui-form-label">使用余额</label>
         <div class="layui-input-block">
             <input type="text" class="layui-input" name="DeductAmount" />
         </div>
     </div>
+    <div class="layui-form-item" id="kouchuyue">
+        <label class="layui-form-label">扣除余额</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="koudeductAmount" />
+        </div>
+    </div>
     <div class="layui-form-item">
         <label class="layui-form-label">使用额外优惠</label>
         <div class="layui-input-block">
-            <input type="text" class="layui-input" name="AddedAmount" value="0"/>
+            <input type="text" class="layui-input" name="AddedAmount" value="0" />
         </div>
     </div>
     <div class="layui-form-item">
@@ -66,6 +78,7 @@
             提示*:项目详情支持实际到账金额
             <p>如果子合同中使用了优惠金额，请在最后一次结清时必须使用</p>
             <p>如果是充值用户余额，则关联合同不用选</p>
+            <p>如果是垫付,在未还款完之前，收款金额不统计收款金额中,请在来款登记列表中点击还款</p>
         </div>
     </div>
     <div class="layui-form-item text-right positionbottom">
@@ -158,6 +171,18 @@
                         else {
                             var timenow = new Date();
                             $("#Collection_Time").val(dateFtt("yyyy-MM-dd hh:mm", timenow));
+                        }
+                        if (r.PayStatus == 1) {
+                            $("#kouchuyue").show();
+                            $("#shiyongyue").css("display", "none");
+                            $("#shishou").show();
+                            $("#shiko").css("display", "none");
+                        }
+                        else {
+                            $("#shiyongyue").show();
+                            $("#kouchuyue").css("display", "none");
+                            $("#shiko").show();
+                            $("#shishou").css("display", "none");
                         }
                     }
                 });

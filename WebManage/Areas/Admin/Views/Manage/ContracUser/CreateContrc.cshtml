@@ -293,7 +293,7 @@
                         </div>
                     </div>
                     <div class="layui-inline">
-                        <label class="layui-form-label">优惠金额</label>
+                        <label class="layui-form-label">已优惠</label>
                         <div class="layui-input-inline" style="line-height:36px;">
                             <span id="Discount_Amount"></span>
                             <input name="Discount_Amount" type="hidden" />
@@ -313,7 +313,6 @@
                         <div class="layui-input-inline">
                             <input type="text" name="Added_Amount" class="layui-input" placeholder="如用额外优惠,收款时必填"/>
                         </div>
-
                         <div style="display:none">
                             <label class="layui-form-label">优惠联报</label>
                             <div class="layui-input-inline">
@@ -330,9 +329,16 @@
                     </div>
                 </div>
                 <div class="layui-form-item">
+                    <div class="layui-block">
+                        <label class="layui-form-label">垫付合同</label>
+                        <div class="layui-input-inline">
+                            <input type="radio" value="0" name="ArrearageStatus" title="不是" checked="checked" />
+                            <input type="radio" value="1" name="ArrearageStatus" title="是" />
+                        </div>
+                    </div>
                     <div class="layui-inline">
                         <label class="layui-form-label">合同备注</label>
-                        <div class="layui-input-inline" style="line-height:36px;">
+                        <div class="layui-input-inline">
                             <span></span>
                             <textarea name="Remarks" style="width:457px;height:86px"></textarea>
                         </div>
@@ -501,6 +507,7 @@
             Added_Amount: 0,
             PresentTime:0,
             Remarks: '',
+            ArrearageStatus:0,
             Child_Detail: []
         };
         var childInputInfo = {
@@ -519,7 +526,8 @@
             Saler_Amount: 0,
             Added_Amount: 0,
             PresentTime: 0,
-            Remarks: ''
+            Remarks: '',
+            ArrearageStatus:0
         }
         layui.use(['form', 'admin', 'adminForm', 'laydate','table'], function () {
         var $ = layui.jquery;
@@ -725,6 +733,7 @@
                 Added_Amount: 0,
                 PresentTime:0,
                 Remarks: '',
+                ArrearageStatus:0,
                 Child_Detail: []
             };
             if (childList.length > 0) {
@@ -758,7 +767,7 @@
                             newObject[key] =1;
                         }
                     }
-                    else if (key == 'Contra_Property') {
+                    else if (key == 'Contra_Property' || key == 'ArrearageStatus') {
                         newObject[key] = $("input[name='" + key + "']:checked").val();
                     }
                     else {
@@ -1091,6 +1100,10 @@
                 }
                 else if (key == 'Contra_Property') {
                     $("input[name='Contra_Property'][value='" + childInfo[key] + "']").prop('checked', 'checked');
+                    layui.form.render('radio');
+                }
+                else if (key == 'ArrearageStatus') {
+                    $("input[name='ArrearageStatus'][value='" + childInfo[key] + "']").prop('checked', 'checked');
                     layui.form.render('radio');
                 }
                 else {

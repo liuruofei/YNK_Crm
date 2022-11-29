@@ -98,7 +98,7 @@
                             <th class="c-table__cell c-table__cell--head">学员</th>
                             <th class="c-table__cell c-table__cell--head">收款金额</th>
                             <th class="c-table__cell c-table__cell--head">额外优惠</th>
-                            <th class="c-table__cell c-table__cell--head">使用余额</th>
+                            <th class="c-table__cell c-table__cell--head">扣除余额</th>
                             <th class="c-table__cell c-table__cell--head">支付模式</th>
                             <th class="c-table__cell c-table__cell--head">关联合同</th>
                             <th class="c-table__cell c-table__cell--head">收款日期</th>
@@ -227,16 +227,16 @@
             {{item.AddedAmount}}
         </td>
         <td class="c-table__cell">
-            {{item.DeductAmount}}
+            {{item.koudeductAmount}}
         </td>
         <td class="c-table__cell">
-            {{if item.Amount>0}}
+            {{if item.FilAmount>0}}
             普通收款
             {{/if}}
-            {{if item.AddedAmount>0&&item.Amount<1}}
+            {{if item.AddedAmount>0&&item.FilAmount<1}}
             使用额外优惠
             {{/if}}
-            {{if item.DeductAmount>0&&item.AddedAmount<1&&item.Amount<1}}
+            {{if item.DeductAmount>0&&item.AddedAmount<1&&item.FilAmount<1}}
             使用余额
             {{/if}}
         </td>

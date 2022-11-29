@@ -57,18 +57,22 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 CampusName =ca.CampusName,
                 StudentName = c.StudentName,
                 Amount = c.Amount,
-                AddedAmount=c.AddedAmount,
+                FilAmount=c.FilAmount,
+                koudeductAmount=c.koudeductAmount,
+                AddedAmount =c.AddedAmount,
                 DeductAmount=c.DeductAmount,
                 StudentUid = c.StudentUid,
                 PayStatus = c.PayStatus,
                 RelationShip_Contras = c.RelationShip_Contras,
                 Collection_Time = c.Collection_Time,
                 PayMothed = c.PayMothed,
+                ArrearageStatus=c.ArrearageStatus,
                 PayImg = c.PayImg,
                 Id = c.Id,
                 Registration_Time = c.Registration_Time,
-                User_Name=sy.User_Name
-            }).ToPageList(query.page, query.limit, ref total);
+                User_Name=sy.User_Name,
+                RepaymentTotal=SqlFunc.Subqueryable<C_RepaymentRecord>().Where(pm=>pm.CollgeId==c.Id).Sum(pm=>pm.RepaymentAmount)
+                }).ToPageList(query.page, query.limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;
             pageModel.count = total;
@@ -94,7 +98,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 endTime = startTime.Value.AddMonths(1).AddDays(-1);
             }
             var result = _currencyService.DbAccess().Queryable<C_Collection>().WhereIF(!string.IsNullOrEmpty(title), a => a.StudentName.Contains(title))
-                .Where(a => a.Collection_Time >= startTime.Value && a.Collection_Time <= endTime.Value&&a.Amount>0).Sum(a => a.Amount);
+                .Where(a => a.Collection_Time >= startTime.Value && a.Collection_Time <= endTime.Value&&a.FilAmount>0&&a.ArrearageStatus!=1).Sum(a => a.FilAmount);
             rsg.code = 200;
             rsg.msg = "获取成功";
             rsg.data = result;
@@ -116,6 +120,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return View("Add");
         }
 
+
+        [UsersRoleAuthFilter("L-150", FunctionEnum.Edit)]
+        public IActionResult AddPayment(int collgeId) {
+            ViewBag.ID =collgeId;
+            C_Collection model = _currencyService.DbAccess().Queryable<C_Collection>().Where(c => c.Id == collgeId).First();
+            return View("AddPayment", model);
+        }
+
         public IActionResult Find(int ID)
         {
             dynamic list;
@@ -126,12 +138,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     StudentUid = f.StudentUid,
                     StudentName = f.StudentName,
                     Amount = f.Amount<0?0:f.Amount,
+                    FilAmount=f.FilAmount,
+                    koudeductAmount=f.koudeductAmount,
                     DeductAmount = f.DeductAmount,
                     AddedAmount=f.AddedAmount,
                     RelationShip_Contras = f.RelationShip_Contras,
                     CampusId = f.CampusId,
                     Collection_Time = f.Collection_Time,
-                    Registration_Time = f.Registration_Time
+                    Registration_Time = f.Registration_Time,
+                    PayStatus=f.PayStatus
                 }).First();
                 if(model!=null)
                 model.ListCollectionDetail = _currencyService.DbAccess().Queryable<C_Collection_Detail>().Where(n => n.CollectionId == model.Id).ToList();
@@ -195,6 +210,42 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 if (vmodel.StudentUid < 1)
                     return Json(new { code = 0, msg = "学员不能为空" });
                 rsg = _contrac.SaveCollection(vmodel);
+            }
+            else
+            {
+                rsg.msg = "缺少参数";
+            }
+            return Json(rsg);
+        }
+
+        public IActionResult SavePayment(C_RepaymentRecord vmodel) {
+            ResResult rsg = new ResResult() { code = 0, msg = "保存失败" };
+            if (vmodel != null)
+            {
+                var result = 0;
+                var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+                var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+                vmodel.CreateUid = userId;
+                vmodel.CreateTime = DateTime.Now;
+                if (string.IsNullOrEmpty(vmodel.Contra_ChildNo))
+                    return Json(new { code = 0, msg = "合同号不能为空" });
+                if (vmodel.Id < 1)
+                {
+                    var colle = _currencyService.DbAccess().Queryable<C_Collection>().Where(v => v.Id == vmodel.CollgeId).First();
+                    var repaymentTotal = _currencyService.DbAccess().Queryable<C_RepaymentRecord>().Where(v=>v.CollgeId==vmodel.CollgeId).Sum(v => v.RepaymentAmount);
+                    result =_currencyService.DbAccess().Insertable<C_RepaymentRecord>(vmodel).ExecuteCommand();
+                    if (result > 0&& repaymentTotal+vmodel.RepaymentAmount== colle.FilAmount) {
+                        _currencyService.DbAccess().Updateable<C_Collection>().SetColumns(v => new C_Collection{ArrearageStatus=0}).Where(v=>v.Id==vmodel.CollgeId).ExecuteCommand();
+                    }
+                }
+                else {
+                    result = _currencyService.DbAccess().Updateable<C_RepaymentRecord>(vmodel).ExecuteCommand();
+                }
+                if (result > 0) {
+                    rsg.code = 200;
+                    rsg.msg="保存成功";
+                    return Json(rsg);
+                }
             }
             else
             {

@@ -333,6 +333,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                 it.InSchoolTime= iv.InSchoolTime;
                             if (!string.IsNullOrEmpty(iv.OutSchoolTime))
                                 it.OutSchoolTime = iv.OutSchoolTime;
+                            if (!string.IsNullOrEmpty(iv.TotalTime))
+                                it.TotalTime = iv.TotalTime;
                             if (!string.IsNullOrEmpty(iv.TaUid))
                             {
                                 var hasTa = listTa.Find(cn => cn.User_ID == iv.TaUid);

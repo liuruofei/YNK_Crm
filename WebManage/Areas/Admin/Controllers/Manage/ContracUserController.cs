@@ -133,7 +133,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
 
             StringBuilder sql = new StringBuilder("(select  tm.Id,tm.StudentUid,tm.ClassId,sub.SubjectName,pro.ProjectName,cla.Class_Name,tm.Contra_ChildNo,tm.Course_Time,");
             sql.Append("tm.Course_UseTime,tm.Class_Course_Time,tm.Class_Course_UseTime,IsLinsting=0,IsPresent=0,");
-            sql.Append("ShjiUseTime=(select isnull(sum(wk.CourseTime),0) from C_Course_Work wk where wk.Contra_ChildNo=tm.Contra_ChildNo and wk.StudentUid=tm.StudentUid and wk.SubjectId=tm.SubjectId and wk.ProjectId=tm.ProjectId and (wk.Comment is not null and wk.Comment!='')),");
+            sql.Append("ShjiUseTime=(select isnull(sum(wk.CourseTime),0) from C_Course_Work wk where wk.Contra_ChildNo=tm.Contra_ChildNo and wk.StudentUid=tm.StudentUid and wk.SubjectId=tm.SubjectId and wk.ProjectId=tm.ProjectId and (wk.Comment is not null and wk.Comment!='') and wk.StudyMode=1),");
             sql.Append("ShjiClassUseTime=(select isnull(sum(wk.CourseTime),0) from C_Course_Work wk where wk.ClasssId=tm.ClassId and (wk.Comment is not null and wk.Comment!='') and tm.ClassId<>0)");
             sql.Append("from C_User_CourseTime  tm left join C_Project pro on tm.ProjectId=pro.ProjectId  left join C_Subject sub on tm.SubjectId=sub.SubjectId left join C_Class cla on tm.ClassId=cla.ClassId ");
             sql.Append("  where tm.StudentUid=@StudentUid)");

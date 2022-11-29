@@ -159,6 +159,11 @@
                     return d.Contra_Property==0?"新签":"续约";
                 }
             },
+            {
+                field: 'Contra_Property', title: '垫付合同', sort: true, width: 110, templet: function (d) {
+                    return d.ArrearageStatus == 1 ? "<span style='color:red'>是</span>" :"不是";
+                }
+            },
             { field: 'CCUserName', title: '签约人', sort: true },
             { field: 'SignIn_Data', title: '签约日期', sort: true },
             { align: 'center', toolbar: '#tableBar', title: '操作', width: 200, fixed: 'right'}

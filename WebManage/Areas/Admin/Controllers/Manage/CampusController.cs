@@ -18,11 +18,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
     [Authorize]
     public class CampusController : BaseController
     {
-        private RedisConfig redisConfig;
         private ICurrencyService _currencyService;
-        public CampusController(ICurrencyService currencyService, IOptions<RedisConfig> _redisConfig)
+        public CampusController(ICurrencyService currencyService)
         {
-            redisConfig = _redisConfig.Value;
             _currencyService = currencyService;
         }
         protected override void Init()

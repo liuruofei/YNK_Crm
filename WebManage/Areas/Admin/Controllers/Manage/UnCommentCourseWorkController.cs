@@ -144,11 +144,11 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     }
                     var valiteTime =DateTime.Parse(work.AT_Date.ToString("yyyy-MM-dd") + " " + work.EndTime);
                     work.UpdateUid = userId;
-                    work.Work_Stutas = 1;
                     //如果在23小时之内,则课时有效
-                    if (work.StudyMode != 5&& work.StudyMode != 6)
+                    if (work.StudyMode != 5 && work.StudyMode != 6)
                     {
-                        if (string.IsNullOrEmpty(work.Comment)) {
+                        if (work.Work_Stutas != 1)
+                        {
                             if (valiteTime.AddHours(24) > DateTime.Now)
                             {
                                 work.Work_Stutas = 1;
@@ -157,6 +157,17 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             {
                                 work.Work_Stutas = 0;
                             }
+                        }
+                        else {
+                            if (string.IsNullOrEmpty(vmodel.Comment)) {
+                                work.Work_Stutas = 0;
+                            }
+                        }
+                    }
+                    else {
+                        if (!string.IsNullOrEmpty(vmodel.Comment) && work.Work_Stutas != 1)
+                        {
+                            work.Work_Stutas = 1;
                         }
                     }
                     if (vmodel.UnitId > 0&& work.UnitId != vmodel.UnitId) {

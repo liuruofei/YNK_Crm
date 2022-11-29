@@ -499,7 +499,12 @@
                                         return "教师会议";
                                     }
                                     else {
-                                        return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已点评</span>" : "未点评";
+                                        if (d.Comment != '' && d.Comment != null) {
+                                            return " <span style=' background-color:#6ab36a;color: white;'>已点评</span>";
+                                        }
+                                        else {
+                                            return "未点评"; 
+                                        }
                                     }
                                 }
                             },

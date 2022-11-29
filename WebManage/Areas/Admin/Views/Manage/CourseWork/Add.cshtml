@@ -650,6 +650,10 @@
                         layer.msg("实考科目不能为空");
                         return false;
                     }
+                    if (data.field.UnitId == null || data.field.UnitId == "") {
+                        layer.msg("实考单元不能为空");
+                        return false;
+                    }
                 }
                 else if (data.field.StudyMode == 7) {
                     data.field.meetingTeacher = [];
@@ -736,6 +740,7 @@
                     $("#meetingPart").css("display", "none");
                 }
                 else if (data.value == 4) {
+                    $("input[name='Contra_ChildNo']").val("");
                     $("#ClassPart").css("display", "none");
                     $("#OneOfPart").css("display", "none");
                     $("#PartProject").show();

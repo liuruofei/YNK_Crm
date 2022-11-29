@@ -148,6 +148,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 Class_Course_Time = c.Class_Course_Time,
                 Cycle = c.Cycle,
                 Remarks = c.Remarks,
+                ArrearageStatus=c.ArrearageStatus,
                 StudyMode = c.StudyMode,
                 Saler_Amount = c.Saler_Amount,
                 ContraNo = c.ContraNo,

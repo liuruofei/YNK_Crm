@@ -123,6 +123,11 @@ namespace WebManage.Models.Res
         /// 备注
         /// </summary>
         public string Remarks { get; set; }
+        
+        /// <summary>
+        /// 是否欠费合同
+        /// </summary>
+        public int ArrearageStatus { get; set; }
 
 
         public DateTime CreateTime { get; set; }
@@ -148,12 +153,6 @@ namespace WebManage.Models.Res
                         break;
                     case 2:
                         currtName += "小班";
-                        break;
-                    case 3:
-                        currtName += "付费教材";
-                        break;
-                    case 4:
-                        currtName += "考团";
                         break;
 
                 }

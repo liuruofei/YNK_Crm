@@ -19,9 +19,20 @@ namespace WebManage.Models.Res
         public decimal Amount { get; set; }
 
         /// <summary>
+        /// 记录收款金额字段
+        /// </summary>
+        public decimal FilAmount { get; set; }
+
+        /// <summary>
         /// 使用余额金额
         /// </summary>
         public decimal DeductAmount { get; set; }
+
+
+        /// <summary>
+        /// 记录扣除余额字段
+        /// </summary>
+        public decimal koudeductAmount { get; set; }
 
         /// <summary>
         /// 额外优惠
@@ -76,6 +87,16 @@ namespace WebManage.Models.Res
         /// 系统用户
         /// </summary>
         public string User_Name { get; set; }
+
+        /// <summary>
+        /// 垫付状态
+        /// </summary>
+        public int ArrearageStatus { get; set; }
+
+        /// <summary>
+        /// 统计还款金额
+        /// </summary>
+        public decimal RepaymentTotal { get; set; }
 
 
         /// <summary>

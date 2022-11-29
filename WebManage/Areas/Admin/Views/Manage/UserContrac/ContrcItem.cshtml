@@ -139,6 +139,13 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <div class="layui-block">
+            <label class="layui-form-label">垫付合同</label>
+            <div class="layui-input-inline">
+                <input type="radio" value="0" name="ArrearageStatus" title="不是" checked="checked" />
+                <input type="radio" value="1" name="ArrearageStatus" title="是" />
+            </div>
+        </div>
         <div class="layui-inline">
             <label class="layui-form-label">合同备注</label>
             <div class="layui-input-inline" style="line-height:36px;">
@@ -283,9 +290,11 @@
                                     $("select[name='ContraRateSelect']").parent().css("display", "none");
                                     $("input[name='ContraRate']").parent().show();
                                 }
+                                if (r.ArrearageStatus != null && r.ArrearageStatus != undefined) {
+                                    $("input[name='ArrearageStatus'][value='" + r.ArrearageStatus + "']").prop('checked', 'checked');
+                                }
                                 var html = template("templateItem", { data: r.ListItem });
                                 document.getElementById("child_Contrc_Detail").innerHTML = html;
-                                console.log(r.ListItem);
                                 for (var k = 0; k < timeList.length; k++) {
                                     $("#child_Contrc_Detail").find("tr").find("td").find("select[name='Course_Time']").append('<option value="' + timeList[k] + '">' + timeList[k] + '</option>');
                                 } 

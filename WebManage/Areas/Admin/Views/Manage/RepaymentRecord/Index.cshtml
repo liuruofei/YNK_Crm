@@ -8,16 +8,13 @@
             <div class="layui-form toolbar">
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <label class="layui-form-label w-auto">区间名称：</label>
+                        <label class="layui-form-label w-auto">关键词：</label>
                         <div class="layui-input-inline mr0">
-                            <input id="txtTitle" class="layui-input" type="text" placeholder="输入标题" />
+                            <input id="txtTitle" class="layui-input" type="text" placeholder="合同号,学生姓名" />
                         </div>
                     </div>
                     <div class="layui-inline">
                         <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
-                    </div>
-                    <div class="layui-inline">
-                        <button id="btnAdd" class="layui-btn icon-btn" data-power="Add"><i class="layui-icon">&#xe654;</i>添加</button>
                     </div>
                 </div>
             </div>
@@ -29,8 +26,6 @@
 
 <!-- 表格操作列 -->
 <script type="text/html" id="tableBar">
-    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">修改</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
 </script>
 
 @section css{
@@ -63,22 +58,12 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'TimeName', title: '区间名称', sort: true },
-            { field: 'CampusName', title: '校区', sort: true },
-            { field: 'StartTime', title: '开始时间', sort: true },
-            { field: 'EndTime', title: '结束时间', sort: true },
-            {
-                field: 'Sort', title: '排序', sort: true, width: 120, templet: function (d) {
-                    return "<input type='number' value='" + d.Sort + "' data-id='" + d.Id + "' style='width:80px' onchange='orderBy(this)'/>";
-                }
-            },
+            { field: 'StudentName', title: '学生姓名', sort: true },
+            { field: 'Contra_ChildNo', title: '合同号', sort: true },
+            { field: 'RepaymentAmount', title: '还款金额', sort: true },
+            { field: 'CreateTime', title: '还款时间', sort: true },
             {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
         ]]
-    });
-
-    // 添加
-    $('#btnAdd').click(function () {
-        showEditModel();
     });
 
     // 搜索
@@ -99,18 +84,18 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
         if (layEvent === 'edit') { // 修改
             showEditModel(data);
         } else if (layEvent === 'del') { // 删除
-            doDel(data.Id);
+            doDel(data.CourseId);
         }
     });
 
     //显示表单弹窗
     function showEditModel(vmodel) {
         adminList.form({
-            title: (vmodel ? '修改' : '添加') + '时间段',
+            title: (vmodel ? '修改' : '添加') + '校区',
             type: 2,
             width: "660px",
-            height: "580px",
-            content: vmodel ? '@Url.Action("Edit")?ID=' + vmodel.Id : '@Url.Action("Add")?ID=0',
+            height: "430px",
+            content: vmodel ? '@Url.Action("Edit")?ID=' + vmodel.CampusId : '@Url.Action("Add")?ID=0',
             end: function () {
                 insTb.reload();
             }
@@ -124,18 +109,5 @@ layui.use(['form', 'util', 'admin', 'adminList'], function () {
     }
 
 });
-        function orderBy(obj) {
-            console.log($(obj).attr("data-id"));
-            $.ajax({
-                type: "post",
-                url: "SetSort",
-                data: { Id: $(obj).attr("data-id"), sort: $(obj).val() },
-                dataType: 'json',
-                contentType: 'application/x-www-form-urlencoded',
-                success: function (data) {
-                    console.log(data);
-                }
-            });
-        }
     </script>
 }

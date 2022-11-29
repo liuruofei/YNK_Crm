@@ -96,21 +96,33 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             }
             else {
                 vmodel.CreateUid = userId;
-                var workstatus = 1;
                 var valiteTime = DateTime.Parse(model.AT_Date.ToString("yyyy-MM-dd") + " " + model.EndTime);
                 //如果点评在23小时之内,则课时有效
-                if (model.StudyMode != 5&&model.StudyMode != 6)
+                if (model.StudyMode != 5 && model.StudyMode != 6)
                 {
 
-                    if (string.IsNullOrEmpty(model.Comment)) {
+                    if (model.Work_Stutas != 1)
+                    {
                         if (valiteTime.AddHours(24) > DateTime.Now)
                         {
-                            workstatus = 1;
+                            model.Work_Stutas = 1;
                         }
                         else
                         {
-                            workstatus = 0;
+                            model.Work_Stutas = 0;
                         }
+                    }
+                    else {
+                        if (string.IsNullOrEmpty(vmodel.Comment))
+                        {
+                            model.Work_Stutas = 0;
+                        }
+                    }
+                }
+                else {
+                    if (!string.IsNullOrEmpty(vmodel.Comment) && model.Work_Stutas != 1)
+                    {
+                        model.Work_Stutas = 1;
                     }
                 }
                 if (vmodel.UnitId > 0&&model.UnitId!=vmodel.UnitId) {
@@ -122,7 +134,6 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     model.Work_Title = model.Work_Title + "_" + unitM.UnitName;
                 }
                 model.Comment = vmodel.Comment;
-                model.Work_Stutas = workstatus;
                 model.Comment_Time = DateTime.Now;
                 var result = _currencyService.DbAccess().Updateable<C_Course_Work>(model).Where(it => it.Id == vmodel.Id).ExecuteCommand();
                 if (result > 0)
