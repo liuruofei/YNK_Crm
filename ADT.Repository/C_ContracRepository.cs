@@ -59,6 +59,7 @@ namespace ADT.Repository
                         model.StudyMode = input.StudyMode;
                         model.SignIn_Data = DateTime.Now;
                         model.Remarks = input.Remarks;
+                        model.ArrearageStatus = input.ArrearageStatus;
                         model.PresentTime = input.PresentTime;
                         model.UpdateTime = DateTime.Now;
                         model.Contrac_Child_Status = (int)ConstraChild_Status.Change;// 子合同变更状态
@@ -351,6 +352,7 @@ namespace ADT.Repository
                                     child.StudyMode = childInput.StudyMode;
                                     child.SignIn_Data = DateTime.Now;
                                     child.Remarks = childInput.Remarks;
+                                    child.ArrearageStatus = childInput.ArrearageStatus;
                                     child.PresentTime = childInput.PresentTime;
                                     child.CreateUid = input.CreateUid;
                                     child.CreateTime = DateTime.Now;
@@ -441,6 +443,7 @@ namespace ADT.Repository
                                 child.SignIn_Data = DateTime.Now;
                                 child.PresentTime = childInput.PresentTime;
                                 child.Remarks = childInput.Remarks;
+                                child.ArrearageStatus = childInput.ArrearageStatus;
                                 child.CreateUid = input.CreateUid;
                                 child.CreateTime = DateTime.Now;
                                 child.UpdateUid = input.CreateUid;
@@ -1621,6 +1624,7 @@ namespace ADT.Repository
                         else {
                             var collectionAmount = collection.Amount;//充值余额
                             var userAmount = stduentU.Amount;//用户余额
+                            var oldUserAmount= stduentU.Amount;//原用户余额
                             string[] childContracs = collection.RelationShip_Contras.Split(new char[] { ',' });
                             List<C_Contrac_Child> listchild = new List<C_Contrac_Child>();
                             for (var i = 0; i < childContracs.Length; i++)
@@ -1657,8 +1661,9 @@ namespace ADT.Repository
                             //如果有使用余额，则扣除余额金额
                             if (userAmount > 0 && collection.DeductAmount > 0)
                             {
-                                if (userAmount >= collection.DeductAmount)
+                                if (userAmount >= collection.DeductAmount) {
                                     userAmount = userAmount - collection.DeductAmount;
+                                }
                                 else
                                 {
                                     rsg.code = 0;
@@ -2047,6 +2052,10 @@ namespace ADT.Repository
                             //更新收款状态
                             collection.PayStatus = 1;
                             collection.AuditUid = uid;
+                            //记录扣除余额
+                            if (collection.DeductAmount > 0) {
+                                collection.koudeductAmount = oldUserAmount - stduentU.Amount - collection.AddedAmount;
+                            }
                             db.Updateable<C_Collection>(collection).ExecuteCommand();
                             db.Updateable<C_Contrac>(contrac).ExecuteCommand();
                         }
@@ -2095,6 +2104,7 @@ namespace ADT.Repository
                             return rsg;
                         }
                         collection.Amount = input.Amount;
+                        collection.FilAmount = collection.Amount;
                         collection.PayMothed = input.PayMothed;
                         collection.PayImg = input.PayImg;
                         collection.RelationShip_Contras = input.RelationShip_Contras;
@@ -2146,6 +2156,7 @@ namespace ADT.Repository
                         collection.CreateUid = input.CreateUid;
                         collection.Registration_Time = DateTime.Now;
                         collection.Amount = input.Amount;
+                        collection.FilAmount = collection.Amount;
                         collection.CampusId = input.CampusId;
                         collection.PayStatus = 0;
                         collection.Collection_Time = input.Collection_Time;
@@ -2183,6 +2194,7 @@ namespace ADT.Repository
                                 rsg.msg = "输入余额超过该学员实际余额,无法保存";
                                 return rsg;
                             }
+                            collection.ArrearageStatus = childContrac.ArrearageStatus;
                         }
                         var result = db.Insertable<C_Collection>(collection).ExecuteReturnIdentity();
                         if (result > 0 && input.CollectionDetail != null && input.CollectionDetail.Count > 0)

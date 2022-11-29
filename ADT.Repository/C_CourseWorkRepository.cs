@@ -89,6 +89,11 @@ namespace ADT.Repository
                     if (input.Id > 0)
                     {
                         C_Course_Work work = db.Queryable<C_Course_Work>().Where(it => it.Id == input.Id).First();
+                        if (work.StudyMode != vmodel.StudyMode&&work.StudyMode!=4) {
+                            rsg.msg = "上课模式不能更改其它模式(试听课改成1对1除外)!";
+                            rsg.code = 0;
+                            return rsg;
+                        }
                         //1对1模式
                         if (input.StudyMode == 1 && work.Work_Stutas == 0)
                         {
@@ -176,29 +181,44 @@ namespace ADT.Repository
                                     if (work.IsUsePresent == 0)
                                     {
                                         C_User_CourseTime useCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == work.SubjectId && it.ProjectId == work.ProjectId).First();
-                                        //var hourse = span.Hours;
                                         float hourse = float.Parse(span.TotalMinutes.ToString()) / 60;
-                                        //原来已上课时大于现在修改课时，则扣掉用户已用课时
-                                        if (work.CourseTime > hourse)
-                                        {
-                                            var less = work.CourseTime - hourse;
-                                            useCourseTime.Course_UseTime = useCourseTime.Course_UseTime - less;
+
+                                        if (oldwork.StudyMode==1) {
+                                            //原来已上课时大于现在修改课时，则扣掉用户已用课时
+                                            if (work.CourseTime > hourse)
+                                            {
+                                                var less = work.CourseTime - hourse;
+                                                useCourseTime.Course_UseTime = useCourseTime.Course_UseTime - less;
+                                            }
+                                            //原来已上课时小于现在修改课时，则增加用户已用课时
+                                            else if (work.CourseTime < hourse)
+                                            {
+                                                var more = hourse - work.CourseTime;
+                                                if (useCourseTime.Course_UseTime + more > useCourseTime.Course_Time)
+                                                {
+                                                    rsg.code = 0;
+                                                    rsg.msg = "学员所剩课时不足！无法再排课";
+                                                    return rsg;
+                                                }
+                                                else if (useCourseTime.Course_UseTime + more <= useCourseTime.Course_Time)
+                                                {
+                                                    useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + more;
+                                                }
+
+                                            }
                                         }
-                                        //原来已上课时小于现在修改课时，则增加用户已用课时
-                                        else if (work.CourseTime < hourse)
-                                        {
-                                            var more = hourse - work.CourseTime;
-                                            if (useCourseTime.Course_UseTime + more > useCourseTime.Course_Time)
+                                        else {
+                                            //试听课改成1对1
+                                            if (useCourseTime.Course_Time < hourse)
                                             {
                                                 rsg.code = 0;
                                                 rsg.msg = "学员所剩课时不足！无法再排课";
                                                 return rsg;
                                             }
-                                            else if (useCourseTime.Course_UseTime + more <= useCourseTime.Course_Time)
+                                            else
                                             {
-                                                useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + more;
+                                                useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + hourse;
                                             }
-
                                         }
                                         db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
                                     }
@@ -206,73 +226,110 @@ namespace ADT.Repository
                                         C_User_PresentTime useCourseTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo)).First();
                                         //var hourse = span.Hours;
                                         float hourse = float.Parse(span.TotalMinutes.ToString()) / 60;
-                                        //原来已上课时大于现在修改课时，则扣掉用户已用课时
-                                        if (work.CourseTime > hourse)
+                                        if (oldwork.StudyMode == 1)
                                         {
-                                            var less = work.CourseTime - hourse;
-                                            useCourseTime.Present_UseTime = useCourseTime.Present_UseTime - less;
+                                            //原来已上课时大于现在修改课时，则扣掉用户已用课时
+                                            if (work.CourseTime > hourse)
+                                            {
+                                                var less = work.CourseTime - hourse;
+                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime - less;
+                                            }
+                                            //原来已上课时小于现在修改课时，则增加用户已用课时
+                                            else if (work.CourseTime < hourse)
+                                            {
+                                                var more = hourse - work.CourseTime;
+                                                if (useCourseTime.Present_UseTime + more > useCourseTime.Present_Time)
+                                                {
+                                                    rsg.code = 0;
+                                                    rsg.msg = "学员所剩赠送课时不足！无法再排课";
+                                                    return rsg;
+                                                }
+                                                else if (useCourseTime.Present_UseTime + more <= useCourseTime.Present_Time)
+                                                {
+                                                    useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + more;
+                                                }
+
+                                            }
                                         }
-                                        //原来已上课时小于现在修改课时，则增加用户已用课时
-                                        else if (work.CourseTime < hourse)
-                                        {
-                                            var more = hourse - work.CourseTime;
-                                            if (useCourseTime.Present_UseTime + more > useCourseTime.Present_Time)
+                                        else {
+                                            //试听课改成1对1
+                                            if (useCourseTime.Present_UseTime < hourse)
                                             {
                                                 rsg.code = 0;
                                                 rsg.msg = "学员所剩赠送课时不足！无法再排课";
                                                 return rsg;
                                             }
-                                            else if (useCourseTime.Present_UseTime + more <= useCourseTime.Present_Time)
+                                            else
                                             {
-                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + more;
+                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + hourse;
                                             }
-
                                         }
                                         db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
                                         work.Work_Title = oldwork.Work_Title;
                                     }
-
                                 }
                                 else
                                 {
                                     if (work.IsUsePresent == 0)
                                     {
-                                        C_User_CourseTime olduseCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == oldwork.SubjectId && it.ProjectId == oldwork.ProjectId).First();
-                                        olduseCourseTime.Course_UseTime = olduseCourseTime.Course_UseTime - oldwork.CourseTime;
-                                        db.Updateable<C_User_CourseTime>(olduseCourseTime).ExecuteCommand();
-                                        //var hourse = span.Hours;
-                                        float hourse = float.Parse(span.Minutes.ToString()) / 60;
+                                        if (oldwork.StudyMode == 1) {
+                                            C_User_CourseTime olduseCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == oldwork.SubjectId && it.ProjectId == oldwork.ProjectId).First();
+                                            olduseCourseTime.Course_UseTime = olduseCourseTime.Course_UseTime - oldwork.CourseTime;
+                                            db.Updateable<C_User_CourseTime>(olduseCourseTime).ExecuteCommand();
+                                        }
+                                        float hourse = float.Parse(span.TotalMinutes.ToString()) / 60;
                                         C_User_CourseTime usenewCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == input.SubjectId && it.ProjectId == input.ProjectId).First();
+                                        if (usenewCourseTime.Course_Time < hourse)
+                                        {
+                                            rsg.code = 0;
+                                            rsg.msg = "学员所剩课时不足！无法再排课";
+                                            return rsg;
+                                        }
                                         usenewCourseTime.Course_UseTime = usenewCourseTime.Course_UseTime + hourse;
                                         db.Updateable<C_User_CourseTime>(usenewCourseTime).ExecuteCommand();
                                     }
                                     else {
                                         C_User_PresentTime useCourseTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo)).First();
-                                        //var hourse = span.Hours;
-                                        float hourse = float.Parse(span.Minutes.ToString()) / 60;
-                                        //原来已上课时大于现在修改课时，则扣掉用户已用课时
-                                        if (work.CourseTime > hourse)
+                                        float hourse = float.Parse(span.TotalMinutes.ToString()) / 60;
+                                        if (oldwork.StudyMode == 1)
                                         {
-                                            var less = work.CourseTime - hourse;
-                                            useCourseTime.Present_UseTime = useCourseTime.Present_UseTime - less;
+                                            //原来已上课时大于现在修改课时，则扣掉用户已用课时
+                                            if (work.CourseTime > hourse)
+                                            {
+                                                var less = work.CourseTime - hourse;
+                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime - less;
+                                            }
+                                            //原来已上课时小于现在修改课时，则增加用户已用课时
+                                            else if (work.CourseTime < hourse)
+                                            {
+                                                var more = hourse - work.CourseTime;
+                                                if (useCourseTime.Present_UseTime + more > useCourseTime.Present_Time)
+                                                {
+                                                    rsg.code = 0;
+                                                    rsg.msg = "学员所剩赠送课时不足！无法再排课";
+                                                    return rsg;
+                                                }
+                                                else if (useCourseTime.Present_UseTime + more <= useCourseTime.Present_Time)
+                                                {
+                                                    useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + more;
+                                                }
+
+                                            }
+
+                                            db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
                                         }
-                                        //原来已上课时小于现在修改课时，则增加用户已用课时
-                                        else if (work.CourseTime < hourse)
-                                        {
-                                            var more = hourse - work.CourseTime;
-                                            if (useCourseTime.Present_UseTime + more > useCourseTime.Present_Time)
+                                        else {
+                                            if (useCourseTime.Present_Time < hourse)
                                             {
                                                 rsg.code = 0;
                                                 rsg.msg = "学员所剩赠送课时不足！无法再排课";
                                                 return rsg;
                                             }
-                                            else if (useCourseTime.Present_UseTime + more <= useCourseTime.Present_Time)
-                                            {
-                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + more;
+                                            else {
+                                                useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + hourse;
                                             }
-
+                                            db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
                                         }
-                                        db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
                                         C_Subject sub2 = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                                         C_Project pro2 = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
                                         work.Work_Title = "1对1(" + u.Student_Name + ")_" + sub2.SubjectName + "_" + pro2.ProjectName;
@@ -310,7 +367,6 @@ namespace ADT.Repository
                                 //如果课时修改的学员不是同一个人，则判断课时
                                 C_User_CourseTime olduseCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == work.SubjectId && it.ProjectId == work.ProjectId).First();
                                 C_User_CourseTime useCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == input.StudentUid && it.Contra_ChildNo.Equals(input.Contra_ChildNo) && it.SubjectId == input.SubjectId && it.ProjectId == input.ProjectId).First();
-                                //var hourse = span.Hours;
                                 float hourse = float.Parse(span.TotalMinutes.ToString()) / 60;
                                 //则恢复原学员已用课时
                                 olduseCourseTime.Course_UseTime = useCourseTime.Course_UseTime - work.CourseTime;
@@ -923,6 +979,7 @@ namespace ADT.Repository
                                 //公共模块
                                 input.AT_Date = DateTime.Parse(wkTime);
                                 input.CreateTime = DateTime.Now;
+                                input.Contra_ChildNo = "";
                                 db.Insertable<C_Course_Work>(input).ExecuteCommand();
                                 recored.CreateTime = DateTime.Now;
                                 recored.CreateUid = input.CreateUid;
