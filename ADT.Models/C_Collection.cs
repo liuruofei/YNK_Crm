@@ -22,6 +22,16 @@ namespace ADT.Models
         public decimal Amount { get; set; }
 
         /// <summary>
+        /// 记录收款金额字段
+        /// </summary>
+        public decimal FilAmount { get; set; }
+
+        /// <summary>
+        /// 记录扣除余额字段
+        /// </summary>
+        public decimal koudeductAmount { get; set; }
+
+        /// <summary>
         /// 使用余额金额
         /// </summary>
         public decimal DeductAmount { get; set; }
@@ -83,5 +93,11 @@ namespace ADT.Models
         /// 更新者
         /// </summary>
         public string UpdateUid { get; set; }
+
+
+        /// <summary>
+        /// 是否垫付
+        /// </summary>
+        public int ArrearageStatus { get; set; }
     }
 }

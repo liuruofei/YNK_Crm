@@ -102,6 +102,12 @@ namespace ADT.Models.InputModel
         /// </summary>
         public string Remarks { get; set; }
 
+
+        /// <summary>
+        /// 是否欠费合同
+        /// </summary>
+        public int ArrearageStatus { get; set; }
+
         /// <summary>
         /// 赠送课时
         /// </summary>

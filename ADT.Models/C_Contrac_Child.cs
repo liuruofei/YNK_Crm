@@ -144,5 +144,10 @@ namespace ADT.Models
         public DateTime UpdateTime { get; set; }
         public string UpdateUid { get; set; }
 
+        /// <summary>
+        /// 是否欠费合同
+        /// </summary>
+        public int ArrearageStatus { get; set; }
+
     }
 }
