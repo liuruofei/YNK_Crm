@@ -98,7 +98,9 @@
             {
                 field: 'PayMothed', title: '支付模式', sort: true, templet: function (d) {
                     console.log(d.Amount, d.AddedAmount, d.DeductAmount);
-                    if (d.FilAmount>0)
+                    if (d.FilAmount > 0 && (d.RelationShip_Contras == '' || d.RelationShip_Contras==null))
+                        return "普通收款(充值余额)";
+                    if (d.FilAmount > 0 &&d.RelationShip_Contras!='')
                         return "普通收款";
                     if (d.AddedAmount > 0 && d.FilAmount<1)
                         return "使用额外优惠";

@@ -791,6 +791,19 @@
                         newObject.CourseTimeTotal += parseFloat(courseTime);
                         newObject.Child_Detail.push({ Course_Time: courseTime, ProjectId: projectId, SubjectId: sbujectId, Level: level, Price: price });
                     })
+                    if (newObject.Child_Detail != null && newObject.Child_Detail.length > 0) {
+                        var disctictError = "";
+                        newObject.Child_Detail.forEach(f => {
+                            var distictData = newObject.Child_Detail.filter(k => k.SubjectId == f.SubjectId && k.ProjectId == f.ProjectId);
+                            if (distictData.length > 1) {
+                                disctictError = "repeat";
+                            }
+                        })
+                        if (disctictError != '') {
+                            layer.msg("合同详细中包含重复的类别和科目！请仔细核对");
+                            return false;
+                        }
+                    }
                 }
             if (newObject.ClassId > 0) {
                 console.log(classList);

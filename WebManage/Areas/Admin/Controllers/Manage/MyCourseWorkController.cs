@@ -29,6 +29,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         private RedisConfig _redsconfig;
         private WXSetting _wxConfig;
         private ILog log = LogManager.GetLogger(Startup.repository.Name, typeof(MyCourseWorkController));
+        private string toaken { get; set; }
         public MyCourseWorkController(ICurrencyService currencyService, IC_ContracService contrac, IOptions<WXSetting> wxConfig, IOptions<RedisConfig> redisConfig, IC_CourseWorkService courseWork)
         {
             _currencyService = currencyService;
@@ -168,7 +169,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 }
                 else
                 {
-                    var toaken = GetWXToken();
+                    toaken = GetWXToken();
                     //1对1
                     if (model.StudentUid > 0) {
                         var student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(u => u.StudentUid==model.StudentUid).First();
@@ -423,65 +424,87 @@ namespace WebManage.Areas.Admin.Controllers.Manage
 
         public void SendMsg(string openId, string templateId, string wxaccessToken, string msg, string wkTitle, string wkTeacher, string wkTime, string commend, string studentName, int wkId)
         {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject.Add("touser", openId);   // openid
-            jsonObject.Add("template_id", templateId);
-            Dictionary<string, object> data = new Dictionary<string, object>();
-            Dictionary<string, string> first = new Dictionary<string, string>();
-            first.Add("value", msg);
-            first.Add("color", "#173177");
-            Dictionary<string, string> keyword1 = new Dictionary<string, string>();
-            keyword1.Add("value", studentName);
-            keyword1.Add("color", "#173177");
-            Dictionary<string, string> keyword2 = new Dictionary<string, string>();
-            keyword2.Add("value", wkTitle);
-            keyword2.Add("color", "#173177");
-            Dictionary<string, string> keyword3 = new Dictionary<string, string>();
-            keyword3.Add("value", "任课老师");
-            keyword3.Add("color", "#173177");
-            Dictionary<string, string> remark = new Dictionary<string, string>();
-            remark.Add("value", "点评内容:" + commend);
-            remark.Add("color", "#173177");
-            data.Add("first", first);
-            data.Add("keyword1", keyword1);
-            data.Add("keyword2", keyword2);
-            data.Add("keyword3", keyword3);
-            data.Add("remark", remark);
-            jsonObject.Add("data", data);
-            jsonObject.Add("url", "http://crm.younengkao.com/WxTemplateChild/Index?wkId=" + wkId);//设置链接
-            var jsonStr = JsonConvert.SerializeObject(jsonObject);
-            var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
-            string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
+            try
+            {
+                Dictionary<string, object> jsonObject = new Dictionary<string, object>();
+                jsonObject.Add("touser", openId);   // openid
+                jsonObject.Add("template_id", templateId);
+                Dictionary<string, object> data = new Dictionary<string, object>();
+                Dictionary<string, string> first = new Dictionary<string, string>();
+                first.Add("value", msg);
+                first.Add("color", "#173177");
+                Dictionary<string, string> keyword1 = new Dictionary<string, string>();
+                keyword1.Add("value", studentName);
+                keyword1.Add("color", "#173177");
+                Dictionary<string, string> keyword2 = new Dictionary<string, string>();
+                keyword2.Add("value", wkTitle);
+                keyword2.Add("color", "#173177");
+                Dictionary<string, string> keyword3 = new Dictionary<string, string>();
+                keyword3.Add("value", "任课老师");
+                keyword3.Add("color", "#173177");
+                Dictionary<string, string> remark = new Dictionary<string, string>();
+                remark.Add("value", "点评内容:" + commend);
+                remark.Add("color", "#173177");
+                data.Add("first", first);
+                data.Add("keyword1", keyword1);
+                data.Add("keyword2", keyword2);
+                data.Add("keyword3", keyword3);
+                data.Add("remark", remark);
+                jsonObject.Add("data", data);
+                jsonObject.Add("url", "http://crm.younengkao.com/WxTemplateChild/Index?wkId=" + wkId);//设置链接
+                var jsonStr = JsonConvert.SerializeObject(jsonObject);
+                var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
+                string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
+            }
+            catch {
+                if (RedisLock.KeyExists("wxAccessToken", _redsconfig.RedisCon))
+                {
+                    RedisLock.KeyDelete("wxAccessToken", _redsconfig.RedisCon);
+                }
+                toaken = GetWXToken();
+                SendMsg(openId, templateId, toaken, msg, wkTitle, wkTeacher, wkTime, commend, studentName, wkId);
+            }
+
         }
 
         //发送家庭作业
         public void SendMsgHomeWork(string openId, string templateId, string wxaccessToken, string msg, string wkTitle, string wkTeacher, string wkTime, string homeWork)
         {
-            Dictionary<string, object> jsonObject = new Dictionary<string, object>();
-            jsonObject.Add("touser", openId);   // openid
-            jsonObject.Add("template_id", templateId);
-            Dictionary<string, object> data = new Dictionary<string, object>();
-            Dictionary<string, string> first = new Dictionary<string, string>();
-            first.Add("value", msg);
-            first.Add("color", "#173177");
-            Dictionary<string, string> keyword1 = new Dictionary<string, string>();
-            keyword1.Add("value", wkTitle);
-            keyword1.Add("color", "#173177");
-            Dictionary<string, string> keyword2 = new Dictionary<string, string>();
-            keyword2.Add("value", wkTime);
-            keyword2.Add("color", "#173177");
-            Dictionary<string, string> remark = new Dictionary<string, string>();
-            remark.Add("value", "布置作业:" + homeWork);
-            remark.Add("color", "#173177");
+            try
+            {
+                Dictionary<string, object> jsonObject = new Dictionary<string, object>();
+                jsonObject.Add("touser", openId);   // openid
+                jsonObject.Add("template_id", templateId);
+                Dictionary<string, object> data = new Dictionary<string, object>();
+                Dictionary<string, string> first = new Dictionary<string, string>();
+                first.Add("value", msg);
+                first.Add("color", "#173177");
+                Dictionary<string, string> keyword1 = new Dictionary<string, string>();
+                keyword1.Add("value", wkTitle);
+                keyword1.Add("color", "#173177");
+                Dictionary<string, string> keyword2 = new Dictionary<string, string>();
+                keyword2.Add("value", wkTime);
+                keyword2.Add("color", "#173177");
+                Dictionary<string, string> remark = new Dictionary<string, string>();
+                remark.Add("value", "布置作业:" + homeWork);
+                remark.Add("color", "#173177");
 
-            data.Add("first", first);
-            data.Add("keyword1", keyword1);
-            data.Add("keyword2", keyword2);
-            data.Add("remark", remark);
-            jsonObject.Add("data", data);
-            var jsonStr = JsonConvert.SerializeObject(jsonObject);
-            var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
-            string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
+                data.Add("first", first);
+                data.Add("keyword1", keyword1);
+                data.Add("keyword2", keyword2);
+                data.Add("remark", remark);
+                jsonObject.Add("data", data);
+                var jsonStr = JsonConvert.SerializeObject(jsonObject);
+                var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
+                string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
+            }
+            catch {
+                if (RedisLock.KeyExists("wxAccessToken", _redsconfig.RedisCon)) {
+                    RedisLock.KeyDelete("wxAccessToken", _redsconfig.RedisCon);
+                }
+                toaken = GetWXToken();
+                SendMsgHomeWork(openId, templateId,toaken, msg, wkTitle, wkTeacher, wkTime, homeWork);
+            }
         }
 
 

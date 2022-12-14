@@ -134,53 +134,67 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             if (vmodel != null)
             {
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
-                if (string.IsNullOrEmpty(vmodel.Comment))
+                var roleModel = _currencyService.DbAccess().Queryable<sys_userrole, sys_role>((ur, r) => new Object[] { JoinType.Left, ur.UserRole_RoleID == r.Role_ID }).Where((ur, r) => ur.UserRole_UserID == userId).Select((ur, r)=>r).First();
+                if (string.IsNullOrEmpty(vmodel.Comment)&&roleModel.Role_Name!="校长"&& roleModel.Role_Name != "督学校长" && roleModel.Role_Name != "超级管理员")
                     return Json(new { code = 0, msg = "点评内容不能为空" });
                 if (vmodel.Id > 0)
                 {
                     C_Course_Work work = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(f => f.Id == vmodel.Id).First();
-                    if (work.IsSendComment==1) {
-                        return Json(new { code = 0, msg = "点评内容已被推送，无法修改" });
-                    }
-                    var valiteTime =DateTime.Parse(work.AT_Date.ToString("yyyy-MM-dd") + " " + work.EndTime);
-                    work.UpdateUid = userId;
-                    //如果在23小时之内,则课时有效
-                    if (work.StudyMode != 5 && work.StudyMode != 6)
+
+                    if ((roleModel.Role_Name == "校长" || roleModel.Role_Name == "督学校长" || roleModel.Role_Name == "超级管理员") && string.IsNullOrEmpty(vmodel.Comment))
                     {
-                        if (work.Work_Stutas != 1)
+                        work.Work_Stutas = 0;
+                        work.Comment_Time = null;
+                    }
+                    else {
+                        if (work.IsSendComment == 1)
                         {
-                            if (valiteTime.AddHours(24) > DateTime.Now)
+                            return Json(new { code = 0, msg = "点评内容已被推送，无法修改" });
+                        }
+                        var valiteTime = DateTime.Parse(work.AT_Date.ToString("yyyy-MM-dd") + " " + work.EndTime);
+                        work.UpdateUid = userId;
+                        //如果在23小时之内,则课时有效
+                        if (work.StudyMode != 5 && work.StudyMode != 6)
+                        {
+                            if (work.Work_Stutas != 1)
                             {
-                                work.Work_Stutas = 1;
+                                if (valiteTime.AddHours(24) > DateTime.Now)
+                                {
+                                    work.Work_Stutas = 1;
+                                }
+                                else
+                                {
+                                    work.Work_Stutas = 0;
+                                }
                             }
                             else
                             {
-                                work.Work_Stutas = 0;
+                                if (string.IsNullOrEmpty(vmodel.Comment))
+                                {
+                                    work.Work_Stutas = 0;
+                                }
                             }
                         }
-                        else {
-                            if (string.IsNullOrEmpty(vmodel.Comment)) {
-                                work.Work_Stutas = 0;
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(vmodel.Comment) && work.Work_Stutas != 1)
+                            {
+                                work.Work_Stutas = 1;
                             }
                         }
-                    }
-                    else {
-                        if (!string.IsNullOrEmpty(vmodel.Comment) && work.Work_Stutas != 1)
+                        if (vmodel.UnitId > 0 && work.UnitId != vmodel.UnitId)
                         {
-                            work.Work_Stutas = 1;
+                            work.UnitId = vmodel.UnitId;
+                            var unitM = _currencyService.DbAccess().Queryable<C_Project_Unit>().Where(y => y.UnitId == vmodel.UnitId).First();
+                            if (work.Work_Title.Split("_").Length == 4)
+                            {
+                                work.Work_Title = work.Work_Title.Substring(0, work.Work_Title.LastIndexOf("_"));
+                            }
+                            work.Work_Title = work.Work_Title + "_" + unitM.UnitName;
                         }
-                    }
-                    if (vmodel.UnitId > 0&& work.UnitId != vmodel.UnitId) {
-                        work.UnitId = vmodel.UnitId;
-                        var unitM = _currencyService.DbAccess().Queryable<C_Project_Unit>().Where(y => y.UnitId == vmodel.UnitId).First();
-                        if (work.Work_Title.Split("_").Length == 4)
-                        {
-                            work.Work_Title = work.Work_Title.Substring(0, work.Work_Title.LastIndexOf("_"));
-                        }
-                        work.Work_Title = work.Work_Title + "_" + unitM.UnitName;
+                        work.Comment_Time = DateTime.Now;//点评时间
                     }
                     work.Comment = vmodel.Comment;
-                    work.Comment_Time = DateTime.Now;//点评时间
                     var result = _currencyService.DbAccess().Updateable<C_Course_Work>(work).ExecuteCommand();
                     if (result > 0)
                     {
