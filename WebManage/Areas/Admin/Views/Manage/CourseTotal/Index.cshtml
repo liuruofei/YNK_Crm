@@ -1,0 +1,79 @@
+﻿@model WebManage.Models.Res.CourseTotalModel 
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto" style="font-weight:700">总课时</label>
+                        <label class="layui-form-label w-auto" style="font-weight:700">@Model.SumTime</label>
+                    </div>
+                </div>
+            </div>
+            <table class="layui-table" id="userTable" lay-filter="userTable">
+                <thead>
+                    <tr>
+                        <th>课程类型</th>
+                        <th>总课时</th>
+                        <th>使用课时</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1对1</td>
+                        <td>@Model.CourseTime</td>
+                        <td>@Model.CourseUseTime</td>
+                    </tr>
+                    <tr>
+                        <td>班课</td>
+                        <td>@Model.ClassTime</td>
+                        <td>@Model.ClassUseTime</td>
+                    </tr>
+                    <tr>
+                        <td>赠送课</td>
+                        <td>@Model.PresentTime</td>
+                        <td>@Model.PresentUseTime</td>
+                    </tr>
+                    <tr>
+                        <td>试听课</td>
+                        <td>@Model.ShitingTime</td>
+                        <td>@Model.ShitingTime</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+
+        .monthBtn {
+            height: 30px;
+            width: 68px;
+        }
+
+        .actvMonth {
+            color: white;
+            background-color: #009688;
+            border: 0px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+}
