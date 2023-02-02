@@ -141,10 +141,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 {
                     C_Course_Work work = _currencyService.DbAccess().Queryable<C_Course_Work>().Where(f => f.Id == vmodel.Id).First();
 
-                    if ((roleModel.Role_Name == "校长" || roleModel.Role_Name == "督学校长" || roleModel.Role_Name == "超级管理员") && string.IsNullOrEmpty(vmodel.Comment))
+                    if ((roleModel.Role_Name == "校长" || roleModel.Role_Name == "督学校长" || roleModel.Role_Name == "超级管理员"))
                     {
-                        work.Work_Stutas = 0;
-                        work.Comment_Time = null;
+                        if (!string.IsNullOrEmpty(vmodel.Comment)) {
+                            work.Work_Stutas = 1;
+                        }
+                        else {
+                            work.Work_Stutas =0;
+                            work.Comment_Time = null;
+                        }
                     }
                     else {
                         if (work.IsSendComment == 1)

@@ -68,16 +68,34 @@
             },
             {
                 field: 'Score', title: '可退课时', sort: true, width: 120, templet: function (d) {
-                    return "<input type='number' value='" + (d.Course_Time - d.Course_UseTime) + "' name='BackCourseTime'  style='width:80px'/>";
+                    var backCourStr = "<select lay-filter='BackCourseTime' name='BackCourseTime'>";
+                    for (var j = 0; j <= (d.Course_Time - d.Course_UseTime); j++) {
+                        if (j == (d.Course_Time - d.Course_UseTime) || (d.Course_Time - d.Course_UseTime - j > 0 && d.Course_Time - d.Course_UseTime - j<1)) {
+                            var lastNb = j;
+                            if (d.Course_Time - d.Course_UseTime - j > 0 && d.Course_Time - d.Course_UseTime - j < 1) {
+                                lastNb = (d.Course_Time - d.Course_UseTime);
+                            }
+                            backCourStr += "<option value=" + lastNb + " selected>" + lastNb + "</option>";
+                        }
+                        else {
+                            backCourStr += "<option value=" + j + ">" + j + "</option>";
+                        }
+                    }
+                    backCourStr += "</select>";
+                    return backCourStr;
                 }
             },
             {
                 field: 'Score', title: '退课金额', sort: true, width: 120, templet: function (d) {
-                    return "<input type='number' value='" + ((d.Course_Time - d.Course_UseTime) * d.UnitPrice) + "' name='BackAmount'  style='width:80px'/>";
+                    return "<input type='number' value='" + ((d.Course_Time - d.Course_UseTime) * d.UnitPrice) + "' unitPrice='" + d.UnitPrice+"'  name='BackAmount'  style='width:80px'/>";
                 }
             },
             { align: 'center', toolbar: '#tableBar', title: '操作', width: 200 }
-        ]]
+        ]],
+        done: function (res, curr, count) {
+            $(".layui-table-body,.layui-table-box,.layui-table-cell").css("overflow", 'visible');
+            form.render("select");//刷新表单
+        }
     });
     // 搜索
     $('#btnSearch').click(function () {
@@ -89,6 +107,12 @@
             }
         });
     });
+    form.on('select(BackCourseTime)', function (data) {
+        var td = $(this).parents("tr").find("td");
+        var unitPrice = td.find("input[name='BackAmount']").attr("unitPrice");
+        var courseTime = data.value;
+        td.find("input[name='BackAmount']").val((unitPrice * courseTime));
+    });
 
     // 工具条点击事件
      adminList.table.on('tool(userTable)', function (obj) {
@@ -97,7 +121,7 @@
                 var data = obj.data;
                 var layEvent = obj.event;
          if (layEvent === 'edit') { // 修改
-             var backCourseTime = $(tr).find("input[name='BackCourseTime']").val();
+             var backCourseTime = $(tr).find("select[name='BackCourseTime']").val();
              var backAmount = $(tr).find("input[name='BackAmount']").val();
              if (data.Course_Time - data.Course_UseTime < backCourseTime) {
                  layer.msg("可退课时已超过限额");
@@ -110,15 +134,20 @@
         }
      });
     //单行保存
-    function SaveEditModel(vmodel) {
+        function SaveEditModel(vmodel) {
             adminForm.Save({
                 url:'@Url.Action("BackPartCostByTimeId")',
                 data: vmodel,
                 callBack: function () {
-                 
+                    insTb.reload({
+                        where: { childContrcNo:vmodel.Contra_ChildNo}
+                        , page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
                 }
             })
     }
-});
+   });
     </script>
 }

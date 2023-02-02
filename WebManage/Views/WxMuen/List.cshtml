@@ -202,13 +202,20 @@
                 date.setDate(0);
                 return date
             }
+            //获取本月最后一天(准确获取)
+            function getNewMothlastDay(date) {
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var lastDay = new Date(year, month, 0);
+                return lastDay;
+            }
             //获取本月的时间对象集合
             function getMonth(date) {
                 var arr = []
                 // 获取本月第一天
                 var _date = getMonthDay(date)
                 // // 获取本月最后一天
-                var dataLast = getMonthLastDay(date).getDate()
+                var dataLast = getNewMothlastDay(date).getDate()
                 arr.push(new Date(_date.valueOf()))
                 // 处理本月第一天 到本月最后一天
                 for (var i = 1; i < dataLast; i++) {
@@ -224,7 +231,7 @@
                     arr.unshift(0);
                 }
                 // 向后补全,重置为本月最后一天
-                _date = getMonthLastDay(date)
+                _date = getNewMothlastDay(date)
                 forln = _date.getDay()
                 for (var i = forln; i < 6; i++) {
                     _date.setDate(_date.getDate() + 1)

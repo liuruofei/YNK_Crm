@@ -1011,6 +1011,7 @@
                 $("input[name='Contra_ChildNo']").val(vmodel.Contra_ChildNo);
                 $("input[name='WorkUserName']").val(vmodel.StudyModeName);
                 $("input[name='UserProjectId']").val(vmodel.ProjectId);
+                bindUnit(vmodel.ProjectId, null);
             }
             else if (vmodel.StudyMode == 2) {
                 $("#searcClass").css("display","none");

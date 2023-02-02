@@ -71,7 +71,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             dynamic list = _currencyService.DbAccess().Queryable(sql, "orginSql")
             .AddParameters(new { startStr = startTime, endStr = endTime})
             .Select("*").ToList();
+            totalRow total = _currencyService.DbAccess().Queryable("(select sum(totalTime)as totalCourseTime,sum(unvaliteTotal)as totalUnValiteTime,sum(valiteTotal)as totalValiteTime from " + sql+" as b)", "orginSql").AddParameters(new { startStr = startTime, endStr = endTime })
+            .Select<totalRow>("*").First();
             reg.data = list;
+            reg.totalRow = total;
             reg.code = 0;
             reg.msg = "获取成功";
             return Json(reg);

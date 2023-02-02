@@ -204,7 +204,12 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                        new StudyWorkModel { ClasssId = cla.ClassId, ClassName = cla.Class_Name, SubjectId = cla.SubjectId, StudyMode = 2 }).ToPageList(1, 30);
                     if (list != null && list.Count > 0)
                     {
-                        var arrClassids = list.Select(n => n.ClasssId).ToList(); ;
+                        var arrClassids = list.Select(n => n.ClasssId).ToList();
+                        if (arrClassids != null && arrClassids.Count > 0) {
+                            HashSet<int> ha = new HashSet<int>(arrClassids);
+                            arrClassids.Clear();
+                            arrClassids.AddRange(ha);
+                        }
                         var arrCourseTime = _currencyService.DbAccess().Queryable<C_User_CourseTime>().Where(cour => arrClassids.Contains(cour.ClassId)).ToList();
                         if (arrCourseTime != null && arrCourseTime.Count > 0)
                         {
@@ -511,6 +516,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)";
             if (classIds != null && classIds.Count > 0)
             {
+                HashSet<int> ha = new HashSet<int>(classIds);
+                classIds.Clear();
+                classIds.AddRange(ha);
                 sql += " and (wk.ClasssId in(" + string.Join(",", classIds) + ") or charindex(@userName,contracU.Student_Name)>0) ";
             }
             else
@@ -541,6 +549,11 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 var wkdataGroup = list.Select(y => y.AT_Date).ToList();
                 var classsIdList = list.Select(y => y.ClasssId).ToList();
                 int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                if (classsIdList != null && classsIdList.Count > 0) {
+                    HashSet<int> ha = new HashSet<int>(classsIdList);
+                    classsIdList.Clear();
+                    classsIdList.AddRange(ha);
+                }
                 var classUser = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(y => classsIdList.Contains(y.ClassId) && y.Contrac_Child_Status != contracStatus).ToList();
                 foreach (var crt in wkdataGroup)
                 {
@@ -550,6 +563,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     var tenClassId = tenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
                     if (tenClassId != null)
                     {
+                        HashSet<int> ha = new HashSet<int>(tenClassId);
+                        tenClassId.Clear();
+                        tenClassId.AddRange(ha);
                         var tenClass = classUser.Where(y => tenClassId.Contains(y.ClassId)).ToList();
                         var tenClassUser = tenClass.Select(y => y.StudentUid).ToList();
                         //冲突的10-12点(1对1,试听课，模考，实考)
@@ -577,6 +593,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     var elevenClassId = elevenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
                     if (elevenClassId != null)
                     {
+                        HashSet<int> ha = new HashSet<int>(elevenClassId);
+                        elevenClassId.Clear();
+                        elevenClassId.AddRange(ha);
                         var elevenClass = classUser.Where(y => elevenClassId.Contains(y.ClassId)).ToList();
                         var elevenClassUser = elevenClass.Select(y => y.StudentUid).ToList();
                         //冲突的10-12点(1对1,试听课，模考，实考)
@@ -604,6 +623,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     var thirteenClassId = thirteenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
                     if (thirteenClassId != null)
                     {
+                        HashSet<int> ha = new HashSet<int>(thirteenClassId);
+                        thirteenClassId.Clear();
+                        thirteenClassId.AddRange(ha);
                         var thirteenClass = classUser.Where(y => thirteenClassId.Contains(y.ClassId)).ToList();
                         var thirteenClassUser = thirteenClass.Select(y => y.StudentUid).ToList();
                         //冲突的10-12点(1对1,试听课，模考，实考)
@@ -631,6 +653,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     var fifteenClassId = fifteenData.Where(y => y.StudyMode == 2).Select(y => y.ClasssId).ToList();
                     if (fifteenClassId != null)
                     {
+                        HashSet<int> ha = new HashSet<int>(fifteenClassId);
+                        fifteenClassId.Clear();
+                        fifteenClassId.AddRange(ha);
                         var fifteenClass = classUser.Where(y => fifteenClassId.Contains(y.ClassId)).ToList();
                         var fifteenClassUser = fifteenClass.Select(y => y.StudentUid).ToList();
                         //冲突的10-12点(1对1,试听课，模考，实考)
@@ -700,6 +725,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)";
             if (classIds != null && classIds.Count > 0)
             {
+                HashSet<int> ha = new HashSet<int>(classIds);
+                classIds.Clear();
+                classIds.AddRange(ha);
                 sql += " and (wk.ClasssId in(" + string.Join(",", classIds) + ") or charindex(@userName,contracU.Student_Name)>0) ";
             }
             else
