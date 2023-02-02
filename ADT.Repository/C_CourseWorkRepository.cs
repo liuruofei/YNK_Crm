@@ -715,7 +715,6 @@ namespace ADT.Repository
                                 C_Contrac_User u = db.Queryable<C_Contrac_User>().Where(it => it.StudentUid == input.StudentUid).First();
                                 TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
                                 sys_user teach = db.Queryable<sys_user>().Where(it => it.User_ID == input.TeacherUid).First();
-                                //var hourse = span.Hours;
                                 float hourse = float.Parse(span.TotalMinutes.ToString()) / 60;
                                 if (input.IsUsePresent == 0)
                                 {
@@ -738,13 +737,24 @@ namespace ADT.Repository
                                     {
                                         useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + hourse;
                                     }
-                                    //批量更新所在班级所在学员课时
                                     db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
+                                    string unitName = "";
+                                    if (input.UnitId > 0)
+                                    {
+                                        var unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
+                                        unitName = "_" + unt.UnitName;
+                                    }
+                                    input.Work_Title += unitName;
                                 }
                                 else
                                 {
                                     C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                                     C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
+                                    string unitName = "";
+                                    if (input.UnitId > 0) {
+                                        var unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
+                                        unitName ="_"+unt.UnitName;
+                                    }
                                     C_User_PresentTime useCourseTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == input.StudentUid && it.Contra_ChildNo == input.Contra_ChildNo).First();
                                     if (useCourseTime == null)
                                     {
@@ -764,7 +774,7 @@ namespace ADT.Repository
                                         useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + hourse;
                                     }
                                     db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
-                                    input.Work_Title = "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName;
+                                    input.Work_Title = "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName+ unitName;
                                 }
 
                                 input.CourseTime = hourse;
