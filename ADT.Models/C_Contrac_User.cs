@@ -107,6 +107,12 @@ namespace ADT.Models
         /// 余额
         /// </summary>
         public decimal Amount { get; set; }
+
+        /// <summary>
+        /// 申请余额退费金额
+        /// </summary>
+        public decimal ApplyBackAmount { get; set; }
+
         /// <summary>
         /// 签约校区
         /// </summary>

@@ -75,5 +75,10 @@ namespace ADT.Models
         /// </summary>
         public string OpenId { get; set; }
 
+        /// <summary>
+        /// 闸机编码
+        /// </summary>
+        public string personId { get; set; }
+
     }
 }

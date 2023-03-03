@@ -43,6 +43,14 @@ namespace ADT.Models
         /// 课时时间
         /// </summary>
         public float CourseTime { get; set; }
+
+
+        /// <summary>
+        /// 迟到扣除课时
+        /// </summary>
+        public float TeacherDeductTime { get; set; }
+
+
         /// <summary>
         /// 分类ID
         /// </summary>
@@ -93,9 +101,21 @@ namespace ADT.Models
         public string ListeningName { get; set; }
 
         /// <summary>
-        /// 成绩
+        /// 模考成绩
         /// </summary>
         public string Score { get; set; }
+
+        /// <summary>
+        /// 模块等级
+        /// </summary>
+        public string MockLevel { get; set; }
+
+
+
+        /// <summary>
+        /// 试卷Id
+        /// </summary>
+        public int PaperId{ get; set; }
 
         public int Status { get; set; }
         public DateTime CreateTime { get; set; }

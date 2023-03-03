@@ -24,6 +24,21 @@ namespace ADT.Models.ResModel
         /// 总课时
         /// </summary>
         public float totalCourseTime { get; set; }
+
+        /// <summary>
+        /// 有效课时
+        /// </summary>
+        public float totalValiteTime { get; set; }
+
+        /// <summary>
+        /// 无效课时
+        /// </summary>
+        public float totalUnValiteTime { get; set; }
+
+        /// <summary>
+        /// 迟到扣除课时
+        /// </summary>
+        public float totalDeductTime { get; set; }
     }
 
 }
