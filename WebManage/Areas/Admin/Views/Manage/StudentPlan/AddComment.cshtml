@@ -18,21 +18,21 @@
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">课程</label>
+        <label class="layui-form-label">课程任务</label>
         <div class="layui-input-block">
             <textarea name="CourseComent" class="layui-textarea" placeholder="输入课程任务"></textarea>
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">作业</label>
+        <label class="layui-form-label">已完成</label>
         <div class="layui-input-block">
-            <textarea name="HomeWorkComent" class="layui-textarea" placeholder="输入作业任务"></textarea>
+            <textarea name="HomeWorkComent" class="layui-textarea" placeholder="输入已完成作业"></textarea>
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">其它</label>
+        <label class="layui-form-label">待完成</label>
         <div class="layui-input-block">
-            <textarea name="OtherComent" class="layui-textarea" placeholder="输入作业任务"></textarea>
+            <textarea name="OtherComent" class="layui-textarea" placeholder="输入待完成作业"></textarea>
         </div>
     </div>
     <div class="layui-form-item">
@@ -115,7 +115,9 @@
                                                 $("select[name='TaUid']").append('<option value = ' + result[i].User_ID + ' selected>' + result[i].User_Name + '</option>');
 
                                             } else {
-                                                $("select[name='TaUid']").append('<option value = ' + result[i].User_ID + '>' + result[i].User_Name + '</option>');
+                                                if (result[i].User_IsDelete != 1) {
+                                                    $("select[name='TaUid']").append('<option value = ' + result[i].User_ID + '>' + result[i].User_Name + '</option>');
+                                                }
                                             }
                                         }
                                     }

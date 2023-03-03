@@ -37,6 +37,7 @@
                     <option value="5">模考</option>
                     <option value="6">实考</option>
                     <option value="7">会议</option>
+                    <option value="8">留学规划</option>
                 </select>
             </div>
         </div>
@@ -157,13 +158,13 @@
             <select name="UnitId"></select>
         </div>
     </div>
-    <div class="layui-form-item" id="PartTa">
+    <div class="layui-form-item" id="PartTa"  style="display:none">
         <label class="layui-form-label">督学</label>
         <div class="layui-input-block">
             <select name="TA_Uid"></select>
         </div>
     </div>
-    <div class="layui-form-item">
+    <div class="layui-form-item" id="roomItem">
         <label class="layui-form-label">房间</label>
         <div class="layui-input-block">
             <select name="RoomId"></select>
@@ -354,10 +355,12 @@
                         if (r != null && r.Id > 0) {
                             $("#courseDates").css("display", "none");
                             $("#AT_Date").show();
+                            $("#roomItem").show();
                         }
                         else {
                             $("#courseDates").show();
                             $("#AT_Date").css("display", "none");
+                            $("#roomItem").css("display", "none");
                         }
                         $("#meetingPart").css("display", "none");
                         if (r.StudyMode == 1) {
@@ -457,6 +460,18 @@
                             $("#mockPart").css("display", "block");
                             $("input[name='mockTitle']").val(r.Work_Title);
                         }
+                        else if (r.StudyMode == 8) {
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#PresentPart").css("display", "none");
+                            $("#PreSendPartUser").css("display", "none");
+                            $("#PartProject").css("display", "none");
+                            $("#ListenSubPart").css("display", "none");
+                            $("#ListeningPart").show();
+                            $("#lineSpanDate").text("上课日期");
+                            $("#lineSpanTimeRange").text("上课时段");
+                            $("#spanStudentName").text("上课学员");
+                        }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
                         }
@@ -476,11 +491,13 @@
                                         $("select[name='TeacherUid']").append('<option value = ' + result[i].User_ID + ' selected>' + result[i].User_Name +'</option>');
 
                                     } else {
-                                        if (teacherId!= "" &&teacherId== result[i].User_ID) {
+                                        if (teacherId != "" && teacherId == result[i].User_ID && result[i].User_IsDelete != 1) {
                                             $("select[name='TeacherUid']").append('<option value = ' + result[i].User_ID + ' selected>' + result[i].User_Name + '</option>');
                                         }
                                         else {
-                                            $("select[name='TeacherUid']").append('<option value = ' + result[i].User_ID + '>' + result[i].User_Name + '</option>');
+                                            if (result[i].User_IsDelete != 1) {
+                                                $("select[name='TeacherUid']").append('<option value = ' + result[i].User_ID + '>' + result[i].User_Name + '</option>');
+                                            }
                                         }
                                     }
                                 }
@@ -558,7 +575,7 @@
                 data.field.WorkDateGroup = selectArr;
                 data.field.ProjectId=$("select[name='ProjectId']").val();
                 if (data.field.StudyMode == 1) {
-                    if ($("select[name='TeacherUid']").val() =="") {
+                    if ($("select[name='TeacherUid']").val() == "") {
                         layer.msg("请选择教师");
                         return false;
                     }
@@ -588,10 +605,10 @@
                 else if (data.field.StudyMode == 5) {
                     data.field.arrMockUser = [];
                     var fmtVal = $("#shikaoUsers").val().replaceAll("，", ",");
-                    var shikaouserNames =fmtVal.split(",");
+                    var shikaouserNames = fmtVal.split(",");
                     if (shikaouserNames.length > 0) {
                         shikaouserNames.forEach(item => {
-                            if ($.inArray(item, data.field.arrMockUser)==-1) {
+                            if ($.inArray(item, data.field.arrMockUser) == -1) {
                                 data.field.arrMockUser.push(item);
                             }
                         });
@@ -621,10 +638,10 @@
                 else if (data.field.StudyMode == 6) {
                     data.field.arrMockUser = [];
                     var fmtVal = $("#shikaoUsers").val().replaceAll("，", ",");
-                    var shikaouserNames =fmtVal.split(",");
+                    var shikaouserNames = fmtVal.split(",");
                     if (shikaouserNames.length > 0) {
                         shikaouserNames.forEach(item => {
-                            if ($.inArray(item.Student_Name, data.field.arrMockUser)==-1) {
+                            if ($.inArray(item.Student_Name, data.field.arrMockUser) == -1) {
                                 data.field.arrMockUser.push(item);
                             }
                         });
@@ -665,6 +682,20 @@
                                 data.field.meetingTeacher.push(item);
                             }
                         });
+                    }
+                }
+                else if (data.field.StudyMode == 8) {
+                    if ($("select[name='TeacherUid']").val() == "") {
+                        layer.msg("请选择教师");
+                        return false;
+                    }
+                    if (data.field.ListeningName == "") {
+                        layer.msg("上课学员不能为空");
+                        return false;
+                    }
+                    if ($("input[name='StudentUid']").val() == "") {
+                        layer.msg("上课学员不存在");
+                        return false;
                     }
                 }
                 adminForm.Save({
@@ -812,6 +843,23 @@
                     $("#meetingPart").css("display", "block");
                     $("#mockPart").css("display", "block");
                     $("#spanMockTitle").text("会议标题");
+                }
+                else if (data.value == 8) {
+                    $("input[name='Contra_ChildNo']").val("");
+                    $("#ClassPart").css("display", "none");
+                    $("#OneOfPart").css("display", "none");
+                    $("#PartProject").css("display", "none");
+                    $("#ListenSubPart").css("display", "none");
+                    $("#ListeningPart").show();
+                    $("#lineSpanDate").text("上课日期");
+                    $("#lineSpanTimeRange").text("上课时段");
+                    $("#spanStudentName").text("上课学员");
+                    $("#mockPart").css("display", "none");
+                    $("#PartUnit").css("display", "none");
+                    $("#moreShikaoUser").css("display", "none");
+                    $("#PresentPart").css("display", "none");
+                    $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "none");
                 }
             });
             form.on('select(ListenSubject)', function (data) {
@@ -1077,21 +1125,19 @@
                         $("select[name='ProjectId']").html("");
                         var result = rou.data;
                         for (var i = 0; i < result.length; i++) {
-                            if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0 && defaultProjectId == result[i].ProjectId) {
-                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + ' selected>' + result[i].ProjectName + '</option>');
-                                if (studyModel == 5 || studyModel == 6) {
+                            if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0) {
+                                if (defaultProjectId == result[i].ProjectId) {
+                                    $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + ' selected>' + result[i].ProjectName + '</option>');
                                     bindUnit(defaultProjectId, defaultUnitId);
+                                }
+                                else {
+                                    $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
                                 }
                             }
                             else {
                                 $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
-                                if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0) {
-                                    bindUnit(defaultProjectId, defaultUnitId);
-                                }
-                                else {
-                                    if (i == 0 && (studyModel == 5 || studyModel == 6)) {
-                                        bindUnit(result[i].ProjectId, defaultUnitId);
-                                    }
+                                if (i == 0) {
+                                    bindUnit(result[i].ProjectId, defaultUnitId);
                                 }
                             }
                         }

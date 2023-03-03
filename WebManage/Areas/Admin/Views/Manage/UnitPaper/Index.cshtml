@@ -1,0 +1,248 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">关键字：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="txtTitle" class="layui-input" type="text" placeholder="单元名称" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">类别：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="SubjectId" id="SubjectId" lay-filter="SubjectId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">科目：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="ProjectId" id="ProjectId" lay-filter="ProjectId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">单元：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="UnitId" id="UnitId" lay-filter="UnitId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnAdd" class="layui-btn icon-btn" data-power="Add"><i class="layui-icon">&#xe654;</i>添加</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">修改</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var adminList = layui.adminList;
+    var adminForm = layui.adminForm;
+    var form = layui.form;
+
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        page: true,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            { field: 'PaperCode', title: '试卷编号', sort: true },
+            { field: 'AvgScore', title: '分数线', sort: true },
+            { field: 'UnitName', title: '单元', sort: true },
+            { field: 'ProjectName', title: '科目', sort: true },
+            { field: 'SubjectName', title: '类别', sort: true },
+            {align: 'center', toolbar: '#tableBar', title: '操作', width: 200}
+        ]]
+    });
+
+    adminForm.load({
+    url: "@Url.Action("QuerySubject","ContracUser")",
+    dataType: 'json',
+    callBack: function (rou) {
+        if (rou.data != null) {
+            var result = rou.data;
+            for (var i = 0; i < result.length; i++) {
+                $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                if (i == 0) {
+                    bindProject(result[i].SubjectId);
+                }
+            }
+        }
+    }
+    });
+
+        form.on('select(SubjectId)', function (data) {
+            var title = $('#txtTitle').val();
+            var subjectId = data.value;
+            if (subjectId > 0) {
+                bindProject(subjectId);
+            }
+        });
+         form.on('select(ProjectId)', function (data) {
+                var title = $('#txtTitle').val();
+                var subjectId = $('#SubjectId').val();
+               var projectid = data.value;
+                bindUnit(projectid);
+               insTb.reload({
+                 where: { title: title, subjectId: subjectId, projectId: projectid }
+                 , page: {
+                     curr: 1 //重新从第 1 页开始
+                 }
+             });
+         });
+            form.on('select(UnitId)', function (data) {
+                var title = $('#txtTitle').val();
+                var subjectId = $('#SubjectId').val();
+                var projectid = $("select[name='ProjectId']").val();
+                var unitId = data.value;
+                insTb.reload({
+                    where: { title: title, subjectId: subjectId, projectId: projectid, unitId: unitId }
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
+            });
+
+    // 添加
+    $('#btnAdd').click(function () {
+        showEditModel();
+    });
+
+    // 搜索
+    $('#btnSearch').click(function () {
+        var title = $('#txtTitle').val();
+        var subjectId = $("select[name='SubjectId']").val();
+        var projectId = $("select[name='ProjectId']").val();
+        var unitId = $("select[name='UnitId']").val();
+        insTb.reload({
+            where: { title:title,subjectId:subjectId,projectId:projectId,unitId:unitId}
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+    });
+
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+        var data = obj.data;
+        var layEvent = obj.event;
+        if (layEvent === 'edit') { // 修改
+            showEditModel(data);
+        } else if (layEvent === 'del') { // 删除
+            doDel(data.PaperId);
+        }
+    });
+
+    //显示表单弹窗
+    function showEditModel(vmodel) {
+        adminList.form({
+            title: (vmodel ? '修改' : '添加') + '试卷编号',
+            type: 2,
+            width: "500px",
+            height: "500px",
+            content: vmodel ? '@Url.Action("Edit")?ID=' + vmodel.PaperId: '@Url.Action("Add")?ID=0',
+            end: function () {
+                insTb.reload();
+            }
+        });
+            }
+    //删除
+    function doDel(Id) {
+        adminList.delete('@Url.Action("DeleteUnit")', { Id: Id}, function () {
+            var title = $('#txtTitle').val();
+            var subjectId = $("select[name='SubjectId']").val();
+            var projectId = $("select[name='ProjectId']").val();
+            var unitId = $("select[name='UnitId']").val();
+            insTb.reload({
+                where: { title: title, subjectId: subjectId, projectId: projectId, unitId: unitId }
+                , page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
+    }
+
+  });
+
+
+     function bindProject(subjectId) {
+            layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("QueryProject", "ProjectUnit")",
+                data: { subjectId: subjectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='ProjectId']").html("");
+                        var result = rou.data;
+                        $("select[name='ProjectId']").append('<option value ="0">-请选择-</option>');
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                        }
+                    }
+                }
+              });
+            });
+      }
+
+     function bindUnit(projectId) {
+               layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
+               adminForm.load({
+                url: "@Url.Action("GetProjetUnitByProjectId", "ProjectUnit")",
+                data: { projectId: projectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='UnitId']").html("");
+                        var result = rou.data;
+                        $("select[name='UnitId']").append('<option value ="0">-请选择-</option>');
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + '>' + result[i].UnitName + '</option>');
+                        }
+                    }
+                }
+              });
+            });
+     }
+    </script>
+}

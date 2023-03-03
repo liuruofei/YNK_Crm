@@ -1,0 +1,209 @@
+﻿@{
+    var KeyId = ViewBag.ID;
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="Id" type="hidden" value="@ViewBag.ID" />
+    <div class="layui-form-item">
+        <label class="layui-form-label">模考</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="Work_Title" disabled />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">学员</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="Student_Name" disabled />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">日期</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="AT_Date" disabled />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">试卷编号</label>
+        <div class="layui-input-block">
+            <input type="hidden" name="PaperId" />
+            <input name="PaperCode" class="layui-input" type="text" autocomplete="off" />
+            <div id="searchPaper" class="searcPaper">
+                <table style="width:100%;margin-top: 0px;" class="layui-table">
+                    <tbody id="searcPaperbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="display:none" id="AvgScorePart">
+        <label class="layui-form-label">试卷分数线</label>
+        <div class="layui-input-block">
+            <input type="text" class="layui-input" name="AvgScore" disabled />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">成绩</label>
+        <div class="layui-input-block">
+            <input name="Score" class="layui-input" type="text" autocomplete="off" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">等级</label>
+        <div class="layui-input-block">
+            <select name="MockLevel">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="U">U</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+        .ke-container {
+            margin-left: 33px !important;
+        }
+
+        .ke-edit, .ke-edit-iframe, .ke-edit-textarea {
+            height: 266px !important;
+        }
+
+        .searcPaper {
+            position: absolute;
+            box-shadow: 0 10px 60px 0 rgb(29 29 31 / 9%);
+            background-color: white;
+            z-index: 6;
+            width: 480px;
+            min-height: 200px;
+            height: 182px;
+            overflow-y: auto;
+            display: none;
+        }
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script type="text/template" id="PaperTemp">
+        {{each data item index}}
+        <tr onclick="SetTr('{{item}}')">
+            <td>
+                <span>{{item.PaperCode}}</span>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+    layui.use([ 'form', 'admin', 'adminForm'], function () {
+        var KeyId = '@KeyId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+
+        var App = {
+            Load: function () {
+                adminForm.load({
+                    formName: 'modelUserForm',
+                    KeyId: '@KeyId',
+                    url: "@Url.Action("Find")",
+                    dataType: 'json',
+                    callBack: function (r) {
+                        if (r!= null) {
+                            if (r.PaperCode != null && r.PaperCode != "") {
+                                $("#AvgScorePart").show();
+                            }
+                        }
+                    }
+                });
+            },
+            Save: function (data) {
+                if (data.field.PaperId == null || data.field.PaperId=="") {
+                    layer.msg("请添加试卷编号");
+                    return false;
+                }
+                if (data.field.MockLevel == '') {
+                    layer.msg("请选择模考等级");
+                    return false;
+                }
+                if (data.field.Score == '' || data.field.Score == null) {
+                    layer.msg("请输入成绩");
+                    return false;
+                }
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+        $("input[name='PaperCode']").on({
+                click: function () {
+                    adminForm.load({
+                        url: "@Url.Action("QueryPaper")",
+                        data: { wkId: KeyId, paperCode: $(this).val() },
+                        dataType: 'json',
+                        callBack: function (rou) {
+                            if (rou.data != null) {
+                                var result = rou.data;
+                                if (rou.data != null && rou.data != [] && rou.data.length > 0) {
+                                    document.getElementById("searchPaper").style.display = "block";
+                                    var html = template("PaperTemp", { data: result });
+                                    document.getElementById("searcPaperbody").innerHTML = html;
+                                }
+                                else {
+                                    $("#AvgScorePart").css("display", "none");
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        $("input[name='PaperCode']").keyup(function () {
+                adminForm.load({
+                    url: "@Url.Action("QueryPaper")",
+                    data: { wkId: KeyId,paperCode: $(this).val() },
+                    dataType: 'json',
+                    callBack: function (rou) {
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            if (rou.data != null && rou.data != [] && rou.data.length > 0) {
+                                document.getElementById("searchPaper").style.display = "block";
+                                var html = template("PaperTemp", { data: result });
+                                document.getElementById("searcPaperbody").innerHTML = html;
+                            }
+                            else {
+                                $("#AvgScorePart").css("display", "none");
+                            }
+                        }
+                    }
+                });
+            });
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+    });
+        function SetTr(vmodel) {
+         vmodel = JSON.parse(vmodel);
+         $("input[name='PaperCode']").val(vmodel.PaperCode);
+         $("input[name='PaperId']").val(vmodel.PaperId);
+         $("input[name='AvgScore']").val(vmodel.AvgScore);
+         $("#AvgScorePart").show();
+         $("#searchPaper").css("display", "none");
+     }
+    </script>
+}

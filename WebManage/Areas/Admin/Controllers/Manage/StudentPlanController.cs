@@ -51,7 +51,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="day"></param>
         /// <returns></returns>
         [UsersRoleAuthFilter("H-151", FunctionEnum.Have)]
-        public IActionResult QueryStudentPlan(int studentUid, int isAdd, DateTime? endtime = null, DateTime? starttime = null)
+        public IActionResult QueryStudentPlan(int studentUid, int isAdd, int subjectId,int projectId, DateTime? endtime = null, DateTime? starttime = null)
         {
             DateTime dateWeekFirstDay = GetFirstDayOfWeek(DateTime.Now);
             DateTime dateWeekLastDay = new DateTime();
@@ -87,13 +87,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 }
               ; tdlistTime.Add(timeModel);
             }
-            List<sys_user> listTa = _currencyService.DbAccess().Queryable<sys_userrole, sys_user, sys_role>((ur, u, r) => new object[] { JoinType.Left, ur.UserRole_UserID == u.User_ID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where((ur, u, r) => r.Role_Name == "督学").Select<sys_user>((ur, u, r) => u).ToList();
+            List<sys_user> listTa = _currencyService.DbAccess().Queryable<sys_userrole, sys_user, sys_role>((ur, u, r) => new object[] { JoinType.Left, ur.UserRole_UserID == u.User_ID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where((ur, u, r) => r.Role_Name == "督学"||r.Role_Name=="督学校长").Select<sys_user>((ur, u, r) => u).ToList();
             //查询学生排课
             //排除退班的班级
             int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
             List<int> classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((ch, cl) => new object[] { JoinType.Left, ch.ClassId == cl.ClassId }).Where(ch => ch.StudentUid == studentUid && ch.ClassId > 0&&ch.Contrac_Child_Status != contracStatus).Select(ch => ch.ClassId).ToList();
             List<CourseWorkModel> listCourseWork = _currencyService.DbAccess().Queryable<C_Course_Work, sys_user, C_Room>((cour, ta, room) => new object[] { JoinType.Left, cour.TeacherUid == ta.User_ID, JoinType.Left, cour.RoomId == room.Id })
                 .Where(cour => (cour.StudentUid == studentUid || classIds.Contains(cour.ClasssId)) && cour.StudyMode != 3 && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") >= DateTime.Parse(dateWeekFirstDay.ToString("yyyy-MM-dd") + " 00:00") && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") <= DateTime.Parse(dateWeekLastDay.ToString("yyyy-MM-dd") + " 00:00"))
+                .WhereIF(subjectId>0,cour=>cour.SubjectId== subjectId)
+                 .WhereIF(projectId > 0, cour => cour.ProjectId==projectId)
                 .Select<CourseWorkModel>((cour, ta, room) => new CourseWorkModel
                 {
                     Id = cour.Id,
@@ -518,6 +520,12 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
                 var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+                var ccOrSale = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
+.Where((u, ur, r) => u.User_ID == userId && (r.Role_Name == "督学校长" || r.Role_Name == "督学")).First();
+                if (string.IsNullOrEmpty(vmodel.TaUid) && string.IsNullOrEmpty(vmodel.HomeWorkComent) && string.IsNullOrEmpty(vmodel.HomeWorkComent))
+                {
+                    return Json(new { code = 0, msg = "选择督学前请填写已完成作业!" });
+                }
                 if (vmodel.Id > 0)
                 {
                     C_Student_Work_Plan plan = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(f => f.Id == vmodel.Id).First();
@@ -567,7 +575,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="endtime"></param>
         /// <param name="starttime"></param>
         /// <returns></returns>
-        public virtual IActionResult ExportPlan(int studentUid, int isAdd, DateTime? endtime = null, DateTime? starttime = null)
+        public virtual IActionResult ExportPlan(int studentUid, int isAdd, int subjectId, int projectId, DateTime? endtime = null, DateTime? starttime = null)
         {
             DateTime dateWeekFirstDay = GetFirstDayOfWeek(DateTime.Now);
             DateTime dateWeekLastDay = new DateTime();
@@ -615,6 +623,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             List<int> classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((ch, cl) => new object[] { JoinType.Left, ch.ClassId == cl.ClassId }).Where(ch => ch.StudentUid == studentUid && ch.ClassId > 0 && ch.Contrac_Child_Status != contracStatus).Select(ch => ch.ClassId).ToList();
             List<CourseWorkModel> listCourseWork = _currencyService.DbAccess().Queryable<C_Course_Work, sys_user, C_Room>((cour, ta, room) => new object[] { JoinType.Left, cour.TeacherUid == ta.User_ID, JoinType.Left, cour.RoomId == room.Id })
                 .Where(cour => (cour.StudentUid == studentUid || classIds.Contains(cour.ClasssId)) && cour.StudyMode != 3 && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") >= DateTime.Parse(dateWeekFirstDay.ToString("yyyy-MM-dd") + " 00:00") && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") <= DateTime.Parse(dateWeekLastDay.ToString("yyyy-MM-dd") + " 00:00"))
+                .WhereIF(subjectId > 0, cour => cour.SubjectId == subjectId)
+                 .WhereIF(projectId > 0, cour => cour.ProjectId == projectId)
                 .Select<CourseWorkModel>((cour, ta, room) => new CourseWorkModel
                 {
                     Id = cour.Id,
@@ -1141,7 +1151,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return File(streamArr, "application/vnd.ms-excel", u.Student_Name + "任务计划" + DateTime.Now.ToString("yyyyMMddHHmmssss") + ".xls");
         }
 
-        public IActionResult ExportPdf(int studentUid, int isAdd, DateTime? endtime = null, DateTime? starttime = null) {
+        public IActionResult ExportPdf(int studentUid, int isAdd, int subjectId, int projectId, DateTime? endtime = null, DateTime? starttime = null) {
             //导出pdf
             DateTime dateWeekFirstDay = GetFirstDayOfWeek(DateTime.Now);
             DateTime dateWeekLastDay = new DateTime();
@@ -1191,6 +1201,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             List<int> classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((ch, cl) => new object[] { JoinType.Left, ch.ClassId == cl.ClassId }).Where(ch => ch.StudentUid == studentUid && ch.ClassId > 0 && ch.Contrac_Child_Status != contracStatus).Select(ch => ch.ClassId).ToList();
             List<CourseWorkModel> listCourseWork = _currencyService.DbAccess().Queryable<C_Course_Work, sys_user, C_Room>((cour, ta, room) => new object[] { JoinType.Left, cour.TeacherUid == ta.User_ID, JoinType.Left, cour.RoomId == room.Id })
                 .Where(cour => (cour.StudentUid == studentUid || classIds.Contains(cour.ClasssId)) && cour.StudyMode != 3 && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") >= DateTime.Parse(dateWeekFirstDay.ToString("yyyy-MM-dd") + " 00:00") && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") <= DateTime.Parse(dateWeekLastDay.ToString("yyyy-MM-dd") + " 00:00"))
+                .WhereIF(subjectId > 0, cour => cour.SubjectId == subjectId)
+                 .WhereIF(projectId > 0, cour => cour.ProjectId == projectId)
                 .Select<CourseWorkModel>((cour, ta, room) => new CourseWorkModel
                 {
                     Id = cour.Id,

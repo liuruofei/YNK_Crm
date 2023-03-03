@@ -55,6 +55,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 Student_Name = u.Student_Name,
                 Amount = u.Amount,
                 IsBackAmount = u.IsBackAmount,
+                ApplyBackAmount=u.ApplyBackAmount,
                 Sex = u.Sex,
                 Grade = u.Grade,
                 ContactFamily = u.ContactFamily,
@@ -77,14 +78,26 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public IActionResult UserAmountBackApply(int uid)
+        public IActionResult UserAmountBackApply(int uid,decimal applyBackAmount)
         {
             ResResult reg = new ResResult();
             var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
             if (uid > 0)
             {
                 var model = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v => v.StudentUid == uid).First();
+                if (applyBackAmount < 0) {
+                    reg.msg = "申请退费不能小于0";
+                    reg.code = 200;
+                    return Json(reg);
+                }
+                if (applyBackAmount>model.Amount)
+                {
+                    reg.msg = "申请退费大于学生余额,无法申请!";
+                    reg.code = 200;
+                    return Json(reg);
+                }
                 model.IsBackAmount = 1;
+                model.ApplyBackAmount = applyBackAmount;
                 var result = _currencyService.DbAccess().Updateable<C_Contrac_User>(model).ExecuteCommand();
                 if (result > 0)
                 {
@@ -114,8 +127,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 var model = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(v => v.StudentUid == uid).First();
                 if (through)
                 {
+                    if (model.ApplyBackAmount > model.Amount)
+                    {
+                        reg.msg = "学生目前余额小于申请退费金额,无法通过!";
+                        reg.code = 200;
+                        return Json(reg);
+                    }
                     model.IsBackAmount = 2;
-                    model.Amount = 0;
+                    model.Amount = model.Amount- model.ApplyBackAmount;
                 }
                 else
                     model.IsBackAmount = 3;

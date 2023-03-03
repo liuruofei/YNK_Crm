@@ -38,7 +38,7 @@
 
 <!-- 表格操作列 -->
 <script type="text/html" id="tableBar">
-    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">修改教室</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">选择教室</a>
 </script>
 
 @section css{
@@ -83,20 +83,20 @@
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'Work_Title', title: '上课科目', sort: true, width: 400  },
+            { field: 'Work_Title', title: '上课科目',  width: 400  },
             {
-                field: 'RoomName', title: '教室', sort: true, width: 220},
+                field: 'RoomName', title: '教室',sort:true,width: 220},
             {
-                field: 'AT_Date', title: '上课日期', sort: true, width: 120, templet: function (d) {
+                field: 'AT_Date', title: '上课日期',width: 120,sort:true, templet: function (d) {
                     return dateFtt("yyyy-MM-dd", d.AT_Date);
                 }
             },
             {
-                field: 'StartTime', title: '时间段', sort: true, width: 120, templet: function (d) {
+                field: 'StartTime', title: '时间段',  width: 120,sort:true,templet: function (d) {
                     return d.StartTime + " - " + d.EndTime;
                 }
             },
-            { field: 'TeacherName', title: '教师', sort: true, width: 120 },
+            { field: 'TeacherName', title: '教师', sort: true,width: 120 },
             { align: 'center', toolbar: '#tableBar', title: '操作'}
         ]],
     });

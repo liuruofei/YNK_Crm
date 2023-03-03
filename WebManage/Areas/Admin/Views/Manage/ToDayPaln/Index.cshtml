@@ -3,10 +3,6 @@
     <div style="text-align:right;" class="layui-form"  >
         <button class="layui-btn" type="button" onclick="exportPlan()" style="margin-left: 5px;display: none">导出</button>
         <input id="studentName" name="studentName" class="layui-input" placeholder="学生名称"/>
-        <select id="status" name="status" lay-filter="status" style="margin-top:10px;">
-            <option value="1">有任务</option>
-            <option value="2">无任务</option>
-        </select>
     </div>
     <table class="layui-table" >
         <tbody id="plantbody">
@@ -63,32 +59,35 @@
       function planSearch(status) {
             layui.use(['form','admin', 'adminForm'], function () {
                      var admin = layui.admin;
-                    var adminForm = layui.adminForm;
-                    var form = layui.form;
+                     var adminForm = layui.adminForm;
+                     var form = layui.form;
                      $("#plantbody").html("");
                      adminForm.load({
                         url: "@Url.Action("QueryStudentPlan")",
-                        data: { studentName: $("#studentName").val(),atTime: wkDate, status: status },
+                        data: { studentName: $("#studentName").val(),atTime: wkDate, status:1},
                         dataType: 'json',
                         callBack: function (rou) {
                             if (rou != null) {
+                                $("#plantbody").html("");
                                 var result = rou;
                                 var trAppend = "<tr>";
-                                trAppend += "<td style='text-align:center;' colspan='11'><h2>" + wkDate + "</h2></td>";
+                                trAppend += "<td style='text-align:center;' colspan='13'><h2>" + wkDate + "</h2></td>";
                                 trAppend += "</tr>";
-                                trAppend += "<tr><td style='text-align:center;' colspan='11'><h3>当日任务学员</h3></td></tr>";
+                                trAppend += "<tr><td style='text-align:center;' colspan='13'><h3>当日任务学员</h3></td></tr>";
                                 trAppend += "<tr>";
                                 trAppend += "<td style='text-align:center;font-weight:700'>学生</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>时间段</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;min-width:100px'>班级/1对1</td>";
-                                trAppend += "<td style='text-align:center;font-weight:700'>教师/责任Ta</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700'>教师</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:150px;'>当日任务</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:150px;'>布置作业</td>";
-                                trAppend += "<td style='text-align:center;font-weight:700;min-width:100px'>作业完成情况</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;min-width:100px'>已完成作业</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:100px'>待完成作业</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>每日总结</td>";
-                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>到校时间</td>";
-                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>离校时间</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:70px'>到校</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:70px'>离校</td>";
                                 trAppend += "<td style='text-align:center;font-weight:700;width:90px'>在校时长</td>";
+                                trAppend += "<td style='text-align:center;font-weight:700;width:90px'>督学</td>";
                                 trAppend += "</tr>";
                                 for (var i = 0; i < result.length; i++) {
                                     $("#plantbody").append(trAppend);
@@ -104,7 +103,7 @@
                                         if (trRow == 0) {
                                             var trStr = "<tr>";
                                             trStr += "<td style='width:80px;' rowspan='7'>" + result[i].Student_Name + "</td>";
-                                            for (var j = 0; j < 10; j++) {
+                                            for (var j = 0; j < 12; j++) {
                                                 if (j == 0) {
                                                     trStr += "<td>8:00-10:00</td>";
                                                 }
@@ -140,25 +139,37 @@
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].HomeWorkComent;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
-                                                    trStr += "<td rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].SummaryComent != null ? result[i].SummaryComent : '') + "</td>";
+                                                    trStr += "<td rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].OtherComent != null ? result[i].OtherComent : '') + "</td>";
                                                 }
                                                 if (j == 7) {
+                                                    planVmodel.Id = result[i].Id;
+                                                    planVmodel.workTtile = result[i].HomeWorkComent;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].SummaryComent != null ? result[i].SummaryComent : '') + "</td>";
+                                                }
+                                                if (j == 8) {
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].InSchoolTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
                                                     trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].InSchoolTime != null ? result[i].InSchoolTime:'') + "</td>";
                                                 }
-                                                if (j == 8) {
+                                                if (j == 9) {
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].OutSchoolTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
                                                     trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].OutSchoolTime != null ? result[i].OutSchoolTime:'') + "</td>";
                                                 }
-                                                if (j == 9) {
+                                                if (j == 10) {
                                                     planVmodel.Id = result[i].Id;
                                                     planVmodel.workTtile = result[i].TotalTime;
                                                     var jsonVmodel = JSON.stringify(planVmodel);
                                                     trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].TotalTime != null ? result[i].TotalTime : '') + "</td>";
+                                                }
+                                                if (j == 11) {
+                                                    planVmodel.Id = result[i].Id;
+                                                    planVmodel.workTtile = result[i].HomeWorkComent;
+                                                    var jsonVmodel = JSON.stringify(planVmodel);
+                                                    trStr += "<td  rowspan='7' onclick='planShow2(" + jsonVmodel + ")'>" + (result[i].TaUseName != null ? result[i].TaUseName : '') + "</td>";
                                                 }
                                             }
                                             trStr += "</tr>";
@@ -360,18 +371,15 @@
             });
 
         };
-      planSearch($("#status").val());
+      planSearch(1);
       function exportPlan() {
             window.location.href = '@Url.Action("ExportPlan")?starttime=' + $("#StartTime").val() + '&endtime=' +$("#EndTime").val();
        }
         layui.use(['form', 'admin', 'adminForm'], function () {
             var form = layui.form;
-            form.on('select(status)', function (data) {
-                planSearch(data.value);
-            });
         });
         $("#studentName").keyup(function () {
-            planSearch($("#status").val());
+            planSearch(1);
         });
       function planShow(vmodel) {
         if (vmodel.Id==0 &&vmodel.workTtile !=null) {return false;}
@@ -384,7 +392,7 @@
                 height: "530px",
                 content: vmodel.Id > 0 ? '@Url.Action("Edit")?ID=' + vmodel.Id : '@Url.Action("Add")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd",vmodel.workDate) + '&startTime=' + vmodel.startTime + '&endTime=' + vmodel.endTime,
                 end: function () {
-                    planSearch($("#status").val());
+                    planSearch(1);
                 }
             });
         });
@@ -400,7 +408,7 @@
                 height: "530px",
                 content: vmodel.Id > 0 ? '@Url.Action("EditComment")?ID=' + vmodel.Id : '@Url.Action("AddComment")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd",vmodel.workDate),
                 end: function () {
-                    planSearch($("#status").val());
+                    planSearch(1);
                 }
             });
         });

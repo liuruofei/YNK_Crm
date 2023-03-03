@@ -5,27 +5,20 @@
                 <div class="layui-form-item">
                     <div class="layui-inline">
                         <div class="layui-input-inline">
-                            <input type="radio" name="Category" value="0" title="按教师" checked="checked" lay-filter="Category">
-                        </div>
-                    </div>
-                </div>
-                <div class="layui-form-item">
-                    <div class="layui-inline">
-                        <div class="layui-input-inline">
                             <input type="button" value="本月" monthValue="1" class="monthBtn" />
-                            <input type="button" value="上月" monthValue="2" class="monthBtn actvMonth" />
+                            <input type="button" value="上月" monthValue="2"  class="monthBtn actvMonth" />
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">开始时间</label>
                         <div class="layui-input-inline mr0">
-                            <input name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="登记开始时间" autocomplete="off" />
+                            <input name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="登记开始时间"  autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">—</label>
                         <div class="layui-input-inline mr0">
-                            <input name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off" />
+                            <input name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -35,14 +28,13 @@
             </div>
 
             <table class="layui-table" id="userTable" lay-filter="userTable"></table>
-            <div style="display:flex">
-                <div style="font-weight:700;width:18%;">合计</div>
-                <div style="font-weight:700;flex:1"></div>
-                <div style="font-weight:700;flex:1"></div>
-                <div id="totalCourseTime" style="font-weight:700;flex:1"></div>
-                <div id="totalValiteTime" style="font-weight:700;flex:1;"></div>
-                <div id="totalUnValiteTime" style="font-weight:700;flex:1;"></div>
-                <div id="totalDeductTime" style="font-weight:700;flex:1;"></div>
+            <div style="display:none;margin-top:20px" id="scoreInfoPart">
+                <div style="text-align:center;display:flex">
+                    <h2 id="taName" style="padding-top:10px">工分详情</h2>
+                    <input type="hidden" name="TaUid"/>
+                   <div style="width:80px"><button class="layui-btn" style="float:right" onclick="exportPlan()">导出</button></div>
+                </div>
+                <table class="layui-table" id="scoreTable" lay-filter="scoreTable"></table>
             </div>
         </div>
     </div>
@@ -50,7 +42,7 @@
 
 <!-- 表格操作列 -->
 <script type="text/html" id="tableBar">
-
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">查看明细</a>
 </script>
 
 @section css{
@@ -80,8 +72,8 @@
 @section js{
     <!-- js部分 -->
     <script>
-      var monthStatu =2;
-        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm', 'laydate'], function () {
+    var monthStatu =2;
+    layui.use(['form', 'util', 'admin', 'adminList', 'adminForm', 'laydate'], function () {
     var $ = layui.jquery;
     var util = layui.util;
     var admin = layui.admin;
@@ -104,23 +96,51 @@
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'User_Name', title: '教师名称', fixed: 'left', sort: true },
-            { field: 'SubjectName', title: '类别', sort: true },
-            { field: 'ProjectName', title: '科目', sort: true },
-            { field: 'totalTime', title: '总课时', sort: true },
-            { field: 'valiteTotal', title: '有效课时', sort: true },
-            { field: 'unvaliteTotal', title: ' 无效课时', sort: true },
-            { field: 'deductTotal', title: ' 迟到应扣', sort: true },
+            { field: 'User_Name', title: '督学名称',sort: true },
+            { field: 'wkScore', title: '工分', sort: true },
+            {
+                align: 'center', toolbar: '#tableBar', title: '操作', width: 120
+            }
         ]],
         done: function (res, curr, count) {
-            if (res.totalRow != undefined && res.totalRow != null) {
-                $("#totalCourseTime").html("合计" + res.totalRow.totalCourseTime);
-                $("#totalValiteTime").html("合计" + res.totalRow.totalValiteTime);
-                $("#totalUnValiteTime").html("合计" + res.totalRow.totalUnValiteTime);
-                $("#totalDeductTime").html("合计" + res.totalRow.totalDeductTime);
-            }
+
         }
     });
+
+     // 工具条点击事件
+     adminList.table.on('tool(userTable)', function (obj) {
+                var data = obj.data;
+                var layEvent = obj.event;
+                if (layEvent === 'edit') { //查看明细
+                    BindScoreInfo(data.User_ID,data.User_Name);
+                }
+     });
+        function BindScoreInfo(taUid, taName) {
+            $("input[name='TaUid']").val(taUid);
+            var endTime = $('input[name="EndTime"]').val();
+            var startTime = $('input[name="StartTime"]').val();
+            adminList.tableLayUI({
+                    elem: '#scoreTable',
+                    url: '@Url.Action("QueryTaScoreInfo")',
+                    where: { taUid: taUid, monthStatu: monthStatu, startTime: startTime, endTime: endTime },
+                    page: true,
+                    cellMinWidth: 100,
+                    cols: [[
+                        { type: 'numbers' },
+                        { field: 'Student_Name', title: '学生姓名', sort: true },
+                        { field: 'HomeWorkComent', title: '完成作业', sort: true },
+                        { field: 'TaUseName', title: '督学', sort: true },
+                        { field: 'WorkDate', title: '日期', sort: true },
+                ]],
+                done: function (res, curr, count) {
+                    console.log(res);
+                    if (res.data != null) {
+                        $("#scoreInfoPart").show();
+                        $("#taName").text(taName+"(工分详情)");
+                    }
+                }
+             });
+        }
 
     // 月份搜索
       $('.monthBtn').click(function () {
@@ -135,10 +155,12 @@
                  curr: 1 //重新从第 1 页开始
              }
          });
+         $("#scoreInfoPart").css("display","none");
     });
 
     // 搜索
      $('#btnSearch').click(function () {
+         $("#scoreInfoPart").css("display", "none");
          var endTime = $('input[name="EndTime"]').val();
          var startTime = $('input[name="StartTime"]').val();
         if (startTime == null || startTime == "" || endTime == null || endTime=="") {
@@ -155,6 +177,13 @@
         });
     });
 
- });
+    });
+     //导出
+      function exportPlan() {
+         var taUid=$("input[name='TaUid']").val();
+         var endTime = $('input[name="EndTime"]').val();
+         var startTime = $('input[name="StartTime"]').val();
+          window.location.href = '@Url.Action("ExportTaScore")?monthStatu=' + monthStatu + '&taUid=' + taUid + '&startTime=' + startTime + '&endTime=' + endTime;
+     }
     </script>
 }

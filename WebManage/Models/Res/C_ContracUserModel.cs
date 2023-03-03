@@ -41,6 +41,11 @@ namespace WebManage.Models.Res
         /// 余额
         /// </summary>
         public decimal Amount { get; set; }
+
+        /// <summary>
+        /// 申请退费金额
+        /// </summary>
+        public decimal ApplyBackAmount { get; set; }
         /// <summary>
         /// 签约校区
         /// </summary>

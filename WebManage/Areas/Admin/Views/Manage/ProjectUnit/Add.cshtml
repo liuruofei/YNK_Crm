@@ -114,9 +114,14 @@
                             if (rou.data != null) {
                                 var result = rou.data;
                                 for (var i = 0; i < result.length; i++) {
-                                    if (r != undefined && r.SubjectId != null && r.SubjectId == result[i].SubjectId) {
-                                        $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName +'</option>');
-                                        bindProject(r.SubjectId, r.ProjectId);
+                                    if (r != undefined && r.SubjectId > 0) {
+                                        if (r.SubjectId == result[i].SubjectId) {
+                                            bindProject(r.SubjectId, r.ProjectId);
+                                            $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + ' selected>' + result[i].SubjectName + '</option>');
+                                        }
+                                        else {
+                                            $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                                        }
                                     } else {
                                         $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
                                         if (i == 0) {

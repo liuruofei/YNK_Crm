@@ -1,12 +1,26 @@
-﻿@model WebManage.Models.Res.CourseTotalModel 
-<div class="layui-fluid">
+﻿<div class="layui-fluid">
     <div class="layui-card">
         <div class="layui-card-body">
             <div class="layui-form toolbar">
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <label class="layui-form-label w-auto" style="font-weight:700">总课时</label>
-                        <label class="layui-form-label w-auto" style="font-weight:700">@Model.SumTime</label>
+                        <label class="layui-form-label w-auto" style="font-weight:700">总使用课时</label>
+                        <label class="layui-form-label w-auto" style="font-weight:700" id="SumTime"></label>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">开始日期：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="startTime" class="layui-input" type="text" placeholder="开始时间" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">结束日期：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="endTime" class="layui-input" type="text" placeholder="结束时间" autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
                     </div>
                 </div>
             </div>
@@ -14,30 +28,21 @@
                 <thead>
                     <tr>
                         <th>课程类型</th>
-                        <th>总课时</th>
                         <th>使用课时</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>1对1</td>
-                        <td>@Model.CourseTime</td>
-                        <td>@Model.CourseUseTime</td>
+                        <td><span id="CourseUseTime"></span></td>
                     </tr>
                     <tr>
                         <td>班课</td>
-                        <td>@Model.ClassTime</td>
-                        <td>@Model.ClassUseTime</td>
-                    </tr>
-                    <tr>
-                        <td>赠送课</td>
-                        <td>@Model.PresentTime</td>
-                        <td>@Model.PresentUseTime</td>
+                        <td><span id="ClassUseTime"></span></td>
                     </tr>
                     <tr>
                         <td>试听课</td>
-                        <td>@Model.ShitingTime</td>
-                        <td>@Model.ShitingTime</td>
+                        <td id="ShitingTime"></td>
                     </tr>
                 </tbody>
             </table>
@@ -76,4 +81,50 @@
 }
 @section js{
     <!-- js部分 -->
+    <script>
+        layui.use(['form', 'admin', 'adminForm','laydate'], function () {
+        var $ = layui.jquery;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        //日期
+        laydate.render({
+            elem: '#startTime',
+            format: 'yyyy-MM-dd'
+        });
+        //日期
+        laydate.render({
+            elem: '#endTime',
+            format: 'yyyy-MM-dd'
+        });
+        // 搜索
+        $('#btnSearch').click(function () {
+            BindTotal();
+        });
+        BindTotal();
+        function BindTotal() {
+            var startTime = $('#startTime').val();
+            var endTime = $('#endTime').val();
+              adminForm.load({
+                url: "@Url.Action("QuereyTotalCourse")",
+                data: { startTime: startTime,endTime:endTime},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou != null) {
+                        $("#SumTime").text(rou.SumTime);
+                        $("#CourseUseTime").text(rou.CourseUseTime);
+                        $("#ClassUseTime").text(rou.ClassUseTime);
+                        $("#ShitingTime").text(rou.ShitingTime);
+                    }
+                    else {
+                        $("#SumTime").text(0);
+                        $("#CourseUseTime").text(0);
+                        $("#ClassUseTime").text(0);
+                        $("#ShitingTime").text(0);
+                    }
+                }
+              });
+
+        }
+    });
+    </script>
 }

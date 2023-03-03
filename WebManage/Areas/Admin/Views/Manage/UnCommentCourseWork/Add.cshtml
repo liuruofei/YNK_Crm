@@ -37,7 +37,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">评语</label>
         <div class="layui-input-block">
-            <textarea name="Comment" class="layui-textarea" placeholder="输入课程评语" style="height:360px"></textarea>
+            <textarea name="Comment" id="Comment" class="layui-textarea" placeholder="输入课程评语" style="height:360px"></textarea>
         </div>
     </div>
     <div class="layui-form-item">
@@ -51,6 +51,7 @@
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
         <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存点评</button>
         <button class="layui-btn" type="button" id="saveWork">保存作业并推送</button>
+        <button class="layui-btn" type="button"  id="sendComment">推送点评(请先保存)</button>
     </div>
 </form>
 
@@ -124,6 +125,21 @@
                 data: { Id: $("input[name='Id']").val(),CourseWork: cwork},
                 callBack: function (data) {
                     admin.closeThisDialog();
+                }
+             })
+       });
+        //手动推送点评
+       $("#sendComment").click(function () {
+           var comment = $("#Comment").val();
+           if (comment == null || comment == '') {
+               layer.msg("点评内容不能为空！");
+               return false;
+           }
+            adminForm.Save({
+                url: '@Url.Action("SendCourseComment")',
+                data: { wkId: '@KeyId'},
+                callBack: function (data) {
+
                 }
              })
         });

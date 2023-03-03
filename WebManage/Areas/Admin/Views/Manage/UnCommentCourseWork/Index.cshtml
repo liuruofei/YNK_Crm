@@ -30,19 +30,20 @@
                                 <option value="1">一对一</option>
                                 <option value="2">小班</option>
                                 <option value="4">试听</option>
+                                <option value="8">留学规划</option>
                             </select>
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">课程开始日期：</label>
                         <div class="layui-input-inline mr0">
-                            <input id="startTime" class="layui-input" type="text" placeholder="开始时间" />
+                            <input id="startTime" class="layui-input" type="text" placeholder="开始时间"  autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">课程结束日期：</label>
                         <div class="layui-input-inline mr0">
-                            <input id="endTime" class="layui-input" type="text" placeholder="结束时间" />
+                            <input id="endTime" class="layui-input" type="text" placeholder="结束时间" autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -122,6 +123,8 @@
                         return "小班";
                     else if (d.StudyMode == 4)
                         return "试听";
+                    else if (d.StudyMode == 8)
+                        return "留学规划";
                 }
             },
             {
@@ -129,7 +132,7 @@
                     if (d.StudyMode == 1 || d.StudyMode == 5 || d.StudyMode == 6) {
                         return d.Student_Name;
                     }
-                    else if (d.StudyMode == 4) {
+                    else if (d.StudyMode == 4 || d.StudyMode == 8) {
                         return d.ListeningName;
                     }
                     else {

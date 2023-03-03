@@ -44,7 +44,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="day"></param>
         /// <returns></returns>
         [UsersRoleAuthFilter("V-354", FunctionEnum.Have)]
-        public IActionResult QueryStudentPlan(string studentName,int status,DateTime? atTime = null)
+        public IActionResult QueryStudentPlan(string studentName, int status, DateTime? atTime = null)
         {
             if (!atTime.HasValue)
             {
@@ -54,25 +54,22 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             string weekName = dayNames[Convert.ToInt32(atTime.Value.DayOfWeek.ToString("d"))].ToString();
             List<StudentWorkPlanModel> studentPlan = new List<StudentWorkPlanModel>();
             List<StudentWorkPlanModel> studentPlanHas = new List<StudentWorkPlanModel>();
-            List<StudentWorkPlanModel> studentPlanNone = new List<StudentWorkPlanModel>();
-            List<sys_user> listTa = _currencyService.DbAccess().Queryable<sys_userrole, sys_user, sys_role>((ur, u, r) => new object[] { JoinType.Left, ur.UserRole_UserID == u.User_ID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where((ur, u, r) => r.Role_Name == "督学").Select<sys_user>((ur, u, r) => u).ToList();
+            List<sys_user> listTa = _currencyService.DbAccess().Queryable<sys_userrole, sys_user, sys_role>((ur, u, r) => new object[] { JoinType.Left, ur.UserRole_UserID == u.User_ID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where((ur, u, r) => r.Role_Name == "督学"|| r.Role_Name == "督学校长").Select<sys_user>((ur, u, r) => u).ToList();
             //排除退班的班级
             int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
-            //查询出所有学生
-            studentPlan = _currencyService.DbAccess().Queryable<C_Contrac_User>().Select(cu=>new StudentWorkPlanModel { 
-             StudentUid=cu.StudentUid,Student_Name=cu.Student_Name,WorkDateName= weekName,WorkDate=atTime.Value
-            }).WhereIF(!string.IsNullOrEmpty(studentName),cu=>cu.Student_Name.Contains(studentName)).ToList();
-            List<int> studentUids = studentPlan.Select(cu => cu.StudentUid).ToList();
-            //所有学生任务计划
-            List<C_Student_Work_Plan> listPlans = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(it => studentUids.Contains(it.StudentUid) && DateTime.Parse(it.WorkDate.ToString("yyyy-MM-dd") + " 00:00") == DateTime.Parse(atTime.Value.ToString("yyyy-MM-dd") + " 00:00")).ToList();
-            if (studentPlan != null && studentPlan.Count > 0) {
-                foreach (var stu in studentPlan)
+            List<int> studentUids = new List<int>();
+            //所有今日有学生任务计划
+            List<C_Student_Work_Plan> listPlans = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(it => DateTime.Parse(it.WorkDate.ToString("yyyy-MM-dd") + " 00:00") == DateTime.Parse(atTime.Value.ToString("yyyy-MM-dd") + " 00:00")).ToList();
+            if (listPlans != null && listPlans.Count > 0) {
+                listPlans.ForEach(itm =>
                 {
-                    List<int> classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((ch, cl) => new object[] { JoinType.Left, ch.ClassId == cl.ClassId }).Where(ch => ch.StudentUid == stu.StudentUid && ch.ClassId > 0 && ch.Contrac_Child_Status != contracStatus).Select(ch => ch.ClassId).ToList();
-                    //当前学生课程
-                    List<CourseWorkModel> listCourseWork = _currencyService.DbAccess().Queryable<C_Course_Work, sys_user, C_Room>((cour, ta, room) => new object[] { JoinType.Left, cour.TeacherUid == ta.User_ID, JoinType.Left, cour.RoomId == room.Id })
-                        .Where(cour => (cour.StudentUid == stu.StudentUid || classIds.Contains(cour.ClasssId)) && cour.StudyMode != 3 && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") == DateTime.Parse(atTime.Value.ToString("yyyy-MM-dd") + " 00:00"))
-                        .Select<CourseWorkModel>((cour, ta, room) => new CourseWorkModel
+                    studentUids.Add(itm.StudentUid);
+                });
+            }
+           //有课程学生或班级
+           List<CourseWorkModel> listCourseWork = _currencyService.DbAccess().Queryable<C_Course_Work, sys_user, C_Room>((cour, ta, room) => new object[] { JoinType.Left, cour.TeacherUid == ta.User_ID, JoinType.Left, cour.RoomId == room.Id })
+           .Where(cour => cour.StudyMode != 3 && DateTime.Parse(cour.AT_Date.ToString("yyyy-MM-dd") + " 00:00") == DateTime.Parse(atTime.Value.ToString("yyyy-MM-dd") + " 00:00"))
+           .Select<CourseWorkModel>((cour, ta, room) => new CourseWorkModel
                         {
                             Id = cour.Id,
                             AT_Date = cour.AT_Date,
@@ -101,12 +98,66 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                             RoomName = room.RoomName,
                             CourseWork=cour.CourseWork
                         }).ToList();
+            var inLineClassIds = listCourseWork.Where(c => c.ClasssId > 0 && c.StudyMode == 2).Select(c => c.ClasssId).ToList();
+            //查询班级课程未退班的学生
+            List<C_Contrac_Child> classStudent = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((ch, cl) => new object[] { JoinType.Left, ch.ClassId == cl.ClassId }).Where(ch => ch.StudyMode==2&&inLineClassIds.Contains(ch.ClassId)&& ch.Contrac_Child_Status != contracStatus).ToList();
+            if (classStudent != null && classStudent.Count > 0) {
+                classStudent.ForEach(itm =>
+                {
+                    studentUids.Add(itm.StudentUid);
+                });
+            }
+            //查询普通课程学生
+            List<int> wkStudent = listCourseWork.Where(c => c.StudentUid > 0).Select(c => c.StudentUid).ToList();
+            if (wkStudent != null && wkStudent.Count > 0)
+            {
+                wkStudent.ForEach(itm =>
+                {
+                    studentUids.Add(itm);
+                });
+            }
+            //过滤重复的学生
+            HashSet<int> hax = new HashSet<int>(studentUids);
+            studentUids.Clear();
+            studentUids.AddRange(hax);
+            //获取过滤后的学生信息
+            studentPlan = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(cu=> studentUids.Contains(cu.StudentUid)).Select(cu=>new StudentWorkPlanModel { 
+             StudentUid=cu.StudentUid,Student_Name=cu.Student_Name,WorkDateName= weekName,WorkDate=atTime.Value
+            }).WhereIF(!string.IsNullOrEmpty(studentName),cu=>cu.Student_Name.Contains(studentName)).ToList();
+            if (studentPlan != null && studentPlan.Count > 0) {
+                foreach (var stu in studentPlan)
+                {
                     //当前学生任务计划
                     var plans = listPlans.Where(con => con.StudentUid == stu.StudentUid).ToList();
+                    //当前学生课程
+                    List<CourseWorkModel> studentCourseWork = new List<CourseWorkModel>();
+                    if (classStudent != null && classStudent.Count > 0) {
+                        //判断当前学生是否在班课里面
+                        var inClass = classStudent.Where(c => c.StudentUid == stu.StudentUid).Select(c => c.ClassId).ToList();
+                        // 如果在的话把班课放进去
+                        if (inClass != null && inClass.Count > 0)
+                        {
+                            var classCourseWork = listCourseWork.Where(c => inClass.Contains(c.ClasssId)).ToList();
+                            if (classCourseWork != null && classCourseWork.Count > 0) {
+                                classCourseWork.ForEach(c =>
+                                {
+                                    studentCourseWork.Add(c);
+                                });
+                            }
+                        }
+                    }
+                    //查询当前学生班课以外的课程
+                    var oneOfone = listCourseWork.Where(c => c.StudentUid == stu.StudentUid).ToList();
+                    if (oneOfone != null && oneOfone.Count > 0) {
+                        oneOfone.ForEach(c =>
+                        {
+                            studentCourseWork.Add(c);
+                        });
+                    }
                     //循环课程
-                    if (listCourseWork != null && listCourseWork.Count > 0)
+                    if (studentCourseWork != null && studentCourseWork.Count > 0)
                     {
-                        listCourseWork.ForEach(iv =>
+                        studentCourseWork.ForEach(iv =>
                         {
                             var startTimestr = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " " + iv.StartTime);
                             var endTimestr = DateTime.Parse(iv.AT_Date.ToString("yyyy-MM-dd") + " " + iv.EndTime);
@@ -299,24 +350,20 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                                 stu.TotalTime = iv.TotalTime;
                             if (!string.IsNullOrEmpty(iv.TaUid))
                             {
-                                stu.TaUseName = listTa.Find(cn => cn.User_ID == iv.TaUid).User_Name;
+                                var itemTa = listTa.Find(cn => cn.User_ID == iv.TaUid);
+                                if (itemTa != null) {
+                                    stu.TaUseName = listTa.Find(cn => cn.User_ID == iv.TaUid).User_Name;
+                                }
                             }
                         });
                     }
-                    if ((listCourseWork != null && listCourseWork.Count > 0) || (plans != null && plans.Count > 0))
+                    if ((studentCourseWork != null && studentCourseWork.Count > 0) || (plans != null && plans.Count > 0))
                     {
                         studentPlanHas.Add(stu);
-                    }
-                    else {
-                        studentPlanNone.Add(stu);
                     }
                 }
                 if (status == 1) {
                     return Json(studentPlanHas);
-                }
-                if (status ==2)
-                {
-                    return Json(studentPlanNone);
                 }
             }
             return Json(studentPlan);
@@ -467,6 +514,12 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
                 var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+                var ccOrSale = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
+.Where((u, ur, r) => u.User_ID == userId && (r.Role_Name == "督学校长" || r.Role_Name == "督学")).First();
+                if (!string.IsNullOrEmpty(vmodel.TaUid) && string.IsNullOrEmpty(vmodel.HomeWorkComent))
+                {
+                    return Json(new { code = 0, msg = "选择督学前请填写作业完成情况!" });
+                }
                 if (vmodel.Id > 0)
                 {
                     C_Student_Work_Plan plan = _currencyService.DbAccess().Queryable<C_Student_Work_Plan>().Where(f => f.Id == vmodel.Id).First();

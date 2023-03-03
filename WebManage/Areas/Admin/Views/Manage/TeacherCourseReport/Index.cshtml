@@ -36,10 +36,11 @@
 
             <table class="layui-table" id="userTable" lay-filter="userTable"></table>
             <div style="display:flex">
-                <div  style="font-weight:700;width:27%;">合计</div>
-                <div  id="totalCourseTime" style="font-weight:700;flex:1"></div>
-                <div  id="totalValiteTime" style="font-weight:700;flex:1;"></div>
-                <div  id="totalUnValiteTime" style="font-weight:700;flex:1;"></div>
+                <div style="font-weight:700;width:22%;">合计</div>
+                <div id="totalCourseTime" style="font-weight:700;flex:1"></div>
+                <div id="totalValiteTime" style="font-weight:700;flex:1;"></div>
+                <div id="totalUnValiteTime" style="font-weight:700;flex:1;"></div>
+                <div id="totalDeductTime" style="font-weight:700;flex:1;"></div>
             </div>
         </div>
     </div>
@@ -105,12 +106,14 @@
             { field: 'totalTime', title: '总课时', sort: true },
             { field: 'valiteTotal', title: '有效课时', sort: true },
             { field: 'unvaliteTotal', title: ' 无效课时', sort: true },
+            { field: 'deductTotal', title: ' 迟到应扣', sort: true },
         ]],
         done: function (res, curr, count) {
             if (res.totalRow != undefined && res.totalRow != null) {
                 $("#totalCourseTime").html("合计"+res.totalRow.totalCourseTime);
                 $("#totalValiteTime").html("合计"+res.totalRow.totalValiteTime);
-                $("#totalUnValiteTime").html("合计"+res.totalRow.totalUnValiteTime);
+                $("#totalUnValiteTime").html("合计" + res.totalRow.totalUnValiteTime);
+                $("#totalDeductTime").html("合计" + res.totalRow.totalDeductTime);
             }
         }
     });

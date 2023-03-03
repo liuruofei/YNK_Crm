@@ -133,8 +133,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult GetProjetUnitByProjectId(int projectId) {
             ResResult rsg = new ResResult() { code = 0, msg = "获取失败" };
             var list=_currencyService.DbAccess().Queryable<C_Project_Unit>().Where(con => con.ProjectId == projectId).ToList();
+            rsg.data = list;
             if (list != null && list.Count > 0) {
-                rsg.data = list;
                 rsg.code = 200;
                 rsg.msg = "获取成功";
             }

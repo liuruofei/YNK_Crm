@@ -1,11 +1,29 @@
 ﻿
 <div style="margin-top: 15px; margin-left: 10px; margin-right: 10px">
-    <div style="display: flex;">
-        <div style="text-align:left;flex:1">
+    <div style="display: flex;flex-wrap:wrap">
+        <div style="text-align:left;flex:1;min-width:150px">
             <button class="layui-btn" type="button" id="preWeek">Pre</button>
             <button class="layui-btn" type="button" id="nextWeek">Next</button>
         </div>
-        <div style="text-align:center;flex:1"><span style=" line-height: 38px;font-weight:700">当前学员:@ViewBag.studentName</span></div>
+        <div style="text-align:center;flex:1;min-width:150px"><span style=" line-height: 38px;font-weight:700">当前学员:@ViewBag.studentName</span></div>
+        <div style="text-align:right">
+            <div class="layui-form">
+                <div class="layui-form-item" style="text-align:left">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">分类:</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="SubjectId" class="layui-select" lay-filter="SubjectId" id="SubjectId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">科目:</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="ProjectId" class="layui-select" lay-filter="ProjectId" id="ProjectId"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div style="flex:1;text-align:right;">
             <div style="display: flex;">
                 <label class="layui-form-label">导出时间段</label>
@@ -76,6 +94,13 @@
             color: white;
             font-size: 12px;
         }
+        .planGuiHua {
+            border-color: rgb(224, 224, 224);
+            background-color: #03a9f4;
+            box-shadow: 0px 0px 0px 1px #fff;
+            color: white;
+            font-size: 12px;
+        }
     </style>
 }
 @section js{
@@ -97,6 +122,40 @@
                 , type: 'date',
                 format: 'yyyy-MM-dd'
             });
+            adminForm.load({
+            url: "@Url.Action("QuerySubject","ContracUser")",
+            dataType: 'json',
+            callBack: function (rou) {
+                    if (rou.data != null) {
+                        var result = rou.data;
+                        $("select[name='SubjectId']").html("<option value='0'>-分类-</option>");
+                        $("select[name='ProjectId']").html("<option value='0'>-科目-</option>");
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                        }
+                    }
+                }
+            });
+            form.on('select(SubjectId)', function (data) {
+                var sujectId=data.value;
+                adminForm.load({
+                url: "@Url.Action("QueryProject", "ContracUser")?subjectId=" + sujectId,
+                dataType: 'json',
+                    callBack: function (rou) {
+                     $("select[name='ProjectId']").html("<option value='0'>-科目-</option>");
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            for (var i = 0; i < result.length; i++) {
+                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                        }
+                    }
+                });
+            });
+            form.on('select(ProjectId)', function (data) {
+                plan.isAdd = 0;
+                planSearch(plan);
+            });
         });
 
         var plan = {
@@ -116,10 +175,12 @@
             layui.use(['form','admin', 'adminForm'], function () {
                      var admin = layui.admin;
                      var adminForm = layui.adminForm;
-                     $("#plantbody").html("");
+                    $("#plantbody").html("");
+                    var subjectId = $("select[name='SubjectId']").val();
+                    var projectId = $("select[name='ProjectId']").val();
                      adminForm.load({
                         url: "@Url.Action("QueryStudentPlan")",
-                        data: { studentUid: $("input[name='StudentUid']").val(), isAdd: plan.isAdd, starttime: plan.starttime, endtime: plan.endtime },
+                         data: { studentUid: $("input[name='StudentUid']").val(), isAdd: plan.isAdd, subjectId: subjectId,projectId:projectId,starttime: plan.starttime, endtime: plan.endtime },
                         dataType: 'json',
                         callBack: function (rou) {
                             if (rou != null) {
@@ -180,6 +241,9 @@
                                                 else if (studymodel == 6) {
                                                     classColor = "planPartshik"
                                                 }
+                                                else if (studymodel == 8) {
+                                                    classColor = "planGuiHua"
+                                                }
                                             }
                                             trAppend += "<td onclick='planShow(" + jsonVmodel + ")'><div class='" + classColor + "'>" + (result[j].Eight_Ten_OlockTitle != null ? result[j].Eight_Ten_OlockTitle : "") + "</div></td>";
                                         }
@@ -216,6 +280,9 @@
                                                 }
                                                 else if (studymodel == 6) {
                                                     classColor = "planPartshik"
+                                                }
+                                                else if (studymodel == 8) {
+                                                    classColor = "planGuiHua"
                                                 }
                                             }
                                             trAppend += "<td onclick='planShow(" + jsonVmodel + ")'><div class='" + classColor + "'>" + (result[j].Ten_Twelve_OlockTitle == null ? "" : result[j].Ten_Twelve_OlockTitle) + "</div></td>";
@@ -254,6 +321,9 @@
                                                 else if (studymodel == 6) {
                                                     classColor = "planPartshik"
                                                 }
+                                                else if (studymodel == 8) {
+                                                    classColor = "planGuiHua"
+                                                }
                                             }
                                             trAppend += "<td onclick='planShow(" + jsonVmodel + ")'><div class='" + classColor + "'>" + (result[j].Thirteen_Fifteen_OlockTitle == null ? "" : result[j].Thirteen_Fifteen_OlockTitle) + "</div></td>";
                                         }
@@ -290,6 +360,9 @@
                                                 }
                                                 else if (studymodel == 6) {
                                                     classColor = "planPartshik"
+                                                }
+                                                else if (studymodel == 8) {
+                                                    classColor = "planGuiHua"
                                                 }
                                             }
                                             trAppend += "<td onclick='planShow(" + jsonVmodel + ")'><div class='" + classColor + "'>" + (result[j].Fifteen_Seventeen_OlockTitle == null ? "" : result[j].Fifteen_Seventeen_OlockTitle) + "</div></td>";
@@ -328,6 +401,9 @@
                                                 else if (studymodel == 6) {
                                                     classColor = "planPartshik"
                                                 }
+                                                else if (studymodel == 8) {
+                                                    classColor = "planGuiHua"
+                                                }
                                             }
                                             trAppend += "<td onclick='planShow(" + jsonVmodel + ")'><div class=" + classColor + ">" + (result[j].Seventeen_Nineteen_OlockTitle == null ? "" : result[j].Seventeen_Nineteen_OlockTitle) + "</div></td>";
                                         }
@@ -365,6 +441,9 @@
                                                 else if (studymodel == 6) {
                                                     classColor = "planPartshik"
                                                 }
+                                                else if (studymodel == 8) {
+                                                    classColor = "planGuiHua"
+                                                }
                                             }
                                             trAppend += "<td onclick='planShow(" + jsonVmodel + ")'><div class=" + classColor + ">" + (result[j].Nineteen_TwentyOne_OlockTitle == null ? "" : result[j].Nineteen_TwentyOne_OlockTitle) + "</div></td>";
                                         }
@@ -401,6 +480,9 @@
                                                 }
                                                 else if (studymodel == 6) {
                                                     classColor = "planPartshik"
+                                                }
+                                                else if (studymodel == 8) {
+                                                    classColor = "planGuiHua"
                                                 }
                                             }
                                             trAppend += "<td onclick='planShow(" + jsonVmodel + ")'><div class=" + classColor + ">" + (result[j].TwentyOne_TwentyTree_OlockTitle == null ? "" : result[j].TwentyOne_TwentyTree_OlockTitle) + "</div></td>";
@@ -445,7 +527,7 @@
                                     }
                                     else if (i == 12) {
                                         trAppend += "<tr>";
-                                        trAppend += "<td style='width:120px;vertical-align:top'>作业完成情况</td>";
+                                        trAppend += "<td style='width:120px;vertical-align:top'>已完成作业</td>";
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -459,7 +541,7 @@
                                     }
                                     else if (i == 13) {
                                         trAppend += "<tr>";
-                                        trAppend += "<td style='width:120px;'>其它</td>";
+                                        trAppend += "<td style='width:120px;'>待完成作业</td>";
                                         for (var j = 0; j < result.length; j++) {
                                             var planVmodel = {
                                                 Id: result[j].Id,
@@ -560,11 +642,15 @@
         planSearch(plan);
         function exportPlan() {
             var studentUid = $("input[name='StudentUid']").val();
-            window.location.href = '@Url.Action("ExportPlan")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&starttime=' + $("#StartTime").val() + '&endtime=' +$("#EndTime").val();
+            var subjectId = $("select[name='SubjectId']").val();
+            var projectId = $("select[name='ProjectId']").val();
+            window.location.href = '@Url.Action("ExportPlan")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&subjectId=' + subjectId + '&projectId='+projectId+ '&starttime=' + $("#StartTime").val() + '&endtime=' +$("#EndTime").val();
         }
         function pdfPlan() {
             var studentUid = $("input[name='StudentUid']").val();
-            window.open('@Url.Action("ExportPdf")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&starttime=' + $("#StartTime").val() + '&endtime=' + $("#EndTime").val());
+            var subjectId = $("select[name='SubjectId']").val();
+            var projectId = $("select[name='ProjectId']").val();
+            window.open('@Url.Action("ExportPdf")?studentUid=' + studentUid + '&isAdd=' + plan.isAdd + '&subjectId=' + subjectId + '&projectId=' + projectId+ '&starttime=' + $("#StartTime").val() + '&endtime=' + $("#EndTime").val());
         }
       function planShow(vmodel) {
         var studentUid = $("input[name='StudentUid']").val();

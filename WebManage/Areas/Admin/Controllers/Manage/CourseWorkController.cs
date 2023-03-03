@@ -292,7 +292,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            List<sys_user> list = _currencyService.DbAccess().Queryable<sys_userrole, sys_user, sys_role>((ur, u, r) => new object[] { JoinType.Left, ur.UserRole_UserID == u.User_ID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where((ur, u, r) => r.Role_Name == "督学"&&u.CampusId==Convert.ToInt32(campusId)).Select<sys_user>((ur, u, r) => u).ToList();
+            List<sys_user> list = _currencyService.DbAccess().Queryable<sys_userrole, sys_user, sys_role>((ur, u, r) => new object[] { JoinType.Left, ur.UserRole_UserID == u.User_ID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID }).Where((ur, u, r) =>(r.Role_Name == "督学"|| r.Role_Name == "督学校长") &&u.CampusId==Convert.ToInt32(campusId)).Select<sys_user>((ur, u, r) => u).ToList();
             list.Add(new sys_user() { User_ID = "", User_Name = "--督学--", User_CreateTime = DateTime.Now });
             list = list.OrderByDescending(it => it.User_CreateTime).ToList();
             rsg.data = list;
@@ -378,7 +378,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             vmodel.CreateUid = userId;
             vmodel.CampusId=int.Parse(campusId);
             var ccOrSale = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
-             .Where((u, ur, r) => u.User_ID == userId &&(r.Role_Name == "销售主管"||r.Role_Name=="顾问" || r.Role_Name == "销售")).First();
+             .Where((u, ur, r) => u.User_ID == userId &&(r.Role_Name == "销售主管"||r.Role_Name=="顾问" || r.Role_Name == "销售" ||r.Role_Name=="督学")).First();
             ResResult rsg = new ResResult() { code = 200, msg = "保存排课课程成功" };
             if (ccOrSale != null &&vmodel.StudyMode != 4&&vmodel.StudyMode != 5) {
                 rsg.code = 0;

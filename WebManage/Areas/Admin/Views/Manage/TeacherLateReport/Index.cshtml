@@ -13,19 +13,19 @@
                     <div class="layui-inline">
                         <div class="layui-input-inline">
                             <input type="button" value="本月" monthValue="1" class="monthBtn" />
-                            <input type="button" value="上月" monthValue="2" class="monthBtn actvMonth" />
+                            <input type="button" value="上月" monthValue="2"  class="monthBtn actvMonth" />
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">开始时间</label>
                         <div class="layui-input-inline mr0">
-                            <input name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="登记开始时间" autocomplete="off" />
+                            <input name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="登记开始时间"  autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">—</label>
                         <div class="layui-input-inline mr0">
-                            <input name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off" />
+                            <input name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -35,15 +35,6 @@
             </div>
 
             <table class="layui-table" id="userTable" lay-filter="userTable"></table>
-            <div style="display:flex">
-                <div style="font-weight:700;width:18%;">合计</div>
-                <div style="font-weight:700;flex:1"></div>
-                <div style="font-weight:700;flex:1"></div>
-                <div id="totalCourseTime" style="font-weight:700;flex:1"></div>
-                <div id="totalValiteTime" style="font-weight:700;flex:1;"></div>
-                <div id="totalUnValiteTime" style="font-weight:700;flex:1;"></div>
-                <div id="totalDeductTime" style="font-weight:700;flex:1;"></div>
-            </div>
         </div>
     </div>
 </div>
@@ -104,21 +95,14 @@
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'User_Name', title: '教师名称', fixed: 'left', sort: true },
-            { field: 'SubjectName', title: '类别', sort: true },
-            { field: 'ProjectName', title: '科目', sort: true },
-            { field: 'totalTime', title: '总课时', sort: true },
-            { field: 'valiteTotal', title: '有效课时', sort: true },
-            { field: 'unvaliteTotal', title: ' 无效课时', sort: true },
-            { field: 'deductTotal', title: ' 迟到应扣', sort: true },
+            { field: 'TeacherName', title: '教师姓名', sort: true },
+            { field: 'Work_Title', title: '课程名称', fixed: 'left', sort: true },
+            { field: 'CourseTimeFmt', title: '课程时间', sort: true },
+            { field: 'InSchoolTime', title: '教师到校时间', sort: true },
+            { field: 'LateMinute', title: ' 迟到分钟', sort: true },
         ]],
         done: function (res, curr, count) {
-            if (res.totalRow != undefined && res.totalRow != null) {
-                $("#totalCourseTime").html("合计" + res.totalRow.totalCourseTime);
-                $("#totalValiteTime").html("合计" + res.totalRow.totalValiteTime);
-                $("#totalUnValiteTime").html("合计" + res.totalRow.totalUnValiteTime);
-                $("#totalDeductTime").html("合计" + res.totalRow.totalDeductTime);
-            }
+
         }
     });
 

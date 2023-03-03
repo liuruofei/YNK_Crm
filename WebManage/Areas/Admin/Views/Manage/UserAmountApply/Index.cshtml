@@ -26,10 +26,10 @@
 
 <!-- 表格操作列 -->
 <script type="text/html" id="tableBar">
-    {{# if(d.IsBackAmount==0||d.IsBackAmount==3){ }}
+    {{# if(d.IsBackAmount==0||d.IsBackAmount==3||d.IsBackAmount==2){ }}
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="apply">申请余额退款</a>
     {{#}}}
-    {{# if(d.IsBackAmount==1||d.IsBackAmount==3){ }}
+    {{# if(d.IsBackAmount==1){ }}
     <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="config">通过</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Audit" lay-event="configReject">驳回</a>
     {{#}}}
@@ -81,12 +81,22 @@
             { field: 'Student_Name', title: '姓名', sort: true },
             { field: 'Sex', title: '性别', sort: true },
             { field: 'Grade', title: '年级', sort: true },
-            { field: 'ContactFamily', title: '联系人', sort: true },
             { field: 'Student_Phone', title: '电话', sort: true },
             { field: 'CampusName', title: '校区', sort: true, width: 150 },
             { field: 'CR_UserName', title: 'CR', sort: true },
             { field: 'CC_UserName', title: '顾问', sort: true },
             { field: 'Amount', title: '余额', sort: true },
+            {
+                field: 'Amount', title: '申请退费金额', sort: true, templet: function (d) {
+                    if (d.IsBackAmount < 1 || d.IsBackAmount == 3 || d.IsBackAmount ==2) {
+                        return "<input value='" + d.Amount + "' type='text' name='ApplyBackAmount' class='layui-input'></input>";
+                    }
+                    else {
+                       
+                        return "<span>" + d.ApplyBackAmount+"</span>";
+                    }
+                }
+            },
             {
                 field: 'IsBackAmount', title: '申请退款状态', sort: true, templet: function (d) {
                     if (d.IsBackAmount == 1) {
@@ -121,21 +131,31 @@
     adminList.table.on('tool(userTable)', function (obj) {
         var data = obj.data;
         var layEvent = obj.event;
+        var index = $(obj.tr[0]).attr('data-index');
+        var applyBackAmount = $(obj.tr[0]).find("input[name='ApplyBackAmount']").val();
         if (layEvent === 'config') { // 修改
             configChange(data);
         } else if (layEvent === 'configReject') { // 驳回
             recject(data);
         }
         else if (layEvent === 'apply') { // 申请
-            apply(data);
+            apply(data, applyBackAmount);
         }
     });
 
     //显示表单弹窗
-   function apply(vmodel) {
+      function apply(vmodel, applyBackAmount) {
+          if (applyBackAmount < 0 || applyBackAmount == "" || applyBackAmount==0) {
+            layer.msg("退费余额不能小于0");
+            return false;
+          }
+         if (applyBackAmount > vmodel.Amount) {
+              layer.msg("退费余额大于余额，无法申请");
+              return false;
+        }
        adminForm.Save({
             url: '@Url.Action("UserAmountBackApply")',
-            data: { uid: vmodel.StudentUid},
+           data: { uid: vmodel.StudentUid,applyBackAmount: applyBackAmount},
            callBack: function (result) {
                insTb.reload();
                 layer.msg(result.msg);
@@ -143,7 +163,7 @@
         });
     }
 
-    //确认转班
+    //确认退费
     function configChange(vmodel) {
             adminForm.Save({
             url: '@Url.Action("UserAmountBackApplyAudit")',

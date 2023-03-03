@@ -162,6 +162,26 @@ namespace WebManage.Models.Res
         public string Score { get; set; }
 
         /// <summary>
+        /// 试卷Id
+        /// </summary>
+        public int PaperId { get; set; }
+
+        /// <summary>
+        /// 试卷编号
+        /// </summary>
+        public string PaperCode { get; set; }
+
+        /// <summary>
+        /// 模考等级
+        /// </summary>
+        public string MockLevel { get; set; }
+
+        /// <summary>
+        /// 试卷分数线
+        /// </summary>
+        public string AvgScore { get; set; }
+
+        /// <summary>
         /// 试听用户
         /// </summary>
         public string ListeningName { get; set; }

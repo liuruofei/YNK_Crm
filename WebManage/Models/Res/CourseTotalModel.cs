@@ -22,7 +22,7 @@ namespace WebManage.Models.Res
         public float ShitingTime { get; set; }
 
         public float SumTime { get {
-                return CourseTime + ClassTime + PresentTime + ShitingTime;
+                return CourseUseTime + ClassUseTime+ ShitingTime;
             }
         }
     }

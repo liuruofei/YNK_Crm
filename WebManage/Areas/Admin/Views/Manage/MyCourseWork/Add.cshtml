@@ -25,6 +25,7 @@
                     <option value="5">模考</option>
                     <option value="6">实考</option>
                     <option value="7">会议</option>
+                    <option value="8">留学规划</option>
                 </select>
             </div>
         </div>
@@ -258,7 +259,17 @@
                             $("#dianpPart").css("display", "none");
                             $("#zuoyePart").css("display", "none");
                             $("#PartUnit").css("display", "none");
-
+                        }
+                        else if (r.StudyMode == 8) {
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#PartProject").css("display", "none");
+                            $("#ListenSubPart").css("display", "none");
+                            $("#PartUnit").css("display", "none");
+                            $("#ListeningPart").show();
+                            $("#lineSpanDate").text("上课日期");
+                            $("#lineSpanTimeRange").text("上课时段");
+                            $("#spanStudentName").text("上课学员");
                         }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));

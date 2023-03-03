@@ -19,8 +19,10 @@
                 <input name="StartTime" id="StartTime" placeholder="开始时间" class="layui-input" style="width:100px" />&nbsp;<span style="width: 2px;
                 padding-top: 5px;margin-right: 5px;color: yellowgreen">_</span> &nbsp;
                 <input name="EndTime" id="EndTime" placeholder="截止时间" class="layui-input" style="width:100px" />
-
                 <button class="layui-btn" type="button" style="margin-left:5px" onclick="planSearch()">搜索</button>
+                <button class="layui-btn" type="button" onclick="exportPlan()">导出</button>
+                <input type="checkbox" name="teacherAll" title="全选" value="全选" style="height:36px;width:38px;margin-left:5px" onchange="selectAllTea(this)">
+                <label style="line-height:33px;font-weight:700">全选</label>
             </div>
         </div>
     </div>
@@ -90,6 +92,11 @@
             min-height: 200px;
             display: none;
         }
+        input[type=checkbox]{
+              height:19px;
+              width:22px;
+        }
+
     </style>
 }
 @section js{
@@ -270,23 +277,6 @@
                     }
                     trAppend += "</tr>";
                 }
-                //else if (i == 2) {
-                //    trAppend += "<tr>";
-                //    trAppend += "<td style='width:120px;'>8:00-10:00</td>";
-                //    for (var j = 0; j < result.length; j++) {
-                //        var planVmodel = {
-                //            Id: result[j].Eight_Ten_Id,
-                //            workTtile: result[j].Eight_Ten_OlockTitle,
-                //            workDate: result[j].WorkDate,
-                //            startTime: '8:00',
-                //            endTime: '10:00'
-                //        }
-                //        var studymodel = result[j].Eight_Ten_StudyMode;
-                //        var classColor = "planPart";
-                //        trAppend += "<td><div class='" + classColor + "'>" + (result[j].Eight_Ten_OlockTitle != null ? "<span></span>" : "可排") + "</div></td>";
-                //    }
-                //    trAppend += "</tr>";
-                //}
                 else if (i == 2) {
                     trAppend += "<tr>";
                     trAppend += "<td style='width:120px'>10:00-12:00</td>";
@@ -296,9 +286,10 @@
                         for (var k = 0; k < teacherColor.length; k++) {
                             var teacherData = teacherTimes[teacherColor[k].name];
                             if (teacherData != undefined && teacherData != null) {
+                                var tmday = result[j].WorkDate;
                                 var tenHasTimeValite = teacherData.filter(item => item.isRest==true||item.Ten_Twelve_OlockTitle!= null||item.Ten_Twelve_Reversion==true);
-                                if (tenHasTimeValite != undefined && tenHasTimeValite.length<1) {
-                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                if (tenHasTimeValite != undefined && tenHasTimeValite.length < 1) {
+                                    trAppend += "<input type='checkbox' name='ckTeacher' value='" + teacherColor[k].name + "' tmDay='"+ tmday+"' tmRange='10-12' /><div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
                                 }
                             }
                         }
@@ -315,9 +306,10 @@
                         for (var k = 0; k < teacherColor.length; k++) {
                             var teacherData = teacherTimes[teacherColor[k].name];
                             if (teacherData != undefined && teacherData != null) {
+                                var tmday = result[j].WorkDate;
                                 var tenHasTimeValite = teacherData.filter(item => item.isRest == true || item.Thirteen_Fifteen_OlockTitle != null || item.Thirteen_Fifteen_Reversion == true);
                                 if (tenHasTimeValite != undefined && tenHasTimeValite.length < 1) {
-                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                    trAppend += "<input type='checkbox' name='ckTeacher' value='" + teacherColor[k].name + "' tmDay='" + tmday +"' tmRange='13-15' /><div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
                                 }
                             }
                         }
@@ -334,9 +326,10 @@
                         for (var k = 0; k < teacherColor.length; k++) {
                             var teacherData = teacherTimes[teacherColor[k].name];
                             if (teacherData != undefined && teacherData != null) {
+                                var tmday = result[j].WorkDate;
                                 var tenHasTimeValite = teacherData.filter(item => item.isRest == true || item.Fifteen_Seventeen_OlockTitle != null || item.Fifteen_Seventeen_Reversion == true);
                                 if (tenHasTimeValite != undefined && tenHasTimeValite.length < 1) {
-                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                    trAppend += "<input type='checkbox' name='ckTeacher' value='" + teacherColor[k].name + "' tmDay='" + tmday +"' tmRange='15-17' /><div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
                                 }
                             }
                         }
@@ -353,9 +346,10 @@
                         for (var k = 0; k < teacherColor.length; k++) {
                             var teacherData = teacherTimes[teacherColor[k].name];
                             if (teacherData != undefined && teacherData != null) {
+                                var tmday = result[j].WorkDate;
                                 var tenHasTimeValite = teacherData.filter(item => item.isRest == true || item.Seventeen_Nineteen_OlockTitle != null || item.Seventeen_Nineteen_Reversion == true);
                                 if (tenHasTimeValite != undefined && tenHasTimeValite.length < 1) {
-                                    trAppend += "<div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
+                                    trAppend += "<input type='checkbox' name='ckTeacher' value='" + teacherColor[k].name + "' tmDay='" + tmday +"' tmRange='17-19' /><div class='" + teacherColor[k].color + "'>" + teacherColor[k].name + "</div>";
                                 }
                             }
                         }
@@ -363,44 +357,59 @@
                     }
                     trAppend += "</tr>";
                 }
-                //else if (i == 7) {
-                //    trAppend += "<tr>";
-                //    trAppend += "<td style='width:120px;'>19:00-21:00</td>";
-                //    for (var j = 0; j < result.length; j++) {
-                //        var planVmodel = {
-                //            Id: result[j].Nineteen_TwentyOne_Id,
-                //            workTtile: result[j].Nineteen_TwentyOne_OlockTitle,
-                //            workDate: result[j].WorkDate,
-                //            startTime: '19:00',
-                //            endTime: '21:00'
-                //        }
-                //        var studymodel = result[j].Nineteen_TwentyOne_StudyMode;
-                //        var classColor = "planPart";
-                //        trAppend += "<td><div class=" + classColor + ">" + (result[j].Nineteen_TwentyOne_OlockTitle != null ? "" : (result[j].isRest == true ? "" : "可排")) + "</div></td>";
-                //    }
-                //    trAppend += "</tr>";
-                //}
-                //else if (i == 8) {
-                //    trAppend += "<tr>";
-                //    trAppend += "<td style='width:120px;'>21:00-23:00</td>";
-                //    for (var j = 0; j < result.length; j++) {
-                //        var planVmodel = {
-                //            Id: result[j].TwentyOne_TwentyTree_Id,
-                //            workTtile: result[j].TwentyOne_TwentyTree_OlockTitle,
-                //            workDate: result[j].WorkDate,
-                //            startTime: '21:00',
-                //            endTime: '23:00'
-                //        }
-                //        var studymodel = result[j].TwentyOne_TwentyTree_StudyMode;
-                //        var classColor = "planPart";
-                //        trAppend += "<td><div class=" + classColor + ">" + (result[j].TwentyOne_TwentyTree_OlockTitle != null ? "" : (result[j].isRest == true ? "" : "可排")) + "</div></td>";
-                //    }
-                //    trAppend += "</tr>";
-                //}
             }
             $("#teacherTimebody").append(trAppend);
         }
 
+        //全选
+        function selectAllTea(obj) {
+            var ischeckAll = $(obj).prop("checked");
+            if (ischeckAll == true) {
+                $("input[name='ckTeacher']").attr("checked",true);
+            } else {
+                $("input[name='ckTeacher']").removeAttr("checked");
+            }
+        }
+        //导出
+        function exportPlan() {
+            var teacherGroup = $("input[name='ckTeacher']:checked");
+            if (plan.dataList.length < 1) {
+                layer.msg("请优先输入需要查找的老师！");
+                return false;
+            }
+            if (teacherGroup.length < 1) {
+                layer.msg("请勾选需要导出的数据！");
+                return false;
+            }
+            var sendModel = {
+                starttime: plan.starttime,
+                endtime: plan.endtime,
+                timeArr: []
+            }
+            $.each(teacherGroup, function(index,item) {
+                var tcName = $(item).val();
+                var tmDay = dateFtt("yyyy-MM-dd",$(item).attr("tmDay"));
+                var tmRange = $(item).attr("tmRange");
+                sendModel.timeArr.push({ tcName: tcName, tmDay: tmDay, tmRange: tmRange});
+            })
+            let xhr = new XMLHttpRequest();
+            xhr.open('post',"ExportPlan");
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8'); 
+            xhr.responseType = 'blob' //以blob的形式接收数据，一般文件内容比较大
+            xhr.onload = function () {
+                let blob = new Blob([this.response]);
+                let elink = document.createElement('a'); // 创建一个a标签用于下载
+                elink.download = '教师可排列表.xls';
+                elink.style.display = 'none'; 
+                elink.href=URL.createObjectURL(blob); //规定链接指向的页面的URL
+                document.body.appendChild(elink);
+                elink.click(); //原生dom触发
+                URL.revokeObjectURL(elink.href); // 释放URL 对象
+                document.body.removeChild(elink);
+            }
+            //传递参数
+            xhr.send(JSON.stringify(sendModel));
+        }
         function dateFtt(fmt, val) { //author: meizz
         var date = new Date(val);
         var o = {

@@ -3,6 +3,7 @@
 }
 
 <form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="PaperId" type="hidden" value="@ViewBag.ID" />
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">科目分类</label>
@@ -10,39 +11,37 @@
                 <select name="SubjectId" lay-filter="SubjectId"></select>
             </div>
         </div>
+    </div>
+    <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label">科目</label>
             <div class="layui-input-inline">
-                <select name="ProjectId" lay-filter="ProjectId"></select>
-            </div>
-        </div>
-        <div class="layui-inline">
-            <label class="layui-form-label">单元</label>
-            <div class="layui-input-inline">
-                <select name="UnitId" lay-filter="UnitId"></select>
+                <select name="ProjectId" id="ProjectId" lay-filter="ProjectId"></select>
             </div>
         </div>
     </div>
     <div class="layui-form-item">
-        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
-            <legend>考试日</legend>
-        </fieldset>
-        <div style="padding:9px 16px">
-            <button type="button" class="btn btn-primary btn-lg" id="btnAddProject">
-                添加考试日
-            </button>
-            <table class="layui-table">
-                <thead>
-                    <tr>
-                        <th>考试类型</th>
-                        <th>考试季</th>
-                        <th>考试日期</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="child_UnitTime">
-                </tbody>
-            </table>
+        <div class="layui-inline">
+            <label class="layui-form-label">单元</label>
+            <div class="layui-input-inline">
+                <select name="UnitId" id="UnitId"></select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">试卷编号</label>
+            <div class="layui-input-inline">
+                <input type="text" name="PaperCode" id="PaperCode" class="layui-input" />
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">分数线</label>
+            <div class="layui-input-inline">
+                <input type="text" name="AvgScore" id="AvgScore" class="layui-input"/>
+            </div>
         </div>
     </div>
     <div class="layui-form-item positionbottomtop"></div>
@@ -67,30 +66,6 @@
 @section js{
     <!-- js部分 -->
     <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
-    <script type="text/html" id="templateChild">
-        {{each data item index}}
-        <tr>
-            <td><input name="Unit_TimeType" value="{{item.Unit_TimeType}}" /></td>
-            <td><input name="Unit_TimeName" value="{{item.Unit_TimeName}}" /></td>
-            <td><input name="At_Date" value="{{item.At_Date}}" /></td>
-            <td>
-                <input type="hidden" name="Id" value="{{item.Id}}" />
-                <button type="button" onclick="remove(this)">删除</button>
-            </td>
-        </tr>
-        {{/each}}
-    </script>
-    <script type="text/html" id="templateAdd">
-        <tr>
-            <td><input name="Unit_TimeType" /></td>
-            <td><input name="Unit_TimeName" /></td>
-            <td><input name="At_Date"/></td>
-            <td>
-                <input type="hidden" name="Id" value="0" />
-                <button type="button" onclick="remove(this)">删除</button>
-            </td>
-        </tr>
-    </script>
     <script>
     layui.use([ 'form', 'admin', 'adminForm'], function () {
         var KeyId = '@KeyId';
@@ -107,10 +82,6 @@
                     url: "@Url.Action("Find")",
                     dataType: 'json',
                     callBack: function (r) {
-                        if (r.UnitTimeList != undefined && r.UnitTimeList != null) {
-                            var html = template("templateChild", { data: r.UnitTimeList});
-                            document.getElementById("child_UnitTime").innerHTML = html;
-                        }
                         adminForm.load({
                         url: "@Url.Action("QuerySubject","ContracUser")",
                         dataType: 'json',
@@ -140,18 +111,12 @@
                 });
             },
             Save: function (data) {
-                data.field.UnitTimeList = [];
-                $("#child_UnitTime>tr").each(function (i, ite) {
-                    var td = $(ite).find("td");
-                    var Id = td.find("input[name='Id']").val();
-                    var Unit_TimeType = td.find("input[name='Unit_TimeType']").val();
-                    var Unit_TimeName = td.find("input[name='Unit_TimeName']").val();
-                    var At_Date = td.find("input[name='At_Date']").val();
-                    data.field.UnitTimeList.push({ Id: Id, Unit_TimeType: Unit_TimeType, Unit_TimeName: Unit_TimeName, At_Date:At_Date});
-                });
-                if (data.field.UnitTimeList.length < 1) {
-                    console.log(data.field.UnitTimeList);
-                    layer.msg("请添加考试日");
+                if (data.field.PaperCode == null||data.field.PaperCode=="") {
+                    layer.msg("请添加试卷编号");
+                    return false;
+                }
+                if (data.field.AvgScore == null || data.field.AvgScore == "") {
+                    layer.msg("请添加分数线");
                     return false;
                 }
                 adminForm.Save({
@@ -166,73 +131,23 @@
         App.Load();
         form.on('select(SubjectId)', function (data) {
             var subjectId = data.value;
-            if (subjectId > 0) {
-                document.getElementById("child_UnitTime").innerHTML = "";
-                bindProject(subjectId);
-            }
+            bindProject(subjectId, null, null);
         });
         form.on('select(ProjectId)', function (data) {
             var projectId = data.value;
-            if (projectId > 0) {
-                document.getElementById("child_UnitTime").innerHTML = "";
-                bindUnit(projectId);
-            }
-        });
-        form.on('select(UnitId)', function (data) {
-            var unitId = data.value;
-            if (unitId > 0) {
-                document.getElementById("child_UnitTime").innerHTML = "";
-                adminForm.load({
-                url: "@Url.Action("GetTimeByUnitId")",
-                data: { unitId: unitId },
-                dataType: 'json',
-                callBack: function (rou) {
-                    if (rou.data != null) {
-                        var result = rou.data;
-                        var html = template("templateChild", { data:result});
-                        document.getElementById("child_UnitTime").innerHTML = html;
-                    }
-                  }
-                });
-            }
+            bindUnit(projectId,null);
         });
         // 表单提交事件
         form.on('submit(modelUserSubmit)', function (data) {
             App.Save(data);
             return false;
         });
-
-        $("#btnAddProject").click(function () {
-            $("#child_UnitTime").append($("#templateAdd").html());
-        })
     });
-        function remove(obj) {
-            var timeId = $(obj).parents("tr").find("td").find("input[name='Id']").val();
-            if (timeId < 1) {
-                $(obj).parents("tr").remove();
-            }
-            else {
-                layui.use(['adminForm'], function () {
-                    var adminForm = layui.adminForm;
-                    adminForm.Save({
-                    url: '@Url.Action("Delete")',
-                    data: { Id: timeId},
-                    callBack: function (result) {
-                        if (result.code == 200) {
-                            layer.msg(result.msg);
-                            $(obj).parents("tr").remove();
-                        }
-                    }
-                })
-
-                });
-            }
-        }
-        function bindProject(subjectId, defaultProjectId,defulatUnitId) {
+        function bindProject(subjectId, defaultProjectId,defaultUnitId) {
             layui.use(['adminForm'], function () {
                 var adminForm = layui.adminForm;
                adminForm.load({
-                url: "@Url.Action("QueryProject")",
+                url: "@Url.Action("QueryProject","ProjectUnit")",
                 data: { subjectId: subjectId},
                 dataType: 'json',
                 callBack: function (rou) {
@@ -242,7 +157,7 @@
                         for (var i = 0; i < result.length; i++) {
                             if (defaultProjectId != undefined && defaultProjectId != null && defaultProjectId > 0) {
                                 if (defaultProjectId == result[i].ProjectId) {
-                                    bindUnit(defaultProjectId, defulatUnitId);
+                                    bindUnit(defaultProjectId, defaultUnitId);
                                     $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + ' selected>' + result[i].ProjectName + '</option>');
                                 }
                                 else {
@@ -250,10 +165,10 @@
                                 }
                             }
                             else {
-                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
-                                if (i == 0) {
-                                    bindUnit(result[i].ProjectId);
+                                if (defaultProjectId == null && i == 0) {
+                                    bindUnit(result[i].ProjectId,null);
                                 }
+                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
                             }
                         }
                     }
@@ -261,13 +176,12 @@
               });
             });
         }
-
         function bindUnit(projectId, defaultUnitId) {
-             layui.use(['adminForm'], function () {
-              var adminForm = layui.adminForm;
+            layui.use(['adminForm'], function () {
+               var adminForm = layui.adminForm;
                adminForm.load({
-                url: "@Url.Action("QueryUnit")",
-                data: { projetId: projectId},
+                url: "@Url.Action("GetProjetUnitByProjectId", "ProjectUnit")",
+                data: { projectId: projectId},
                 dataType: 'json',
                 callBack: function (rou) {
                     if (rou.data != null) {
@@ -286,6 +200,5 @@
               });
             });
         }
-
     </script>
 }

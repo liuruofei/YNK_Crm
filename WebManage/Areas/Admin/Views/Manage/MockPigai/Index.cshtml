@@ -23,15 +23,33 @@
                         </div>
                     </div>
                     <div class="layui-inline">
+                        <label class="layui-form-label w-auto">分类:</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="SubjectId" class="layui-select" lay-filter="SubjectId" id="SubjectId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">科目:</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="ProjectId" class="layui-select" id="ProjectId" lay-filter="ProjectId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">单元：</label>
+                        <div class="layui-input-inline mr0">
+                            <select name="UnitId" id="UnitId" lay-filter="UnitId"></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
                         <label class="layui-form-label w-auto">开始日期：</label>
                         <div class="layui-input-inline mr0">
-                            <input id="startTime" class="layui-input" type="text" placeholder="开始时间" />
+                            <input id="startTime" class="layui-input" type="text" placeholder="开始时间"  autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">结束日期：</label>
                         <div class="layui-input-inline mr0">
-                            <input id="endTime" class="layui-input" type="text" placeholder="结束时间" />
+                            <input id="endTime" class="layui-input" type="text" placeholder="结束时间" autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -40,21 +58,40 @@
                     </div>
                 </div>
             </div>
-
-            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
         </div>
     </div>
 </div>
-
+<div class="layui-tab layui-tab-card" lay-filter="tabWork" style="margin-top:0px">
+    <ul class="layui-tab-title">
+        <li class="layui-this">考试列表</li>
+        <li>未考试卷</li>
+    </ul>
+    <div class="layui-tab-content" style="padding:0px;">
+        <div class="layui-tab-item layui-show">
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+        <div class="layui-tab-item" style="padding-top:10px">
+            <div>
+                <table class="layui-table">
+                    <thead>
+                        <tr><td>试卷编号</td><td>单元</td><td>科目</td><td>分类</td></tr>
+                    </thead>
+                <tbody id="paperTablebody">
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- 表格操作列 -->
 <script type="text/html" id="tableBar">
-    @*<a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">点评</a>*@
+    <a class="layui-btn layui-btn-primary layui-btn-xs" data-power="Edit" lay-event="edit">更新成绩</a>
 </script>
 
 @section css{
     <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
     <style>
-        .layui-table-cell {
+        /*.layui-table-cell {
             height: auto;
             line-height: 28px;
         }
@@ -62,12 +99,56 @@
         .layui-table img {
             max-width: 600px;
         }
+
+        .layui-table-cell {
+            overflow: visible;
+        }
+
+        .layui-layer-tips {
+            display: none
+        }*/
+        /* 设置下拉框的高度与表格单元相同 */
+        /*td .layui-form-select {
+            margin-top: -10px;
+            margin-left: -15px;
+            margin-right: -15px;
+        }*/
+
+        .searcPaper {
+            position: absolute;
+            box-shadow: 0 10px 60px 0 rgb(29 29 31 / 9%);
+            background-color: white;
+            z-index: 6;
+            width: 480px;
+            min-height: 200px;
+            height: 182px;
+            overflow-y: auto;
+            display: none;
+        }
     </style>
 }
 @section js{
     <!-- js部分 -->
+    <script type="text/template" id="PaperTemp">
+        {{each data item index}}
+        <tr>
+            <td>
+                <span>{{item.PaperCode}}</span>
+            </td>
+            <td>
+                <span>{{item.UnitName}}</span>
+            </td>
+            <td>
+                <span>{{item.ProjectName}}</span>
+            </td>
+            <td>
+                <span>{{item.SubjectName}}</span>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
     <script>
-        layui.use(['form', 'util', 'admin', 'adminList', 'laydate', 'adminForm'], function () {
+        layui.use(['form', 'util', 'admin', 'adminList', 'laydate', 'adminForm','element'], function () {
     var $ = layui.jquery;
     var util = layui.util;
     var admin = layui.admin;
@@ -75,6 +156,7 @@
     var adminList = layui.adminList;
     var laydate = layui.laydate;
     var adminForm = layui.adminForm;
+    var element = layui.element;
     //日期
     laydate.render({
         elem: '#startTime',
@@ -85,6 +167,54 @@
         elem: '#endTime',
         format: 'yyyy-MM-dd'
     });
+    adminForm.load({
+            url: "@Url.Action("QuerySubject","ContracUser")",
+            dataType: 'json',
+            callBack: function (rou) {
+                    if (rou.data != null) {
+                        var result = rou.data;
+                        $("select[name='SubjectId']").html("<option value='0'>-分类-</option>");
+                        $("select[name='ProjectId']").html("<option value='0'>-科目-</option>");
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='SubjectId']").append('<option value = ' + result[i].SubjectId + '>' + result[i].SubjectName + '</option>');
+                        }
+                    }
+                }
+            });
+    form.on('select(SubjectId)', function (data) {
+                var sujectId=data.value;
+                adminForm.load({
+                url: "@Url.Action("QueryProject", "ContracUser")?subjectId=" + sujectId,
+                dataType: 'json',
+                    callBack: function (rou) {
+                     $("select[name='ProjectId']").html("<option value='0'>-科目-</option>");
+                        if (rou.data != null) {
+                            var result = rou.data;
+                            for (var i = 0; i < result.length; i++) {
+                                $("select[name='ProjectId']").append('<option value = ' + result[i].ProjectId + '>' + result[i].ProjectName + '</option>');
+                            }
+                        }
+                    }
+                });
+    });
+    form.on('select(ProjectId)', function (data) {
+               var projectId = data.value;
+               adminForm.load({
+                url: "@Url.Action("GetProjetUnitByProjectId", "ProjectUnit")",
+                data: { projectId: projectId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        $("select[name='UnitId']").html("");
+                        var result = rou.data;
+                        $("select[name='UnitId']").append('<option value ="0">-请选择-</option>');
+                        for (var i = 0; i < result.length; i++) {
+                            $("select[name='UnitId']").append('<option value = ' + result[i].UnitId + '>' + result[i].UnitName + '</option>');
+                        }
+                    }
+                }
+              });
+       });
 
     // 渲染表格
     var insTb = adminList.tableLayUI({
@@ -95,17 +225,21 @@
         cellMinWidth: 100,
         cols: [[
             { type: 'numbers' },
-            { field: 'Work_Title', title: '考试名称', sort: true, width: 200 },
+            { field: 'Work_Title', title: '考试名称', sort: true},
             {
-                field: 'AT_Date', title:'上课日期', sort: true, templet: function (d) {
+                field: 'AT_Date', title: '考试日期', width: 120, sort: true, templet: function (d) {
                     return dateFtt("yyyy-MM-dd",d.AT_Date);
                 }
             },
-            { field: 'StartTime', title: '开始时间', sort: true },
-            { field: 'EndTime', title: '结束时间', sort: true },
-            { field: 'TeacherName', title: '教师', sort: true },
             {
-                field: 'StudyMode', title: '考试模式', sort: true, templet: function (d) {
+                field: 'StartTime', title: '开始时间',width:90, sort: true
+            },
+            {
+                field: 'EndTime', title: '结束时间', width: 90,sort: true
+            },
+            { field: 'TeacherName', title: '教师', width: 120, sort: true },
+            {
+                field: 'StudyMode', title: '考试模式', width: 90, sort: true, templet: function (d) {
                     if (d.StudyMode == 5)
                         return "模考";
                     else if (d.StudyMode == 6)
@@ -113,7 +247,7 @@
                 }
             },
             {
-                field: 'Comment', title: '学员', sort: true, templet: function (d) {
+                field: 'Student_Name', title: '学员', width: 120, sort: true, templet: function (d) {
                     if (d.StudyMode == 5 || d.StudyMode == 6) {
                         return d.Student_Name;
                     }
@@ -123,24 +257,21 @@
                 }
             },
             {
-                field: 'Score', title: '成绩', sort: true, width: 120, templet: function (d) {
-                    if (d.StudyMode == 5 || d.StudyMode == 6) {
-                        return "<input type='text' value='" + d.Score + "' data-id='" + d.Id + "' style='width:80px' onchange='SetScore(this)'/>";
-                    }
-                    else {
-                        return "";
-                    }
-                }
+                field: 'PaperCode', title: '试卷编号', width: 120,sort: true
             },
-            { align: 'center', toolbar: '#tableBar', title: '操作', width: 150}
-        ]],
-        done: function (res, curr, count) {
-            res.data.forEach(function (item, index) {
-                if (item.Work_Stutas < 1 && item.Comment != null && item.Comment != '') {
-                    $(".layui-table").find("tr[data-index='" + index + "']").css("background-color", "rgb(231 195 195)");
-                }
-            });
-        }
+            {
+                field: 'AvgScore', title: '分数线', sort: true, width:120
+            },
+            {
+                field: 'Score', title: '成绩', sort: true, width:130
+            },
+            {
+                field: 'MockLevel', title: '等级', sort: true, width:90
+            },
+            {
+                align: 'center', toolbar: '#tableBar', title: '操作', width: 150
+            }
+        ]]
     });
 
     // 搜索
@@ -149,20 +280,37 @@
         var studymode = parseInt($('#StudyMode').val());
         var startTime = $('#startTime').val();
         var endTime = $('#endTime').val();
+        var subjectId = $("select[name='SubjectId']").val();
+        var projectId = $("select[name='ProjectId']").val();
+        var unitId = $("select[name='UnitId']").val();
         insTb.reload({
-            where: { title: title,studymode: studymode, startTime: startTime,endTime: endTime}
+            where: { title: title, studymode: studymode, subjectId: subjectId, projectId: projectId, unitId: unitId,startTime: startTime,endTime: endTime}
             , page: {
                 curr: 1 //重新从第 1 页开始
             }
         });
+        adminForm.load({
+                url: "@Url.Action("QuerPaperNoTest")",
+                data: { title: title, studymode: studymode, subjectId: subjectId, projectId: projectId, unitId: unitId, startTime: startTime, endTime: endTime },
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        var result = rou.data;
+                        var html = template("PaperTemp", { data: result });
+                        document.getElementById("paperTablebody").innerHTML = html;
+                    }
+                }
+              });
     });
-   form.on('select(StudyMode)', function (data) {
+     form.on('select(StudyMode)', function (data) {
         var title = $('#title').val();
         var studymode = parseInt(data.value);
         var startTime = $('#startTime').val();
-        var endTime = $('#endTime').val();
+       var endTime = $('#endTime').val();
+       var subjectId = $("select[name='SubjectId']").val();
+       var projectId = $("select[name='ProjectId']").val();
         insTb.reload({
-            where: { title: title,studymode: studymode, startTime: startTime, endTime: endTime}
+            where: { title: title, studymode: studymode, subjectId: subjectId, projectId: projectId,startTime: startTime, endTime: endTime}
             , page: {
                 curr: 1 //重新从第 1 页开始
             }
@@ -174,48 +322,41 @@
     adminList.table.on('tool(userTable)', function (obj) {
         var data = obj.data;
         var layEvent = obj.event;
-        if (layEvent === 'edit') { // 点评课程
+        if (layEvent === 'edit') { // 修改
             showEditModel(data);
         }
-
     });
+    element.on('tab(tabWork)', function (data) {
+        if (data.index == 1) {
 
-    //显示表单弹窗
+        }
+    });
     function showEditModel(vmodel) {
         adminList.form({
-            title: '保存点评',
+            title:'更新成绩',
             type: 2,
-            width: "920px",
-            height: "710px",
-            content: '@Url.Action("Edit", "UnCommentCourseWork")?ID=' + vmodel.Id,
-            end: function (data) {
+            width: "530px",
+            height: "530px",
+            content: '@Url.Action("Edit")?ID=' + vmodel.Id,
+            end: function () {
                 insTb.reload();
             }
         });
-    };
-        });
-     function SetScore(obj) {
-            console.log($(obj).attr("data-id"));
-            $.ajax({
-                type: "post",
-                url: "@Url.Action("SetScore")",
-                data: { Id: $(obj).attr("data-id"), Score: $(obj).val() },
-                dataType: 'json',
-                contentType: 'application/x-www-form-urlencoded',
-                success: function (data) {
-                    layer.msg(data.msg);
-                }
-            });
-        }
+            }
+   });
+
      function exportPlan() {
          var title = $('#title').val();
          var workStutas = parseInt($('#Work_Stutas').val());
          var studymode = parseInt($('#StudyMode').val());
+         var subjectId = $("select[name='SubjectId']").val();
+         var projectId = $("select[name='ProjectId']").val();
+         var unitId = $("select[name='UnitId']").val();
          var startTime = $('#startTime').val();
          var endTime = $('#endTime').val();
-         window.location.href = '@Url.Action("ExportPlan")?title=' + title+ '&studymode=' + studymode + '&startTime=' + startTime + '&endTime=' + endTime;
+         window.location.href = '@Url.Action("ExportPlan")?title=' + title + '&studymode=' + studymode + '&subjectId=' + subjectId + '&projectId=' + projectId + '&unitId=' + unitId+ '&startTime=' + startTime + '&endTime=' + endTime;
      }
-        function dateFtt(fmt, val) { //author: meizz
+     function dateFtt(fmt, val) { //author: meizz
             var date = new Date(val);
             var o = {
                 "M+": date.getMonth() + 1,     //月份
