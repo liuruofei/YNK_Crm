@@ -183,7 +183,7 @@ namespace ADT.Repository
                                         C_User_CourseTime useCourseTime = db.Queryable<C_User_CourseTime>().Where(it => it.StudentUid == work.StudentUid && it.Contra_ChildNo.Equals(work.Contra_ChildNo) && it.SubjectId == work.SubjectId && it.ProjectId == work.ProjectId).First();
                                         float hourse = float.Parse(span.TotalMinutes.ToString()) / 60;
 
-                                        if (oldwork.StudyMode==1) {
+                                        if (oldwork.StudyMode == 1) {
                                             //原来已上课时大于现在修改课时，则扣掉用户已用课时
                                             if (work.CourseTime > hourse)
                                             {
@@ -391,11 +391,11 @@ namespace ADT.Repository
                             recored.CreateTime = DateTime.Now;
                         }
                         //小班模式
-                        else if (input.StudyMode == 2 & work.Work_Stutas == 0)
+                        else if (input.StudyMode == 2&&work.Work_Stutas == 0)
                         {
                             string where = "";
                             int childContracStatu = (int)ConstraChild_Status.RetrunClassOk;//排除退班的学生
-                            var contansStudentUids = db.Queryable<C_Contrac_Child>().Where(con => con.ClassId == input.ClasssId && con.StudyMode == 2&&con.Contrac_Child_Status!= childContracStatu).Select(con => con.StudentUid).ToList();
+                            var contansStudentUids = db.Queryable<C_Contrac_Child>().Where(con => con.ClassId == input.ClasssId && con.StudyMode == 2 && con.Contrac_Child_Status != childContracStatu).Select(con => con.StudentUid).ToList();
                             //判断该班课其中的学员是否也起冲突
                             if (contansStudentUids != null && contansStudentUids.Count > 0)
                             {
@@ -497,14 +497,20 @@ namespace ADT.Repository
                             work.CourseTime = span.Hours;
 
                         }
-                        else if (input.StudyMode == 4 & work.Work_Stutas == 0)
+                        else if (input.StudyMode == 4&&work.Work_Stutas == 0)
                         {
                             C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                             C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
                             string where = "";
                             if (input.StudentUid > 0)
                             {
+                                int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
                                 where = "c.StudentUid=@StudentUid or ";
+                                var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => con.StudentUid == input.StudentUid && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                                if (contansClassIds != null && contansClassIds.Count > 0)
+                                {
+                                    where += " c.ClasssId in(" + string.Join(",", contansClassIds) + ") or ";
+                                }
                             }
                             //判断学员课程是否冲突
                             C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
@@ -625,6 +631,54 @@ namespace ADT.Repository
                             work.CampusId = teach.CampusId;
                             recored.Msg = "更新" + teach.User_Name + input.AT_Date.ToString("yyyy/MM/dd") + " 教师会议,时间：" + input.StartTime + " - " + input.EndTime;
                         }
+                        else if (input.StudyMode == 8 && work.Work_Stutas == 0) {
+                            int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                            string where = "";
+                            if (input.StudentUid > 0)
+                            {
+                                where = "c.StudentUid=@StudentUid or ";
+                                var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => con.StudentUid == input.StudentUid && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                                if (contansClassIds != null && contansClassIds.Count > 0)
+                                {
+                                    where += " c.ClasssId in(" + string.Join(",", contansClassIds) + ") or";
+                                }
+                            }
+                            //判断学员课程是否冲突
+                            C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
+                                .Where("c.Id!=@workId and (" + where + " c.TeacherUid=@TeacherUid or c.ListeningName=@ListeningName) and c.StudyMode!=5 and " +
+                                "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                                " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                ")")
+                                .AddParameters(new { workId = input.Id, StudentUid = input.StudentUid, TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = input.ListeningName }).First();
+                            if (anyValue != null)
+                            {
+                                rsg.msg = "此时间段，当天该课程老师或者该学员已有其它课程,无法排课";
+                                rsg.code = 0;
+                                return rsg;
+                            }
+                            if (input.AT_Date != work.AT_Date || !input.StartTime.Equals(work.StartTime) || !input.EndTime.Equals(work.EndTime))
+                            {
+
+                                recored.Msg = "留学规划_"+input.ListeningName+ "课程时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
+                                    "已改成" + input.AT_Date.ToString("yyyy/MM/dd") + " " + input.StartTime + "-" + input.EndTime;
+                            }
+                            sys_user teach = db.Queryable<sys_user>().Where(it => it.User_ID == input.TeacherUid).First();
+                            TimeSpan span = Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime) - Convert.ToDateTime(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime);
+                            float spanHours = float.Parse(span.TotalMinutes.ToString()) / 60;
+                            work.CourseTime = spanHours;
+                            work.StudyMode = input.StudyMode;
+                            work.AT_Date = input.AT_Date;
+                            work.StartTime = input.StartTime;
+                            work.EndTime = input.EndTime;
+                            work.TeacherUid = input.TeacherUid;
+                            work.RangTimeId = input.RangTimeId;
+                            work.TA_Uid = input.TA_Uid;
+                            work.RoomId = input.RoomId;
+                            work.CampusId = teach.CampusId;
+                            work.StudentUid = input.StudentUid;
+                        }
                         else
                         {
                             if (work.Work_Stutas == 1)
@@ -680,8 +734,15 @@ namespace ADT.Repository
                             var projectModel = db.Queryable<C_Project>().Where(fv => fv.ProjectId == input.ProjectId).First();
                             input.Work_Title = input.Work_Title + "_" + projectModel.ProjectName;
                         }
+                        if (input.UnitId > 0 && input.StudyMode ==1)
+                        {
+                            string unitName = "";
+                            var unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
+                            unitName = "_" + unt.UnitName;
+                            input.Work_Title += unitName;
+                        }
                         List<int> shitUserClassIds = null;
-                        if (input.StudyMode == 4 && input.StudentUid > 0) {
+                        if ((input.StudyMode == 4|| input.StudyMode == 8) && input.StudentUid > 0) {
                             int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
                             shitUserClassIds = db.Queryable<C_Contrac_Child>().Where(con => con.StudentUid == input.StudentUid && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
                         }
@@ -738,23 +799,11 @@ namespace ADT.Repository
                                         useCourseTime.Course_UseTime = useCourseTime.Course_UseTime + hourse;
                                     }
                                     db.Updateable<C_User_CourseTime>(useCourseTime).ExecuteCommand();
-                                    string unitName = "";
-                                    if (input.UnitId > 0)
-                                    {
-                                        var unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
-                                        unitName = "_" + unt.UnitName;
-                                    }
-                                    input.Work_Title += unitName;
                                 }
                                 else
                                 {
                                     C_Subject sub = db.Queryable<C_Subject>().Where(it => it.SubjectId == input.SubjectId).First();
                                     C_Project pro = db.Queryable<C_Project>().Where(it => it.ProjectId == input.ProjectId).First();
-                                    string unitName = "";
-                                    if (input.UnitId > 0) {
-                                        var unt = db.Queryable<C_Project_Unit>().Where(it => it.UnitId == input.UnitId).First();
-                                        unitName ="_"+unt.UnitName;
-                                    }
                                     C_User_PresentTime useCourseTime = db.Queryable<C_User_PresentTime>().Where(it => it.StudentUid == input.StudentUid && it.Contra_ChildNo == input.Contra_ChildNo).First();
                                     if (useCourseTime == null)
                                     {
@@ -774,9 +823,8 @@ namespace ADT.Repository
                                         useCourseTime.Present_UseTime = useCourseTime.Present_UseTime + hourse;
                                     }
                                     db.Updateable<C_User_PresentTime>(useCourseTime).ExecuteCommand();
-                                    input.Work_Title = "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName+ unitName;
+                                    //input.Work_Title = "1对1(" + u.Student_Name + ")_" + sub.SubjectName + "_" + pro.ProjectName;
                                 }
-
                                 input.CourseTime = hourse;
                                 input.CampusId = u.CampusId;
                                 //添加记录
@@ -797,15 +845,16 @@ namespace ADT.Repository
                             {
                                 string where = "";
                                 int childContracStatu = (int)ConstraChild_Status.RetrunClassOk;//排除退班的学生
-                                var contansStudentUids = db.Queryable<C_Contrac_Child>().Where(con => con.ClassId == input.ClasssId && con.StudyMode == 2&&con.Contrac_Child_Status!= childContracStatu).Select(con => con.StudentUid).ToList();
+                                var contansStudentUids = db.Queryable<C_Contrac_Child>().Where(con => con.ClassId == input.ClasssId && con.StudyMode == 2 && con.Contrac_Child_Status != childContracStatu).Select(con => con.StudentUid).ToList();
                                 //判断该班课其中的学员是否也起冲突(不包含班课)
                                 if (contansStudentUids != null && contansStudentUids.Count > 0)
                                 {
                                     where += " or c.StudentUid in(" + string.Join(",", contansStudentUids) + ")";
                                     //判断该班课学员的其它班课是否也起冲突
                                     int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
-                                    var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => contansStudentUids.Contains(con.StudentUid)&& con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
-                                    if (contansClassIds!=null&&contansClassIds.Count > 0) {
+                                    var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => contansStudentUids.Contains(con.StudentUid) && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                                    if (contansClassIds != null && contansClassIds.Count > 0)
+                                    {
                                         where += " or c.ClasssId in(" + string.Join(",", contansClassIds) + ")";
                                     }
                                 }
@@ -887,15 +936,17 @@ namespace ADT.Repository
                                 //添加学员班级课时
                                 if (addUseCourses.Count > 0)
                                 {
-                                    
+
                                     db.Insertable<C_User_CourseTime>(addUseCourses).ExecuteCommand();
                                 }
                                 //更新学员班级课时
                                 if (upUseCourses.Count > 0)
                                 {
                                     var isUseClass = upUseCourses.Find(vl => vl.Course_UseTime > 0);
-                                    if (isUseClass != null) {
-                                        upUseCourses.ForEach(vl => {
+                                    if (isUseClass != null)
+                                    {
+                                        upUseCourses.ForEach(vl =>
+                                        {
                                             vl.Class_Course_UseTime = isUseClass.Class_Course_UseTime;
                                         });
                                     }
@@ -958,8 +1009,9 @@ namespace ADT.Repository
                                 string where = "";
                                 if (input.StudentUid > 0)
                                 {
-                                    where+= "c.StudentUid=@StudentUid or ";
-                                    if (shitUserClassIds != null && shitUserClassIds.Count > 0) {
+                                    where += "c.StudentUid=@StudentUid or ";
+                                    if (shitUserClassIds != null && shitUserClassIds.Count > 0)
+                                    {
                                         where += " c.ClasssId in(" + string.Join(",", shitUserClassIds) + ") or ";
                                     }
                                 }
@@ -973,7 +1025,7 @@ namespace ADT.Repository
                                     .AddParameters(new { workId = input.Id, StudentUid = input.StudentUid, TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = input.ListeningName }).First();
                                 if (anyValue != null)
                                 {
-                                    rsg.msg =wkTime+"此时间段，当天该课程老师或者该小班已有其它课程,无法排课";
+                                    rsg.msg = wkTime + "此时间段，当天该课程老师或者该小班已有其它课程,无法排课";
                                     rsg.code = 0;
                                     return rsg;
                                 }
@@ -986,6 +1038,50 @@ namespace ADT.Repository
                                 //添加记录
                                 recored.CampusId = teach.CampusId;
                                 recored.Msg = "新增试听课" + input.ListeningName + "_" + sub.SubjectName + "_" + pro.ProjectName + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime + ", 教师-" + teach.User_Name;
+                                //公共模块
+                                input.AT_Date = DateTime.Parse(wkTime);
+                                input.CreateTime = DateTime.Now;
+                                input.Contra_ChildNo = "";
+                                db.Insertable<C_Course_Work>(input).ExecuteCommand();
+                                recored.CreateTime = DateTime.Now;
+                                recored.CreateUid = input.CreateUid;
+                                db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                            }
+                            //留学规划
+                            else if (input.StudyMode == 8) {
+                                sys_user teach = db.Queryable<sys_user>().Where(it => it.User_ID == input.TeacherUid).First();
+                                //判断学员课程是否冲突
+                                string where = "";
+                                if (input.StudentUid > 0)
+                                {
+                                    where += "c.StudentUid=@StudentUid or ";
+                                    if (shitUserClassIds != null && shitUserClassIds.Count > 0)
+                                    {
+                                        where += " c.ClasssId in(" + string.Join(",", shitUserClassIds) + ") or ";
+                                    }
+                                }
+                                C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
+                                .Where("c.Id!=@workId and (" + where + "c.TeacherUid=@TeacherUid or c.ListeningName=@ListeningName) and c.StudyMode<>5 and " +
+                                "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                              " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                              " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                              " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                                ")")
+                                .AddParameters(new { workId = input.Id, StudentUid = input.StudentUid, TeacherUid = input.TeacherUid, AtDate = input.AT_Date.ToString("yyyy-MM-dd"), StartTime = input.StartTime, EndTime = input.EndTime, ListeningName = input.ListeningName }).First();
+                                if (anyValue != null)
+                                                            {
+                                                                rsg.msg = wkTime + "此时间段，当天该课程老师或者该小班已有其它课程,无法排课";
+                                                                rsg.code = 0;
+                                                                return rsg;
+                                                            }
+                                input.Work_Title = "留学规划_" + input.ListeningName;
+                                input.CampusId = teach.CampusId;
+                                TimeSpan span = Convert.ToDateTime(wkTime + " " + input.EndTime) - Convert.ToDateTime(wkTime + " " + input.StartTime);
+                                float spanHours = float.Parse(span.TotalMinutes.ToString()) / 60;
+                                input.CourseTime = spanHours;
+                                //添加记录
+                                recored.CampusId = teach.CampusId;
+                                recored.Msg = "新增留学规划_" + input.ListeningName + ",日期:" + wkTime + " 时间段:" + input.StartTime + "-" + input.EndTime + ", 教师-" + teach.User_Name;
                                 //公共模块
                                 input.AT_Date = DateTime.Parse(wkTime);
                                 input.CreateTime = DateTime.Now;
@@ -1232,12 +1328,20 @@ namespace ADT.Repository
                     db.BeginTran();
                     C_Course_Work work = db.Queryable<C_Course_Work>().Where(it => it.Id ==Id).First();
                     sys_user teach= db.Queryable<sys_user>().Where(it => it.User_ID == work.TeacherUid).First();
+                    //1对1
                     if (work.StudyMode == 1 && work.Work_Stutas == 0)
                     {
                         string where = "";
                         if (work.StudentUid > 0)
                         {
                             where = "c.StudentUid=@StudentUid or ";
+                            int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                            var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => con.StudentUid == work.StudentUid && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                            if (contansClassIds != null && contansClassIds.Count > 0)
+                            {
+                                where += " c.ClasssId in(" + string.Join(",", contansClassIds) + ") or ";
+                            }
+
                         }
                         C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
                             .Where("c.Id!=@workId and (" + where + " c.TeacherUid=@TeacherUid) and c.StudyMode!=5 and " +
@@ -1264,10 +1368,26 @@ namespace ADT.Repository
                         recored.CreateTime = DateTime.Now;
                         db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                     }
+                    //班课
                     else if (work.StudyMode == 2 && work.Work_Stutas == 0)
                     {
+                        string where = "";
+                        int childContracStatu = (int)ConstraChild_Status.RetrunClassOk;//排除退班的学生
+                        var contansStudentUids = db.Queryable<C_Contrac_Child>().Where(con => con.ClassId == work.ClasssId && con.StudyMode == 2 && con.Contrac_Child_Status != childContracStatu).Select(con => con.StudentUid).ToList();
+                        //判断该班课其中的学员是否也起冲突(不包含班课)
+                        if (contansStudentUids != null && contansStudentUids.Count > 0)
+                        {
+                            where += " or c.StudentUid in(" + string.Join(",", contansStudentUids) + ")";
+                            //判断该班课学员的其它班课是否也起冲突
+                            int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                            var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => contansStudentUids.Contains(con.StudentUid) && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                            if (contansClassIds != null && contansClassIds.Count > 0)
+                            {
+                                where += " or c.ClasssId in(" + string.Join(",", contansClassIds) + ")";
+                            }
+                        }
                         C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
-                        .Where("c.Id!=@workId and (c.ClasssId=@ClasssId or c.TeacherUid=@TeacherUid) and c.StudyMode!=5 and" +
+                        .Where("c.Id!=@workId and (c.ClasssId=@ClasssId or c.TeacherUid=@TeacherUid " + where + ") and c.StudyMode!=5 and" +
                         " ((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
                         " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                         " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
@@ -1276,7 +1396,7 @@ namespace ADT.Repository
                         .AddParameters(new { workId = Id, ClasssId = work.ClasssId, TeacherUid = work.TeacherUid, AtDate = upAtDate.ToString("yyyy-MM-dd"), StartTime = work.StartTime, EndTime = work.EndTime }).First();
                         if (anyValue != null)
                         {
-                            rsg.msg = "此时间段，当天该课程老师或者小班已有其它课程,无法排课";
+                            rsg.msg = "此时间段，当天该课程老师或者小班中学生已有其它课程,无法排课";
                             rsg.code = 0;
                             return rsg;
                         }
@@ -1293,10 +1413,20 @@ namespace ADT.Repository
 
 
                     }
+                    //试听
                     else if (work.StudyMode == 4 && work.Work_Stutas == 0)
                     {
+                        string where = "";
+                        if (work.StudentUid > 0) {
+                            int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                            var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => con.StudentUid == work.StudentUid && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                            if (contansClassIds != null && contansClassIds.Count > 0)
+                            {
+                                where += " or c.ClasssId in(" + string.Join(",", contansClassIds) + ")";
+                            }
+                        }
                         C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
-                        .Where("c.Id!=@workId and (c.StudentUid=@StudentUid or c.TeacherUid=@TeacherUid or c.ListeningName=@ListeningName) and c.StudyMode!=5 and " +
+                        .Where("c.Id!=@workId and (c.StudentUid=@StudentUid or c.TeacherUid=@TeacherUid or c.ListeningName=@ListeningName "+ where + ") and c.StudyMode!=5 and " +
                         "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
                         " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
                         " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
@@ -1356,7 +1486,8 @@ namespace ADT.Repository
                         db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                     }
                     //会议
-                    else if (work.StudyMode == 7) {
+                    else if (work.StudyMode == 7)
+                    {
                         C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
                         .Where("c.Id!=@workId and c.TeacherUid=@TeacherUid and c.StudyMode!=5 and " +
                         "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)) or" +
@@ -1373,6 +1504,42 @@ namespace ADT.Repository
                         recored.CreateUid = uid;
                         recored.CampusId = work.CampusId;
                         recored.Msg = teach.User_Name + " 教师会议时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + " - " + work.EndTime + "更改成" + upAtDate.ToString("yyyy/MM/dd") + " " + work.StartTime + " - " + work.EndTime;
+                        db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
+                    }
+                    else if (work.StudyMode == 8 && work.Work_Stutas == 0) {
+                        string where = "";
+                        if (work.StudentUid > 0)
+                        {
+                            int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
+                            var contansClassIds = db.Queryable<C_Contrac_Child>().Where(con => con.StudentUid == work.StudentUid && con.StudyMode == 2 && con.Contrac_Child_Status != contracStatus).Select(con => con.ClassId).ToList();
+                            if (contansClassIds != null && contansClassIds.Count > 0)
+                            {
+                                where += " or c.ClasssId in(" + string.Join(",", contansClassIds) + ")";
+                            }
+                        }
+                        C_Course_Work anyValue = db.Queryable<C_Course_Work>("c")
+                        .Where("c.Id!=@workId and (c.StudentUid=@StudentUid or c.TeacherUid=@TeacherUid " + where + ") and c.StudyMode!=5 and " +
+                        "((CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<=CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime)<CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime))" +
+                        " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                        " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.EndTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                        " or (CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)>CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@StartTime,108) AS datetime) and  CAST(convert(nvarchar,c.AT_Date,23)+' '+convert(nvarchar,c.StartTime,108) AS datetime)<CAST(convert(nvarchar,@AtDate,23)+' '+convert(nvarchar,@EndTime,108) AS datetime))" +
+                      ")")
+                        .AddParameters(new { workId = Id, StudentUid = work.StudentUid, TeacherUid = work.TeacherUid, AtDate = upAtDate.ToString("yyyy-MM-dd"), StartTime = work.StartTime, EndTime = work.EndTime}).First();
+                        if (anyValue != null)
+                        {
+                            rsg.code = 0;
+                            rsg.msg = "此时间段，当天该课程老师或者学员已有其它课程,无法拖拽";
+                            return rsg;
+                        }
+                        C_Course_Work_Recored recored = new C_Course_Work_Recored();
+                        if (work.AT_Date != upAtDate)
+                        {
+                            recored.Msg = "更改留学规划" + work.ListeningName+ "时间由原时间" + work.AT_Date.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime +
+                                "已改成" + upAtDate.ToString("yyyy/MM/dd") + " " + work.StartTime + "-" + work.EndTime;
+                        }
+                        recored.CampusId = work.CampusId;
+                        recored.CreateUid = uid;
+                        recored.CreateTime = DateTime.Now;
                         db.Insertable<C_Course_Work_Recored>(recored).ExecuteCommand();
                     }
                     else
