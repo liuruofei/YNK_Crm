@@ -108,8 +108,8 @@
             { type: 'numbers' },
             { field: 'Work_Title', title: '课程名称',width: 200 },
             {
-                field: 'AT_Date', title:'上课日期', templet: function (d) {
-                    return dateFtt("yyyy-MM-dd",d.AT_Date);
+                field: 'AT_Date', title: '上课日期', templet: function (d) {
+                    return dateFtt("yyyy-MM-dd", d.AT_Date.replace(/-/g,'/'));
                 }
             },
             { field: 'StartTime', title: '开始时间'},

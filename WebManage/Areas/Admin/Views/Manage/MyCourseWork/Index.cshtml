@@ -170,9 +170,10 @@
                     var result = data.data;
                     if (result.length > 0) {
                         for (var i = 0; i < result.length; i++) {
-                            var atDate = dateFtt("yyyy-MM-dd", result[i].AT_Date)
-                            var atStart = atDate + " " + result[i].StartTime;
-                            var atEnd = atDate + " " + result[i].EndTime;
+                            var iosAtDate = result[i].AT_Date.replace(/-/g, '/');
+                            var atDate = dateFormat("YYYY-mm-dd", iosAtDate)
+                            var atStart = atDate + "T" + result[i].StartTime;
+                            var atEnd = atDate + "T" + result[i].EndTime;
                             var backColor = 'yellowgreen';
                             if (result[i].StudyMode == 3) {
                                 backColor = '#b1b0a9';
@@ -220,8 +221,6 @@
                 success: function (layero, index) {
                     layero.css("left", pageX);
                     layero.css("top", pageY);
-                    //$(".layui-layer-tips").css("left", pageX);
-                    //$(".layui-layer-tips").css("top", pageY);
                 }
             });
         },
@@ -290,7 +289,7 @@
                     { field: 'Work_Title', title: '上课科目', sort: true },
                     {
                         field: 'AT_Date', title: '上课日期', sort: true, width: 120, templet: function (d) {
-                            return dateFtt("yyyy-MM-dd", d.AT_Date);
+                            return dateFtt("yyyy-MM-dd", d.AT_Date.replace(/-/g,'/'));
                         }
                     },
                     {
@@ -384,7 +383,6 @@
             };
         };
         return fmt;
-    }
-
+        }
     </script>
 }

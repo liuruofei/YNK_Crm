@@ -264,9 +264,10 @@
                     var result = data.data;
                     if (result.length > 0) {
                         for (var i = 0; i < result.length; i++) {
-                            var atDate = dateFtt("yyyy-MM-dd", result[i].AT_Date)
-                            var atStart = atDate + " " + result[i].StartTime;
-                            var atEnd = atDate + " " + result[i].EndTime;
+                            var iosAtDate = result[i].AT_Date.replace(/-/g, '/');
+                            var atDate = dateFtt("yyyy-MM-dd",iosAtDate)
+                            var atStart = atDate + "T" + result[i].StartTime;
+                            var atEnd = atDate + "T" + result[i].EndTime;
                             var isMokTeacherName = '  教师:' + result[i].TeacherName;
                             var backColor = 'yellowgreen';
                             if (result[i].StudyMode == 2) {
@@ -483,7 +484,7 @@
                             },
                             {
                                 field: 'AT_Date', title: '上课日期', sort: true, width: 120, templet: function (d) {
-                                    return dateFtt("yyyy-MM-dd", d.AT_Date);
+                                    return dateFtt("yyyy-MM-dd", d.AT_Date.replace(/-/g, '/'));
                                 }
                             },
                             {

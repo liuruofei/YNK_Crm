@@ -88,7 +88,7 @@
                     dataType: 'json',
                     callBack: function (r) {
                         if (r.WorkDate != null && r.WorkDate != undefined) {
-                            $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
+                            $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date.replace(/-/g,'/')));
                         }
                         if (r.SubjectId != null && r.ProjectId != null) {
                             bindUnit(r.ProjectId,r.UnitId);

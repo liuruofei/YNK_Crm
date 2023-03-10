@@ -390,7 +390,7 @@
                 type: 2,
                 width: "660px",
                 height: "530px",
-                content: vmodel.Id > 0 ? '@Url.Action("Edit")?ID=' + vmodel.Id : '@Url.Action("Add")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd",vmodel.workDate) + '&startTime=' + vmodel.startTime + '&endTime=' + vmodel.endTime,
+                    content: vmodel.Id > 0 ? '@Url.Action("Edit")?ID=' + vmodel.Id : '@Url.Action("Add")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd",vmodel.workDate.replace(/-/g, '/')) + '&startTime=' + vmodel.startTime + '&endTime=' + vmodel.endTime,
                 end: function () {
                     planSearch(1);
                 }
@@ -406,7 +406,7 @@
                 type: 2,
                 width: "660px",
                 height: "530px",
-                content: vmodel.Id > 0 ? '@Url.Action("EditComment")?ID=' + vmodel.Id : '@Url.Action("AddComment")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd",vmodel.workDate),
+                    content: vmodel.Id > 0 ? '@Url.Action("EditComment")?ID=' + vmodel.Id : '@Url.Action("AddComment")?studentUid=' + vmodel.StudentUid + '&dataStr=' + dateFtt("yyyy-MM-dd", vmodel.workDate.replace(/-/g, '/')),
                 end: function () {
                     planSearch(1);
                 }

@@ -101,7 +101,7 @@
                     dataType: 'json',
                     callBack: function (r) {
                         if (r.WorkDate != null && r.WorkDate != undefined) {
-                            $("input[name='WorkDate']").val(dateFtt("yyyy-MM-dd",r.WorkDate));
+                            $("input[name='WorkDate']").val(dateFtt("yyyy-MM-dd", r.WorkDate.replace(/-/g, '/')));
                         }
                                 //助教
                                 adminForm.load({

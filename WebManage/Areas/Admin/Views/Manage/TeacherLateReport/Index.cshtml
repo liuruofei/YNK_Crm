@@ -71,13 +71,14 @@
 @section js{
     <!-- js部分 -->
     <script>
-      var monthStatu =2;
-        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm', 'laydate'], function () {
+     var monthStatu =2;
+    layui.use(['form', 'util', 'admin', 'adminList', 'adminForm', 'laydate'], function () {
     var $ = layui.jquery;
     var util = layui.util;
     var admin = layui.admin;
     var adminList = layui.adminList;
     var laydate = layui.laydate;
+         
      laydate.render({
          elem: '#StartTime',
          type: 'date'
@@ -96,10 +97,19 @@
         cols: [[
             { type: 'numbers' },
             { field: 'TeacherName', title: '教师姓名', sort: true },
-            { field: 'Work_Title', title: '课程名称', fixed: 'left', sort: true },
+            { field: 'Work_Title', title: '课程名称', sort: true },
             { field: 'CourseTimeFmt', title: '课程时间', sort: true },
-            { field: 'InSchoolTime', title: '教师到校时间', sort: true },
-            { field: 'LateMinute', title: ' 迟到分钟', sort: true },
+            { field: 'InSchoolTimeFmt', title: '教师到校时间', sort: true },
+            {
+                field: 'LateMinute', title: ' 迟到分钟', sort: true, templet: function (d) {
+                    if (d.LateMinute.toString().indexOf(".") > 0) {
+                        return d.LateMinute.toString().split(".")[0];
+                    }
+                    else {
+                        return d.LateMinute;
+                    }
+                }
+            },
         ]],
         done: function (res, curr, count) {
 

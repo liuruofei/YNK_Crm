@@ -68,7 +68,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             .Select<TeacherLateModel>("*").ToList();
             list.ForEach(em =>
             {
-                em.CourseTimeFmt = em.AT_Date.ToString("yyyy-MM-dd")+""+em.StartTime;
+                em.CourseTimeFmt = em.AT_Date.ToString("yyyy-MM-dd")+" "+em.StartTime;
+                em.InSchoolTimeFmt = em.InSchoolTime.ToString("yyyy-MM-dd HH:mm");
             });
             pageModel.data = list;
             pageModel.code = 0;

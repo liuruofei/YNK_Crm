@@ -90,7 +90,7 @@
                     dataType: 'json',
                     callBack: function (r) {
                         if (r.AT_Date != null && r.AT_Date != undefined) {
-                            $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
+                            $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date.replace(/-/g, '/')));
                         }
                         console.log(r);
                     }

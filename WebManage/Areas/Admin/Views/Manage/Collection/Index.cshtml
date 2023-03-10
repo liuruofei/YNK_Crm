@@ -16,13 +16,13 @@
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">时间</label>
                         <div class="layui-input-inline mr0">
-                            <input  name="StartTime" class="layui-input" type="text" placeholder="登记开始时间" />
+                            <input  name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="登记开始时间"  autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">—</label>
                         <div class="layui-input-inline mr0">
-                            <input  name="EndTime" class="layui-input" type="text" placeholder="登记截止时间" />
+                            <input  name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off"/>
                         </div>
                     </div>
                     <div class="layui-inline">
@@ -72,13 +72,21 @@
 @section js{
     <!-- js部分 -->
     <script>
-        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm'], function () {
+        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm','laydate'], function () {
     var $ = layui.jquery;
     var util = layui.util;
     var admin = layui.admin;
     var adminList = layui.adminList;
     var adminForm = layui.adminForm;
-
+    var laydate = layui.laydate;
+    laydate.render({
+        elem: '#StartTime',
+        type: 'date'
+    });
+    laydate.render({
+        elem: '#EndTime',
+        type: 'date'
+    });
     // 渲染表格
     var insTb = adminList.tableLayUI({
         elem: '#userTable',

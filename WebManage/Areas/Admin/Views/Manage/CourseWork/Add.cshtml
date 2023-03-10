@@ -473,7 +473,7 @@
                             $("#spanStudentName").text("上课学员");
                         }
                         if (r != null && r.AT_Date != undefined) {
-                            $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date));
+                            $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date.replace(/-/g,'/')));
                         }
                         if (r != null && r.RangTimeId < 1) {
                             $("#customizedRange").css("display", "block");
