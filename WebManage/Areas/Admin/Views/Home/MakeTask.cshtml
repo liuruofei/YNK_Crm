@@ -1,0 +1,219 @@
+﻿<div class="layui-card-body">
+    <h2 style="font-weight:700;width:100%;text-align:center">所有用户任务</h2>
+    <div id='calendar'></div>
+    <div id="CreatTaskCotent" class="taskDilog">
+        <form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+            <input name="taskId" type="hidden" />
+            <div class="layui-form-item">
+                <label class="layui-form-label">任务标题</label>
+                <div class="layui-input-block">
+                    <input name="Title" placeholder="请输入任务标题" class="layui-input" lay-verify="required" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">用户</label>
+                <div class="layui-input-block">
+                    <select name="SysUid"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-inline" style="display:inline">
+                    <label class="layui-form-label">开始日期</label>
+                    <div class="layui-input-inline">
+                        <input name="StartTime" id="StartTime" type="text" class="layui-input" />
+                    </div>
+                </div>
+                <div class="layui-inline" style="display:inline">
+                    <label class="layui-form-label">截止日期</label>
+                    <div class="layui-input-inline">
+                        <input name="EndTime" id="EndTime" type="text" class="layui-input" />
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">任务内容</label>
+                <div class="layui-input-block">
+                    <textarea name="TaskRemarks" style="width:98%;height:120px;" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item text-right">
+                <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+                <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+@section css{
+    <link href="/assets/libs/fullCalendar/main.css" rel="stylesheet" />
+   <style>
+       .taskDilog {
+           display:none;
+           width: 680px;
+           height:450px;
+           position: fixed;
+           top: 30%;
+           left: 30%;
+           z-index: 66;
+           background-color: white;
+           padding-top:20px;
+           box-shadow: 10px 10px 10px 10px rgb(29 29 31 / 9%);
+       }
+       .riliWinner {
+           background-color: darkgray;
+           opacity:0.3;
+       }
+       body {
+           margin: 6px 10px;
+           padding: 0;
+           font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+           font-size: 14px;
+       }
+
+       #calendar {
+           max-width: 100%;
+           margin: 0 20px;
+       }
+
+       .fc-daygrid-dot-event {
+           display: block !important;
+           align-items: center;
+           padding: 2px 0;
+           /*background-color: yellowgreen;*/
+       }
+
+       .fc-h-event .fc-event-main-frame {
+           /* display: flex; */
+           flex-wrap: wrap;
+       }
+   </style>
+}
+
+@section js{
+    <script src="/assets/libs/fullCalendar/main.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                allDayText: 'all-day',
+                locale: "zh",//中文
+                navLinks: false, // can click day/week names to navigate views
+                selectable: false,
+                selectMirror: true,
+                allDaySlot: true,//allday 整天的日程是否显示
+                displayEventEnd: false,//允许展示时间段
+                showNonCurrentDates: true,//true显示非本月日期
+                scrollTime: '07:00',//默认时间
+                slotMinTime: '07:00',//最小时间
+                slotMaxTime: '22:00',//最大时间
+                //设置日历y轴上显示的时间文本格式
+                slotLabelFormat: [
+                    { hour: '2-digit', minute: '2-digit', omitZeroMinute: false, hour12: false, meridiem: 'short' }
+                ],
+                dateClick: function (date, jsEvent, view) { //单个时间点击
+                    var dataStr = dateFtt("yyyy-MM-dd", date.dateStr.replace(/-/g,'/'));
+                    showEditModel(0, dataStr);
+                },
+                eventClick: function (info) {
+                    //单元点击事件
+                    showEditModel(info.event.id);
+                },
+                editable:false,
+                dayMaxEvents: true, // allow "more" link when too many events
+                views: {
+                    dayGridMonth: {
+                        dayMaxEventRows: 3
+                    }
+                },
+                events: function (arg, callback) {
+                    var events = [];
+                    var startStr = dateFtt("yyyy-MM-dd", arg.startStr);
+                    var endStr = dateFtt("yyyy-MM-dd", arg.endStr);
+                    $.ajax({
+                        url: '@Url.Action("QueryTaskSource")',
+                        dataType: 'json',
+                        type: 'post',
+                        data: { startStr: startStr, endStr: endStr},
+                        success: function (data) {
+                            var result = data.data;
+                            if (result.length > 0) {
+                                for (var i = 0; i < result.length; i++) {
+                                    var atStart = dateFtt("yyyy-MM-dd", result[i].StartDate.replace(/-/g, '/'))+ "T" + result[i].StartTime;
+                                    var atEnd = dateFtt("yyyy-MM-dd", result[i].EndDate.replace(/-/g, '/')) + "T" + result[i].EndTime;
+                                    var backColor = '#3788d8';
+                                    if (result[i].TaskStatus = 1)
+                                        backColor = '#812c26';
+                                    if (result[i].TaskStatus == 2)
+                                        backColor = '#15971c';
+                                    events.push({
+                                        id: result[i].Id,
+                                        title:result[i].User_Name+ '-' + result[i].Title,
+                                        start: atStart,
+                                        end: atEnd,
+                                        display: 'block',
+                                        color: '#CCCCFF',//设置颜色#666666
+                                        backgroundColor: backColor,//设置背景颜色
+                                        borderColor: "#e0e0e0",   //日程边框颜色
+                                    });
+                                }
+                            }
+                            callback(events);
+                        }
+                   });
+                }
+            });
+            calendar.render();
+            function showEditModel(taskId, dataStr) {
+                layui.use(['form', 'admin', 'adminList', 'adminForm'], function () {
+                    var adminList = layui.adminList;
+                    adminList.form({
+                    title: (taskId ? '修改' : '添加') + '任务',
+                    type: 2,
+                    width: "860px",
+                    height: "700px",
+                    content: taskId ? '@Url.Action("AddTask")?ID=' + taskId : '@Url.Action("AddTask")?ID=0&dataStr=' + dataStr,
+                    end: function () {
+                        calendar.refetchEvents();
+                    }
+                });
+                });
+            }
+        });
+        layui.use(['form', 'admin', 'adminForm'], function () {
+            var adminForm = layui.adminForm;
+            var form = layui.form;
+            form.on('submit(modelUserSubmit)', function (data) {
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveTask")' : '@Url.Action("SaveTask")',
+                    data: data.field,
+                    callBack: function (result) {
+                        layer.msg(result.msg);
+                    }
+                })
+                return false;
+            });
+         });
+     function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+    </script>
+}

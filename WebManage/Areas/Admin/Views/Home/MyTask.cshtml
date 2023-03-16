@@ -1,0 +1,135 @@
+﻿<div class="layui-card-body">
+    <h2 style="font-weight:700;width:100%;text-align:center">我的任务</h2>
+    <div id='calendar'></div>
+</div>
+@section css{
+    <link href="/assets/libs/fullCalendar/main.css" rel="stylesheet" />
+    <style>
+    </style>
+}
+
+@section js{
+    <script src="/assets/libs/fullCalendar/main.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                initialView: 'timeGridWeek',
+                themeSystem: 'bootstrap3',
+                locale: "zh",//中文
+                navLinks: true, // can click day/week names to navigate views
+                selectable: false,
+                selectMirror: true,
+                allDaySlot:true,//allday 整天的日程是否显示
+                showNonCurrentDates:true,//true显示非本月日期
+                displayEventEnd: false,//允许展示时间段
+                scrollTime: '07:00',//默认时间
+                slotMinTime: '07:00',//最小时间
+                slotMaxTime: '22:00',//最大时间
+                //设置日历y轴上显示的时间文本格式
+                slotLabelFormat: [
+                    { hour: '2-digit', minute: '2-digit', omitZeroMinute: false, hour12: false, meridiem: 'short' }
+                ],
+                select: function (arg) {
+                },
+                dateClick: function (date, jsEvent, view) { //单个时间点击
+                },
+                eventClick: function (info) {
+                    //单元点击事件
+                    showEditModel(info.event.id);
+                },
+                editable: true,
+                dayMaxEvents: false, // allow "more" link when too many events
+                events: function (arg, callback) {
+                    var events = [];
+                    var startStr = dateFtt("yyyy-MM-dd", arg.startStr);
+                    var endStr = dateFtt("yyyy-MM-dd", arg.endStr);
+                    $.ajax({
+                        url: '@Url.Action("QueryTaskSource")',
+                        dataType: 'json',
+                        type: 'post',
+                        data: { startStr: startStr, endStr: endStr},
+                        success: function (data) {
+                            var result = data.data;
+                            if (result.length > 0) {
+                                for (var i = 0; i < result.length; i++) {
+                                    var atStart = dateFtt("yyyy-MM-dd", result[i].StartDate.replace(/-/g, '/'))+ "T" + result[i].StartTime;
+                                    var atEnd = dateFtt("yyyy-MM-dd", result[i].EndDate.replace(/-/g, '/')) + "T" + result[i].EndTime;
+                                    var backColor = '#3788d8';
+                                    if (result[i].TaskStatus = 1)
+                                        backColor = '#812c26';
+                                    if (result[i].TaskStatus == 2)
+                                        backColor = '#15971c';
+                                    events.push({
+                                        id: result[i].Id,
+                                        title:"("+result[i].User_Name + ')' + result[i].Title,
+                                        start: atStart,
+                                        end: atEnd,
+                                        display: 'block',
+                                        color: '#CCCCFF',//设置颜色#666666
+                                        backgroundColor: backColor,//设置背景颜色
+                                    });
+                                }
+                            }
+                            callback(events);
+                        }
+                   });
+                }
+            });
+            calendar.render();
+            function showEditModel(taskId, dataStr) {
+                layui.use(['form', 'admin', 'adminList', 'adminForm'], function () {
+                    var adminList = layui.adminList;
+                    adminList.form({
+                    title:'更改任务状态',
+                    type: 2,
+                    width: "860px",
+                    height: "760px",
+                    content:'@Url.Action("EditTask")?ID=' + taskId,
+                    end: function () {
+                        calendar.refetchEvents();
+                    }
+                });
+                });
+            }
+
+        });
+        layui.use(['form', 'admin', 'adminForm'], function () {
+            var adminForm = layui.adminForm;
+            var form = layui.form;
+            form.on('submit(modelUserSubmit)', function (data) {
+                adminForm.Save({
+                    url: KeyId ? '@Url.Action("SaveTask")' : '@Url.Action("SaveTask")',
+                    data: data.field,
+                    callBack: function (result) {
+                        layer.msg(result.msg);
+                    }
+                })
+                return false;
+            });
+         });
+     function dateFtt(fmt, val) { //author: meizz
+            var date = new Date(val);
+            var o = {
+                "M+": date.getMonth() + 1,     //月份
+                "d+": date.getDate(),     //日
+                "h+": date.getHours(),     //小时
+                "m+": date.getMinutes(),     //分
+                "s+": date.getSeconds(),     //秒
+                "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                "S": date.getMilliseconds()    //毫秒
+            };
+            if (/(y+)/.test(fmt))
+                fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+            for (var k in o)
+                if (new RegExp("(" + k + ")").test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            return fmt;
+        }
+    </script>
+}
