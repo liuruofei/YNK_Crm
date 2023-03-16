@@ -43,14 +43,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         {
             int total = 0;
             PageList<MockUserModel> pageModel = new PageList<MockUserModel>();
-            var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Contrac_User,C_Subject, C_Project,C_Project_Unit>((wk,u,sub,pro,unt)=>new object[]{JoinType.Left,wk.StudentUid== u.StudentUid, JoinType.Left,wk.SubjectId==sub.SubjectId,JoinType.Left,wk.ProjectId==pro.ProjectId,JoinType.Left,wk.UnitId==unt.UnitId })
+            var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Contrac_User,C_Subject, C_Project,C_Project_Unit,C_Unit_Paper>((wk,u,sub,pro,unt,pp)=>new object[]{JoinType.Left,wk.StudentUid== u.StudentUid, JoinType.Left,wk.SubjectId==sub.SubjectId,JoinType.Left,wk.ProjectId==pro.ProjectId,JoinType.Left,wk.UnitId==unt.UnitId, JoinType.Left,wk.PaperId==pp.PaperId })
                 .Where((wk, u, sub, pro, unt) => wk.StudyMode==5&&wk.StudentUid==studentUid)
                 .WhereIF(subjectId>0,(wk, u, sub, pro, unt)=>wk.SubjectId==subjectId)
                 .WhereIF(projectId>0, (wk, u, sub, pro, unt) => wk.ProjectId == projectId)
                 .WhereIF(unitId > 0, (wk, u, sub, pro, unt) => wk.UnitId == unitId)
                 .WhereIF(!string.IsNullOrEmpty(title), (wk, u, sub, pro, unt) => wk.Work_Title.Contains(title))
-                .Select((wk, u, sub, pro, unt) => new  MockUserModel{Id=wk.Id,StudentUid=u.StudentUid,Student_Name=u.Student_Name,StudyMode=wk.StudyMode,SubjectId=wk.SubjectId,ProjectId=wk.ProjectId,UnitId=wk.UnitId,SubjectName=sub.SubjectName,
-                    ProjectName=pro.ProjectName,UnitName=unt.UnitName,Score=wk.Score,AT_Date=wk.AT_Date,EndTime=wk.EndTime,StartTime=wk.StartTime}
+                .Select((wk, u, sub, pro, unt,pp) => new  MockUserModel{Id=wk.Id,StudentUid=u.StudentUid,Student_Name=u.Student_Name,StudyMode=wk.StudyMode,SubjectId=wk.SubjectId,ProjectId=wk.ProjectId,UnitId=wk.UnitId,SubjectName=sub.SubjectName,
+                    ProjectName=pro.ProjectName,UnitName=unt.UnitName,Score=wk.Score,AT_Date=wk.AT_Date,EndTime=wk.EndTime,StartTime=wk.StartTime,MockLevel=wk.MockLevel,PaperCode=pp.PaperCode}
                 ).ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;
@@ -69,13 +69,13 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public virtual IActionResult ExportPlan(int studentUid, int subjectId, int projectId, int unitId, string title)
         {
             var student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(n => n.StudentUid == studentUid).First();
-            var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Contrac_User, C_Subject, C_Project, C_Project_Unit>((wk, u, sub, pro, unt) => new object[] { JoinType.Left, wk.StudentUid == u.StudentUid, JoinType.Left, wk.SubjectId == sub.SubjectId, JoinType.Left, wk.ProjectId == pro.ProjectId, JoinType.Left, wk.UnitId == unt.UnitId })
+            var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Contrac_User, C_Subject, C_Project, C_Project_Unit, C_Unit_Paper>((wk, u, sub, pro, unt, pp) => new object[] { JoinType.Left, wk.StudentUid == u.StudentUid, JoinType.Left, wk.SubjectId == sub.SubjectId, JoinType.Left, wk.ProjectId == pro.ProjectId, JoinType.Left, wk.UnitId == unt.UnitId, JoinType.Left, wk.PaperId==pp.PaperId })
                    .Where((wk, u, sub, pro, unt) => wk.StudyMode == 5 && wk.StudentUid == studentUid)
                    .WhereIF(subjectId > 0, (wk, u, sub, pro, unt) => wk.SubjectId == subjectId)
                    .WhereIF(projectId > 0, (wk, u, sub, pro, unt) => wk.ProjectId == projectId)
                    .WhereIF(unitId > 0, (wk, u, sub, pro, unt) => wk.UnitId == unitId)
                    .WhereIF(!string.IsNullOrEmpty(title), (wk, u, sub, pro, unt) => wk.Work_Title.Contains(title))
-                   .Select((wk, u, sub, pro, unt) => new MockUserModel
+                   .Select((wk, u, sub, pro, unt,pp) => new MockUserModel
                    {
                        Id = wk.Id,
                        StudentUid = u.StudentUid,
@@ -90,7 +90,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                        Score = wk.Score,
                        AT_Date = wk.AT_Date,
                        EndTime = wk.EndTime,
-                       StartTime = wk.StartTime
+                       StartTime = wk.StartTime,
+                       MockLevel=wk.MockLevel,
+                       PaperCode=pp.PaperCode
                    }
                    ).ToList();
             //导出代码
@@ -108,7 +110,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             headStyle.SetFont(headFont);
             var sheet = workbook.CreateSheet(student.Student_Name + "模考统计");
             sheet.DefaultColumnWidth = 25;
-            string[] cellNames = new string[] {"模式","姓名","日期", "类别", "科目", "单元", "成绩" };
+            string[] cellNames = new string[] {"模式","姓名","日期", "类别", "科目", "单元", "成绩","等级","试卷编号"};
             //循环行
             var row0 = sheet.CreateRow(0);
             for (var i = 0; i < cellNames.Length; i++)
@@ -143,6 +145,12 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     var cell6 = row.CreateCell(6);
                     cell6.SetCellValue(list[y].Score);
                     cell6.CellStyle = headStyle;
+                    var cell7 = row.CreateCell(7);
+                    cell7.SetCellValue(list[y].MockLevel);
+                    cell7.CellStyle = headStyle;
+                    var cell8 = row.CreateCell(8);
+                    cell8.SetCellValue(list[y].PaperCode);
+                    cell8.CellStyle = headStyle;
                 }
             }
             //保存

@@ -102,7 +102,7 @@
                     url: '@Url.Action("SaveCommend")',
                     data: data.field,
                     callBack: function () {
-                        admin.closeThisDialog();
+                        //admin.closeThisDialog();
                     }
                 })
             }
@@ -124,7 +124,7 @@
                 url: '@Url.Action("SaveWork")',
                 data: { Id: $("input[name='Id']").val(),CourseWork: cwork},
                 callBack: function (data) {
-                    admin.closeThisDialog();
+                   //admin.closeThisDialog();
                 }
              })
        });

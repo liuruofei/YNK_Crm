@@ -130,7 +130,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         [UsersRoleAuthFilter("V-353", "Add,Edit")]
         public IActionResult SaveCommend(C_Course_Work vmodel)
         {
-            ResResult rsg = new ResResult() { code = 0, msg = "保存失败" };
+            ResResult rsg = new ResResult() { code = 0, msg = "保存点评失败" };
             if (vmodel != null)
             {
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
@@ -204,7 +204,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     if (result > 0)
                     {
                         rsg.code = 200;
-                        rsg.msg = "更新成功";
+                        rsg.msg = "保存点评成功";
                     }
                 }
             }

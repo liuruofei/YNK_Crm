@@ -385,7 +385,7 @@
                             //绑定课程列表
                             $("#courseCotent").html("");
                             $.each(data.data, function (index, item) {
-                                var courseitemStr = "<div class='courseitem'><div style='flex:1 auto;padding-top:3px;padding-left:3px;'>" + item.Work_Title + "，日期:" + item.AT_Date + ",时间:" + item.StartTime + "-" + item.EndTime + "</div>";
+                                var courseitemStr = "<div class='courseitem'><div style='flex:1 auto;padding-top:3px;padding-left:3px;'>" + item.Work_Title + "，日期:" + dateFtt('yyyy-MM-dd',item.AT_Date.replace(/-/g,'/')) + ",时间:" + item.StartTime + "-" + item.EndTime + "</div>";
                                 if (item.Work_Stutas < 1 && item.TeacherOpenId != "" && item.TeacherOpenId == openid) {
                                     courseitemStr += "<input value='点评' type='button' style='width:62px;height=45px' onclick='btnopenComment(" + item.Id + ")'/>";
                                 }

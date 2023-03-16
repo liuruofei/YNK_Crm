@@ -66,5 +66,16 @@ namespace WebManage.Models.Res
         /// </summary>
         public string Score { get; set; }
 
+        /// <summary>
+        /// 模块等级
+        /// </summary>
+        public string MockLevel { get; set; }
+
+
+        /// <summary>
+        /// 试卷编号
+        /// </summary>
+        public string PaperCode { get; set; }
+
     }
 }

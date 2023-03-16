@@ -87,8 +87,8 @@
             {
                 field: 'RoomName', title: '教室',sort:true,width: 220},
             {
-                field: 'AT_Date', title: '上课日期',width: 120,sort:true, templet: function (d) {
-                    return dateFtt("yyyy-MM-dd", d.AT_Date);
+                field: 'AT_Date', title: '上课日期', width: 120, sort: true, templet: function (d) {
+                    return dateFtt("yyyy-MM-dd", d.AT_Date.replace(/-/g,'/'));
                 }
             },
             {

@@ -228,10 +228,10 @@
                                 plan.pageTotal = ((rou.length - yushu) / plan.pageSize) + (yushu > 0 ? 1 : 0);
                                 for (var j = 0; j < result.length; j++) {
                                     if (j == 0) {
-                                        plan.starttime = dateFtt("yyyy-MM-dd", result[j].WorkDate);
+                                        plan.starttime = dateFtt("yyyy-MM-dd", result[j].WorkDate.replace(/-/g,'/'));
                                     }
                                     if (j == result.length - 1) {
-                                        plan.endtime = dateFtt("yyyy-MM-dd", result[j].WorkDate);
+                                        plan.endtime = dateFtt("yyyy-MM-dd", result[j].WorkDate.replace(/-/g, '/'));
                                     }
                                 }
                                 for (var y = 1; y <= plan.pageTotal; y++) {
@@ -265,7 +265,7 @@
                     trAppend += "<tr>";
                     trAppend += "<td style='width:120px;min-width:76px'>日期</td>";
                     for (var j = 0; j < result.length; j++) {
-                        trAppend += "<td style='text-align:center;min-width:160px;'> " + dateFtt("yyyy-MM-dd", result[j].WorkDate) + " </td>";
+                        trAppend += "<td style='text-align:center;min-width:160px;'> " + dateFtt("yyyy-MM-dd", result[j].WorkDate.replace(/-/g, '/')) + " </td>";
                     }
                     trAppend += "</tr>";
                 }
@@ -388,7 +388,7 @@
             }
             $.each(teacherGroup, function(index,item) {
                 var tcName = $(item).val();
-                var tmDay = dateFtt("yyyy-MM-dd",$(item).attr("tmDay"));
+                var tmDay = dateFtt("yyyy-MM-dd", $(item).attr("tmDay").replace(/-/g, '/'));
                 var tmRange = $(item).attr("tmRange");
                 sendModel.timeArr.push({ tcName: tcName, tmDay: tmDay, tmRange: tmRange});
             })

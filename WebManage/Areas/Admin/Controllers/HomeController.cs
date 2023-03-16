@@ -4,10 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using ADT.Models;
+using ADT.Models.ResModel;
 using ADT.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SqlSugar;
 using WebManage.Models;
+using WebManage.Models.Res;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,8 +21,10 @@ namespace WebManage.Areas.Admin.Controllers
     {
         private ISys_MenuService _sys_MenuService;
         private ISys_RoleMenuFunctionService _Sys_RoleMenuFunctionService;
-        public HomeController(ISys_MenuService sys_MenuService, ISys_RoleMenuFunctionService Sys_RoleMenuFunctionService)
+        private ICurrencyService _currencyService;
+        public HomeController(ICurrencyService currencyService, ISys_MenuService sys_MenuService, ISys_RoleMenuFunctionService Sys_RoleMenuFunctionService)
         {
+            _currencyService = currencyService;
             _sys_MenuService = sys_MenuService;
             _Sys_RoleMenuFunctionService = Sys_RoleMenuFunctionService;
         }
@@ -40,6 +45,148 @@ namespace WebManage.Areas.Admin.Controllers
             //System.Threading.Thread.Sleep(3 * 1000);
             return View();
         }
+
+        public IActionResult MyTask()
+        {
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            string[] adminRoleName = new string[] { "校长", "教学校长", "超级管理员" };
+            var userRole = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new Object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
+                .Where((u, ur, r) => u.User_ID == userId).Select<sys_role>((u, ur, r) => r).First();
+            ///判断是否是管理员
+            if (userRole != null && adminRoleName.Contains(userRole.Role_Name))
+                return View("MakeTask");
+            else
+                return View("MyTask");
+        }
+
+        public IActionResult MakeTask()
+        {
+            return View();
+        }
+        public IActionResult AddTask(int ID,string dataStr)
+        {
+            ViewBag.ID = ID;
+            ViewBag.DataStr = dataStr;
+            return View();
+        }
+
+        public IActionResult EditTask(int ID)
+        {
+            ViewBag.ID = ID;
+            return View();
+        }
+
+
+        public IActionResult FindTask(int ID)
+        {
+            dynamic list;
+            if (ID > 0)
+            {
+                list = _currencyService.DbAccess().Queryable<C_TeacherTask>().Where(f => f.Id == ID).First();
+            }
+            else
+            {
+                list = new { };
+            }
+            return Json(list);
+        }
+
+        /// <summary>
+        /// 查询老师
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult QuerySysUser()
+        {
+            var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
+            ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
+            List<sys_user> list = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Inner, u.User_ID == ur.UserRole_UserID, JoinType.Inner, ur.UserRole_RoleID == r.Role_ID })
+                .Where((u, ur, r) => u.CampusId == Convert.ToInt32(campusId) && u.User_IsDelete == 2).ToList();
+            list.Add(new sys_user { User_ID = "", User_Name = "-请选择用户-", User_CreateTime = DateTime.Now });
+            rsg.data = list.OrderByDescending(n => n.User_CreateTime).ToList();
+            return Json(rsg);
+        }
+
+
+        //保存任务
+        public IActionResult SaveTask(C_TeacherTask vmodel)
+        {
+            ResResult rsg = new ResResult() { code = 0, msg = "保存失败" };
+            if (vmodel != null)
+            {
+               
+                var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+                if (string.IsNullOrEmpty(vmodel.SysUid))
+                {
+                    rsg.msg = "请选择相关用户";
+                    return Json(rsg);
+                }
+                if (string.IsNullOrEmpty(vmodel.Title))
+                {
+                    rsg.msg = "任务标题不能为空";
+                    return Json(rsg);
+                }
+                if (vmodel.Id < 1)
+                {
+                    vmodel.TaskStatus = 0;
+                    vmodel.CreateUid = userId;
+                    vmodel.CreatTime = DateTime.Now;
+                    rsg.code = _currencyService.DbAccess().Insertable<C_TeacherTask>(vmodel).ExecuteCommand();
+                }
+                else {
+                    var model = _currencyService.DbAccess().Queryable<C_TeacherTask>().Where(c => c.Id == vmodel.Id).First();
+                    vmodel.CreateUid = model.CreateUid;
+                    vmodel.CreatTime = model.CreatTime;
+                    rsg.code = _currencyService.DbAccess().Updateable<C_TeacherTask>(vmodel).ExecuteCommand();
+                }
+                if (rsg.code > 0)
+                {
+                    rsg.code = 200;
+                    rsg.msg = "保存任务成功";
+                }
+               
+            }
+            else
+            {
+                rsg.msg = "缺少参数";
+            }
+            return Json(rsg);
+        }
+
+        /// <summary>
+        /// 获取任务列表
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="startStr"></param>
+        /// <param name="endStr"></param>
+        /// <returns></returns>
+        public IActionResult QueryTaskSource(string startStr, string endStr)
+        {
+            ResResult reg = new ResResult() { code = 200, msg = "获取成功" };
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            string[] adminRoleName = new string[] { "校长", "教学校长", "超级管理员" };
+            var userRole = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new Object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
+                 .Where((u, ur, r) => u.User_ID == userId).Select<sys_role>((u, ur, r) => r).First();
+            var listTask = _currencyService.DbAccess().Queryable<C_TeacherTask, sys_user>((tk, u) => new Object[] { JoinType.Left, tk.SysUid == u.User_ID })
+                .Where((tk, u) => tk.StartDate >= DateTime.Parse(startStr) && tk.EndDate <= DateTime.Parse(endStr)).WhereIF(!adminRoleName.Contains(userRole.Role_Name), (tk, u) => tk.SysUid.Equals(userId))
+                .Select<TeacherTaskModel>((tk, u) => new TeacherTaskModel
+                {
+                    Id = tk.Id,
+                    SysUid = tk.SysUid,
+                    Title = tk.Title,
+                    User_Name = u.User_Name,
+                    StartDate=tk.StartDate,
+                    EndDate=tk.EndDate,
+                    StartTime = tk.StartTime,
+                    EndTime = tk.EndTime,
+                    TaskStatus = tk.TaskStatus,
+                    TaskComment = tk.TaskComment,
+                    TaskRemarks=tk.TaskRemarks
+                }).ToList();
+            reg.data = listTask;
+            return Json(reg);
+        }
+
+
 
         /// <summary>
         /// 获取菜单信息

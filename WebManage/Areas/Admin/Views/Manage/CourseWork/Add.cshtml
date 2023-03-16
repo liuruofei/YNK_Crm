@@ -876,7 +876,7 @@
             form.on('select(ProjectId)', function (data) {
                 var crrtProjectId = data.value;
                 var studyModel = $("select[name='StudyMode']").val();
-                if (crrtProjectId > 0 &&(studyModel== 5||studyModel== 6)) {
+                if (crrtProjectId > 0 && studyModel != 3 && studyModel != 7) {
                     $("#PartUnit").show();
                     bindUnit(crrtProjectId);
                 }

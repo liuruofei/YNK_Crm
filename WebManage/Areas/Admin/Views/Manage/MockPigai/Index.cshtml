@@ -228,7 +228,7 @@
             { field: 'Work_Title', title: '考试名称', sort: true},
             {
                 field: 'AT_Date', title: '考试日期', width: 120, sort: true, templet: function (d) {
-                    return dateFtt("yyyy-MM-dd",d.AT_Date);
+                    return dateFtt("yyyy-MM-dd", d.AT_Date.replace(/-/g, '/'));
                 }
             },
             {

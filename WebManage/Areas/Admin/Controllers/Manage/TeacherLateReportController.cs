@@ -42,8 +42,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="subjectId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public IActionResult QueryWorkSource(string startTime, string endTime, int monthStatu)
+        public IActionResult QueryWorkSource(string startTime, string endTime, int monthStatu, int page = 10, int limit = 10)
         {
+            int total = 0;
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             PageList<TeacherLateModel> pageModel = new PageList<TeacherLateModel>();
             StringBuilder manwhere = new StringBuilder("");
@@ -65,13 +66,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             sql.Append(" where  wk.CampusId=" + campusId + manwhere.ToString()+")");
             List<TeacherLateModel> list = _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql")
             .AddParameters(new { startStr = startTime, endStr = endTime })
-            .Select<TeacherLateModel>("*").ToList();
+            .Select<TeacherLateModel>("*").ToPageList(page, limit,ref total);
             list.ForEach(em =>
             {
                 em.CourseTimeFmt = em.AT_Date.ToString("yyyy-MM-dd")+" "+em.StartTime;
                 em.InSchoolTimeFmt = em.InSchoolTime.ToString("yyyy-MM-dd HH:mm");
             });
             pageModel.data = list;
+            pageModel.count = total;
             pageModel.code = 0;
             pageModel.msg = "获取成功";
             return Json(pageModel);

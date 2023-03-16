@@ -61,5 +61,16 @@ namespace WebManage.Models.Res
 
         public string Unit_TimeName { get; set; }
         public string Unit_TimeType { get; set; }
+
+        /// <summary>
+        /// 模考等级
+        /// </summary>
+        public string MockLevel { get; set; }
+
+
+        /// <summary>
+        /// 试卷编号
+        /// </summary>
+        public string PaperCode { get; set; }
     }
 }
