@@ -5,13 +5,17 @@
                 <button class="layui-btn" type="button" id="preWeek">Pre</button>
                 <button class="layui-btn" type="button" id="nextWeek">Next</button>
             </div>*@
-        <div style="text-align:center;flex:1;padding-right:20px;position:relative">
+        <div style="text-align:center;flex:1;padding-right:20px;position:relative;display:none">
             <input name="teacherName" id="teacherName" placeholder="教师名称" class="layui-input" autocomplete="off"/>
             <div class="searchName" id="searchName">
                 <table style="width:100%;margin-top: 0px;" class="layui-table">
                     <tbody id="searcNamebody"></tbody>
                 </table>
             </div>
+        </div>
+        <div style="text-align:center;flex:1;padding-right:20px;position:relative;">
+            <select xm-select="SysUidArry" name="SysUidArry" id="SysUidArry" xm-select-show-count="8" multiple="multiple">
+            </select>
         </div>
         <div style="flex:1;text-align:right;">
             <div style="display: flex; flex-wrap: wrap">
@@ -26,7 +30,7 @@
             </div>
         </div>
     </div>
-    <div>
+    <div style="display:none">
         <textarea name="selecTedTeacher" id="selecTedTeacher" style="width:100%;min-height:60px"></textarea>
     </div>
     <table class="layui-table">
@@ -101,6 +105,7 @@
 }
 @section js{
     <!-- js部分 -->
+    <script src="/assets/module/formSelects/formSelects-v4.js"></script>
     <script type="text/template" id="searchNameTemp">
         {{each data item index}}
         <tr onclick="SetListenTr('{{item}}')">
@@ -114,6 +119,7 @@
             var admin = layui.admin;
             var adminForm = layui.adminForm;
             var laydate = layui.laydate;
+            var formSelects = layui.formSelects;
             //日期
             laydate.render({
                 elem: '#StartTime'
@@ -124,6 +130,21 @@
                 elem: '#EndTime'
                 , type: 'date',
                 format: 'yyyy-MM-dd'
+            });
+            adminForm.load({
+                                url: "@Url.Action("QueryNameAll")",
+                                dataType: 'json',
+                                callBack: function (rou) {
+                                    if (rou.data != null) {
+                                        var result = rou.data;
+                                        var listU = [];
+                                        for (var i = 0; i < result.length; i++) {
+                                            listU.push({ name: result[i].Name, value: result[i].User_ID});
+                                            $("select[name='SysUidArry']").append('<option value = ' + result[i].User_ID + '>' + result[i].Name + '</option>');
+                                        }
+                                        formSelects.data("SysUidArry",'local',{ arr:listU});
+                                    }
+                                  }
             });
             $("input[name='teacherName']").keyup(function () {
                 adminForm.load({
@@ -197,15 +218,17 @@
             var colorArry = ['color1', 'color2', 'color3', 'color4', 'color5', 'color6', 'color7', 'color8', 'color9','color10'];
             $("#teacherTimebody").html("");
             layui.use(['form', 'admin', 'adminForm'], function () {
-                     var admin = layui.admin;
-                    var adminForm = layui.adminForm;
-                    var teacherName = $("#selecTedTeacher").val();
-                    if (teacherName == "" || teacherName == null) {
-                        layer.msg("请按老师名称搜索");
+                var admin = layui.admin;
+                var adminForm = layui.adminForm;
+                var formSelects = layui.formSelects;
+                var teacherName = formSelects.value("SysUidArry", 'name');
+                console.log(teacherName);
+                if (teacherName.length<1) {
+                        layer.msg("请选择相关教师搜索");
                         return false;
-                    };
-                    var teacherColors = [];
-                    var teacherNamesToor = $("#selecTedTeacher").val().split(",");
+                 };
+                var teacherColors = [];
+                var teacherNamesToor = teacherName;
                 if (teacherNamesToor.length> 0) {
                     for (var i = 0; i < teacherNamesToor.length; i++) {
                         teacherColors.push({ color: colorArry[i], name: teacherNamesToor[i] });
@@ -216,8 +239,8 @@
                     return false;
                 }
                 adminForm.load({
-                        url: "@Url.Action("QueryTeacherTime")",
-                        data:{teacherNames:$("#selecTedTeacher").val(),starttime: $("#StartTime").val(), endtime: $("#EndTime").val()},
+                    url: "@Url.Action("QueryTeacherTime")",
+                    data: { teacherNames: teacherName.join(","),starttime: $("#StartTime").val(), endtime: $("#EndTime").val() },
                         dataType: 'json',
                          callBack: function (rou) {
                             if (rou != null) {
@@ -394,13 +417,13 @@
             })
             let xhr = new XMLHttpRequest();
             xhr.open('post',"ExportPlan");
-            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8'); 
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
             xhr.responseType = 'blob' //以blob的形式接收数据，一般文件内容比较大
             xhr.onload = function () {
                 let blob = new Blob([this.response]);
                 let elink = document.createElement('a'); // 创建一个a标签用于下载
                 elink.download = '教师可排列表.xls';
-                elink.style.display = 'none'; 
+                elink.style.display = 'none';
                 elink.href=URL.createObjectURL(blob); //规定链接指向的页面的URL
                 document.body.appendChild(elink);
                 elink.click(); //原生dom触发

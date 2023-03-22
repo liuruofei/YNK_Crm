@@ -12,7 +12,13 @@
     <div class="layui-form-item">
         <label class="layui-form-label">用户</label>
         <div class="layui-input-block">
-            <select name="SysUid"></select>
+            <div style="display:none" id="oneU">
+              <select name="SysUid"></select>
+            </div>
+            <div id="moreU">
+                <select xm-select="SysUidArry" name="SysUidArry" id="SysUidArry" xm-select-show-count="8" multiple="multiple">
+                </select>
+            </div>
         </div>
     </div>
     <div class="layui-form-item">
@@ -70,13 +76,15 @@
     </div>
 </form>
 @section css{
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <link href="/assets/libs/formSelects/formSelects.css" rel="stylesheet" />
     <style>
     </style>
 }
 
 @section js{
     <!-- js部分 -->
-    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script src="/assets/libs/formSelects/formSelects.js"></script>
     <script>
         var currtDate= '@ViewBag.DataStr';
         layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
@@ -86,6 +94,12 @@
         var admin = layui.admin;
         var adminForm = layui.adminForm;
         var laydate = layui.laydate;
+        //layui.config({
+        //    base:'/assets/libs/formSelects/',
+        //}).extend({
+        //    formSelects2:'formSelects'
+        //});
+        var formSelects = layui.formSelects;
         //日期
         laydate.render({
             elem: '#StartDate',
@@ -122,6 +136,9 @@
                                     $("#EndTime").val("19:00");
                                 }
                                 else {
+                                    $("#oneU").show();
+                                    $("#moreU").css("display","none");
+                                    
                                     $("input[name='TaskStatus'][value='" + r.TaskStatus + "']").prop("checked", "true");
                                     if (r.TaskStatus == 2) {
                                         $("#RemarksPart").show();
@@ -135,7 +152,9 @@
                                 callBack: function (rou) {
                                     if (rou.data != null) {
                                         var result = rou.data;
+                                        var listU = [];
                                         for (var i = 0; i < result.length; i++) {
+                                            listU.push({ name: result[i].User_Name, value: result[i].User_ID});
                                             if (r != undefined && r.SysUid != null && r.SysUid == result[i].User_ID) {
                                                 $("select[name='SysUid']").append('<option value = ' + result[i].User_ID + ' selected>' + result[i].User_Name +'</option>');
 
@@ -143,6 +162,7 @@
                                                 $("select[name='SysUid']").append('<option value = ' + result[i].User_ID + '>' + result[i].User_Name + '</option>');
                                             }
                                         }
+                                        formSelects.data("SysUidArry",'local',{ arr:listU});
                                     }
                                   }
                                 });
@@ -150,9 +170,20 @@
                 });
             },
             Save: function (data) {
-                if (data.field.SysUid == '' || data.field.SysUid == null) {
-                    layer.msg("请选择用户");
-                    return false;
+                data.field.UidArry = formSelects.value("SysUidArry", 'val');
+                if (KeyId > 0) {
+                    if (data.field.SysUid == '' || data.field.SysUid == null) {
+                        layer.msg("请选择用户");
+                        return false;
+                    }
+                }
+                else {
+                    if (data.field.UidArry.length < 1) {
+                        if (data.field.SysUid == '' || data.field.SysUid == null) {
+                            layer.msg("请选择用户");
+                            return false;
+                        }
+                    }
                 }
                 adminForm.Save({
                     url: KeyId ? '@Url.Action("SaveTask")' : '@Url.Action("SaveTask")',
@@ -170,7 +201,8 @@
             App.Save(data);
             return false;
         });
-        });
+
+    });
         function formatMinutin() {
             $(".laydate-time-list li ol").eq(2).parent("li").remove();
         }

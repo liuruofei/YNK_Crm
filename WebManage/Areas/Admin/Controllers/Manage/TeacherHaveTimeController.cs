@@ -42,14 +42,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public IActionResult QueryNameAll(string title)
         {
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            List<SeachUNameModel> listSerchName = new List<SeachUNameModel>();
+            string where = "";
             if (!string.IsNullOrEmpty(title))
             {
-                listSerchName = _currencyService.DbAccess().Queryable(@"(
-             select tach.User_Name as Name from Sys_User tach left join Sys_UserRole ur on tach.User_ID=ur.UserRole_UserID left join Sys_Role r on ur.UserRole_RoleID=r.Role_ID 
-              where  (r.Role_Name='教师' or r.Role_Name='教学校长') and charindex(@title,tach.User_Name)>0)", "orgin").AddParameters(new { title = title }).Select<SeachUNameModel>().ToList();
-              rsg.data = listSerchName;
+                where = " and charindex(@title,tach.User_Name)>0 ";
             }
+            List<SeachUNameModel> listSerchName = _currencyService.DbAccess().Queryable(@"(
+             select tach.User_Name as Name,tach.[User_ID] from Sys_User tach left join Sys_UserRole ur on tach.User_ID=ur.UserRole_UserID left join Sys_Role r on ur.UserRole_RoleID=r.Role_ID 
+              where  (r.Role_Name='教师' or r.Role_Name='教学校长') and tach.User_IsDelete=2 " + where+ ")", "orgin").AddParameters(new { title = title }).Select<SeachUNameModel>().ToList();
+            rsg.data = listSerchName;
             return Json(rsg);
         }
 
@@ -59,8 +60,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         {
             string[] names = teacherNames.Split(",");
             List<TeacherTimeWorkModel> tdlistTime = new List<TeacherTimeWorkModel>();
-            var teachers = _currencyService.DbAccess().Queryable<sys_user>().Where(c => names.Contains(c.User_Name)).ToList();
-            if (names!= null&& names.Length>0) {
+            var teachers = _currencyService.DbAccess().Queryable<sys_user>().Where(c =>names.Contains(c.User_Name)).ToList();
+            if (teacherNames != null&& names.Length>0) {
                 var teacherUid = teachers.Select(n => n.User_ID).ToList();
                 if (!starttime.HasValue)
                 {

@@ -108,18 +108,13 @@ namespace WebManage.Areas.Admin.Controllers
 
 
         //保存任务
-        public IActionResult SaveTask(C_TeacherTask vmodel)
+        public IActionResult SaveTask(TeacherTaskInput vmodel)
         {
             ResResult rsg = new ResResult() { code = 0, msg = "保存失败" };
             if (vmodel != null)
             {
-               
+
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
-                if (string.IsNullOrEmpty(vmodel.SysUid))
-                {
-                    rsg.msg = "请选择相关用户";
-                    return Json(rsg);
-                }
                 if (string.IsNullOrEmpty(vmodel.Title))
                 {
                     rsg.msg = "任务标题不能为空";
@@ -127,16 +122,40 @@ namespace WebManage.Areas.Admin.Controllers
                 }
                 if (vmodel.Id < 1)
                 {
-                    vmodel.TaskStatus = 0;
-                    vmodel.CreateUid = userId;
-                    vmodel.CreatTime = DateTime.Now;
-                    rsg.code = _currencyService.DbAccess().Insertable<C_TeacherTask>(vmodel).ExecuteCommand();
+                    if (vmodel.UidArry==null||(vmodel.UidArry!=null&& vmodel.UidArry.Count<0))
+                    {
+                        rsg.msg = "请选择相关用户";
+                        return Json(rsg);
+                    }
+                    foreach (var cr in vmodel.UidArry) {
+                        C_TeacherTask task = new C_TeacherTask();
+                        task.CreateUid = userId;
+                        task.CreatTime = DateTime.Now;
+                        task.TaskStatus = 0;
+                        task.SysUid = cr;
+                        task.EndDate = vmodel.EndDate;
+                        task.EndTime = vmodel.EndTime;
+                        task.StartDate = vmodel.StartDate;
+                        task.StartTime = vmodel.StartTime;
+                        task.Title = vmodel.Title;
+                        task.TaskComment = vmodel.TaskComment;
+                        task.TaskRemarks = vmodel.TaskRemarks;
+                        rsg.code = _currencyService.DbAccess().Insertable<C_TeacherTask>(task).ExecuteCommand();
+                    }
+            
                 }
                 else {
                     var model = _currencyService.DbAccess().Queryable<C_TeacherTask>().Where(c => c.Id == vmodel.Id).First();
-                    vmodel.CreateUid = model.CreateUid;
-                    vmodel.CreatTime = model.CreatTime;
-                    rsg.code = _currencyService.DbAccess().Updateable<C_TeacherTask>(vmodel).ExecuteCommand();
+                    model.EndDate = vmodel.EndDate;
+                    model.EndTime = vmodel.EndTime;
+                    model.StartDate = vmodel.StartDate;
+                    model.StartTime = vmodel.StartTime;
+                    model.Title = vmodel.Title;
+                    model.TaskComment = vmodel.TaskComment;
+                    model.TaskStatus = vmodel.TaskStatus;
+                    model.SysUid = vmodel.SysUid;
+                    model.TaskRemarks = vmodel.TaskRemarks;
+                    rsg.code = _currencyService.DbAccess().Updateable<C_TeacherTask>(model).ExecuteCommand();
                 }
                 if (rsg.code > 0)
                 {
