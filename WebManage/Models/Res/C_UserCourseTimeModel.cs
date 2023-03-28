@@ -35,6 +35,13 @@ namespace WebManage.Models.Res
 
         //实际使用班课时
         public float ShjiClassUseTime { get; set; }
+        /// <summary>
+        /// 赠送课使用
+        /// </summary>
+        public float UsePresendTime { get; set; }
+
+
+
 
         /// <summary>
         /// 班级名称

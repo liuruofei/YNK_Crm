@@ -66,7 +66,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             sql.Append(" where  wk.CampusId=" + campusId + manwhere.ToString()+")");
             List<TeacherLateModel> list = _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql")
             .AddParameters(new { startStr = startTime, endStr = endTime })
-            .Select<TeacherLateModel>("*").ToPageList(page, limit,ref total);
+            .Select<TeacherLateModel>("*").OrderBy("orginSql.AT_Date desc").ToPageList(page, limit,ref total);
             list.ForEach(em =>
             {
                 em.CourseTimeFmt = em.AT_Date.ToString("yyyy-MM-dd")+" "+em.StartTime;

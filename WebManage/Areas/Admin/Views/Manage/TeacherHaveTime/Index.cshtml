@@ -405,8 +405,8 @@
                 return false;
             }
             var sendModel = {
-                starttime: plan.starttime,
-                endtime: plan.endtime,
+                starttime: $("#StartTime").val(),
+                endtime: $("#EndTime").val(),
                 timeArr: []
             }
             $.each(teacherGroup, function(index,item) {

@@ -322,9 +322,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             for (var j = 0; j < groupRow; j++)
             {
                 var list = tdlistTime.Skip(j * 7).Take(7).ToList();
-                for (var y = 0; y < 21; y++)
+                for (var y = 0; y < 7; y++)
                 {
-                    var yRow = (j * 21) + y;
+                    var yRow = (j * 7) + y;
                     var row = sheet.CreateRow(yRow);
                     if (y == 0)
                     {

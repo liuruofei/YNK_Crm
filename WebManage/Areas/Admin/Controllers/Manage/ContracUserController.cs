@@ -182,9 +182,11 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <returns></returns>
         public IActionResult QuerySudentProjectTotal(int studentUid) {
             ResResult rsg = new ResResult() { code = 200, msg = "获取成功" };
-            StringBuilder sql = new StringBuilder("(select sum(Course_Time) as Course_Time,sum(Course_UseTime) as Course_UseTime,sum(Class_Course_Time) as Class_Course_Time,sum(Class_Course_UseTime) as Class_Course_UseTime,sub.SubjectName,pro.ProjectName");
+            StringBuilder sql = new StringBuilder("(select sum(Course_Time) as Course_Time,sum(Course_UseTime) as Course_UseTime,sum(Class_Course_Time) as Class_Course_Time,sum(Class_Course_UseTime) as Class_Course_UseTime,");
+            sql.Append("(SELECT sum(wk.CourseTime) from C_Course_Work wk where wk.SubjectId=tm.SubjectId and wk.ProjectId=tm.ProjectId  and wk.StudentUid=@StudentUid and IsUsePresent=1 GROUP BY wk.StudentUid)as UsePresendTime,");
+            sql.Append("sub.SubjectName,pro.ProjectName,tm.SubjectId,tm.ProjectId");
             sql.Append(" from C_User_CourseTime  tm left join C_Project pro on tm.ProjectId=pro.ProjectId  left join C_Subject sub on tm.SubjectId=sub.SubjectId");
-            sql.Append(" where tm.StudentUid=@StudentUid Group by sub.SubjectName,pro.ProjectName)");
+            sql.Append(" where tm.StudentUid=@StudentUid Group by sub.SubjectName,pro.ProjectName,tm.SubjectId,tm.ProjectId)");
             List<C_UserCourseTimeModel> list = _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql").AddParameters(new { StudentUid = studentUid }).Select<C_UserCourseTimeModel>().ToList();
             //if (list != null) {
             //    list.ForEach(cv =>

@@ -52,7 +52,7 @@
         display: flex;
     }
         .leftTotalItem .item {
-          width:211px;
+          width:300px;
         }
 </style>
 @section js{
@@ -103,8 +103,10 @@
                 <span style="font-weight:700">{{item.SubjectName}}</span>
             </div>
             <div class="item" style="margin-left:30px">科目:{{item.ProjectName}}</div>
-            <div class="item">总计课时:{{item.Course_Time}}</div>
-            <div class="item">总计已排课时:{{item.Course_UseTime}}</div>
+            <div class="item">总计课时:{{item.Course_Time+item.UsePresendTime}}</div>
+            <div class="item">
+                总计已排课时:{{item.Course_UseTime+item.UsePresendTime}}{{if item.UsePresendTime>0}}<span>(含使用赠送课:{{item.UsePresendTime}})</span>{{/if}}
+            </div>
             <div class="item">可排课时:{{item.Course_Time-item.Course_UseTime}}</div>
         </div>
         {{/each}}

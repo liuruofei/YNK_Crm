@@ -15,12 +15,12 @@
     <script src="http://crm.younengkao.com/assets/js/httpBase2.js"></script>
     <style type="text/css">
         .wkTitle {
-            padding: 1rem 1.5rem;
+            padding:0.8rem 1.5rem;
             text-align: center;
         }
 
         .courseCotent {
-            padding: 1px 1.5rem;
+            padding: 1px 1.3rem;
         }
     </style>
 </head>
@@ -28,12 +28,14 @@
     <div class="wkTitle">
         <h2>教师评语</h2>
     </div>
-    <div class="courseCotent" id="courseCotent">
+    <div class="courseCotent" style="overflow-y: auto;">
+        <textarea style="height:700px;width:100%" id="courseCotent"></textarea>
     </div>
     <div class="wkTitle">
         <h2>学员作业</h2>
     </div>
-    <div class="courseCotent" id="homeWork">
+    <div class="courseCotent" style="overflow-y: auto;">
+        <textarea style="height:600px;width:100%" id="homeWork"></textarea>
     </div>
     <script type="text/javascript">
         $(function () {
@@ -49,9 +51,8 @@
                 dataType: "json",
                 success: function (data) {
                     var result = data.data;
-                    console.log(result);
-                    document.getElementById("courseCotent").innerHTML = result.Comment;
-                    document.getElementById("homeWork").innerHTML = result.HomeWorkComent;
+                    $("#courseCotent").val(result.Comment);
+                    $("#homeWork").val(result.HomeWorkComent);
                 },
                 error: function (error) {
                     alert(error);

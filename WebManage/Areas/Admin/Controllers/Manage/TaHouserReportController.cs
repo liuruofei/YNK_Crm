@@ -112,7 +112,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             sql.Append(" and pln.TaUid=@taUid)");
             List<StudentWorkPlanModel> list = _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql")
             .AddParameters(new { startStr = startTime, endStr = endTime,taUid =taUid})
-            .Select<StudentWorkPlanModel>("*").ToPageList(page, limit, ref total);
+            .Select<StudentWorkPlanModel>("*").OrderBy("orginSql.WorkDate desc").ToPageList(page, limit, ref total);
             pageModel.data = list;
             pageModel.code = 0;
             pageModel.msg = "获取成功";

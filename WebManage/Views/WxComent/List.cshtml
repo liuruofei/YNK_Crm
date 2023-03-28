@@ -199,7 +199,7 @@
                                         html += '<li><a class="childhref" href=http://crm.younengkao.com/WxComent/child?wkId=' + list[i].Id + '>'
                                         html += '<div class="flexchild">'
                                         html += '<div class="title">' + list[i].Work_Title + '</div>'
-                                        html += '<div class="time"> 日期 ' + formatDate(list[i].AT_Date) + '  时间 ' + list[i].StartTime + '-' + list[i].EndTime+'</div>'
+                                        html += '<div class="time"> 日期 ' + formatDate(list[i].AT_Date.replace(/-/g,"/")) + '  时间 ' + list[i].StartTime + '-' + list[i].EndTime + '</div>'
                                         html += '</div>'
                                         html += '</a></li>';
                                     }

@@ -774,6 +774,10 @@
                         newObject[key] = $("input[name='" + key + "']").val();
                     }
             }
+            if (newObject.PresentTime > 0 && newObject.Remarks == '') {
+                layer.msg("若赠送课程,请在合同备注填写赠送原因");
+                return false;
+            }
             if (newObject.Original_Amount < 1 && newObject.StudyMode == 1) {
                 layer.msg("请点击合计总价");
                 return false;

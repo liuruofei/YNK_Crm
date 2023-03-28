@@ -15,12 +15,12 @@
     <script src="http://crm.younengkao.com/assets/js/httpBase2.js"></script>
     <style type="text/css">
         .wkTitle {
-            padding: 1rem 1.5rem;
+            padding: 0.8rem 1.5rem;
             text-align: center;
         }
 
         .courseCotent {
-            padding: 1px 1.5rem;
+            padding: 1px 1.3rem;
         }
     </style>
 </head>
@@ -34,7 +34,7 @@
         <h2>学员作业</h2>
     </div>
     <div class="courseCotent" id="homeWork" style="overflow: auto;">
-        <textarea style="height:800px" id="txthomeWork" disabled></textarea>
+        <textarea style="height:800px;width:100%" id="txthomeWork" disabled></textarea>
     </div>
     <script type="text/javascript">
         $(function () {
@@ -53,7 +53,6 @@
                     console.log(result);
                     document.getElementById("zuoye").innerHTML = result.Work_Title;
                     $("#txthomeWork").val(result.HomeWorkComent);
-                    //document.getElementById("homeWork").innerHTML = result.HomeWorkComent;
                 },
                 error: function (error) {
                     alert(error);
