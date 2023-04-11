@@ -13,6 +13,7 @@ using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using WebManage.Areas.Admin.Filter;
 using WebManage.Areas.Admin.Models;
 using WebManage.Models;
@@ -511,35 +512,35 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 int contracStatus =(int)ConstraChild_Status.RetrunClassOk;
                 classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child,C_Class>((c,cl)=>new object[] { JoinType.Left,c.ClassId==cl.ClassId}).Where(c => studentids.Contains(c.StudentUid) && c.ClassId > 0&&c.Contrac_Child_Status!= contracStatus).WhereIF(subjectId>0,(c,cl)=>cl.SubjectId==subjectId).Select(c => c.ClassId).ToList();
             }
-            string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
+            StringBuilder sql = new StringBuilder(@"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
-                left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)";
+                left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)");
             if (classIds != null && classIds.Count > 0)
             {
                 HashSet<int> ha = new HashSet<int>(classIds);
                 classIds.Clear();
                 classIds.AddRange(ha);
-                sql += " and (wk.ClasssId in(" + string.Join(",", classIds) + ") or charindex(@userName,contracU.Student_Name)>0) ";
+                sql.Append(" and (wk.ClasssId in(" + string.Join(",", classIds) + ") or charindex(@userName,contracU.Student_Name)>0) ");
             }
             else
             {
                 if (!string.IsNullOrEmpty(userName))
-                    sql += " and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,wk.ListeningName)>0 or charindex(@userName,cl.Class_Name)>0) ";
+                    sql.Append(" and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,wk.ListeningName)>0 or charindex(@userName,cl.Class_Name)>0) ");
             }
             if (subjectId > 0) {
-                sql += " and wk.SubjectId="+subjectId;
+                sql.Append(" and wk.SubjectId="+subjectId);
             }
             if (projectId > 0)
             {
-                sql += " and wk.ProjectId=" + projectId;
+                sql.Append(" and wk.ProjectId=" + projectId);
             }
             if (studyMode > 0)
             {
-                sql += " and wk.StudyMode=" + studyMode;
+                sql.Append(" and wk.StudyMode=" + studyMode);
             }
-            sql += " and wk.CampusId="+campusId;
-            sql += ")";
-            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(sql, "orginSql")
+            sql.Append(" and wk.CampusId="+campusId);
+            sql.Append(")");
+            List<CourseWorkModel> list = _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql")
             .AddParameters(new { startStr = startStr, endStr = endStr, userName = userName })
             .Select<CourseWorkModel>().OrderBy("orginSql.CreateTime desc").ToList();
             if (list != null && list.Count > 0)
@@ -720,38 +721,38 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 int contracStatus = (int)ConstraChild_Status.RetrunClassOk;
                 classIds = _currencyService.DbAccess().Queryable<C_Contrac_Child, C_Class>((c, cl) => new object[] { JoinType.Left, c.ClassId == cl.ClassId }).Where(c => studentids.Contains(c.StudentUid) && c.ClassId > 0 && c.Contrac_Child_Status != contracStatus).WhereIF(subjectId > 0, (c, cl) => cl.SubjectId == subjectId).Select(c => c.ClassId).ToList();
             }
-            string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
+            StringBuilder sql = new StringBuilder(@"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
-                left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)";
+                left join C_Room rm on wk.RoomId=rm.Id where wk.AT_Date>=CAST(@startStr AS date) AND wk.AT_Date<CAST(@endStr AS date)");
             if (classIds != null && classIds.Count > 0)
             {
                 HashSet<int> ha = new HashSet<int>(classIds);
                 classIds.Clear();
                 classIds.AddRange(ha);
-                sql += " and (wk.ClasssId in(" + string.Join(",", classIds) + ") or charindex(@userName,contracU.Student_Name)>0) ";
+                sql.Append(" and (wk.ClasssId in(" + string.Join(",", classIds) + ") or charindex(@userName,contracU.Student_Name)>0) ");
             }
             else
             {
                 if (!string.IsNullOrEmpty(userName))
-                    sql += " and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,wk.ListeningName)>0 or charindex(@userName,cl.Class_Name)>0) ";
+                    sql.Append(" and (charindex(@userName,tc.User_Name)>0 or charindex(@userName,contracU.Student_Name)>0 or charindex(@userName,wk.ListeningName)>0 or charindex(@userName,cl.Class_Name)>0) ");
             }
             if (subjectId > 0)
             {
-                sql += " and wk.SubjectId=" + subjectId;
+                sql.Append(" and wk.SubjectId=" + subjectId);
             }
             if (projectId > 0)
             {
-                sql += " and wk.ProjectId=" + projectId;
+                sql.Append(" and wk.ProjectId=" + projectId);
             }
             if (studyMode > 0)
             {
-                sql += " and wk.StudyMode=" + studyMode;
+                sql.Append(" and wk.StudyMode=" + studyMode);
             }
-            sql += " and wk.CampusId=" + campusId;
-            sql += ")";
+            sql.Append(" and wk.CampusId=" + campusId);
+            sql.Append(")");
             int total = 0;
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
-            List<CourseWorkModel> list= _currencyService.DbAccess().Queryable(sql, "orginSql")
+            List<CourseWorkModel> list= _currencyService.DbAccess().Queryable(sql.ToString(), "orginSql")
             .AddParameters(new { startStr = startStr, endStr = endStr, userName = userName })
             .Select<CourseWorkModel>().OrderBy("orginSql.CreateTime desc").ToPageList(page, limit, ref total);
             if (list != null && list.Count > 0 && !string.IsNullOrEmpty(userName))

@@ -49,7 +49,7 @@ namespace WebManage.Areas.Admin.Controllers
         public IActionResult MyTask()
         {
             var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
-            string[] adminRoleName = new string[] { "校长", "教学校长", "超级管理员" };
+            string[] adminRoleName = new string[] { "校长", "教学校长", "超级管理员","督学校长" };
             var userRole = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new Object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
                 .Where((u, ur, r) => u.User_ID == userId).Select<sys_role>((u, ur, r) => r).First();
             ///判断是否是管理员

@@ -34,6 +34,9 @@
                     <div class="layui-inline">
                         <button id="btnAddContract" class="layui-btn icon-btn" data-power="AddContract"><i class="layui-icon">&#xe654;</i>创建合同</button>
                     </div>
+                    <div class="layui-inline">
+                        <button id="btnGiftTime" class="layui-btn icon-btn" data-power="GiftTime"><i class="layui-icon">&#xe654;</i>赠送课时</button>
+                    </div>
                 </div>
             </div>
 
@@ -49,6 +52,7 @@
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="courseDetail">课程详情</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="mockDetail">模考</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="shikaoDetail">实考</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="communication">沟通纪要</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" data-power="Delete" lay-event="del">删除</a>
 </script>
 
@@ -182,7 +186,7 @@
                 }
             },
             { field: 'Elder_Name', title: '联系人', sort: true },
-            { align: 'center', toolbar: '#tableBar', fixed: 'right' , title: '操作', width: 350 }
+            { align: 'center', toolbar: '#tableBar', fixed: 'right' , title: '操作', width: 420 }
         ]]
     });
 
@@ -194,6 +198,30 @@
     // 新增合同
     $('#btnAddContract').click(function () {
         showAddContract();
+    });
+    //赠送课时
+    $("#btnGiftTime").click(function () {
+        var checkStatus = table.checkStatus('userTable');
+        if (checkStatus.data.length > 0) {
+            if (checkStatus.data.length > 1) {
+                layer.msg('只能选择一个学员!');
+            }
+            else {
+                adminList.form({
+                title:'赠送课时',
+                type: 2,
+                width: "560px",
+                height: "460px",
+                    content: '@Url.Action("GiftCourseTime", "ContracUser")?studentId=' + checkStatus.data[0].StudentUid,
+                    end: function (data) {
+                        insTb.reload();
+                     }
+                });
+            }
+        }
+        else {
+            layer.msg('请勾选一位学员!');
+        }
     });
     //添加账号
    $("#btnAddAccount").click(function () {
@@ -318,6 +346,8 @@
             showMock(data.Student_Name, data.StudentUid);
         } else if (layEvent == 'shikaoDetail') {
             showShiKao(data.Student_Name, data.StudentUid);
+        } else if (layEvent == 'communication') {
+            communication(data.Student_Name,data.StudentUid);
         }
 
     });
@@ -373,6 +403,13 @@
             , studentUid: studentUid
         });
      };
+   function communication(userName,studentUid) {
+        window.parent.layui.element.tabAdd('admin-pagetabs', {
+            title: userName +'家长沟通纪要',
+            content: '<iframe lay-id="' + studentUid + '" src="@Url.Action("index", "Communication")?studentUid=' + studentUid + '" frameborder="0" class="admin-iframe" style="width: 100%;height: 100%"></iframe>' //支持传入html
+            , studentUid: studentUid
+        });
+    }
      //模考详情
      function showMock(userName, studentUid) {
             window.parent.layui.element.tabAdd('admin-pagetabs', {

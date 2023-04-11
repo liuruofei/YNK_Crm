@@ -1,0 +1,84 @@
+﻿@model WebManage.Models.Res.ContracInfmotion
+@{
+    var studentId = ViewBag.StudentUid;
+
+}
+
+<form id="modelUserForm" lay-filter="modelUserForm" class="layui-form model-form">
+    <input name="StudentUid" type="hidden" value="@ViewBag.StudentUid" />
+    <input name="ContraNo" type="hidden" value="@Model.ContraNo" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">学生姓名</label>
+            <div class="layui-input-inline" style="line-height: 38px;">
+                <span id="Student_Name"></span>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">赠送课时</label>
+        <div class="layui-input-block">
+            <input name="PresentTime" id="PresentTime" class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">赠送原因</label>
+        <div class="layui-input-block">
+            <textarea name="Remarks" style="width:98%;height:120px;"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item positionbottomtop"></div>
+    <div class="layui-form-item text-right positionbottom">
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
+        <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
+    </div>
+</form>
+
+@section css{
+    <style>
+    </style>
+}
+
+@section js{
+    <!-- js部分 -->
+    <link href="~/kindeditor/themes/default/default.css" rel="stylesheet" />
+    <script>
+        layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
+        var KeyId = '@studentId';
+        var $ = layui.jquery;
+        var form = layui.form;
+        var admin = layui.admin;
+        var adminForm = layui.adminForm;
+        var laydate = layui.laydate;
+        var App = {
+            Load: function () {
+                              adminForm.load({
+                                formName: 'modelUserForm',
+                                KeyId: '@studentId',
+                                url: "@Url.Action("Find")",
+                                dataType: 'json',
+                                  callBack: function (r) {
+                                      $("#Student_Name").text(r.Student_Name);
+                                    }
+                                });
+            },
+            Save: function (data) {
+                adminForm.Save({
+                    url:'@Url.Action("SaveGiftTime")',
+                    data: data.field,
+                    callBack: function () {
+                        admin.closeThisDialog();
+                    }
+                })
+            }
+        }
+
+        App.Load();
+        // 表单提交事件
+        form.on('submit(modelUserSubmit)', function (data) {
+            App.Save(data);
+            return false;
+        });
+        });
+    </script>
+}

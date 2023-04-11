@@ -30,6 +30,10 @@ namespace WebManage.Controllers
             return View();
         }
 
+        public IActionResult SummaryDetail() {
+            return View();
+        }
+
 
         [HttpPost]
         public IActionResult GetWorkModel(int wkId) {
@@ -49,6 +53,25 @@ namespace WebManage.Controllers
                 }
             }
             catch (Exception er) {
+                log.Info(er.Message);
+            }
+            return Json(rg);
+        }
+        [HttpPost]
+        public IActionResult GetSummaryInfo(int Id) {
+            ResResult rg = new ResResult() { code = 0, msg = "获取失败" };
+            try
+            {
+                C_Summary sum = _currencyService.DbAccess().Queryable<C_Summary>().Where(v => v.Id ==Id).First();
+                if (sum != null)
+                {
+                    rg.msg = "获取成功";
+                    rg.data = sum;
+                    rg.code = 200;
+                }
+            }
+            catch (Exception er)
+            {
                 log.Info(er.Message);
             }
             return Json(rg);

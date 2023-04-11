@@ -5,12 +5,6 @@
             <div class="layui-form toolbar">
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <label class="layui-form-label w-auto">关键字：</label>
-                        <div class="layui-input-inline mr0">
-                            <input id="txtTitle" class="layui-input" type="text" placeholder="输入标题" />
-                        </div>
-                    </div>
-                    <div class="layui-inline">
                         <label class="layui-form-label w-auto">类别：</label>
                         <div class="layui-input-inline mr0">
                             <select name="SubjectId" id="SubjectId" lay-filter="SubjectId"></select>
@@ -35,7 +29,9 @@
                 </div>
             </div>
             <input type="hidden" name="StudentUid" value="@ViewBag.studentUid" id="StudentUid" />
-            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+            <div style="display:flex;flex-wrap:wrap" id="untPartScore">
+
+            </div>
         </div>
     </div>
 </div>
@@ -56,10 +52,39 @@
         .layui-table img {
             max-width: 600px;
         }
+        .isShik {
+            background-color:#b95e5e;
+            color: white;
+        }
     </style>
 }
 @section js{
     <!-- js部分 -->
+    <script type="text/html" id="tepMockScore">
+        {{each data item index}}
+        {{if item.PaPerArr.length>0}}
+        <div style="">
+            <table class="layui-table">
+                <tr><td colspan="4" class="{{item.isRed>0?'isShik':''}}">{{item.UnitName}}</td></tr>
+                <tr>
+                    <td>题目编号</td>
+                    <td>考试日期</td>
+                    <td>分数</td>
+                    <td>等级</td>
+                </tr>
+                {{each item.PaPerArr child}}
+                <tr>
+                    <td>{{child.PaperCode}}</td>
+                    <td>{{child.WKDateAppend}}</td>
+                    <td>{{child.ScoreAppend}}</td>
+                    <td>{{child.MockLevelAppend}}</td>
+                </tr>
+                {{/each}}
+            </table>
+        </div>
+        {{/if}}
+        {{/each}}
+    </script>
     <script>
         layui.use(['form', 'util', 'admin', 'adminList', 'adminForm'], function () {
     var $ = layui.jquery;
@@ -68,39 +93,6 @@
     var form = layui.form;
     var adminList = layui.adminList;
     var adminForm = layui.adminForm;
-    // 渲染表格
-    var insTb = adminList.tableLayUI({
-        elem: '#userTable',
-        url: '@Url.Action("GetDataSource")',
-        page: true,
-        where: { title: '', studentUid: $('#StudentUid').val() },
-        cellMinWidth: 100,
-        cols: [[
-            { type: 'numbers' },
-            {
-                field: 'StudyMode', title: '考试类型', sort: true, templet: function (d) {
-                    return d.StudyMode==5 ? "模考" : "其它";
-                }
-            },
-            { field: 'Student_Name', title: '姓名', sort: true },
-            {
-                field: 'AT_Date', title: '日期', sort: true,templet: function (d) {
-                    return dateFtt("yyyy-MM-dd", d.AT_Date);
-                }
-            },
-            {
-                field: 'StartTime', title: '时间', sort: true, templet: function (d) {
-                    return d.StartTime + '-' + d.EndTime;
-                }
-            },
-            { field: 'SubjectName', title: '类别', sort: true },
-            { field: 'ProjectName', title: '科目', sort: true },
-            { field: 'UnitName', title: '单元', sort: true },
-            { field: 'Score', title: '成绩', sort: true },
-            { field: 'MockLevel', title: '等级', sort: true },
-            { field: 'PaperCode', title: '试卷编号', sort: true }
-        ]]
-    });
 
     adminForm.load({
     url: "@Url.Action("QuerySubject","ContracUser")",
@@ -115,71 +107,58 @@
         }
     }
     });
-
+    BindDataSoure(0,0,0);
     form.on('select(SubjectId)', function (data) {
-            var title = $('#txtTitle').val();
             var subjectId = data.value;
            if (parseInt(subjectId)> 0) {
-                bindProject(subjectId);
-                insTb.reload({
-                    where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: 0 }
-                    , page: {
-                        curr: 1 //重新从第 1 页开始
-                    }
-                });
+               bindProject(subjectId);
+               //查询内容
+               BindDataSoure(subjectId,0,0);
             }
             else {
-                console.log(subjectId);
                 $("select[name='ProjectId']").html("");
                 $("select[name='UnitId']").html("");
             }
         });
     form.on('select(ProjectId)', function (data) {
-                var title = $('#txtTitle').val();
                 var subjectId = $('#SubjectId').val();
                 var projectid = data.value;
                 if (projectid > 0) {
                     bindUnit(projectid);
-                    insTb.reload({
-                        where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: projectid, unitId:0}
-                        , page: {
-                            curr: 1 //重新从第 1 页开始
-                        }
-                    });
+                     //查询内容
+                    BindDataSoure(subjectId, projectid,0);
                 }
             });
     form.on('select(UnitId)', function (data) {
-                var title = $('#txtTitle').val();
                 var subjectId = $('#SubjectId').val();
                 var projectid = $('#ProjectId').val();
                 var unitId = data.value;
                 if (projectid > 0) {
-                    insTb.reload({
-                        where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: projectid,unitId:unitId}
-                        , page: {
-                            curr: 1 //重新从第 1 页开始
-                        }
-                    });
+                    BindDataSoure(subjectId, projectid, unitId);
                 }
             });
 
     // 搜索
     $('#btnSearch').click(function () {
-        var title = $('#txtTitle').val();
         var subjectId = $('#SubjectId').val();
         var projectid = $('#ProjectId').val();
         var unitId = $('#UnitId').val();
-        insTb.reload({
-            where: { studentUid: $('#StudentUid').val(), title: title, subjectId: subjectId, projectId: projectid, unitId: unitId }
-            , page: {
-                curr: 1 //重新从第 1 页开始
-            }
-        });
+        BindDataSoure(subjectId, projectid, unitId);
     });
-
-    // 工具条点击事件
-    adminList.table.on('tool(userTable)', function (obj) {
-    });
+      function BindDataSoure(subjectId, projectid, unitId) {
+        adminForm.load({
+                url: "@Url.Action("GetDataSourceByUid", "MockUser")",
+                data: { studentUid: $('#StudentUid').val(),subjectId: subjectId, projectId: projectid, unitId: unitId},
+                dataType: 'json',
+                callBack: function (rou) {
+                    if (rou.data != null) {
+                        var result = rou.data;
+                        var html = template("tepMockScore",{ data: result });
+                        document.getElementById("untPartScore").innerHTML = html;
+                    }
+                }
+              });
+    }
 });
      function bindProject(subjectId) {
             layui.use(['adminForm'], function () {
@@ -224,7 +203,6 @@
 
      function exportPlan() {
          var studentUid = $("input[name='StudentUid']").val();
-         var title = $('#txtTitle').val();
          var subjectId = $('#SubjectId').val();
          var projectid = $('#ProjectId').val();
          var unitId = $('#UnitId').val();

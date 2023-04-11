@@ -1,4 +1,5 @@
 ﻿using ADT.Models;
+using ADT.Models.ResModel;
 using ADT.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -57,6 +58,114 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             pageModel.count = total;
             pageModel.data = list;
             return Json(pageModel);
+        }
+
+
+        [UsersRoleAuthFilter("H-152", FunctionEnum.Have)]
+        public IActionResult GetDataSourceByUid(int studentUid, int subjectId, int projectId, int unitId,DateTime? startTime,DateTime? endTime)
+        {
+            if (!endTime.HasValue) {
+                endTime =DateTime.Now;
+            }
+            ResResult rsg = new ResResult() { code = 200, msg = "获取数据成功" };
+            List<int> unitIds = new List<int>();
+            List<MockUnitPartModel> unitPart = new List<MockUnitPartModel>();
+            var list = _currencyService.DbAccess().Queryable<C_Course_Work,  C_Project_Unit, C_Unit_Paper,C_Subject,C_Project>((wk, unt, pp,sub,pro) => new object[] { JoinType.Left, wk.UnitId == unt.UnitId, JoinType.Left, wk.PaperId == pp.PaperId,JoinType.Left,wk.SubjectId==sub.SubjectId,JoinType.Left,wk.ProjectId==pro.ProjectId })
+                .Where((wk, unt, pp) => wk.StudyMode == 5 && wk.StudentUid == studentUid)
+                .WhereIF(subjectId > 0, (wk) => wk.SubjectId == subjectId)
+                .WhereIF(projectId > 0, (wk) => wk.ProjectId == projectId)
+                .WhereIF(unitId > 0, (wk) => wk.UnitId == unitId)
+                .WhereIF(startTime.HasValue, (wk) => wk.AT_Date>=startTime.Value)
+                .WhereIF(endTime.HasValue, (wk) => wk.AT_Date<= endTime.Value)
+                .Select((wk,unt,pp,sub,pro) => new MockUserModel
+                {
+                    Id = wk.Id,
+                    StudentUid=wk.StudentUid,
+                    StudyMode = wk.StudyMode,
+                    UnitId = wk.UnitId,
+                    PaperId=wk.PaperId,
+                    UnitName = unt.UnitName,
+                    Score = wk.Score,
+                    AT_Date = wk.AT_Date,
+                    MockLevel = wk.MockLevel,
+                    PaperCode = pp.PaperCode,
+                    SubjectName=sub.SubjectName,
+                    ProjectName=pro.ProjectName
+                }
+                ).ToList();
+            //查询未来3个月需要实考的单元
+            var shikUnitPart= _currencyService.DbAccess().Queryable<C_Course_Work,C_Subject,C_Project,C_Project_Unit>((sk,sub,pro,unt)=>new Object[]{ JoinType.Left,sk.SubjectId==sub.SubjectId,JoinType.Left,sk.ProjectId==pro.ProjectId,JoinType.Left,sk.UnitId==unt.UnitId })
+                .Where(sk => sk.StudyMode == 6 && sk.StudentUid == studentUid && sk.AT_Date > endTime && sk.AT_Date < DateTime.Now.AddMonths(3)).Select((sk, sub, pro, unt)=>new MockUserModel {
+                    Id = sk.Id,
+                    StudentUid = sk.StudentUid,
+                    StudyMode = sk.StudyMode,
+                    UnitId = sk.UnitId,
+                    PaperId = sk.PaperId,
+                    UnitName = unt.UnitName,
+                    AT_Date = sk.AT_Date,
+                    SubjectName = sub.SubjectName,
+                    ProjectName = pro.ProjectName
+                }).ToList();
+            if (list != null&& shikUnitPart!=null&& shikUnitPart.Count>0) {
+                shikUnitPart.ForEach(it =>
+                {
+                    list.Add(it);
+                });
+            }
+            List<int> shikUitId = new List<int>();
+            if (shikUnitPart != null && shikUnitPart.Count > 0) {
+                shikUitId = shikUnitPart.Select(y => y.UnitId).Distinct().ToList();
+            }
+            if (list != null && list.Count > 0) {
+                unitIds = list.Select(n => n.UnitId).Distinct().ToList();
+                //查找单元下面相关的试卷
+                var paperList = _currencyService.DbAccess().Queryable<C_Unit_Paper>().Where(n => unitIds.Contains(n.UnitId)).ToList();
+                foreach (var crtUnt in unitIds) {
+                    var untPaperScoreArr = list.Where(n => n.UnitId == crtUnt).ToList();
+                    var untPaperArr = paperList.Where(n => n.UnitId == crtUnt).ToList();
+                    MockUnitPartModel parUnt = new MockUnitPartModel();
+                    parUnt.UnitId = crtUnt;
+                    if(shikUitId!=null&& shikUitId.Contains(crtUnt)) {
+                        parUnt.isRed = 1;
+                    }
+                    parUnt.UnitName = (untPaperScoreArr[0].UnitName.Length < 8 ? untPaperScoreArr[0].SubjectName + "_" : "") + untPaperScoreArr[0].ProjectName + "_" + untPaperScoreArr[0].UnitName;
+                    parUnt.PaPerArr = new List<MockUnitPaperArr>();
+                    if (untPaperArr != null && untPaperArr.Count > 0) {
+                        foreach (var crtPaper in untPaperArr)
+                        {
+                            MockUnitPaperArr arrInfo = new MockUnitPaperArr();
+                            arrInfo.PaperCode = crtPaper.PaperCode;
+                            //如果当前试卷的成绩有重考
+                            var hasMorePaper = untPaperScoreArr.Where(n => n.PaperId == crtPaper.PaperId).ToList();
+                            if (hasMorePaper != null && hasMorePaper.Count > 0)
+                            {
+                                var i = 0;
+                                foreach (var rstScore in hasMorePaper)
+                                {
+                                    if (i == 0)
+                                    {
+                                        arrInfo.MockLevelAppend = rstScore.MockLevel;
+                                        arrInfo.ScoreAppend = rstScore.Score;
+                                        arrInfo.WKDateAppend = rstScore.AT_Date.ToString("yyyy/MM/dd");
+                                    }
+                                    else
+                                    {
+                                        arrInfo.MockLevelAppend += " | " + rstScore.MockLevel;
+                                        arrInfo.ScoreAppend+= " ，" + rstScore.Score;
+                                        arrInfo.WKDateAppend+= " ，" + rstScore.AT_Date.ToString("yyyy/MM/dd");
+                                    }
+                                    i++;
+                                }
+
+                            }
+                            parUnt.PaPerArr.Add(arrInfo);
+                        }
+                    }
+                    unitPart.Add(parUnt);
+                }
+            }
+            rsg.data = unitPart;
+            return Json(rsg);
         }
 
         /// <summary>

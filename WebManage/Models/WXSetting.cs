@@ -17,5 +17,9 @@ namespace WebManage.Models
         /// 评论模板
         /// </summary>
         public string TemplateIdComend { get; set; }
+        /// <summary>
+        /// 家长沟通消息模板
+        /// </summary>
+        public string TemplateSummary { get; set; }
     }
 }

@@ -33,6 +33,9 @@ namespace WebManage.Models.Res
         /// </summary>
         public int UnitId { get; set; }
 
+        public int PaperId { get; set; }
+
+
         /// <summary>
         /// 分类名称
         /// </summary>

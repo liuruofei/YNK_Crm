@@ -541,6 +541,46 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             return View("CreateContrc", motion);
         }
 
+        //
+        public IActionResult GiftCourseTime(int studentId) {
+            ViewBag.StudentUid = studentId;
+            ContracInfmotion motion = new ContracInfmotion();
+            C_SequenceCode sequence2 = new C_SequenceCode();
+            long contrcNoLast = _currencyService.DbAccess().Queryable<C_SequenceCode>().Where(c => c.type == 1).Max<long>(c => c.SequenceNo);//最新合同号
+            if (contrcNoLast < 1)
+                sequence2.SequenceNo = 20000;
+            else
+                sequence2.SequenceNo = contrcNoLast + 1;
+            sequence2.type = 1;
+            sequence2.Remarks = "合同编号";
+            _currencyService.DbAccess().Insertable<C_SequenceCode>(sequence2).ExecuteCommand();
+            motion.ContraNo = "SH" + sequence2.SequenceNo;
+            return View("GiftCourseTime", motion);
+        }
+
+        /// <summary>
+        /// 特殊处理(赠送课时)
+        /// </summary>
+        /// <param name="vmodel"></param>
+        /// <returns></returns>
+        public IActionResult SaveGiftTime(GiftTimeModel vmodel) {
+            ResResult reg = new ResResult();
+            var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
+            ContracInput input = new ContracInput();
+            input.CreateUid = userId;
+            input.ContraNo = vmodel.ContraNo;
+            input.StudentUid = vmodel.StudentUid;
+            input.childList = new List<ContracChildInput>();
+            ContracChildInput child = new ContracChildInput();
+            child.PresentTime = vmodel.PresentTime;
+            child.Remarks = vmodel.Remarks;
+            child.StudentUid = vmodel.StudentUid;
+            child.StudyMode = 1;
+            input.childList.Add(child);
+            reg = _contrac.SaveGiftUserTime(input);
+            return Json(reg);
+        }
+
 
         /// <summary>
         /// 创建合同
