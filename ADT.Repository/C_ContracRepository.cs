@@ -571,10 +571,18 @@ namespace ADT.Repository
                     }
                     else
                     {
-                        input.CreateTime = DateTime.Now;
-                        input.UpdateUid = input.CreateUid;
-                        input.UpdateTime = DateTime.Now;
-                        result = db.Insertable(input).ExecuteCommand();
+                        var info = db.Queryable<C_Contrac_User>().Where(n => n.Student_Name.Equals(input.Student_Name)).First();
+                        if (info != null)
+                        {
+                            rsg.code = 0;
+                            rsg.msg = "学生名称已被使用,请更换名称";
+                        }
+                        else {
+                            input.CreateTime = DateTime.Now;
+                            input.UpdateUid = input.CreateUid;
+                            input.UpdateTime = DateTime.Now;
+                            result = db.Insertable(input).ExecuteCommand();
+                        }
                     }
                     if (result > 0)
                     {
@@ -585,6 +593,86 @@ namespace ADT.Repository
                 catch (Exception er)
                 {
                     rsg.msg = "保存失败-" + er.Message;
+                }
+            }
+            return rsg;
+        }
+
+        //赠送课时
+        public ResResult SaveGiftUserTime(ContracInput input) {
+            ResResult rsg = new ResResult();
+            using (var db = SqlSugarHelper.GetInstance()) {
+                try
+                {
+                    db.BeginTran();
+                    C_Contrac_User user = db.Queryable<C_Contrac_User>().Where(n => n.StudentUid == input.StudentUid).First();
+                    //已有学员创建合同
+                    C_Contrac contrac = new C_Contrac();
+                    contrac.CampusId = user.CampusId;
+                    contrac.Constra_Status = (int)Constra_Status.Finsh;
+                    contrac.Pay_Status = (int)Constra_Pay_Status.PayOk;
+                    contrac.ContraCenterId = 1;
+                    contrac.StudentUid = input.StudentUid;
+                    contrac.CC_Uid = user.CC_Uid;
+                    contrac.ContraNo = input.ContraNo;
+                    contrac.Total_Amount = 0;
+                    contrac.Pay_Amount = 0;
+                    contrac.Start_Time =DateTime.Now;
+                    contrac.End_Time = DateTime.Now;
+                    contrac.CreateTime = DateTime.Now;
+                    contrac.CreateUid = input.CreateUid;
+                    var contracId = db.Insertable<C_Contrac>(contrac).ExecuteReturnIdentity();
+                    input.childList.ForEach(childInput =>
+                    {
+                        C_Contrac_Child child = new C_Contrac_Child();
+                        child.Pay_Stutas = (int)ConstraChild_Pay_Stutas.PayOk;
+                        child.CC_Uid = user.CC_Uid;
+                        child.StudentUid = input.StudentUid;
+                        child.Contrac_Child_Status = (int)ConstraChild_Status.Confirmationed;
+                        child.ContraNo = contrac.ContraNo;
+                        child.ContraRate = 0;
+                        child.IsPreferential = 0;
+                        child.Contra_ChildNo = contrac.ContraNo + "_1";
+                        child.Contra_Property = (int)Contra_Property.Renew;//续费
+                        child.Course_Time = 0;
+                        child.Class_Course_Time = 0;
+                        child.Original_Amount = 0;
+                        child.Saler_Amount = 0;
+                        child.Discount_Amount = 0;
+                        child.Added_Amount = 0;
+                        child.IsUseAddedAmount = 0;
+                        child.StartTime = DateTime.Now;
+                        child.StudyMode = 1;
+                        child.SignIn_Data = DateTime.Now;
+                        child.PresentTime = childInput.PresentTime;
+                        child.Remarks = childInput.Remarks;
+                        child.ArrearageStatus = 0;
+                        child.CreateUid = input.CreateUid;
+                        child.CreateTime = DateTime.Now;
+                        child.UpdateUid = input.CreateUid;
+                        child.UpdateTime = DateTime.Now;
+                        child.CampusId = user.CampusId;
+                        var contracChildId = db.Insertable<C_Contrac_Child>(child).ExecuteReturnIdentity();
+                        //保存赠送课时
+                        C_User_PresentTime gitTime = new C_User_PresentTime();
+                        gitTime.Contra_ChildNo = child.Contra_ChildNo;
+                        gitTime.StudentUid = input.StudentUid;
+                        gitTime.Present_Time = child.PresentTime;
+                        gitTime.Present_UseTime = 0;
+                        gitTime.UpdateTime = DateTime.Now;
+                        gitTime.UpdateUid = input.CreateUid;
+                        gitTime.CreateTime = DateTime.Now;
+                        gitTime.CreateUid = input.CreateUid;
+                        db.Insertable<C_User_PresentTime>(gitTime).ExecuteReturnIdentity();
+                    });
+                    db.CommitTran();
+                    rsg.code = 200;
+                    rsg.msg = "赠送课时成功";
+                }
+                catch (Exception er)
+                {
+                    db.RollbackTran();//回滚
+                    rsg.msg = "赠送课时失败-" + er.Message;
                 }
             }
             return rsg;
@@ -2247,6 +2335,12 @@ namespace ADT.Repository
                         }
                         else {
                             db.Updateable<C_User_CourseTime>().SetColumns(v=>new C_User_CourseTime {Course_Time=(timeModel.Course_Time - input.BackCourseTime) }).Where(v=>v.Id==input.Id).ExecuteCommand();
+                            //判断当前合同是否免费赠送
+                            var childContrc = db.Queryable<C_Contrac_Child>().Where(cc => cc.Contra_ChildNo == timeModel.Contra_ChildNo).First();
+                            //如果额外优惠金额等于折后价格属于免费，则退回余额为0
+                            if (childContrc.Added_Amount == childContrc.Saler_Amount) {
+                                input.BackAmount = 0;
+                            }
                             //更新学员余额
                             db.Updateable<C_Contrac_User>().SetColumns(v => new C_Contrac_User { Amount = (stundent.Amount + input.BackAmount) }).Where(v => v.StudentUid ==timeModel.StudentUid).ExecuteCommand();
                             rsg.code = 200;
