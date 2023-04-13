@@ -531,6 +531,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     plan.HomeWorkComent = vmodel.HomeWorkComent;
                     plan.InSchoolTime = vmodel.InSchoolTime;
                     plan.OutSchoolTime = vmodel.OutSchoolTime;
+                    plan.TotalTime = vmodel.TotalTime;
                     plan.TaUid = vmodel.TaUid;
                     plan.UpdateTime = DateTime.Now;
                     plan.UpdateUid = userId;

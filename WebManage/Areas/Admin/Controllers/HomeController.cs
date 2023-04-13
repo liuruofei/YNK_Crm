@@ -171,6 +171,23 @@ namespace WebManage.Areas.Admin.Controllers
             return Json(rsg);
         }
 
+
+        public IActionResult RemoveTask(int id) {
+            ResResult rsg = new ResResult() { code = 0, msg = "删除失败" };
+            try
+            {
+                rsg.code = _currencyService.DbAccess().Deleteable<C_TeacherTask>().Where(tk => tk.Id == id).ExecuteCommand();
+                rsg.code = rsg.code > 0 ? 200 : 0;
+                rsg.msg = rsg.code > 0 ? "删除成功" : rsg.msg;
+            }
+            catch (Exception er) {
+                rsg.code = 0;
+                rsg.msg = "删除失败!原因:"+er.Message;
+            
+            }
+            return Json(rsg);
+        }
+
         /// <summary>
         /// 获取任务列表
         /// </summary>

@@ -48,6 +48,12 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">在校时长</label>
+        <div class="layui-input-block">
+            <input name="TotalTime" class="layui-input" placeholder="在校时长" />
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">每日总结</label>
         <div class="layui-input-block">
             <textarea name="SummaryComent" class="layui-textarea" placeholder="输入作业任务"></textarea>
@@ -62,7 +68,7 @@
     </div>
     <div class="layui-form-item positionbottomtop"></div>
     <div class="layui-form-item text-right positionbottom">
-        <button class="layui-btn layui-btn-primary" type="button" ew-event="deleteTask"  id="deleteTask">删除当前任务</button>
+        <button class="layui-btn layui-btn-primary" type="button" ew-event="deleteTask" id="deleteTask">删除当前任务</button>
         <button class="layui-btn layui-btn-primary" type="button" ew-event="closeDialog">取消</button>
         <button class="layui-btn" lay-filter="modelUserSubmit" lay-submit>保存</button>
     </div>

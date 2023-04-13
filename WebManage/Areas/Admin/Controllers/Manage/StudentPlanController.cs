@@ -522,7 +522,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
                 var ccOrSale = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
 .Where((u, ur, r) => u.User_ID == userId && (r.Role_Name == "督学校长" || r.Role_Name == "督学")).First();
-                if (string.IsNullOrEmpty(vmodel.TaUid) && string.IsNullOrEmpty(vmodel.HomeWorkComent) && string.IsNullOrEmpty(vmodel.HomeWorkComent))
+                if (!string.IsNullOrEmpty(vmodel.TaUid) && string.IsNullOrEmpty(vmodel.HomeWorkComent) && string.IsNullOrEmpty(vmodel.HomeWorkComent))
                 {
                     return Json(new { code = 0, msg = "选择督学前请填写已完成作业!" });
                 }
@@ -537,6 +537,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     plan.HomeWorkComent = vmodel.HomeWorkComent;
                     plan.InSchoolTime = vmodel.InSchoolTime;
                     plan.OutSchoolTime = vmodel.OutSchoolTime;
+                    plan.TotalTime = vmodel.TotalTime;
                     plan.TaUid = vmodel.TaUid;
                     plan.UpdateTime = DateTime.Now;
                     plan.UpdateUid = userId;
