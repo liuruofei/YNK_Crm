@@ -249,6 +249,7 @@
     </script>
     <script>
         var currtTime = '@ViewBag.DataStr';
+        var oldRoomid = 0;
         layui.use(['form', 'admin', 'adminForm', 'laydate'], function () {
         var KeyId = '@KeyId';
         var $ = layui.jquery;
@@ -356,6 +357,7 @@
                             $("#courseDates").css("display", "none");
                             $("#AT_Date").show();
                             $("#roomItem").show();
+                            oldRoomid = r.RoomId;
                         }
                         else {
                             $("#courseDates").show();
@@ -722,7 +724,12 @@
                         bindRoom(selectArr[0], randstTime, randedTime, 0);
                     }
                     else {
-                        bindRoom(null,null,null,0);
+                        if (KeyId > 0) {
+                            bindRoom($("#AT_Date").val(), randstTime,randedTime,oldRoomid);
+                        }
+                        else {
+                            bindRoom(null, null, null, 0);
+                        }
                     }
                 }
             });

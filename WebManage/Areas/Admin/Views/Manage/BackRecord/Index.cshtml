@@ -1,0 +1,137 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">学员名称：</label>
+                        <div class="layui-input-inline mr0">
+                            <input id="txtTitle" class="layui-input" type="text" placeholder="学员名称" />
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">时间</label>
+                        <div class="layui-input-inline mr0">
+                            <input  name="StartTime" id="StartTime" class="layui-input" type="text" placeholder="登记开始时间"  autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">—</label>
+                        <div class="layui-input-inline mr0">
+                            <input  name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
+                    </div>
+                    <div class="layui-inline">
+                       <span id="txtAmountTotal" style="font-weight:700"></span>
+                    </div>
+                </div>
+            </div>
+
+            <table class="layui-table" id="userTable" lay-filter="userTable"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格操作列 -->
+<script type="text/html" id="tableBar">
+</script>
+
+@section css{
+    <link rel="stylesheet" href="/assets/module/formSelects/formSelects-v4.css" />
+    <style>
+        .layui-table-cell {
+            height: auto;
+            line-height: 28px;
+        }
+
+        .layui-table img {
+            max-width: 600px;
+        }
+
+    </style>
+}
+@section js{
+    <!-- js部分 -->
+    <script>
+        layui.use(['form', 'util', 'admin', 'adminList', 'adminForm','laydate'], function () {
+    var $ = layui.jquery;
+    var util = layui.util;
+    var admin = layui.admin;
+    var adminList = layui.adminList;
+    var adminForm = layui.adminForm;
+    var laydate = layui.laydate;
+    laydate.render({
+        elem: '#StartTime',
+        type: 'date'
+    });
+    laydate.render({
+        elem: '#EndTime',
+        type: 'date'
+    });
+    // 渲染表格
+    var insTb = adminList.tableLayUI({
+        elem: '#userTable',
+        url: '@Url.Action("GetDataSource")',
+        page: true,
+        cellMinWidth: 100,
+        cols: [[
+            { type: 'numbers' },
+            { field: 'Student_Name', title: '学员', sort: true },
+            {
+                field: 'BackAmount', title: '退款金额', sort: true
+            },
+            { field: 'BackDate', title: '退款时间', width: 120, sort: true },
+            { field: 'CreateName', title: '操作人', sort: true },
+        ]]
+    });
+    AmountTotal();
+
+    // 搜索
+    $('#btnSearch').click(function () {
+        var title = $('#txtTitle').val();
+        var startTime = $('input[name="StartTime"]').val();
+        var endTime = $('input[name="EndTime"]').val();
+        insTb.reload({
+            where: { title: title, startTime: startTime,endTime:endTime}
+            , page: {
+                curr: 1 //重新从第 1 页开始
+            }
+        });
+        AmountTotal();
+    });
+
+    // 工具条点击事件
+    adminList.table.on('tool(userTable)', function (obj) {
+
+    });
+
+    //汇总
+    function AmountTotal() {
+            var title = $('#txtTitle').val();
+            var startTime = $('input[name="StartTime"]').val();
+            var endTime = $('input[name="EndTime"]').val();
+            adminForm.load({
+                        url:"@Url.Action("TotalAmount")",
+                        data: { title: title, startTime: startTime, endTime: endTime },
+                        dataType: 'json',
+                        callBack: function (result) {
+                            if (result.data!= null && result.data!= undefined) {
+                                $("#txtAmountTotal").text("本月退款金额："+result.data+"元(实际退款)");
+                            }
+                            else {
+                                $("#txtAmountTotal").text("");
+                            }
+                        }
+                    });
+    }
+
+});
+    </script>
+}

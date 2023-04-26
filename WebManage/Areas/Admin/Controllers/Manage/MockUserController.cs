@@ -204,6 +204,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                        PaperCode=pp.PaperCode
                    }
                    ).ToList();
+            List<int> unitGroup =list.Select(sl => sl.UnitId).Distinct().ToList();
+            List<C_ProjectUnitModel> unitName = _currencyService.DbAccess().Queryable<C_Project_Unit, C_Project>((ut,prj)=>new Object[]{JoinType.Left,ut.ProjectId==prj.ProjectId}).Where(ut => unitGroup.Contains(ut.UnitId)).Select<C_ProjectUnitModel>((ut, prj)=>new C_ProjectUnitModel { 
+            UnitId=ut.UnitId,
+            UnitCode=ut.UnitCode,
+            UnitName=ut.UnitName,
+            ProjectId=ut.ProjectId,
+            ProjectName=prj.ProjectName
+            }).ToList();
+            List<C_Unit_Paper> listPaper = _currencyService.DbAccess().Queryable<C_Unit_Paper>().Where(pp => unitGroup.Contains(pp.UnitId)).ToList();
             //导出代码
             var workbook = new HSSFWorkbook();
             //标题列样式
@@ -219,47 +228,58 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             headStyle.SetFont(headFont);
             var sheet = workbook.CreateSheet(student.Student_Name + "模考统计");
             sheet.DefaultColumnWidth = 25;
-            string[] cellNames = new string[] {"模式","姓名","日期", "类别", "科目", "单元", "成绩","等级","试卷编号"};
+            string[] cellNames = new string[]{ "题目编号","日期","成绩","等级"};
+            var crtRowIndex = 0;
             //循环行
-            var row0 = sheet.CreateRow(0);
-            for (var i = 0; i < cellNames.Length; i++)
-            {
-                var cell = row0.CreateCell(i);
-                cell.SetCellValue(cellNames[i]);
-                cell.CellStyle = headStyle;
-            }
-            if (list != null && list.Count > 0)
-            {
-                for (var y = 0; y < list.Count; y++)
+            if (list != null && list.Count > 0&&unitGroup!=null&&unitGroup.Count>0) {
+                for (var i = 0; i < unitGroup.Count; i++)
                 {
-                    var row = sheet.CreateRow(y + 1);
-                    var cell0 = row.CreateCell(0);
-                    cell0.SetCellValue("模考");
-                    cell0.CellStyle = headStyle;
-                    var cell1 = row.CreateCell(1);
-                    cell1.SetCellValue(list[y].Student_Name);
-                    cell1.CellStyle = headStyle;
-                    var cell2 = row.CreateCell(2);
-                    cell2.SetCellValue(list[y].AT_Date.ToString("yyyy-MM-dd"));
-                    cell2.CellStyle = headStyle;
-                    var cell3 = row.CreateCell(3);
-                    cell3.SetCellValue(list[y].SubjectName);
-                    cell3.CellStyle = headStyle;
-                    var cell4 = row.CreateCell(4);
-                    cell4.SetCellValue(list[y].ProjectName);
-                    cell4.CellStyle = headStyle;
-                    var cell5 = row.CreateCell(5);
-                    cell5.SetCellValue(list[y].UnitName);
-                    cell5.CellStyle = headStyle;
-                    var cell6 = row.CreateCell(6);
-                    cell6.SetCellValue(list[y].Score);
-                    cell6.CellStyle = headStyle;
-                    var cell7 = row.CreateCell(7);
-                    cell7.SetCellValue(list[y].MockLevel);
-                    cell7.CellStyle = headStyle;
-                    var cell8 = row.CreateCell(8);
-                    cell8.SetCellValue(list[y].PaperCode);
-                    cell8.CellStyle = headStyle;
+                    var crtPaper = listPaper.Where(y => y.UnitId == unitGroup[i]).ToList();
+                    if (crtPaper != null && crtPaper.Count > 0) {
+                        if (i != 0)
+                        {
+                            crtRowIndex = crtRowIndex + 1;
+                        }
+                        var row0 = sheet.CreateRow(crtRowIndex);
+                        sheet.AddMergedRegion(new NPOI.SS.Util.CellRangeAddress(crtRowIndex, crtRowIndex, 0, 3));
+                        var cell0 = row0.CreateCell(0);
+                        var untModel = unitName.Where(ut => ut.UnitId == unitGroup[i]).First();
+                        cell0.SetCellValue(untModel.ProjectName + "_" + untModel.UnitName);
+                        crtRowIndex = crtRowIndex + 1;
+                        var row1 = sheet.CreateRow(crtRowIndex);
+                        for (var j = 0; j < cellNames.Length; j++)
+                        {
+                            var cell = row1.CreateCell(j);
+                            cell.SetCellValue(cellNames[j]);
+                            cell.CellStyle = headStyle;
+                        }
+                        for (var j = 0; j < crtPaper.Count; j++)
+                        {
+                            crtRowIndex++;
+                            string atTime = "", score = "", level = "";
+                            var scoreList = list.Where(sc => sc.UnitId == unitGroup[i] && sc.PaperCode == crtPaper[j].PaperCode).ToList();
+                            if (scoreList != null && scoreList.Count > 0)
+                            {
+                                atTime = string.Join(" , ", scoreList.Select(at => at.AT_Date.ToString("yyyy-MM-dd")).ToList());
+                                score = string.Join(" , ", scoreList.Select(at => at.Score).ToList());
+                                level = string.Join(" , ", scoreList.Select(at => at.MockLevel).ToList());
+                            }
+                            var row2 = sheet.CreateRow(crtRowIndex);
+                            var cell2 = row2.CreateCell(0);
+                            cell2.SetCellValue(crtPaper[j].PaperCode);
+                            cell2.CellStyle = headStyle;
+                            var cell3 = row2.CreateCell(1);
+                            cell3.SetCellValue(atTime);
+                            cell3.CellStyle = headStyle;
+                            var cell4 = row2.CreateCell(2);
+                            cell4.SetCellValue(score);
+                            cell4.CellStyle = headStyle;
+                            var cell5 = row2.CreateCell(3);
+                            cell5.SetCellValue(level);
+                            cell5.CellStyle = headStyle;
+                        }
+                    }
+
                 }
             }
             //保存

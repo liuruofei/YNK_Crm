@@ -132,14 +132,6 @@
                     layer.msg("请添加试卷编号");
                     return false;
                 }
-                if (data.field.MockLevel == '') {
-                    layer.msg("请选择模考等级");
-                    return false;
-                }
-                if (data.field.Score == '' || data.field.Score == null) {
-                    layer.msg("请输入成绩");
-                    return false;
-                }
                 adminForm.Save({
                     url: KeyId ? '@Url.Action("SaveInfo")' : '@Url.Action("SaveInfo")',
                     data: data.field,

@@ -205,8 +205,6 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
                 vmodel.CreateUid = userId;
                 vmodel.CampusId =Convert.ToInt32(campusId);
-                //if (string.IsNullOrEmpty(vmodel.RelationShip_Contras))
-                //    return Json(new { code = 0, msg = "关联合同不能为空" });
                 if (vmodel.StudentUid < 1)
                     return Json(new { code = 0, msg = "学员不能为空" });
                 rsg = _contrac.SaveCollection(vmodel);

@@ -1,21 +1,18 @@
 ﻿using ADT.Models;
-using ADT.Models.ResModel;
 using ADT.Service.IService;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebManage.Models.Res;
 
 namespace WebManage.Controllers
 {
-    public class WxComentController : Controller
+    public class GuidanceController : Controller
     {
         private ICurrencyService _currencyService;
-        public WxComentController(ICurrencyService currencyService)
+        public GuidanceController(ICurrencyService currencyService)
         {
             _currencyService = currencyService;
         }
@@ -40,7 +37,7 @@ namespace WebManage.Controllers
         /// </summary>
         /// <param name="openId"></param>
         /// <returns></returns>
-        public async Task<IActionResult> GetComentList(string openId, int page, int limit)
+        public async Task<IActionResult> GetGuiDanceList(string openId, int page, int limit)
         {
             int total = 0;
             PageList<C_Course_Work> pageModel = new PageList<C_Course_Work>();
@@ -48,8 +45,7 @@ namespace WebManage.Controllers
             var cuser = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(cu => cu.OpenId.Equals(openId) || cu.Elder_OpenId.Equals(openId) || cu.Elder2_OpenId.Equals(openId)).First();
             if (cuser != null)
             {
-                List<int> listClass = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(cu => cu.StudentUid == cuser.StudentUid && cu.StudyMode == 2).Select<int>(cu => cu.ClassId).ToList();
-                list = _currencyService.DbAccess().Queryable<C_Course_Work,C_Subject>((it,sub)=>new Object[]{ JoinType.Left, it.SubjectId==sub.SubjectId }).Where((it,sub)=> (it.StudentUid == cuser.StudentUid || listClass.Contains(it.ClasssId))&&sub.SubjectName!= "升学指导" && !string.IsNullOrEmpty(it.Comment)).OrderBy(it => it.Comment_Time, OrderByType.Desc).ToPageList(page, limit, ref total);
+                list = _currencyService.DbAccess().Queryable<C_Course_Work,C_Subject>((it,sub)=>new Object[]{JoinType.Left,it.SubjectId==sub.SubjectId }).Where((it,sub)=> it.StudentUid == cuser.StudentUid&&sub.SubjectName== "升学指导"&& !string.IsNullOrEmpty(it.Comment)).OrderBy(it => it.Comment_Time, OrderByType.Desc).ToPageList(page, limit, ref total);
             }
             pageModel.msg = "获取成功";
             pageModel.code = 0;
@@ -57,7 +53,5 @@ namespace WebManage.Controllers
             pageModel.data = list;
             return Json(pageModel);
         }
-
-
     }
 }

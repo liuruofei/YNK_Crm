@@ -134,13 +134,23 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         return Json(reg);
                     }
                     model.IsBackAmount = 2;
-                    model.Amount = model.Amount- model.ApplyBackAmount;
+                    model.Amount = model.Amount - model.ApplyBackAmount;
                 }
-                else
+                else {
                     model.IsBackAmount = 3;
+                }
                 var result = _currencyService.DbAccess().Updateable<C_Contrac_User>(model).ExecuteCommand();
                 if (result > 0)
                 {
+                    if (through) {
+                        C_BackAmountRecord backRecord = new C_BackAmountRecord();
+                        backRecord.BackAmount = model.ApplyBackAmount;
+                        backRecord.StudentUid = model.StudentUid;
+                        backRecord.CreateUid = userId;
+                        backRecord.BackDate = DateTime.Now;
+                        backRecord.CreateTime = DateTime.Now;
+                        _currencyService.DbAccess().Insertable<C_BackAmountRecord>(backRecord).ExecuteCommand();
+                    }
                     reg.msg = through?"审核成功":"驳回成功";
                     reg.code = 200;
                 }

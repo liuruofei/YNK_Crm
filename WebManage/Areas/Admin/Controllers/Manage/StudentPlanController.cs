@@ -136,7 +136,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 if (chouciUser != null) {
                     listTask = _currencyService.DbAccess().Queryable(@"(select task.Task_Mode,task.Task_Name,mytask.Words_Count,mytask.PlanTime,isRightCount=(select count(*) from ynk_chouci.dbo.[view_my_task_word] taskword where taskword.Uid=mytask.Uid and taskword.TaskId=mytask.TaskId and taskword.Answer_IsRight=1),
                 SecondAll=(select sum(taskword.Answer_Second) from ynk_chouci.dbo.[view_my_task_word] taskword where taskword.Uid=mytask.Uid and taskword.TaskId=mytask.TaskId) from ynk_chouci.dbo.[view_my_task] mytask 
-                left join ynk_chouci.dbo.[view_task] task on  mytask.TaskId=task.TaskId where mytask.[Uid]=@uid and mytask.Finish_Status=2)", "orgin").AddParameters(new { uid = chouciUser.Uid }).Select<MyTaskModel>().ToList();
+                left join ynk_chouci.dbo.[view_task] task on  mytask.TaskId=task.TaskId where mytask.[Uid]=@uid and mytask.Finish_Status=2 and cast(mytask.CreateTime as date)>=cast(@startTime as date) and cast(mytask.CreateTime as date)<=cast(@endTime as date))", "orgin").AddParameters(new { uid = chouciUser.Uid }).Select<MyTaskModel>().AddParameters(new { startTime= dateWeekFirstDay,endTime= dateWeekLastDay}).ToList();
                 }
             }
             tdlistTime.ForEach(it =>
