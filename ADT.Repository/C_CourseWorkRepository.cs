@@ -94,6 +94,23 @@ namespace ADT.Repository
                             rsg.code = 0;
                             return rsg;
                         }
+                        //验证教室此时间段是否被占用，并且做出提示
+                        if (work.StudyMode != 5 && work.StudyMode != 6 && work.StudyMode != 7 && work.StudyMode != 3) {
+                            C_Course_Work ctRoom = db.Queryable<C_Course_Work, C_Room>((ir, rm) => new Object[] { JoinType.Left, ir.RoomId == rm.Id }).Where((ir, rm) => ir.RoomId == input.RoomId && ir.Id != input.Id && ir.AT_Date.ToString("yyyy-MM-dd") == input.AT_Date.ToString("yyyy-MM-dd")
+                             &&(
+                             (DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + ir.StartTime)<= DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime) && DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + ir.EndTime)>DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime))||
+                             (DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + ir.StartTime)< DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime)&& DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + ir.EndTime)>=DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime))||
+                             (DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime) <= DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " +ir.StartTime) && DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime) > DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " + ir.StartTime))||
+                              (DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + input.StartTime) < DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " + ir.EndTime) && DateTime.Parse(ir.AT_Date.ToString("yyyy-MM-dd") + " " + input.EndTime) >= DateTime.Parse(input.AT_Date.ToString("yyyy-MM-dd") + " " + ir.EndTime))
+                             )
+                           && ir.RoomId > 0 && !rm.RoomName.Contains("线上")&&!rm.RoomName.Contains("考场")).First();
+                            if (ctRoom != null)
+                            {
+                                rsg.msg = "此时间段,该教室已被占用!请更换其它教室";
+                                rsg.code = 0;
+                                return rsg;
+                            }
+                        }
                         //1对1模式
                         if (input.StudyMode == 1 && work.Work_Stutas == 0)
                         {

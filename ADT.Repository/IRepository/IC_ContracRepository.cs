@@ -38,6 +38,9 @@ namespace ADT.Repository.IRepository
         /// <returns></returns>
         ResResult SaveContracUser(C_Contrac_User input);
 
+
+        ResResult SaveGiftUserTime(ContracInput input);
+
         /// <summary>
         /// 审核主合同
         /// </summary>

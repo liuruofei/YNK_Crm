@@ -78,9 +78,6 @@ namespace ADT.Repository
                                     contrac.Total_Amount = contrac.Total_Amount - item.Added_Amount;
                                 });
                             }
-
-                            //重新更新总合同金额
-                            db.Updateable<C_Contrac>(contrac).ExecuteCommand();
                             //保存当前子合同的明细
                             if (input.Child_Detail != null&& input.Child_Detail.Count>0)
                             {
@@ -141,6 +138,8 @@ namespace ADT.Repository
                                         db.Updateable<C_Contrac_Child_Detail>(updateDetail).ExecuteCommand();
                                 }
                             }
+                            //重新更新总合同金额
+                            db.Updateable<C_Contrac>(contrac).ExecuteCommand();
                         }
 
                     }
