@@ -1,0 +1,81 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" content="text/html;charset=UTF-8" http-equiv="Content-Type">
+    <title>教师评语</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no" />
+    <!--基础js-->
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <script src="http://crm.younengkao.com/assets/js/jquery-3.2.1.min.js"></script>
+    <script src="http://crm.younengkao.com/assets/js/httpBase2.js"></script>
+    <style type="text/css">
+        .wkTitle {
+            padding: 1rem 1.3rem;
+            text-align: center;
+        }
+
+        .courseCotent {
+            padding: 1px 1.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="wkTitle">
+        <h2>教师评语</h2>
+    </div>
+    <div class="courseCotent" id="courseCotent">
+        <textarea id="txtcourseCotent" style="height:700px;width:100%" disabled></textarea>
+    </div>
+    <div class="wkTitle">
+        <h2>学员作业</h2>
+    </div>
+    <div class="courseCotent" id="homeWork">
+        <textarea id="txthomeWork" style="height:360px;width:100%" disabled></textarea>
+    </div>
+    <script type="text/javascript">
+        $(function () {
+            bindPage();
+        })
+        function bindPage() {
+            var wkId = getUrlParam('wkId');
+            $.ajax({
+                url: "http://crm.younengkao.com/WxTemplateChild/GetWorkModel",//获取点评内容
+                type: "post",
+                data: { wkId: parseInt(wkId) },
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: "json",
+                success: function (data) {
+                    var result = data.data;
+                    console.log(result);
+                    if (result != null) {
+                        $("#txtcourseCotent").val(result.Comment);
+                        $("#txthomeWork").val(result.HomeWorkComent);
+                    }
+                },
+                error: function (error) {
+                    alert(error);
+                }
+            });
+
+        }
+
+        function getUrlParam(name) {
+            var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+            let url = window.location.href;
+            let search = url.split('?')[1]
+            if (search) {
+                var r = search.substr(0).match(reg)
+                if (r !== null) return unescape(r[2])
+                return null
+            } else {
+                return null
+            }
+        }
+    </script>
+</body>
+</html>
