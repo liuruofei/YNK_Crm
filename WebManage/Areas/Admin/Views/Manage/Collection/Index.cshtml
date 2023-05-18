@@ -8,7 +8,7 @@
             <div class="layui-form toolbar">
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <label class="layui-form-label w-auto">学员名称：</label>
+                        <label class="layui-form-label w-auto">学员：</label>
                         <div class="layui-input-inline mr0">
                             <input id="txtTitle" class="layui-input" type="text" placeholder="学员名称" />
                         </div>
@@ -20,10 +20,13 @@
                         </div>
                     </div>
                     <div class="layui-inline">
-                        <label class="layui-form-label w-auto">—</label>
+                        <label class="layui-form-label w-auto">-</label>
                         <div class="layui-input-inline mr0">
                             <input name="EndTime" id="EndTime" class="layui-input" type="text" placeholder="登记截止时间" autocomplete="off" />
                         </div>
+                    </div>
+                    <div class="layui-inline">
+                        <input type="checkbox" title="只显示垫付" id="ArrearageStatus"  value="1"/>
                     </div>
                     <div class="layui-inline">
                         <button id="btnSearch" class="layui-btn icon-btn"><i class="layui-icon">&#xe615;</i>搜索</button>
@@ -167,8 +170,9 @@
         var title = $('#txtTitle').val();
         var startTime = $('input[name="StartTime"]').val();
         var endTime = $('input[name="EndTime"]').val();
+        var arrearageStatus = $("#ArrearageStatus").prop("checked")== true?1:0;
         insTb.reload({
-            where: { title: title, startTime: startTime,endTime:endTime}
+            where: { title: title, startTime: startTime, endTime: endTime,arrearageStatus: arrearageStatus}
             , page: {
                 curr: 1 //重新从第 1 页开始
             }

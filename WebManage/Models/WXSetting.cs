@@ -21,5 +21,15 @@ namespace WebManage.Models
         /// 家长沟通消息模板
         /// </summary>
         public string TemplateSummary { get; set; }
+
+        /// <summary>
+        /// 业务交易消息
+        /// </summary>
+        public string TemplateBusines { get; set; }
+
+        /// <summary>
+        /// 作业提醒
+        /// </summary>
+        public string TemplateHomeWork { get; set; }
     }
 }

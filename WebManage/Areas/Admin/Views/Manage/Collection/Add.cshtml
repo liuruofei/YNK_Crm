@@ -53,7 +53,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">收款方式</label>
         <div class="layui-input-block">
-            <input name="PayMothed" type="radio" title="现金" value="1" />
+            <input name="PayMothed" type="radio" title="在线支付" value="1" />
             <input name="PayMothed" type="radio" title="刷卡" value="2" />
             <input name="PayMothed" type="radio" title="汇款" value="3" checked />
         </div>
@@ -71,6 +71,18 @@
         <label class="layui-form-label">收款日期</label>
         <div class="layui-input-block">
             <input class="layui-input" name="Collection_Time" id="Collection_Time" type="text" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">业务标题</label>
+        <div class="layui-input-block">
+            <input class="layui-input" name="BusinesTitle" id="BusinesTitle" type="text" placeholder="客户收到交易付款信息标题"/>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">业务内容</label>
+        <div class="layui-input-block">
+            <textarea name="BusinesCotent" id="BusinesCotent" maxlength="200" style="width:100%" placeholder="客户收到交易付款内容"></textarea>
         </div>
     </div>
     <div class="layui-form-item">

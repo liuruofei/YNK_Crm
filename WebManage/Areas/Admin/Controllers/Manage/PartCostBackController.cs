@@ -46,9 +46,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             List<C_UserCourseTimeModel> projectTimeList = new List<C_UserCourseTimeModel>();
             if (!string.IsNullOrEmpty(childContrcNo)) {
                 var model = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(ite => ite.Contra_ChildNo.Equals(childContrcNo)).First();
-                projectTimeList = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Subject, C_Project, C_Class>((time, sub, pro, cla) => new object[] {
-           JoinType.Left,time.SubjectId==sub.SubjectId,JoinType.Left,time.ProjectId==pro.ProjectId,JoinType.Left,time.ClassId==cla.ClassId
-         }).Where((time, sub, pro) => time.Contra_ChildNo == childContrcNo).Select<C_UserCourseTimeModel>((time, sub, pro, cla) => new C_UserCourseTimeModel
+                projectTimeList = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Subject, C_Project, C_Class,C_Contrac_User,C_Contrac_Child>((time, sub, pro, cla,u,chil) => new object[] {
+           JoinType.Left,time.SubjectId==sub.SubjectId,JoinType.Left,time.ProjectId==pro.ProjectId,JoinType.Left,time.ClassId==cla.ClassId,JoinType.Left,time.StudentUid==u.StudentUid,JoinType.Left,time.Contra_ChildNo==chil.Contra_ChildNo
+         }).Where((time, sub, pro,cla,u) =>(time.Contra_ChildNo == childContrcNo||u.Student_Name==childContrcNo)).Select<C_UserCourseTimeModel>((time, sub, pro, cla,u,chil) => new C_UserCourseTimeModel
          {
              Id = time.Id,
              Contra_ChildNo = time.Contra_ChildNo,
@@ -67,21 +67,23 @@ namespace WebManage.Areas.Admin.Controllers.Manage
              Lvel2Price = sub.Lvel2Price,
              Lvel3Price = sub.Lvel3Price,
              Lvel4Price = sub.Lvel4Price,
+             ContraRate=chil.ContraRate
+           
          }).ToPageList(page, limit, ref total);
                 projectTimeList.ForEach(em => {
                     switch (em.Level)
                     {
                         case 1:
-                            em.UnitPrice = em.Lvel1Price * (model.ContraRate / 10);
+                            em.UnitPrice = em.Lvel1Price * (em.ContraRate / 10);
                             break;
                         case 2:
-                            em.UnitPrice = em.Lvel2Price * (model.ContraRate / 10);
+                            em.UnitPrice = em.Lvel2Price * (em.ContraRate / 10);
                             break;
                         case 3:
-                            em.UnitPrice = em.Lvel3Price * (model.ContraRate / 10);
+                            em.UnitPrice = em.Lvel3Price * (em.ContraRate / 10);
                             break;
                         case 4:
-                            em.UnitPrice = em.Lvel4Price * (model.ContraRate / 10);
+                            em.UnitPrice = em.Lvel4Price * (em.ContraRate / 10);
                             break;
                     }
 

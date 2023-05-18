@@ -1,11 +1,14 @@
-﻿using ADT.Models;
+﻿using ADT.Common;
+using ADT.Models;
 using ADT.Models.Enum;
 using ADT.Models.InputModel;
 using ADT.Models.ResModel;
 using ADT.Service.IService;
+using log4net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using SqlSugar;
 using System;
 using System.Collections.Generic;
@@ -13,6 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WebManage.Areas.Admin.Filter;
 using WebManage.Areas.Admin.Models;
+using WebManage.Models;
 using WebManage.Models.Req;
 using WebManage.Models.Res;
 
@@ -23,9 +27,14 @@ namespace WebManage.Areas.Admin.Controllers.Manage
     {
         private ICurrencyService _currencyService;
         private IC_ContracService _contrac;
-        public CollectionController(ICurrencyService currencyService, IC_ContracService contrac) {
+        private RedisConfig _redsconfig;
+        private WXSetting _wxConfig;
+        private ILog log = LogManager.GetLogger(Startup.repository.Name, typeof(CollectionController));
+        public CollectionController(ICurrencyService currencyService, IC_ContracService contrac, IOptions<WXSetting> wxConfig, IOptions<RedisConfig> redisConfig) {
             _currencyService = currencyService;
             _contrac = contrac;
+            _wxConfig = wxConfig.Value;
+            _redsconfig = redisConfig.Value;
         }
         protected override void Init()
         {
@@ -49,6 +58,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             var list = _currencyService.DbAccess().Queryable<C_Collection,C_Contrac_User,C_Campus,sys_user>((c, cu,ca,sy) => new Object[] { JoinType.Inner, c.StudentUid==cu.StudentUid,JoinType.Left,cu.CampusId==ca.CampusId, JoinType.Left, c.CreateUid == sy.User_ID }).WhereIF(!string.IsNullOrEmpty(query.title), (c,cu)=>cu.Student_Name.Contains(query.title))
                 .Where(c=>c.CampusId==Convert.ToInt32(campusId))
                 .WhereIF(query.startTime!=null,(c,cu) => c.Collection_Time>=query.startTime).WhereIF(query.endTime != null, (c, cu) => c.Collection_Time<= query.endTime)
+                .WhereIF(query.arrearageStatus>0, (c, cu)=>c.ArrearageStatus==query.arrearageStatus)
                 //.WhereIF(ccUse != null && ccUse.Role_Name == "顾问", (c, cu, ca, sy)=>c.CreateUid==userId).AddParameters(new { CCuid = userId })
                 .OrderBy(c =>c.Collection_Time,OrderByType.Desc)
                 .Select<C_CollectionModel>((c, cu,ca,sy) => new C_CollectionModel
@@ -215,7 +225,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             }
             return Json(rsg);
         }
-
+        //还款
         public IActionResult SavePayment(C_RepaymentRecord vmodel) {
             ResResult rsg = new ResResult() { code = 0, msg = "保存失败" };
             if (vmodel != null)
@@ -270,6 +280,23 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             {
                 reg.msg = "缺少参数";
                 reg.code = 300;
+            }
+            var collModel = _currencyService.DbAccess().Queryable<C_Collection>().Where(c => c.Id == Id).First();
+            var studentModel = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(c => c.StudentUid == collModel.StudentUid).First();
+            if (reg.code==200&&through&&!string.IsNullOrEmpty(collModel.BusinesTitle)&& !string.IsNullOrEmpty(collModel.BusinesCotent)&&(!string.IsNullOrEmpty(studentModel.OpenId)||!string.IsNullOrEmpty(studentModel.Elder2_OpenId)|| !string.IsNullOrEmpty(studentModel.Elder_OpenId)))
+            {
+                var token = GetWXToken();
+                if (collModel.Amount > 0) {
+                    //发送业务消息给学生或者家长
+                    string payMothName = "";
+                    if (collModel.PayMothed == 1)
+                        payMothName = "在线支付";
+                    else if (collModel.PayMothed ==2)
+                        payMothName = "刷卡";
+                    else
+                        payMothName = "汇款";
+                    SendMsg(studentModel.OpenId,_wxConfig.TemplateBusines, token,"业务交易通知",collModel.BusinesTitle,collModel.Collection_Time.ToString("yyyy-MM-dd"),collModel.BusinesCotent,collModel.Amount.ToString(), payMothName);
+                }
             }
             return Json(reg);
         }
@@ -342,5 +369,66 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             else
                 return Json(new { code = 0, msg = "已确认,无法删除" });
         }
+
+        public string GetWXToken()
+        {
+            WXAcceSSToken wxtokenModel = new WXAcceSSToken(); ;
+            if (RedisLock.KeyExists("wxAccessToken", _redsconfig.RedisCon))
+            {
+                wxtokenModel = RedisLock.GetStringKey<WXAcceSSToken>("wxAccessToken", _redsconfig.RedisCon);
+            }
+            else
+            {
+                string url = string.Format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={0}&secret={1}", _wxConfig.AppId, _wxConfig.AppSecret);
+                string tokenCotent = HttpHelper.HttpGet(url);
+                wxtokenModel = JsonConvert.DeserializeObject<WXAcceSSToken>(tokenCotent);
+                RedisLock.SetStringKey<WXAcceSSToken>("wxAccessToken", wxtokenModel, wxtokenModel.Expires_in, _redsconfig.RedisCon);
+            }
+            return wxtokenModel.Access_Token;
+        }
+
+        public void SendMsg(string openId, string templateId, string wxaccessToken, string msg, string businesTitle, string payTime, string businesCotent,string Amount,string payMoth)
+        {
+            try
+            {
+                Dictionary<string, object> jsonObject = new Dictionary<string, object>();
+                jsonObject.Add("touser", openId);   // openid
+                jsonObject.Add("template_id", templateId);
+                Dictionary<string, object> data = new Dictionary<string, object>();
+                Dictionary<string, string> first = new Dictionary<string, string>();
+                first.Add("value", msg);
+                first.Add("color", "#173177");
+                Dictionary<string, string> keyword1 = new Dictionary<string, string>();
+                keyword1.Add("value", businesTitle);
+                keyword1.Add("color", "#173177");
+                Dictionary<string, string> keyword2 = new Dictionary<string, string>();
+                keyword2.Add("value", businesCotent);
+                keyword2.Add("color", "#173177");
+                Dictionary<string, string> keyword3 = new Dictionary<string, string>();
+                keyword3.Add("value", Amount);
+                keyword3.Add("color", "#173177");
+                Dictionary<string, string> keyword4= new Dictionary<string, string>();
+                keyword4.Add("value", payMoth);
+                keyword4.Add("color", "#173177");
+                Dictionary<string, string> remark = new Dictionary<string, string>();
+                remark.Add("value", "业务时间:" +payTime);
+                remark.Add("color", "#173177");
+                data.Add("first", first);
+                data.Add("keyword1", keyword1);
+                data.Add("keyword2", keyword2);
+                data.Add("keyword3", keyword3);
+                data.Add("keyword4", keyword4);
+                data.Add("remark", remark);
+                jsonObject.Add("data", data);
+                var jsonStr = JsonConvert.SerializeObject(jsonObject);
+                var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
+                string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
+            }
+            catch (Exception er)
+            {
+                log.Info("交易业务消息发送异常:" + er.Message);
+            }
+        }
+
     }
 }

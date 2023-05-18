@@ -417,17 +417,17 @@ namespace WebManage.Controllers
                         if (!string.IsNullOrEmpty(student.OpenId) && !string.IsNullOrEmpty(toaken))
                         {
                             //SendMsgHomeWork(student.OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
-                            SendMsgHomeWork2(student.OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
+                            SendMsgHomeWork2(student.OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
                         }
                         if (!string.IsNullOrEmpty(student.Elder_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
                             //SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
-                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
+                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
                         }
                         if (!string.IsNullOrEmpty(student.Elder2_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
                             //SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
-                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
+                            SendMsgHomeWork2(student.Elder_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, student.Student_Name, model.Id);
                         }
                     }
                     //班课
@@ -466,7 +466,7 @@ namespace WebManage.Controllers
                             {
                                 //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                                 var stuName = ovtStudent.Find(cc => cc.OpenId == iv).Student_Name;
-                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
                             }
                         });
                         //推送给家长1
@@ -476,7 +476,7 @@ namespace WebManage.Controllers
                             {
                                 //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                                 var stuName = ovtElder.Find(cc => cc.Elder_OpenId == iv).Student_Name;
-                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
                             }
                         });
                         //推送给家长2
@@ -486,7 +486,7 @@ namespace WebManage.Controllers
                             {
                                 //SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                                 var stuName = ovtElder2.Find(cc => cc.Elder2_OpenId == iv).Student_Name;
-                                SendMsgHomeWork2(iv, _wxConfig.TemplateIdComend, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
+                                SendMsgHomeWork2(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"),homework, stuName, model.Id);
                             }
                         });
                     }
@@ -669,7 +669,7 @@ namespace WebManage.Controllers
             keyword2.Add("value", wkTitle);
             keyword2.Add("color", "#173177");
             Dictionary<string, string> keyword3 = new Dictionary<string, string>();
-            keyword3.Add("value", "任课老师");
+            keyword3.Add("value", courseWork);
             keyword3.Add("color", "#173177");
             Dictionary<string, string> remark = new Dictionary<string, string>();
             remark.Add("value", "课程作业:" + courseWork);

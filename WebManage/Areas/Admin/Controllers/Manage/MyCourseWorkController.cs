@@ -174,15 +174,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     if (model.StudentUid > 0) {
                         var student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(u => u.StudentUid==model.StudentUid).First();
                         if (!string.IsNullOrEmpty(student.OpenId)&&!string.IsNullOrEmpty(toaken)) {
-                            SendMsgHomeWork(student.OpenId, _wxConfig.TemplateId,toaken,"课程作业提醒", model.Work_Title,"", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork(student.OpenId, _wxConfig.TemplateHomeWork,toaken,"课程作业提醒", model.Work_Title,"", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                         }
                         if (!string.IsNullOrEmpty(student.Elder_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
-                            SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                         }
                         if (!string.IsNullOrEmpty(student.Elder2_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
-                            SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                         }
                     }
                     //班课
@@ -212,7 +212,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                             }
                         });
                         //推送给家长1
@@ -220,7 +220,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                             }
                         });
                         //推送给家长2
@@ -228,7 +228,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateId, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
                             }
                         });
                     }
@@ -440,7 +440,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 keyword2.Add("value", wkTitle);
                 keyword2.Add("color", "#173177");
                 Dictionary<string, string> keyword3 = new Dictionary<string, string>();
-                keyword3.Add("value", "任课老师");
+                keyword3.Add("value",wkTeacher);
                 keyword3.Add("color", "#173177");
                 Dictionary<string, string> remark = new Dictionary<string, string>();
                 remark.Add("value", "点评内容:" + commend);
@@ -485,6 +485,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 Dictionary<string, string> keyword2 = new Dictionary<string, string>();
                 keyword2.Add("value", wkTime);
                 keyword2.Add("color", "#173177");
+                Dictionary<string, string> keyword3 = new Dictionary<string, string>();
+                keyword3.Add("value", homeWork);
+                keyword3.Add("color", "#173177");
                 Dictionary<string, string> remark = new Dictionary<string, string>();
                 remark.Add("value", "布置作业:" + homeWork);
                 remark.Add("color", "#173177");
@@ -492,6 +495,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 data.Add("first", first);
                 data.Add("keyword1", keyword1);
                 data.Add("keyword2", keyword2);
+                data.Add("keyword3", keyword3);
                 data.Add("remark", remark);
                 jsonObject.Add("data", data);
                 var jsonStr = JsonConvert.SerializeObject(jsonObject);

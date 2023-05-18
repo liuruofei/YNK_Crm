@@ -827,7 +827,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             .WhereIF(!string.IsNullOrEmpty(title)," charindex(@title,contracU.Student_Name)>0 or charindex(@title,contracU.Student_Phone)>0").AddParameters(new { title = title })
             .WhereIF(ccUse != null && ccUse.Role_Name == "顾问", "contracU.CC_Uid=@CCuid").AddParameters(new { CCuid = userId })
             .Select<C_ContracUserModel>(@"contracU.*,cc.User_Name as CC_UserName,cr.User_Name as CR_UserName,
-                camp.CampusName").OrderBy("contracU.CreateTime desc").ToPageList(page, limit, ref total);
+                camp.CampusName,(select sum(FilAmount) from C_Collection cl  where cl.StudentUid=contracU.StudentUid and PayStatus=1 and cl.ArrearageStatus<1 and Amount>0) as Recharge,(select sum(BackAmount) from C_BackAmountRecord br where br.StudentUid=contracU.StudentUid) as BackAmount").OrderBy("contracU.CreateTime desc").ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;
             pageModel.count = total;

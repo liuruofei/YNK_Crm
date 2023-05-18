@@ -158,5 +158,13 @@ namespace WebManage.Models.Res
         /// 考试密码
         /// </summary>
         public string ExamPassword { get; set; }
+        /// <summary>
+        /// 充值
+        /// </summary>
+        public decimal Recharge { get; set; }
+        /// <summary>
+        /// 退款金额
+        /// </summary>
+        public decimal BackAmount { get; set; }
     }
 }

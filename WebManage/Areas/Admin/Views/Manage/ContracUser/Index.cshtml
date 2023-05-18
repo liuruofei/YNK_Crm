@@ -145,13 +145,17 @@
             {
                 field: 'Student_Name', title: '学生名称', fixed: 'left', sort: true, templet: function (d) {
                     return d.Student_Name;
-                    //return "<div id='boxCounrseDetail" + d.StudentUid + "' onmouseover=\"showCourseDetailDiv(" + d.StudentUid + ");\" onmouseleave='closeTips();' style='width:60px'>" + d.Student_Name + "</div>";
                 }
             },
             { field: 'Sex', title: '性别', sort: true,width:50 },
             { field: 'Grade', title: '年级', sort: true },
             { field: 'Student_Phone', title: '手机', sort: true },
             { field: 'Amount', title: '余额', sort: true, width: 100 },
+            {
+                field: 'Recharge', title: '总充值', sort: true, templet: function (d) {
+                    return d.Recharge - d.BackAmount;
+                }
+            },
             {
                 field: 'OpenId', title: '学生公众号', sort: true, width: 120, templet: function (d) {
                     return (d.OpenId != "" && d.OpenId != null ? "<span style='color: white;background-color:green;padding:3px;'>已绑定</span>" : "未绑定");

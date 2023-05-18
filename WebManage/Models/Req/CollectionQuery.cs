@@ -24,5 +24,7 @@ namespace WebManage.Models.Req
         /// 收款方式
         /// </summary>
         public int payMothed { get; set; }
+
+        public int arrearageStatus { get; set; }
     }
 }

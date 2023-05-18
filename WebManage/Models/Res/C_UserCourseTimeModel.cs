@@ -92,5 +92,8 @@ namespace WebManage.Models.Res
         /// 单价
         /// </summary>
         public decimal UnitPrice { get; set; }
+
+        //折扣
+        public decimal ContraRate { get; set; }
     }
 }
