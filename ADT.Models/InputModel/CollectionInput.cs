@@ -62,6 +62,10 @@ namespace ADT.Models.InputModel
         /// </summary>
         public int PayStatus { get; set; }
 
+        public string BusinesTitle { get; set; }
+
+        public string BusinesCotent { get; set; }
+
         /// <summary>
         /// 更新者
         /// </summary>

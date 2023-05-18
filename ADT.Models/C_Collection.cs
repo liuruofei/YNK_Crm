@@ -99,5 +99,15 @@ namespace ADT.Models
         /// 是否垫付
         /// </summary>
         public int ArrearageStatus { get; set; }
+
+        /// <summary>
+        /// 业务标题
+        /// </summary>
+        public string BusinesTitle { get; set; }
+
+        /// <summary>
+        /// 业务内容
+        /// </summary>
+        public string BusinesCotent { get; set; }
     }
 }
