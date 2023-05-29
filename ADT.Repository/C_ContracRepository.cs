@@ -2141,7 +2141,7 @@ namespace ADT.Repository
                             collection.AuditUid = uid;
                             //记录扣除余额
                             if (collection.DeductAmount > 0) {
-                                collection.koudeductAmount = oldUserAmount - stduentU.Amount - collection.AddedAmount;
+                                collection.koudeductAmount = oldUserAmount - stduentU.Amount;
                             }
                             db.Updateable<C_Collection>(collection).ExecuteCommand();
                             db.Updateable<C_Contrac>(contrac).ExecuteCommand();
@@ -2199,6 +2199,8 @@ namespace ADT.Repository
                         collection.StudentName = input.StudentName;
                         collection.DeductAmount = input.DeductAmount;
                         collection.AddedAmount = input.AddedAmount;
+                        collection.BusinesTitle = input.BusinesTitle;
+                        collection.BusinesCotent = input.BusinesCotent;
                         collection.PayStatus = 0;
                         if (!string.IsNullOrEmpty(input.RelationShip_Contras))
                         {
@@ -2252,6 +2254,8 @@ namespace ADT.Repository
                         collection.StudentUid = input.StudentUid;
                         collection.PayMothed = input.PayMothed;
                         collection.DeductAmount = input.DeductAmount;
+                        collection.BusinesTitle = input.BusinesTitle;
+                        collection.BusinesCotent = input.BusinesCotent;
                         var useAddedAny = db.Queryable<C_Collection>().Where(n => n.RelationShip_Contras == input.RelationShip_Contras && n.AddedAmount > 0).First();
                         //额外优惠未用，则可继续使用
                         if (useAddedAny == null)
