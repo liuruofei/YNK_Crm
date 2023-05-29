@@ -61,8 +61,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             PageList<CourseWorkModel> pageModel = new PageList<CourseWorkModel>();
             var list = _currencyService.DbAccess().Queryable<C_Course_Work, C_Campus, sys_user,C_Contrac_User>((c, ca, ta,u) => new Object[] { JoinType.Left, c.CampusId == ca.CampusId, JoinType.Left, c.TeacherUid == ta.User_ID, JoinType.Left,c.StudentUid==u.StudentUid })
                 .Where(c => c.CampusId == Convert.ToInt32(campusId)&&c.StudyMode!=3&&c.StudyMode!=7&& c.StudyMode!=5 && c.StudyMode != 6)
-                .WhereIF(workStutas>0,c=>!string.IsNullOrEmpty(c.Comment))
-                .WhereIF(workStutas <1,c =>string.IsNullOrEmpty(c.Comment))
+                .WhereIF(workStutas>0,c=>!string.IsNullOrEmpty(c.Comment)&&!string.IsNullOrEmpty(c.CourseWork))
+                .WhereIF(workStutas <1,c =>(string.IsNullOrEmpty(c.Comment)||string.IsNullOrEmpty(c.CourseWork)))
                 .WhereIF(studymode>0, c => c.StudyMode== studymode)
                 .WhereIF(teacher!=null, c => c.TeacherUid == userId)
                 .WhereIF(startTime.HasValue,c=>c.AT_Date>=startTime.Value)
@@ -83,7 +83,8 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     Comment_Time=c.Comment_Time,
                     CreateTime = c.CreateTime,
                     CreateUid = c.CreateUid,
-                    Work_Stutas=c.Work_Stutas
+                    Work_Stutas=c.Work_Stutas,
+                    CourseWork=c.CourseWork
                 }).ToPageList(page, limit, ref total);
             pageModel.msg = "获取成功";
             pageModel.code = 0;
@@ -163,7 +164,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (work.Work_Stutas != 1)
                             {
-                                if (valiteTime.AddHours(24) > DateTime.Now)
+                                if (valiteTime.AddHours(24) > DateTime.Now && !string.IsNullOrEmpty(vmodel.Comment))
                                 {
                                     work.Work_Stutas = 1;
                                 }

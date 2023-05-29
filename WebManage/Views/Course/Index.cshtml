@@ -48,9 +48,7 @@
                         }
                     },
                     {
-                        field: 'Work_Title', title: '课程', sort: true, width: 320, align: "center", templete: function (d) {
-                            return d.Work_Title;
-                        }
+                        field: 'Work_Title', title: '课程', sort: true, width: 680, align: "center"
                     },
                     { field: 'TeacherName', title: '教师', align: "center", sort: true },
                     { field: 'RoomName', title: '教室', align: "center", sort: true },
@@ -62,7 +60,7 @@
                     }
                     //设置单元格颜色
                     res.data.forEach(function (item, index) {
-                        var itemEndTime = new Date(dateFtt("yyyy-MM-dd", item.AT_Date) + ' '+ item.EndTime);
+                        var itemEndTime = new Date(dateFtt("yyyy-MM-dd", item.AT_Date.replace(/-/g,'/')) + ' ' + item.EndTime);
                         var nowTime = new Date();
                         if (itemEndTime < nowTime) {
                             //当前index的行

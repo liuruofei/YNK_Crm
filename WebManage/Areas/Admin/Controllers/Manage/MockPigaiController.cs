@@ -308,13 +308,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         }
 
         //更新分数
-        public IActionResult SaveInfo(C_Course_Work vmodel)
+        public IActionResult SaveInfo(CourseWorkModel vmodel)
         {
             int code = 0;
             try
             {
                 if (vmodel.Id > 0)
                 {
+                    if (string.IsNullOrEmpty(vmodel.PaperCode))
+                        vmodel.PaperId=0;
                     var result = _currencyService.DbAccess().Updateable<C_Course_Work>().SetColumns(n => new C_Course_Work { Score = vmodel.Score,MockLevel=vmodel.MockLevel,PaperId=vmodel.PaperId }).Where(n => n.Id == vmodel.Id).ExecuteCommand();
                     if (result > 0)
                     {

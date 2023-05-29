@@ -191,7 +191,7 @@
                                 backColor = '#03a9f4';
                             }
                             else {
-                                if (result[i].Work_Stutas == 1) {
+                                if (result[i].Work_Stutas == 1 && result[i].CourseWork != ''&& result[i].CourseWork!=null) {
                                     backColor = '#8b9825';
                                 }
                             }
@@ -309,7 +309,7 @@
                                 return "教师会议";
                             }
                             else {
-                                return d.Work_Stutas > 0 ? " <span style=' background-color:#6ab36a;color: white;'>已完成</span>" : "未完成";
+                                return d.Work_Stutas > 0 &&d.CourseWork!=null &&d.CourseWork!=''? " <span style=' background-color:#6ab36a;color: white;'>已完成</span>" : "未完成";
                             }
                         }
                     },
