@@ -179,15 +179,15 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     if (model.StudentUid > 0) {
                         var student = _currencyService.DbAccess().Queryable<C_Contrac_User>().Where(u => u.StudentUid==model.StudentUid).First();
                         if (!string.IsNullOrEmpty(student.OpenId)&&!string.IsNullOrEmpty(toaken)) {
-                            SendMsgHomeWork(student.OpenId, _wxConfig.TemplateHomeWork,toaken,"课程作业提醒", model.Work_Title,"", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork(student.OpenId, _wxConfig.TemplateHomeWork,toaken,"课程作业提醒", model.Work_Title,"", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork,model.Id);
                         }
                         if (!string.IsNullOrEmpty(student.Elder_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
-                            SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork(student.Elder_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, model.Id);
                         }
                         if (!string.IsNullOrEmpty(student.Elder2_OpenId) && !string.IsNullOrEmpty(toaken))
                         {
-                            SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                            SendMsgHomeWork(student.Elder2_OpenId, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, model.Id);
                         }
                     }
                     //班课
@@ -217,7 +217,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, model.Id);
                             }
                         });
                         //推送给家长1
@@ -225,7 +225,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, model.Id);
                             }
                         });
                         //推送给家长2
@@ -233,7 +233,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                         {
                             if (!string.IsNullOrEmpty(toaken) && !string.IsNullOrEmpty(model.CourseWork))
                             {
-                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork);
+                                SendMsgHomeWork(iv, _wxConfig.TemplateHomeWork, toaken, "课程作业提醒", model.Work_Title, "", model.AT_Date.ToString("yyyy-MM-dd"), vmodel.CourseWork, model.Id);
                             }
                         });
                     }
@@ -473,7 +473,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         }
 
         //发送家庭作业
-        public void SendMsgHomeWork(string openId, string templateId, string wxaccessToken, string msg, string wkTitle, string wkTeacher, string wkTime, string homeWork)
+        public void SendMsgHomeWork(string openId, string templateId, string wxaccessToken, string msg, string wkTitle, string wkTeacher, string wkTime, string homeWork, int wkId)
         {
             try
             {
@@ -503,6 +503,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                 data.Add("keyword3", keyword3);
                 data.Add("remark", remark);
                 jsonObject.Add("data", data);
+                jsonObject.Add("url", "http://crm.younengkao.com/WxTemplateChild/Zuoye?wkId=" + wkId);//设置链接
                 var jsonStr = JsonConvert.SerializeObject(jsonObject);
                 var api = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=" + wxaccessToken;
                 string content = HttpHelper.HttpPost(api, jsonStr, "application/json");
@@ -512,7 +513,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     RedisLock.KeyDelete("wxAccessToken", _redsconfig.RedisCon);
                 }
                 toaken = GetWXToken();
-                SendMsgHomeWork(openId, templateId,toaken, msg, wkTitle, wkTeacher, wkTime, homeWork);
+                SendMsgHomeWork(openId, templateId,toaken, msg, wkTitle, wkTeacher, wkTime, homeWork, wkId);
             }
         }
 

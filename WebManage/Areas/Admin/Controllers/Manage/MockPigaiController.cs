@@ -175,7 +175,6 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         public virtual IActionResult ExportPlan(string title,int studymode,int subjectId, int projectId, int unitId, DateTime? startTime = null, DateTime? endTime = null)
         {
             var userId = this.User.Claims.FirstOrDefault(c => c.Type == "ID")?.Value;
-            int total = 0;
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             sys_user teacher = _currencyService.DbAccess().Queryable<sys_user, sys_userrole, sys_role>((u, ur, r) => new Object[] { JoinType.Left, u.User_ID == ur.UserRole_UserID, JoinType.Left, ur.UserRole_RoleID == r.Role_ID })
                 .Where((u, ur, r) => u.User_ID == userId && r.Role_Name.Contains("教师")).First();
