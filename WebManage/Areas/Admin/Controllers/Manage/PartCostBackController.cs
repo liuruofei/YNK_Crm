@@ -44,51 +44,61 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             int total = 0;
             PageList<C_UserCourseTimeModel> pageModel = new PageList<C_UserCourseTimeModel>();
             List<C_UserCourseTimeModel> projectTimeList = new List<C_UserCourseTimeModel>();
-            if (!string.IsNullOrEmpty(childContrcNo)) {
-                var model = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(ite => ite.Contra_ChildNo.Equals(childContrcNo)).First();
-                projectTimeList = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Subject, C_Project, C_Class,C_Contrac_User,C_Contrac_Child>((time, sub, pro, cla,u,chil) => new object[] {
-           JoinType.Left,time.SubjectId==sub.SubjectId,JoinType.Left,time.ProjectId==pro.ProjectId,JoinType.Left,time.ClassId==cla.ClassId,JoinType.Left,time.StudentUid==u.StudentUid,JoinType.Left,time.Contra_ChildNo==chil.Contra_ChildNo
-         }).Where((time, sub, pro,cla,u) =>(time.Contra_ChildNo == childContrcNo||u.Student_Name==childContrcNo)).Select<C_UserCourseTimeModel>((time, sub, pro, cla,u,chil) => new C_UserCourseTimeModel
+            try
+            {
+                if (!string.IsNullOrEmpty(childContrcNo))
+                {
+                    var model = _currencyService.DbAccess().Queryable<C_Contrac_Child>().Where(ite => ite.Contra_ChildNo.Equals(childContrcNo)).First();
+                    projectTimeList = _currencyService.DbAccess().Queryable<C_User_CourseTime, C_Subject, C_Project, C_Class, C_Contrac_User, C_Contrac_Child>((tm, sub, pro, cla, u, chil) => new object[] {
+           JoinType.Left,tm.SubjectId==sub.SubjectId,JoinType.Left,tm.ProjectId==pro.ProjectId,JoinType.Left,tm.ClassId==cla.ClassId,JoinType.Left,tm.StudentUid==u.StudentUid,JoinType.Left,tm.Contra_ChildNo==chil.Contra_ChildNo
+         }).Where((tm, sub, pro, cla, u) => (tm.Contra_ChildNo == childContrcNo || u.Student_Name == childContrcNo)).Select<C_UserCourseTimeModel>((tm, sub, pro, cla, u, chil) => new C_UserCourseTimeModel
          {
-             Id = time.Id,
-             Contra_ChildNo = time.Contra_ChildNo,
-             ProjectId = time.ProjectId,
-             SubjectId = time.SubjectId,
+             Id = tm.Id,
+             Contra_ChildNo = tm.Contra_ChildNo,
+             ProjectId = tm.ProjectId,
+             SubjectId = tm.SubjectId,
              ProjectName = pro.ProjectName,
              SubjectName = sub.SubjectName,
-             ClassId = time.ClassId,
+             ClassId = tm.ClassId,
              Class_Name = cla.Class_Name,
-             Course_Time = time.Course_Time,
-             Course_UseTime = time.Course_UseTime,
-             Class_Course_Time = time.Class_Course_Time,
-             StudentUid = time.StudentUid,
-             Level = time.Level,
+             Course_Time = tm.Course_Time,
+             Course_UseTime = tm.Course_UseTime,
+             Class_Course_Time = tm.Class_Course_Time,
+             StudentUid = tm.StudentUid,
+             Level = tm.Level,
              Lvel1Price = sub.Lvel1Price,
              Lvel2Price = sub.Lvel2Price,
              Lvel3Price = sub.Lvel3Price,
              Lvel4Price = sub.Lvel4Price,
-             ContraRate=chil.ContraRate
-           
+             ContraRate = chil.ContraRate,
+             Added_Amount = chil.Added_Amount,
+             YhBackTimeSumcount = SqlFunc.Subqueryable<C_User_CourseTime>().Where(pm => pm.Contra_ChildNo == tm.Contra_ChildNo).Sum(pm=>pm.Course_Time)
+
          }).ToPageList(page, limit, ref total);
-                projectTimeList.ForEach(em => {
-                    switch (em.Level)
-                    {
-                        case 1:
-                            em.UnitPrice = em.Lvel1Price * (em.ContraRate / 10);
-                            break;
-                        case 2:
-                            em.UnitPrice = em.Lvel2Price * (em.ContraRate / 10);
-                            break;
-                        case 3:
-                            em.UnitPrice = em.Lvel3Price * (em.ContraRate / 10);
-                            break;
-                        case 4:
-                            em.UnitPrice = em.Lvel4Price * (em.ContraRate / 10);
-                            break;
-                    }
+                    projectTimeList.ForEach(em => {
+                        switch (em.Level)
+                        {
+                            case 1:
+                                em.UnitPrice = em.Lvel1Price * (em.ContraRate / 10);
+                                break;
+                            case 2:
+                                em.UnitPrice = em.Lvel2Price * (em.ContraRate / 10);
+                                break;
+                            case 3:
+                                em.UnitPrice = em.Lvel3Price * (em.ContraRate / 10);
+                                break;
+                            case 4:
+                                em.UnitPrice = em.Lvel4Price * (em.ContraRate / 10);
+                                break;
+                        };
+                        if(em.YhBackTimeSumcount > 0)
+                          em.UnitBackAddAmount = Math.Round(em.Added_Amount /Convert.ToDecimal(em.YhBackTimeSumcount));
 
-
-                });
+                    });
+                }
+            }
+            catch (Exception er) { 
+            
             }
             pageModel.msg = "获取成功";
             pageModel.code = 0;

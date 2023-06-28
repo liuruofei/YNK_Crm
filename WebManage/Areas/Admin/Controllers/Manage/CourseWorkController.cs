@@ -498,7 +498,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         /// <param name="subjectId"></param>
         /// <param name="projectId"></param>
         /// <returns></returns>
-        public IActionResult QueryWorkSource(string startStr, string endStr, string userName, int subjectId, int projectId,int studyMode)
+        public IActionResult QueryWorkSource(string startStr, string endStr, string userName, int subjectId, int projectId,int studyMode,int interLine)
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult reg = new ResResult();
@@ -537,6 +537,9 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             if (studyMode > 0)
             {
                 sql.Append(" and wk.StudyMode=" + studyMode);
+            }
+            if (interLine > 0) {
+                sql.Append(" and charindex('线上',rm.RoomName)>0");
             }
             sql.Append(" and wk.CampusId="+campusId);
             sql.Append(")");
@@ -707,7 +710,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
         }
 
 
-        public IActionResult QueryWorkSource2(string startStr, string endStr, string userName, int subjectId, int projectId,int studyMode, int page = 1, int limit = 10)
+        public IActionResult QueryWorkSource2(string startStr, string endStr, string userName, int subjectId, int projectId,int studyMode,int interLine,int page = 1, int limit = 10)
         {
             var campusId = this.User.Claims.FirstOrDefault(c => c.Type == "CampusId")?.Value;
             ResResult reg = new ResResult();
@@ -747,6 +750,10 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             if (studyMode > 0)
             {
                 sql.Append(" and wk.StudyMode=" + studyMode);
+            }
+            if (interLine > 0)
+            {
+                sql.Append(" and charindex('线上',rm.RoomName)>0");
             }
             sql.Append(" and wk.CampusId=" + campusId);
             sql.Append(")");

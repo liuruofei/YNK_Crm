@@ -95,5 +95,23 @@ namespace WebManage.Models.Res
 
         //折扣
         public decimal ContraRate { get; set; }
+
+
+
+        /// <summary>
+        /// 当前子合同下的总课时数量
+        /// </summary>
+        public float YhBackTimeSumcount { get; set; }
+
+        /// <summary>
+        /// 额外优惠金额
+        /// </summary>
+        public decimal Added_Amount { get; set; }
+
+
+        /// <summary>
+        /// 额外优惠可退平均金额=(额外优惠金额/总Course_Time课时)
+        /// </summary>
+        public decimal UnitBackAddAmount { get; set; }
     }
 }

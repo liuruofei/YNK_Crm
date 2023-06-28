@@ -17,7 +17,7 @@
         <label class="layui-form-label">参加会议教师</label>
         <div class="layui-input-block" style="position:relative">
             <input name="meetingUserName" class="layui-input" type="text" autocomplete="off" />
-            <div  class="searcMeeting" id="searcMeeting" style="display:none">
+            <div class="searcMeeting" id="searcMeeting" style="display:none">
                 <table style="width:100%;margin-top: 0px;" class="layui-table">
                     <tbody id="meetingUserBody"></tbody>
                 </table>
@@ -38,6 +38,7 @@
                     <option value="6">实考</option>
                     <option value="7">会议</option>
                     <option value="8">留学规划</option>
+                    <option value="9">学生请假</option>
                 </select>
             </div>
         </div>
@@ -158,7 +159,7 @@
             <select name="UnitId"></select>
         </div>
     </div>
-    <div class="layui-form-item" id="PartTa"  style="display:none">
+    <div class="layui-form-item" id="PartTa" style="display:none">
         <label class="layui-form-label">督学</label>
         <div class="layui-input-block">
             <select name="TA_Uid"></select>
@@ -168,6 +169,12 @@
         <label class="layui-form-label">房间</label>
         <div class="layui-input-block">
             <select name="RoomId"></select>
+        </div>
+    </div>
+    <div class="layui-form-item" id="remarkPart" style="display:none">
+        <label class="layui-form-label">备注原因</label>
+        <div class="layui-input-block">
+           <textarea id="remarkRelex" style="width:100%;height:150px"></textarea>
         </div>
     </div>
     <div class="layui-form-item positionbottomtop"></div>
@@ -474,6 +481,25 @@
                             $("#lineSpanTimeRange").text("上课时段");
                             $("#spanStudentName").text("上课学员");
                         }
+                        else if (r.StudyMode == 9) {
+                            $("input[name='mockTitle']").val(r.Work_Title);
+                            $("#ClassPart").css("display", "none");
+                            $("#OneOfPart").css("display", "none");
+                            $("#PresentPart").css("display", "none");
+                            $("#PreSendPartUser").css("display", "none");
+                            $("#teacherPart").css("display", "none");
+                            $("#PartProject").css("display", "none");
+                            $("#ListeningPart").show();
+                            $("#ListenSubPart").css("display", "none");
+                            $("#spanMockTitle").text("请假标题");
+                            $("#lineSpanDate").text("请假日期");
+                            $("#lineSpanTimeRange").text("请假时段");
+                            $("#spanStudentName").text("请假学员");
+                            $("#mockPart").show();
+                            $("#roomItem").css("display", "none");
+                            $("#remarkPart").show();
+                            $("#remarkRelex").val(r.Comment);
+                        }
                         if (r != null && r.AT_Date != undefined) {
                             $("input[name='AT_Date']").val(dateFtt("yyyy-MM-dd", r.AT_Date.replace(/-/g,'/')));
                         }
@@ -700,6 +726,36 @@
                         return false;
                     }
                 }
+                else if (data.field.StudyMode == 9) {
+                    data.field.arrMockUser = [];
+                    var fmtVal = $("#shikaoUsers").val().replaceAll("，", ",");
+                    var shikaouserNames = fmtVal.split(",");
+                    if (shikaouserNames.length > 0) {
+                        shikaouserNames.forEach(item => {
+                            if ($.inArray(item, data.field.arrMockUser) == -1) {
+                                data.field.arrMockUser.push(item);
+                            }
+                        });
+                    }
+                    data.field.Work_Title = $("input[name='mockTitle']").val();
+                    data.field.Comment=$("#remarkRelex").val();
+                    if (data.field.Work_Title == "") {
+                        layer.msg("请假标题不能为空");
+                        return false;
+                    }
+                    if ($("input[name='Id']").val() < 1) {
+                        if ($("#shikaoUsers").val() == "") {
+                            layer.msg("请假学员不能为空");
+                            return false;
+                        }
+                    }
+                    else {
+                        if (data.field.ListeningName == "") {
+                            layer.msg("请假学员不能为空");
+                            return false;
+                        }
+                    }
+                }
                 adminForm.Save({
                     url: KeyId ? '@Url.Action("SaveCourseWork")' : '@Url.Action("SaveCourseWork")',
                     data: data.field,
@@ -867,6 +923,25 @@
                     $("#PresentPart").css("display", "none");
                     $("#PreSendPartUser").css("display", "none");
                     $("#meetingPart").css("display", "none");
+                }
+                else if (data.value == 9) {
+                    $("#ClassPart").css("display", "none");
+                    $("#OneOfPart").css("display", "none");
+                    $("#teacherPart").css("display", "none");
+                    $("#PartProject").css("display", "none");
+                    $("#ListeningPart").show();
+                    $("#ListenSubPart").css("display", "none");
+                    $("#spanMockTitle").text("请假标题");
+                    $("#lineSpanDate").text("请假日期");
+                    $("#lineSpanTimeRange").text("请假时段");
+                    $("#spanStudentName").text("请假学员");
+                    $("#mockPart").show();
+                    $("#PartUnit").css("display", "none");
+                    $("#moreShikaoUser").css("display", "block");
+                    $("#PresentPart").css("display", "none");
+                    $("#PreSendPartUser").css("display", "none");
+                    $("#meetingPart").css("display", "none");
+                    $("#remarkPart").show();
                 }
             });
             form.on('select(ListenSubject)', function (data) {
@@ -1089,7 +1164,7 @@
             $("input[name='ListeningName']").val(vmodel.Student_Name);
             $("#searcListen").css("display", "none");
             var stdyModel = $("select[name='StudyMode']").val();
-            if (stdyModel == 5||stdyModel == 6) {
+            if (stdyModel == 5 || stdyModel == 6 || stdyModel == 9) {
                 $("#moreShikaoUser").css("display", "block");
                 if ($("#shikaoUsers").text() == "") {
                     $("#shikaoUsers").append(vmodel.Student_Name);

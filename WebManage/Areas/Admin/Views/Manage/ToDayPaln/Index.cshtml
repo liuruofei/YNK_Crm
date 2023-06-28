@@ -50,6 +50,13 @@
             color: white;
             font-size: 12px;
         }
+        .planRelex {
+            border-color: rgb(33, 150, 243);
+            background-color: #03a9f4;
+            box-shadow: 0px 0px 0px 1px #fff;
+            color: white;
+            font-size: 12px;
+        }
     </style>
 }
 @section js{
@@ -189,6 +196,9 @@
                                                     if (result[i].Ten_Twelve_StudyMode == 6) {
                                                         classStr = "planPartshik";
                                                     }
+                                                    if (result[i].Ten_Twelve_StudyMode == 9) {
+                                                        classStr = "planRelex";
+                                                    }
                                                     trStr += "<td ><div class='" + classStr + "'>" + ((result[i].Ten_Twelve_Id < 1 || result[i].Ten_Twelve_Reversion == true)? (result[i].Ten_Twelve_OlockTitle != null ? result[i].Ten_Twelve_OlockTitle : '') : '') + "</div></td>";
                                                 }
                                                 if (j == 2) {
@@ -219,6 +229,9 @@
                                                     }
                                                     if (result[i].Thirteen_Fifteen_StudyMode == 6) {
                                                         classStr = "planPartshik";
+                                                    }
+                                                    if (result[i].Thirteen_Fifteen_StudyMode == 9) {
+                                                        classStr = "planRelex";
                                                     }
                                                     trStr += "<td ><div class='" + classStr + "'>" + ((result[i].Thirteen_Fifteen_Id < 1 || result[i].Thirteen_Fifteen_Reversion == true) ? (result[i].Thirteen_Fifteen_OlockTitle != null ? result[i].Thirteen_Fifteen_OlockTitle : '') : '') + "</div></td>";
                                                 }
@@ -251,6 +264,9 @@
                                                     if (result[i].Fifteen_Seventeen_StudyMode == 6) {
                                                         classStr = "planPartshik";
                                                     }
+                                                    if (result[i].Fifteen_Seventeen_StudyMode == 9) {
+                                                        classStr = "planRelex";
+                                                    }
                                                     trStr += "<td ><div class='" + classStr + "'>" + ((result[i].Fifteen_Seventeen_Id < 1||result[i].Fifteen_Seventeen_Reversion ==true) ? (result[i].Fifteen_Seventeen_OlockTitle != null ? result[i].Fifteen_Seventeen_OlockTitle:''):"") + "</div></td>";
                                                 }
                                                 if (j == 2) {
@@ -281,6 +297,9 @@
                                                     }
                                                     if (result[i].Seventeen_Nineteen_StudyMode == 6) {
                                                         classStr = "planPartshik";
+                                                    }
+                                                    if (result[i].Seventeen_Nineteen_StudyMode == 9) {
+                                                        classStr = "planRelex";
                                                     }
                                                     trStr += "<td ><div class='" + classStr + "'>" + ((result[i].Seventeen_Nineteen_Id < 1 || result[i].Seventeen_Nineteen_Reversion == true) ? (result[i].Seventeen_Nineteen_OlockTitle != null ? result[i].Seventeen_Nineteen_OlockTitle : '') : '') + "</div></td>";
                                                 }
@@ -313,6 +332,9 @@
                                                     if (result[i].Nineteen_TwentyOne_StudyMode == 6) {
                                                         classStr = "planPartshik";
                                                     }
+                                                    if (result[i].Nineteen_TwentyOne_StudyMode ==9) {
+                                                        classStr = "planRelex";
+                                                    }
                                                     trStr += "<td ><div class='" + classStr + "'>" + ((result[i].Nineteen_TwentyOne_Id < 1 || result[i].Nineteen_TwentyOne_Reversion == true) ? (result[i].Nineteen_TwentyOne_OlockTitle != null ? result[i].Nineteen_TwentyOne_OlockTitle : '') : "") + "</div></td>";
                                                 }
                                                 if (j == 2) {
@@ -344,6 +366,9 @@
                                                     }
                                                     if (result[i].TwentyOne_TwentyTree_StudyMode == 6) {
                                                         classStr = "planPartshik";
+                                                    }
+                                                    if (result[i].TwentyOne_TwentyTree_StudyMode == 9) {
+                                                        classStr = "planRelex";
                                                     }
                                                     trStr += "<td ><div class='" + classStr + "'>" + ((result[i].TwentyOne_TwentyTree_Id < 1 || result[i].TwentyOne_TwentyTree_Reversion == true) ? (result[i].TwentyOne_TwentyTree_OlockTitle != null ? result[i].TwentyOne_TwentyTree_OlockTitle : '') : "") + "</div></td>";
                                                 }

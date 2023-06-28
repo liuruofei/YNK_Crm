@@ -242,7 +242,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
                     var colle = _currencyService.DbAccess().Queryable<C_Collection>().Where(v => v.Id == vmodel.CollgeId).First();
                     var repaymentTotal = _currencyService.DbAccess().Queryable<C_RepaymentRecord>().Where(v=>v.CollgeId==vmodel.CollgeId).Sum(v => v.RepaymentAmount);
                     result =_currencyService.DbAccess().Insertable<C_RepaymentRecord>(vmodel).ExecuteCommand();
-                    if (result > 0&& repaymentTotal+vmodel.RepaymentAmount== colle.FilAmount) {
+                    if (result > 0&& repaymentTotal+vmodel.RepaymentAmount== colle.FilAmount-colle.AddedAmount-colle.DeductAmount) {
                         _currencyService.DbAccess().Updateable<C_Collection>().SetColumns(v => new C_Collection{ArrearageStatus=0}).Where(v=>v.Id==vmodel.CollgeId).ExecuteCommand();
                     }
                 }

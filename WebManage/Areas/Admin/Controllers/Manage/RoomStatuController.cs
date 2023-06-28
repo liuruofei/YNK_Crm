@@ -102,7 +102,7 @@ namespace WebManage.Areas.Admin.Controllers.Manage
             }
             string sql = @"(select wk.*,contracU.Student_Name,ta.User_Name as TaUserName,tc.User_Name as TeacherName,rm.RoomName from C_Course_Work wk  left join C_Contrac_User contracU on wk.StudentUid=contracU.StudentUid
                 left join C_Class cl on wk.ClasssId=cl.ClassId  left join Sys_User tc on wk.TeacherUid=tc.User_ID  left join Sys_User ta on wk.TA_Uid=ta.User_ID
-                left join C_Room rm on wk.RoomId=rm.Id where wk.StudyMode<>3  and wk.StudyMode<>5 and wk.StudyMode<>6";
+                left join C_Room rm on wk.RoomId=rm.Id where wk.StudyMode<>3  and wk.StudyMode<>5 and wk.StudyMode<>6 and wk.StudyMode<>9";
             if (!string.IsNullOrEmpty(startStr))
             {
                 sql += " AND wk.AT_Date>=CAST(@startStr AS date)";

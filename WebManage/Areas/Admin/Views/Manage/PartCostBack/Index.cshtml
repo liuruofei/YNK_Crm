@@ -87,7 +87,7 @@
             },
             {
                 field: 'Score', title: '退课金额', sort: true, width: 120, templet: function (d) {
-                    return "<input type='number' value='" + ((d.Course_Time - d.Course_UseTime) * d.UnitPrice) + "' unitPrice='" + d.UnitPrice+"'  name='BackAmount'  style='width:80px'/>";
+                    return "<input type='number' value='" + ((d.Course_Time - d.Course_UseTime) * (d.UnitPrice-d.UnitBackAddAmount)) + "' unitPrice='" + d.UnitPrice+"'  name='BackAmount'  style='width:80px'/>";
                 }
             },
             { align: 'center', toolbar: '#tableBar', title: '操作', width: 200 }
