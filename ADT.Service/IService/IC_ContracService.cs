@@ -41,6 +41,9 @@ namespace ADT.Service.IService
         ResResult SaveContracUser(C_Contrac_User input);
 
 
+        ResResult SaveGiftUserTime(ContracInput input);
+
+
         /// <summary>
         /// ±£¥Êøº ‘¿‡–Õ
         /// </summary>

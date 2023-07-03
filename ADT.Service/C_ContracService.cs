@@ -53,6 +53,10 @@ namespace ADT.Service
         public ResResult SaveContracUser(C_Contrac_User input) {
             return _contracRepository.SaveContracUser(input);
         }
+
+        public ResResult SaveGiftUserTime(ContracInput input) {
+            return _contracRepository.SaveGiftUserTime(input);
+        }
         /// <summary>
         /// 保存项目科目
         /// </summary>
